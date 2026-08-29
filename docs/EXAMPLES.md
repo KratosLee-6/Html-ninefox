@@ -1,6 +1,8 @@
 # Examples · 5 Real-World Scenarios
 
-> Five concrete use cases, each with a real Brief input and what the output looks like. Run them yourself with `python -m fox.cli expert`.
+> 🦊 Personal project by [@KratosLee-6](https://github.com/KratosLee-6) · MIT licensed.
+
+Five concrete use cases, each with a real Brief input and what the output looks like. Run them yourself with `python -m fox.cli expert`.
 
 ---
 

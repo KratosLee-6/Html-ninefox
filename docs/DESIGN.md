@@ -1,6 +1,8 @@
 # Design Philosophy · 设计哲学
 
-> Why Html九尾狐 exists, what problem it solves, and the methodology behind it.
+> 🦊 Personal project by [@KratosLee-6](https://github.com/KratosLee-6) · MIT licensed.
+
+Why Html九尾狐 exists, what problem it solves, and the methodology behind it.
 
 ---
 

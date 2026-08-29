@@ -1,6 +1,8 @@
 # Roadmap · 路线图
 
-> Where Html九尾狐 is going — and how you can shape the path.
+> 🦊 Personal project by [@KratosLee-6](https://github.com/KratosLee-6) · MIT licensed.
+
+Where Html九尾狐 is going — and how you can shape the path.
 
 ---
 

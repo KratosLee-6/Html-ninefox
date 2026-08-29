@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 汐构科技 (Xigou Tech)
+Copyright (c) 2026 KratosLee
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,10 @@ SOFTWARE.
 
 ## 附加说明 / Additional Notes
 
-This project is part of the **Html九尾狐 / Fox-of-Nine-Tails HTML Studio**
-open-source initiative by 汐构科技 (Xigou Tech).
+This project is a personal open-source initiative by KratosLee.
 
 The methodology "Brief + 模板 + 反馈三件套" (Brief + Templates + Feedback
 trio) is documented in `docs/DESIGN.md` and is shared openly for the community
 to build upon.
 
-For commercial licensing or enterprise support, contact: opensource@xigou.tech
+For collaboration, contact via GitHub: https://github.com/KratosLee-6

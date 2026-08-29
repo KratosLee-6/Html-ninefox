@@ -1,6 +1,8 @@
 # Architecture · 架构详解
 
-> How the 5 agents, 3 sinks, and 1 router fit together — with code-level details.
+> 🦊 Personal project by [@KratosLee-6](https://github.com/KratosLee-6) · MIT licensed.
+
+How the 5 agents, 3 sinks, and 1 router fit together — with code-level details.
 
 ---
 
@@ -133,7 +135,7 @@ Detailed layout (per-sink structure, retention rules, indexing strategy) lives i
 
 ## 🖼️ Architecture Diagrams (引用)
 
-Internal `04_架构图/` has 4 PNG diagrams (Xigou Tech internal only). For open-source, this `ARCHITECTURE.md` and the ASCII diagrams above are the source of truth.
+For open-source, this `ARCHITECTURE.md` and the ASCII diagrams above are the source of truth. (Detailed PNG diagrams are tracked separately.)
 
 ---
 
@@ -147,6 +149,28 @@ tests/
 ```
 
 Run all: `pytest tests/ -v`. CI rejects PRs that break existing tests.
+
+---
+
+## 🙏 Acknowledgments (致谢)
+
+This project wouldn't exist without these amazing open-source skills and inspirations. Many thanks to:
+
+- 🎬 **[歸藏 (op7418)](https://github.com/op7418)** — author of [guizang-ppt-skill](https://github.com/op7418/guizang-ppt-skill). The "电子杂志 × 电子墨水" style templates and `assemble_ppt.py` pipeline are the foundation of Html九尾狐's design language. Sponsors: 360 安全龙虾 · Kimi work · Cola Skill · 真格 Token Grant.
+
+- 🎨 **[花叔 (alchaincyf)](https://github.com/alchaincyf)** — author of [huashu-design](https://github.com/alchaincyf/huashu-design) ⭐ 23.4k. The brand asset protocol · anti-AI-slop philosophy · 20 design vocabularies · and 5-dimension review framework deeply inspired this project. Now MIT-licensed (since 2026-05-14).
+
+- 📊 **[tt-a1i](https://github.com/tt-a1i)** — author of [archify](https://github.com/tt-a1i/archify) ⭐ 21k. The 9-check geometry validator + 4 visual presets + showcase composition system power Html九尾狐's sequence / workflow / dataflow / lifecycle diagrams.
+
+- 🎓 **[飞书官方 (飞书AI绝活大会)](https://www.bilibili.com/video/BV1bLMX6HE7b/)** — the Feishu 飞书绝活大会 methodology (清晰 Brief + 可复用的审美模板 + 一轮轮具体反馈) is the philosophical foundation of this project.
+
+- 🔍 **[Refero](https://refero.design)** — design research inspiration library for the AI era.
+
+- 🎨 **[shadcn/ui](https://ui.shadcn.com)** — "Open Code" + "AI-Ready" philosophy inspired Html九尾狐's open-skill approach.
+
+Also thanks to the **Hermes agent ecosystem** by NousResearch for making this project possible, and to **Claude Code** by Anthropic for the development environment.
+
+If you fork this project, please retain the Acknowledgments section. 🙏
 
 ---
 

@@ -2,9 +2,11 @@
 
 > **One-line pitch (一句话定位)**: An open-source HTML creation studio where 5 AI agents + a Skill Alliance router turn a structured Brief into production-ready HTML — with 3沉淀 (sinks: brief / template / feedback libraries) that make every run smarter than the last.
 
-Html九尾狐 is the **main orchestrator** of an open HTML Skill Alliance. You write a Brief → the studio runs 5 specialized agents → you get pixel-ready HTML, with all knowledge沉淀 into reusable libraries for next time.
+|Html九尾狐 is the **main orchestrator** of an open HTML Skill Alliance. You write a Brief → the studio runs 5 specialized agents → you get pixel-ready HTML, with all knowledge沉淀 into reusable libraries for next time.
 
 > 🦊 **九尾** = 9 tails, each tail = one skill. v0.2 ships **5 real tails + 3 sinks + 1 router**.
+
+> 🦊 **Html九尾狐** is a personal open-source project by [KratosLee](https://github.com/KratosLee-6) · MIT licensed
 
 ---
 
@@ -215,19 +217,31 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for full plan.
 
 ## 📜 License (许可证)
 
-MIT © 2026 汐构科技 (Xigou Tech). See [LICENSE](LICENSE).
+MIT © 2026 KratosLee. See [LICENSE](LICENSE).
 
 ---
 
 ## 🙏 Acknowledgments (致谢)
 
-- **飞书绝活方法论 (Feishue Juehuo Methodology)** — Brief + 模板 + 反馈三件套
-- **shadcn / Lovable / V0** — README inspiration (visual + quick-start driven)
-- **Linus Torvalds** — README tone inspiration (direct, no fluff)
-- All contributors who file issues and PRs
+This project wouldn't exist without these amazing open-source skills and inspirations. Many thanks to:
 
----
+- 🎬 **[歸藏 (op7418)](https://github.com/op7418)** — author of [guizang-ppt-skill](https://github.com/op7418/guizang-ppt-skill). The "电子杂志 × 电子墨水" style templates and `assemble_ppt.py` pipeline are the foundation of Html九尾狐's design language. Sponsors: 360 安全龙虾 · Kimi work · Cola Skill · 真格 Token Grant.
+
+- 🎨 **[花叔 (alchaincyf)](https://github.com/alchaincyf)** — author of [huashu-design](https://github.com/alchaincyf/huashu-design) ⭐ 23.4k. The brand asset protocol · anti-AI-slop philosophy · 20 design vocabularies · and 5-dimension review framework deeply inspired this project. Now MIT-licensed (since 2026-05-14).
+
+- 📊 **[tt-a1i](https://github.com/tt-a1i)** — author of [archify](https://github.com/tt-a1i/archify) ⭐ 21k. The 9-check geometry validator + 4 visual presets + showcase composition system power Html九尾狐's sequence / workflow / dataflow / lifecycle diagrams.
+
+- 🎓 **[飞书官方 (飞书AI绝活大会)](https://www.bilibili.com/video/BV1bLMX6HE7b/)** — the Feishu 飞书绝活大会 methodology (清晰 Brief + 可复用的审美模板 + 一轮轮具体反馈) is the philosophical foundation of this project.
+
+- 🔍 **[Refero](https://refero.design)** — design research inspiration library for the AI era.
+
+- 🎨 **[shadcn/ui](https://ui.shadcn.com)** — "Open Code" + "AI-Ready" philosophy inspired Html九尾狐's open-skill approach.
+
+Also thanks to the **Hermes agent ecosystem** by NousResearch for making this project possible, and to **Claude Code** by Anthropic for the development environment.
+
+If you fork this project, please retain the Acknowledgments section. 🙏
+
 
 <p align="center">
-  <sub>Built with 🦊 by <a href="https://github.com/xigou-tech">汐构科技 (Xigou Tech)</a> · 2026</sub>
+  <sub>Built with 🦊 by <a href="https://github.com/KratosLee-6">KratosLee</a> · 2026</sub>
 </p>

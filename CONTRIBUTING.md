@@ -99,7 +99,7 @@ CI will reject PRs that break existing tests.
 - **GitHub Discussions** — Q&A, show & tell, ideas
 - **GitHub Issues** — bugs, feature requests
 - **Discord** — coming in v0.3
-- **Email** — opensource@xigou.tech
+- **Email** — kratoslee@users.noreply.github.com
 
 ### Code of Conduct (行为准则)
 
@@ -118,5 +118,5 @@ When contributing, please review:
 ---
 
 <p align="center">
-  <sub>🦊 Built by 汐构科技 · MIT licensed · Welcome contributors of all backgrounds</sub>
+  <sub>🦊 Built by KratosLee · MIT licensed · Welcome contributors of all backgrounds</sub>
 </p>

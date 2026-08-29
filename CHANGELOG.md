@@ -1,5 +1,7 @@
 # Changelog
 
+> 🦊 Personal project by [@KratosLee-6](https://github.com/KratosLee-6) · Not affiliated with any company · MIT licensed.
+
 All notable changes to **Html九尾狐 / Fox-of-Nine-Tails HTML Studio** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
