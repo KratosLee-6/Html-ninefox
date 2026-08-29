@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Html九尾狐 · CLI Demo v2 (Style selection visible)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css">
+<style>
+  :root {
+    --bg: #0A0A0F;
+    --surface: #14141A;
+    --primary: #7C3AED;
+    --text: #FAFAFA;
+    --text-dim: rgba(250, 250, 250, 0.6);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 30px 20px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .header { display: flex; justify-content: space-between; align-items: end; margin-bottom: 20px; }
+  h1 { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #7C3AED, #0EA5E9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .subtitle { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
+  .legend { font-size: 12px; color: var(--text-dim); font-family: 'SF Mono', monospace; }
+  .legend b { color: var(--primary); }
+
+  .layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+  .demo-wrap {
+    background: var(--surface);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  .demo-header {
+    background: #1a1a23;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot-r { background: #ff5f56; } .dot-y { background: #ffbd2e; } .dot-g { background: #27c93f; }
+  .demo-title { margin-left: 12px; font-size: 12px; color: var(--text-dim); font-family: 'SF Mono', monospace; }
+  #terminal { padding: 10px; height: 560px; }
+  .play-row {
+    display: flex; gap: 10px; align-items: center;
+    padding: 12px 14px; background: var(--surface);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  button {
+    background: var(--primary); color: white; border: none;
+    padding: 7px 16px; border-radius: 6px; font-weight: 600;
+    cursor: pointer; font-size: 13px; transition: transform 0.1s;
+  }
+  button:hover { transform: translateY(-1px); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.secondary { background: rgba(255, 255, 255, 0.1); }
+  .status { color: var(--text-dim); font-size: 12px; font-family: 'SF Mono', monospace; }
+  .speed-control { margin-left: auto; display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--text-dim); }
+  .speed-control button { padding: 4px 10px; font-size: 11px; }
+  .speed-control button.active { background: #0EA5E9; }
+
+  /* Style preview panel */
+  .preview-panel {
+    background: var(--surface);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+  }
+  .preview-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .preview-subtitle { font-size: 11px; color: var(--text-dim); margin-bottom: 14px; }
+  .style-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .style-card {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
+    opacity: 0.4;
+  }
+  .style-card.active {
+    border-color: var(--primary);
+    background: rgba(124, 58, 237, 0.1);
+    opacity: 1;
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+  }
+  .style-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .style-meta { font-size: 10px; color: var(--text-dim); margin-bottom: 6px; }
+  .color-row { display: flex; gap: 4px; }
+  .color-swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.1); }
+  .ref-tags { font-size: 10px; color: var(--text-dim); margin-top: 6px; }
+
+  .artifact-panel {
+    margin-top: 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 12px;
+    flex: 1;
+  }
+  .artifact-title { font-size: 11px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .file-list { font-family: 'SF Mono', monospace; font-size: 11px; line-height: 1.6; }
+  .file-item { display: flex; justify-content: space-between; padding: 2px 0; }
+  .file-size { color: var(--text-dim); }
+  .file-item .status-dot { color: #27c93f; margin-right: 6px; }
+  .file-item.pending { color: var(--text-dim); }
+  .file-item.pending .status-dot { color: rgba(255, 255, 255, 0.2); }
+  .file-item.current { color: var(--primary); font-weight: 600; }
+
+  .info {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(124, 58, 237, 0.05);
+    border-left: 3px solid var(--primary);
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .info b { color: var(--text); }
+  code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1px 5px; border-radius: 3px;
+    font-family: 'SF Mono', monospace; font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>🦊 Html九尾狐 · CLI Demo v2</h1>
+      <p class="subtitle">5-agent pipeline with <b>visible style selection</b> — click ▶ Play to watch 5 candidate styles get evaluated</p>
+    </div>
+    <div class="legend">Status: <b id="status">Click ▶ to start</b></div>
+  </div>
+
+  <div class="layout">
+    <div class="demo-wrap">
+      <div class="demo-header">
+        <span class="dot dot-r"></span>
+        <span class="dot dot-y"></span>
+        <span class="dot dot-g"></span>
+        <span class="demo-title">~/htmlninefox — bash — 130×32</span>
+      </div>
+      <div id="terminal"></div>
+      <div class="play-row">
+        <button id="play-btn">▶ Play demo (38s)</button>
+        <button id="reset-btn" class="secondary">↻ Reset</button>
+        <div class="speed-control">
+          <span>speed:</span>
+          <button class="speed-btn active" data-speed="1">1x</button>
+          <button class="speed-btn" data-speed="2">2x</button>
+          <button class="speed-btn" data-speed="0.5">0.5x</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-panel">
+      <div class="preview-title">🎨 Style Selection (visual feedback)</div>
+      <div class="preview-subtitle">Watch the right panel light up as <code>style_expert</code> picks a winner</div>
+
+      <div class="style-cards" id="style-cards">
+        <div class="style-card" data-style="linear">
+          <div class="style-name">Linear</div>
+          <div class="style-meta">dark · indigo · minimalist</div>
+          <div class="color-row">
+            <div class="color-swatch" style="background:#5E6AD2"></div>
+            <div class="color-swatch" style="background:#0A0A0F"></div>
+            <div class="color-swatch" style="background:#FAFAFA"></div>
+          </div>
+          <div class="ref-tags">refs: linear.app</div>
+        </div>
+        <div class="style-card" data-style="vercel">
+          <div class="style-name">Vercel</div>
+          <div class="style-meta">black · white · geometric</div>
+          <div class="color-row">
+            <div class="color-swatch" style="background:#000000"></div>
+            <div class="color-swatch" style="background:#FFFFFF"></div>
+            <div class="color-swatch" style="background:#0070F3"></div>
+          </div>
+          <div class="ref-tags">refs: vercel.com</div>
+        </div>
+        <div class="style-card" data-style="shadcn">
+          <div class="style-name">shadcn</div>
+          <div class="style-meta">neutral · CSS vars · dev</div>
+          <div class="color-row">
+            <div class="color-swatch" style="background:#FAFAFA"></div>
+            <div class="color-swatch" style="background:#0A0A0A"></div>
+            <div class="color-swatch" style="background:#7C3AED"></div>
+          </div>
+          <div class="ref-tags">refs: ui.shadcn.com</div>
+        </div>
+        <div class="style-card" data-style="stripe">
+          <div class="style-name">Stripe</div>
+          <div class="style-meta">purple · light · corporate</div>
+          <div class="color-row">
+            <div class="color-swatch" style="background:#635BFF"></div>
+            <div class="color-swatch" style="background:#0A2540"></div>
+            <div class="color-swatch" style="background:#FFFFFF"></div>
+          </div>
+          <div class="ref-tags">refs: stripe.com</div>
+        </div>
+      </div>
+
+      <div class="artifact-panel">
+        <div class="artifact-title">📦 6 Artifacts (live tracking)</div>
+        <div class="file-list" id="file-list">
+          <div class="file-item pending" data-file="brief.json">
+            <span><span class="status-dot">●</span>brief.json</span>
+            <span class="file-size pending">— pending</span>
+          </div>
+          <div class="file-item pending" data-file="brief.md">
+            <span><span class="status-dot">●</span>brief.md</span>
+            <span class="file-size pending">— pending</span>
+          </div>
+          <div class="file-item pending" data-file="style.md">
+            <span><span class="status-dot">●</span>style.md</span>
+            <span class="file-size pending">— pending</span>
+          </div>
+          <div class="file-item pending" data-file="assets.json">
+            <span><span class="status-dot">●</span>assets.json</span>
+            <span class="file-size pending">— pending</span>
+          </div>
+          <div class="file-item pending" data-file="output.html">
+            <span><span class="status-dot">●</span>output.html</span>
+            <span class="file-size pending">— pending</span>
+          </div>
+          <div class="file-item pending" data-file="meta.yaml">
+            <span><span class="status-dot">●</span>meta.yaml</span>
+            <span class="file-size pending">— pending</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <b>About this demo:</b> Right panel shows real-time style candidate evaluation (4 candidates considered, 1 selected) and artifact tracking. Click any style card to highlight it manually.
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+<script>
+// Pre-recorded CLI demo script (38 seconds total)
+const STEPS = [
+  // Setup
+  { delay: 0,      text: '$ cd htmlninefox\n' },
+  { delay: 600,    text: '$ python -m htmlninefox --version\n' },
+  { delay: 1200,   text: '\x1b[1;35mhtmlninefox\x1b[0m, version 0.2.0\n\n' },
+  { delay: 1600,   text: '$ python -m htmlninefox expert \\\n' },
+  { delay: 1800,   text: '    "做一个 SaaS 落地页，主推 AI 创作工具，目标用户是设计师" \\\n' },
+  { delay: 2000,   text: '    -o ./output\n\n' },
+
+  // ====== Stage 1: brief_expert ======
+  { delay: 2400,   text: '\x1b[1;36m[1/5] brief_expert\x1b[0m  parsing prompt...\n', sideEffect: 'brief-json-current' },
+  { delay: 3000,   text: '       \x1b[1;33m🔍\x1b[0m  detected intents:\n' },
+  { delay: 3300,   text: '         • type:    SaaS landing page\n' },
+  { delay: 3500,   text: '         • product: AI 创作工具\n' },
+  { delay: 3700,   text: '         • audience: 设计师 (designers)\n' },
+  { delay: 4000,   text: '         • tone:     professional + minimalist\n\n' },
+  { delay: 4400,   text: '       \x1b[32m✓\x1b[0m  brief.json  (5 fields, 21 sub-fields inferred)\n', sideEffect: 'brief-json-done' },
+  { delay: 4700,   text: '       \x1b[32m✓\x1b[0m  brief.md  (Markdown summary)\n', sideEffect: 'brief-md-done' },
+
+  // ====== Stage 2: style_expert ======
+  { delay: 5100,   text: '\n\x1b[1;36m[2/5] style_expert\x1b[0m  evaluating 4 candidate styles...\n', sideEffect: 'style-md-current' },
+  { delay: 5600,   text: '       \x1b[1;33m⚡\x1b[0m  scoring against brief requirements:\n' },
+  { delay: 6000,   text: '         linear.app    \x1b[32m██████████\x1b[0m 0.92  \x1b[1;32m◀ winner\x1b[0m\n', sideEffect: 'highlight-linear' },
+  { delay: 6300,   text: '         vercel.com    \x1b[32m████████\x1b[0m\x1b[2;32m░\x1b[0m 0.81\n', sideEffect: 'highlight-vercel' },
+  { delay: 6600,   text: '         shadcn/ui     \x1b[32m████████\x1b[0m\x1b[2;32m░\x1b[0m 0.78\n', sideEffect: 'highlight-shadcn' },
+  { delay: 6900,   text: '         stripe.com    \x1b[33m██████\x1b[0m\x1b[2;33m░░\x1b[0m 0.62\n', sideEffect: 'highlight-stripe' },
+  { delay: 7300,   text: '       \x1b[1;32m✓\x1b[0m  selected: \x1b[1;32mlinear.app\x1b[0m (dark + indigo + minimalist)\n' },
+  { delay: 7600,   text: '       \x1b[32m✓\x1b[0m  style.md  (palette + typography + tokens)\n', sideEffect: 'style-md-done, clear-style' },
+
+  // ====== Stage 3: asset_expert ======
+  { delay: 8000,   text: '\n\x1b[1;36m[3/5] asset_expert\x1b[0m  fetching assets from alliance...\n', sideEffect: 'assets-current' },
+  { delay: 8600,   text: '       \x1b[1;33m🔌\x1b[0m  router:  intent=landing_page  →  guizang-ppt\n' },
+  { delay: 9000,   text: '       \x1b[1;33m⚠\x1b[0m   alliance skill "guizang-ppt" not installed\n' },
+  { delay: 9400,   text: '       \x1b[1;33m⚠\x1b[0m   falling back to local preset: linear-light\n' },
+  { delay: 9800,   text: '       \x1b[32m✓\x1b[0m  assets.json  (color tokens, fonts, 4 components)\n', sideEffect: 'assets-done' },
+
+  // ====== Stage 4: generate_expert ======
+  { delay: 10200,  text: '\n\x1b[1;36m[4/5] generate_expert\x1b[0m  rendering HTML...\n', sideEffect: 'output-current' },
+  { delay: 10800,  text: '       \x1b[1;33m📄\x1b[0m  template: landing.html (182 lines Jinja2)\n' },
+  { delay: 11200,  text: '       \x1b[1;33m🎨\x1b[0m  injecting: brief + linear style tokens\n' },
+  { delay: 11600,  text: '       \x1b[1;33m✍\x1b[0m  generating hero + features + pricing + cta\n' },
+  { delay: 12000,  text: '       \x1b[32m✓\x1b[0m  output.html  (9,533 bytes, 179 lines)\n', sideEffect: 'output-done' },
+
+  // ====== Stage 5: feedback_expert ======
+  { delay: 12400,  text: '\n\x1b[1;36m[5/5] feedback_expert\x1b[0m  parsing & storing\n', sideEffect: 'meta-current' },
+  { delay: 12800,  text: '       \x1b[32m✓\x1b[0m  meta.yaml  (timestamp + cost + skill_used)\n', sideEffect: 'meta-done' },
+  { delay: 13200,  text: '       \x1b[32m✓\x1b[0m  5 feedbacks stored in ~/.htmlninefox/feedback/\n' },
+
+  // Done
+  { delay: 13600,  text: '\n\x1b[1;32m✓ Done in 13.6s\x1b[0m  ·  cost: \x1b[1;32m$0.0001\x1b[0m (offline rules)\n' },
+  { delay: 14000,  text: '\n$ ls -la ./output/html9n-2026-08-29-171823/\n' },
+  { delay: 14400,  text: 'total 14256\n' },
+  { delay: 14600,  text: '-rw-r--r-- 1 kx kx  565  assets.json\n' },
+  { delay: 14700,  text: '-rw-r--r-- 1 kx kx  918  brief.json\n' },
+  { delay: 14800,  text: '-rw-r--r-- 1 kx kx  360  brief.md\n' },
+  { delay: 14900,  text: '-rw-r--r-- 1 kx kx  699  style.md\n' },
+  { delay: 15000,  text: '-rw-r--r-- 1 kx kx 9533  output.html  \x1b[1;32m← here!\x1b[0m\n' },
+  { delay: 15100,  text: '-rw-r--r-- 1 kx kx   52  meta.yaml\n' },
+  { delay: 15400,  text: '\n$ start ./output/html9n-*/output.html   # Windows\n' },
+  { delay: 15800,  text: '\x1b[1;32m🚀 Landing page ready!\x1b[0m  open in browser\n' },
+];
+
+// xterm init
+const term = new Terminal({
+  fontFamily: '"SF Mono", "Cascadia Code", Monaco, monospace',
+  fontSize: 12,
+  theme: {
+    background: '#0A0A0F',
+    foreground: '#FAFAFA',
+    cursor: '#7C3AED',
+    selectionBackground: 'rgba(124, 58, 237, 0.3)',
+  },
+  cursorBlink: true,
+  convertEol: true,
+  cols: 130,
+  rows: 32,
+  scrollback: 100,
+});
+term.open(document.getElementById('terminal'));
+term.write('\x1b[1;35m🦊 Html九尾狐 v0.2.0\x1b[0m · Interactive CLI demo (style selection visible)\n');
+term.write('Click \x1b[1;32m▶ Play demo\x1b[0m to start · 0.5x/1x/2x speed control available\n\n');
+
+// Side effects
+const styleCards = document.querySelectorAll('.style-card');
+const fileItems = document.querySelectorAll('.file-item');
+const fileSizes = {
+  'brief.json': '918 B',
+  'brief.md': '360 B',
+  'style.md': '699 B',
+  'assets.json': '565 B',
+  'output.html': '9,533 B',
+  'meta.yaml': '52 B',
+};
+
+function applySideEffect(effect) {
+  if (!effect) return;
+  if (effect.endsWith('-current')) {
+    const f = effect.replace('-current', '');
+    fileItems.forEach(i => i.classList.add('pending'));
+    const item = document.querySelector(`[data-file="${f}"]`);
+    if (item) {
+      item.classList.remove('pending');
+      item.classList.add('current');
+    }
+  } else if (effect.endsWith('-done')) {
+    const f = effect.replace('-done', '');
+    const item = document.querySelector(`[data-file="${f}"]`);
+    if (item) {
+      item.classList.remove('pending', 'current');
+      const sizeEl = item.querySelector('.file-size');
+      sizeEl.classList.remove('pending');
+      sizeEl.textContent = '— ' + fileSizes[f];
+    }
+  } else if (effect.startsWith('highlight-')) {
+    const style = effect.replace('highlight-', '');
+    styleCards.forEach(c => c.classList.remove('active'));
+    const card = document.querySelector(`[data-style="${style}"]`);
+    if (card) card.classList.add('active');
+  } else if (effect === 'clear-style') {
+    styleCards.forEach(c => c.classList.remove('active'));
+  }
+}
+
+// Manual click on style card
+styleCards.forEach(c => {
+  c.addEventListener('click', () => {
+    styleCards.forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    term.write(`\n\x1b[1;33m[manual]\x1b[0m  selected: ${c.dataset.style}\n`);
+  });
+});
+
+// Play/reset
+let timers = [];
+let playing = false;
+let speed = 1;
+
+function reset() {
+  timers.forEach(t => clearTimeout(t));
+  timers = [];
+  term.clear();
+  term.write('\x1b[1;35m🦊 Html九尾狐 v0.2.0\x1b[0m · CLI demo reset\n\n');
+  document.getElementById('status').textContent = 'Ready · click play';
+  document.getElementById('play-btn').disabled = false;
+  styleCards.forEach(c => c.classList.remove('active'));
+  fileItems.forEach(i => {
+    i.classList.add('pending');
+    i.classList.remove('current');
+    const sizeEl = i.querySelector('.file-size');
+    sizeEl.classList.add('pending');
+    sizeEl.textContent = '— pending';
+  });
+  playing = false;
+}
+
+function play() {
+  if (playing) return;
+  playing = true;
+  document.getElementById('play-btn').disabled = true;
+  term.clear();
+  const startTime = Date.now();
+  STEPS.forEach((step) => {
+    const t = setTimeout(() => {
+      term.write(step.text);
+      if (step.sideEffect) applySideEffect(step.sideEffect);
+      const elapsed = ((Date.now() - startTime) / 1000 * speed).toFixed(1);
+      document.getElementById('status').textContent = `Replaying... ${elapsed}s / 15.8s`;
+      if (step === STEPS[STEPS.length - 1]) {
+        document.getElementById('status').textContent = '✓ Demo finished · click reset to replay';
+        document.getElementById('play-btn').disabled = false;
+        playing = false;
+      }
+    }, step.delay / speed);
+    timers.push(t);
+  });
+}
+
+document.getElementById('play-btn').addEventListener('click', play);
+document.getElementById('reset-btn').addEventListener('click', reset);
+document.querySelectorAll('.speed-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.speed-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    speed = parseFloat(b.dataset.speed);
+  });
+});
+</script>
+</body>
+</html>
