@@ -1,16 +1,16 @@
 ---
 name: htmlninefox
-version: 0.2.4
+version: 0.3.0b2
 author: KratosLee (Html九尾狐项目组)
 license: MIT
 description: |
-  Html九尾狐 · HTML 创作 Skill 联盟主编排器（v0.2.4 工作区管理与多风格系统）。
+  Html九尾狐 · HTML 创作 Skill 联盟主编排器（v0.3.0 Beta 2 真实模板与引导式 AI 编排）。
   一句话 Brief → 5 内容类型（落地页/看板/PPT/海报/架构文档）× 11 风格预设，
   联盟路由 guizang-ppt / huashu-design / archify；反馈迭代 = 改设计 token 重渲染。
   离线可用（LLM 可选增强）；CLI + Web 工作台 + 本 Skill 三端。
 ---
 
-# 🦊 Html九尾狐 · Claude Code Skill（v0.2.4）
+# 🦊 Html九尾狐 · Claude Code Skill（v0.3.0 Beta 2）
 
 > **Html九尾狐 = 一个开源的 HTML 创作专家 Skill 联盟主编排器**
 >
@@ -40,7 +40,7 @@ pip install "htmlninefox[llm]"       # + LLM 增强（LiteLLM 多模型路由）
 
 ---
 
-## 调用入口（v0.2.4 真实命令）
+## 调用入口（v0.3.0 Beta 2 真实命令）
 
 ```bash
 # 1. 最简调用（意图自动路由 + 风格自动匹配，离线可跑）
@@ -159,7 +159,7 @@ cache_settings: { enabled: true, ttl_days: 7 }
 
 | 版本 | 状态 |
 |---|---|
-| **v0.2.4（当前）** | ✅ 丝滑画布 + 真实 HTML 模板预览 + 可恢复工作台；CLI / Web / PWA / Skill 可用 |
+| **v0.3.0 Beta 2（当前）** | ✅ 真实 HTML 模板库 + 多模态输入 + AI 自主配置 + 跨平台包；CLI / Web / PWA / Skill 可用 |
 | v0.3（Month 3-6） | 联盟 skill 真实接入（guizang/huashu/archify 上游）+ 模板市场 + 飞书 aily |
 | v1.0（Month 12） | 5K Star · 100 种子开发者 · 社区驱动飞轮 |
 
@@ -171,4 +171,4 @@ MIT License © 2026 KratosLee · Html九尾狐项目组
 
 ---
 
-> **最后更新**：2026-08-31 · v0.2.4
+> **最后更新**：2026-09-01 · v0.3.0 Beta 2

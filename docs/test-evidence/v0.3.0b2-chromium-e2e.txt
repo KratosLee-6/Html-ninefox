@@ -1,0 +1,24 @@
+[✓] 生成 landing  9647B · vercel-dark · fallback
+[✓] 生成 dashboard  8755B · shadcn-dashboard · local
+[✓] 生成 deck  8448B · vercel-dark · fallback
+[✓] 生成 poster  4684B · vibrant-poster · fallback
+[✓] 生成 archdoc  8415B · doc-clean · fallback
+[✓] 反馈迭代 rev1  rules=['color_shift', 'font_up']
+[✓] 反馈迭代 rev2（参考预设切换）
+[✓] 截图 landing
+[✓] 截图 dashboard
+[✓] 截图 deck
+[✓] 截图 poster
+[✓] 截图 archdoc
+[✓] deck 翻页交互  page=2
+[✓] 工作区列表与预置场景  kinds=['ws', 'requirement', 'template', 'style', 'block']
+[✓] 工作区整体拖动  delta=(72,52)
+[✓] 工作区重命名与颜色  品牌官网工作区 · #E07A3F
+[✓] 多工作区导航与独立进度  nav=2 · 0 素材 · 0 产物
+[✓] 11 套真实视觉系统  templates=11
+[✓] 像素花园双主题  pixel-paper -> pixel-night
+[✓] 工作台无 JS 错误
+
+==================================================
+验收结果：20/20 通过
+全部通过 ✅

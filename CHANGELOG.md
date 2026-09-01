@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Canvas generation consumes selected page blocks, uploaded context, skills, colors, fonts, and templates.
 - PWA cache and cross-platform package version advance to Beta 2.
 
+### Verified
+
+- 146 Python/API/storage/security/browser tests pass.
+- 20/20 real Chromium generation and workbench acceptance checks pass.
+- Windows portable health, six-item gallery, wheel contents, Linux installer structure, and SHA256 manifests were validated.
+- Screenshots and raw test logs are committed under `assets/screenshots/v0.3.0b2/` and `docs/test-evidence/`.
+
 ---
 
 ## [0.3.0b1] — 2026-09-01 · Cross-platform Installable Beta 1

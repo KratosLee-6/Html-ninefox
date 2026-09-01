@@ -1,169 +1,191 @@
-# Html九尾狐 · v0.3.0 Beta 2「跨平台可安装版」
+<div align="center">
+  <img src="htmlninefox/server/static/logo-horizontal.svg" width="430" alt="Html九尾狐 Pixel Garden Logo">
+  <h1>Html九尾狐 · HTML 创作工作台</h1>
+  <p><strong>把文字、文件、图片和散落的 HTML 模板放进一张无限画布，经过分析、推荐、自由组合与反馈迭代，生成真正可交付的单文件 HTML。</strong></p>
+  <p>个人开源项目 by <a href="https://github.com/KratosLee-6">KratosLee</a> · 默认中文 · 离线规则引擎可用 · AI 可选增强</p>
+  <p><strong>简体中文</strong> · <a href="README.en.md">English</a></p>
+</div>
 
-> **开源 HTML 创作 Skill 联盟主编排器**
-> 一句话 Brief → 6 内容类型 × 11 风格预设 → 单文件可发布 HTML；
-> 反馈迭代 = 改设计 token 重渲染；CLI / Web / PWA / Claude Code Skill 多端；**离线可用**（LLM 可选增强）。
+<div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)]()
-[![Python: 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)]()
-[![Status: v0.3.0b2](https://img.shields.io/badge/status-v0.3.0b2-blue.svg)]()
+[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.3.0b2)
+[![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
+[![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
+[![Tests](https://img.shields.io/badge/pytest-146%20passed-1F8A70)](docs/test-evidence/v0.3.0b2-pytest.txt)
+[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-20%2F20-173C8F)](docs/test-evidence/v0.3.0b2-chromium-e2e.txt)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
+[![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
----
+</div>
 
-## 安装
+![Html九尾狐 v0.3.0 Beta 2 工作台](assets/screenshots/v0.3.0b2/workbench-overview.png)
 
-```bash
-pip install -e .              # 基础版：离线规则引擎，零 API Key 可用
-pip install -e ".[llm]"       # + LLM 增强（LiteLLM 多模型路由）
-pip install -e ".[dev]"       # + 测试工具
+## 它解决什么问题
+
+很多 HTML、设计模板、参考文件和 AI Skill 散落在不同目录里。传统生成工具又常常只给出模板名字或线框，让人必须“猜”最终效果。
+
+Html九尾狐把创作路径收束成一条可视化流程：
+
+```text
+文字 / 文件 / 图片 / HTML
+          ↓
+      AI 或离线规则分析
+          ↓
+  推荐内容类型 + 真实模板 + 页面组合
+          ↓
+A. 采用推荐直接生成
+B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
+          ↓
+      生成单文件 HTML
+          ↓
+  用自然语言反馈，按版本继续迭代
 ```
 
-依赖：`pyyaml / click / rich`（必装，轻量）；`jinja2 / litellm`（可选增强）。
+## v0.3.0 Beta 2 核心能力
 
----
+- **真实 HTML 模板库**：6 套完整模板、34 个可单独预览和抽取的页面，不再只展示线框。
+- **统一需求入口**：支持文字、TXT、Markdown、JSON、CSV、HTML 和常见图片。
+- **推荐与自由组合双路径**：可以直接接受推荐，也可以在工作区拖入版式、页面、风格、文件和 Skill。
+- **无限画布工作区**：支持整体拖动、重命名、独立颜色、多工作区导航、吸附和端口连线。
+- **AI 模型自主配置**：支持 OpenAI-compatible、Ollama 和自定义兼容接口；API Key 只保存在本地。
+- **离线可用**：没有 API Key 时继续使用确定性的规则引擎，不阻塞生成。
+- **反馈迭代**：自然语言反馈转成设计 Token 修改并重渲染，保留 `rev1 / rev2 / ...` 历史。
+- **跨平台使用**：Windows 便携包/安装器、Linux `.run/.tar.gz`、Python CLI、Web/PWA。
 
-## v0.3.0 Beta 2 · 真实模板与 AI 编排
+## 看得见的真实效果
 
-- 新增 6 套可独立打开的真实 HTML 模板作品，共 35 个可预览、可抽取页面，覆盖归藏电子墨水、靛蓝研究、瑞士信号、牛皮纸叙事、沙丘作品集和像素花园产品页。
-- “版式 / 内容 / 风格”全部优先展示真实 iframe 效果；模板可查看完整页面序列，单页可直接抽取到工作区继续组合。
-- 顶部新增“输入需求”：统一接收文字、文档与图片，执行“分析 → 推荐组合 → 默认生成 / 自定义编排”双路径。
-- 工作区推进现在真实消费所选模板、页面 blocks、色卡、字体、文件、技能与附件上下文，并写入项目 `.foxstate.json`。
-- 顶部新增“AI 模型”：支持用户配置 OpenAI-compatible API Base、模型名和 API Key；Key 仅本地保存且读取接口不返回明文。
-- 未启用 AI 或模型不可用时继续使用离线规则引擎，不阻塞生成。
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.3.0b2/guided-creation.png" alt="需求分析与推荐组合"><br><b>需求分析与推荐组合</b><br>输入需求后，系统给出内容类型、真实模板、页面与视觉风格。</td>
+<td width="50%"><img src="assets/screenshots/v0.3.0b2/gallery-preview.png" alt="完整模板与页面抽取"><br><b>完整模板与页面抽取</b><br>查看整套作品，并把当前页面或整套模板加入工作区。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.3.0b2/ai-settings.png" alt="AI 模型配置"><br><b>用户自主配置 AI</b><br>模型、Base URL 和 API Key 均由用户掌握，读取接口不返回 Key 明文。</td>
+<td width="50%"><img src="assets/screenshots/v0.3.0b2/workbench-night.png" alt="Pixel Night 夜蓝主题"><br><b>Pixel Garden 双主题</b><br>暖纸白与夜蓝主题均可使用，并自动保存偏好。</td>
+</tr>
+</table>
 
-## v0.3.0 Beta 2 跨平台可安装版
+### 六类真实产物
 
-- 新增 `htmlninefox app`：自动选择可用端口、等待服务就绪并打开浏览器。
-- Windows 提供内置 Python 运行时的便携 ZIP，并提供 Inno Setup 安装器定义。
-- Linux 提供用户级自解压 `.run` 与审计友好的 `.tar.gz`。
-- 新增 uv、Docker Compose、PWA、局域网共享等免传统安装运行方式。
-- Windows 便携版将配置、缓存和产物统一放入包体旁的 `user-data/`。
-- 新增 Windows / Linux 自动打包工作流与 SHA256 校验文件。
+| 落地页 | 数据看板 | 发布会 PPT |
+|---|---|---|
+| ![Landing](assets/screenshots/v0.3.0b2/output-landing.png) | ![Dashboard](assets/screenshots/v0.3.0b2/output-dashboard.png) | ![Deck](assets/screenshots/v0.3.0b2/output-deck.png) |
 
-## v0.2.5 像素花园品牌工作台
+| 海报 | 架构文档 |
+|---|---|
+| ![Poster](assets/screenshots/v0.3.0b2/output-poster.png) | ![Architecture document](assets/screenshots/v0.3.0b2/output-archdoc.png) |
 
-- 正式采用 A「像素花园」方向：深钴蓝、薄荷绿、暖纸白与细像素识别。
-- 新增可编辑 SVG 品牌符号、横版 Logo 与 PWA 图标，融合九尾狐和 HTML 尖括号。
-- 工作台默认改为暖纸白主题，可一键切换夜蓝主题；偏好自动保存。
-- 圆角、阴影、字体、网格、焦点态、节点与工作区统一为 Pixel Garden UI 语言。
-- 首次创建的示例工作区默认使用 `fox-pixel-garden`，不再默认黑紫模板。
-- 完整规范见 [VI 手册](docs/VI.md) 与 [UI 手册](docs/UI-GUIDE.md)。
+## 下载与安装
 
-## v0.2.4 工作区管理与多风格系统
+前往 **[v0.3.0 Beta 2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.3.0b2)** 下载当前版本。
 
-- 新增工作区列表、定位、重命名、独立颜色与当前工作区进度；无限画布不再依赖人工寻找。
-- 工作区可从标题栏或空白区域整体拖动，内部素材保持相对位置；旧快照自动补齐工作区归属。
-- 新增 5 套原创视觉系统，合计 11 套风格，并在 6 类内容中呈现结构级真实 HTML 差异。
-- 画布继续采用统一世界坐标与 `requestAnimationFrame` 热路径；拖动期间不反复写入快照。
-- 节点支持 16px 网格、同边/中心对齐辅助线；按住 `Alt` 可临时关闭吸附。
-- 连线改为左右输入/输出端口，扩大命中半径，并在松手前高亮候选端口。
-- 6 类版式与 11 套风格直接渲染真实 HTML 缩略图，可一键放大或新窗口查看。
-- 项目支持重命名、创建副本和可恢复软删除（输出目录 `.trash`）。
-- Canvas Schema v1 同时保存到 localStorage 与服务端原子快照；主快照损坏时自动读取备份。
-- 生成改为持久化 Job：`queued / running / succeeded / failed / cancelled`，工作台轮询展示进度。
-- 所有 HTTP 错误统一返回 `error.code / error.message / request_id`。
-- 顶部“诊断”可下载脱敏 zip；不包含 API Key 值、完整 Prompt、HTML、Brief 或反馈内容。
+| 平台 | 推荐文件 | 使用方式 |
+|---|---|---|
+| Windows 10/11 | `HtmlNineFox-Setup-0.3.0b2.exe` | 双击安装，适合普通用户 |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.3.0b2.zip` | 解压后双击 `HtmlNineFox.exe`，无需安装 |
+| Linux | `HtmlNineFox-Linux-0.3.0b2.run` | `chmod +x` 后运行，安装到当前用户目录 |
+| Linux / 审计 | `HtmlNineFox-Linux-0.3.0b2.tar.gz` | 可查看完整安装内容 |
+| Python 3.10+ | `htmlninefox-0.3.0b2-py3-none-any.whl` | 使用 `pip install` 安装 |
 
-## 多端用法
-
-### ① CLI
+### 从源码运行
 
 ```bash
-htmlninefox expert "做一个 SaaS 落地页，品牌「狐构」，主推 AI 创作工具"
-htmlninefox expert --type deck "发布会 PPT，主题 AI-native"      # 6 类内容可选
-htmlninefox expert --template vercel-dark "开发者工具官网"        # 11 风格预设可选
-htmlninefox feedback --project output/html9n-<时间戳> --note "颜色再深一点，标题大一点"
-htmlninefox brief list | template list | alliance list
+git clone https://github.com/KratosLee-6/Html-ninefox.git
+cd Html-ninefox
+
+# 推荐：uv
+uv sync
+uv run htmlninefox app
+
+# 或传统 Python
+python -m pip install -e .
+htmlninefox app
 ```
 
-### ② Web 工作台（无限画布 · 工作区编排）
+浏览器默认打开本地工作台。也可以使用：
 
 ```bash
-htmlninefox serve          # http://127.0.0.1:8620
+htmlninefox expert "做一个 AI 产品发布会 PPT"
+htmlninefox expert --type landing --template fox-pixel-garden "创作工具官网"
+htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，颜色更稳重"
 ```
-**工作区编排模式（默认 `/`）**：
-- **真实可视化素材库**：6 类版式与 11 套风格直接显示真实 HTML 缩略图；内容块、色卡、字体与历史文件继续图形化展示，可放大预览后再拖入画布
-- **工作区**：画布上的可调大小框；拖入 版式/风格/色卡/字体/内容块 = 你的专属模板配方；`⤢ 适配` 一键自动缩放（HUD 也有全局适配）
-- **推进流水线**：往工作区拖入一个「需求」节点 → 点 `▶ 推进` → 自动拆解需求（类型/风格/要点 chips）→ 自动组合工作区素材 → 产物节点落到工作区右侧并自动连线、全景缩放
-- **反馈迭代**：选中产物节点在检查器提交口语反馈，改 token 重渲染（rev 历史）
-- 经典表单版在 `/classic`；画布状态自动持久化
 
-#### 安装为桌面 / 移动端应用（PWA）
+完整说明：[安装指南](docs/INSTALL.md) · [多种运行方式](docs/RUNNING-OPTIONS.md) · [UI 手册](docs/UI-GUIDE.md) · [VI 手册](docs/VI.md)
 
-- Windows / macOS：用 Edge、Chrome 或 Safari 打开工作台，点击顶部“安装”。
-- iPhone / iPad：部署到 HTTPS 后，用 Safari 打开，选择“分享 → 添加到主屏幕”。
-- 手机与平板：素材库、检查器改为抽屉；素材支持点按加入；画布支持触控平移与拖动。
-- 离线时可继续编辑已加载的工作区；生成、反馈和项目列表仍需连接 Html九尾狐本地服务或云端服务。
+## 模板、内容与视觉系统
 
-可通过 `GET /api/capabilities` 获取当前客户端与能力状态，供未来 Windows/macOS/iOS 客户端复用。
+### 真实模板作品库
 
-### ③ Claude Code Skill
+- 归藏 · 电子墨水发布会：6 页
+- 归藏 · 靛蓝研究档案：6 页
+- 归藏 · 瑞士信号系统：6 页
+- 归藏 · 牛皮纸品牌故事：6 页
+- 归藏 · 沙丘作品集：5 页
+- 九尾狐 · 像素花园产品页：5 页
 
-见 [`SKILL.md`](SKILL.md)（与 v0.3.0 Beta 2 命令一致）。
+共 **6 套 / 34 页**，均为 Html九尾狐原创演示；采用归藏式编辑设计方法启发，没有复制许可不明的第三方模板。
 
----
+### 六类生成器
 
-## 多内容（6 类生成器）与多风格（6 预设）
+`deck` 发布会 PPT · `doc` 文档 · `poster` 海报 · `landing` 落地页 · `dashboard` 数据看板 · `archdoc` 架构文档。
 
-> 优先级对齐实际使用：**以 HTML 为载体的 PPT / 文档 / 单页在前，网站类在后**。
+### 十一套视觉系统
 
-| 内容 | intent | 生成器 | 产物 |
-|---|---|---|---|
-| 发布会 PPT | `deck` | `generators/deck.py` | 横向翻页（←/→ 键） |
-| 文档 | `doc` | `generators/doc.py` | 报告/方案/纪要（摘要/章节/里程碑/结论） |
-| 海报/一页纸 | `poster` | `generators/poster.py` | 单屏大字报 |
-| 落地页 | `landing` | `generators/landing.py` | Hero/特性/定价/FAQ 营销页 |
-| 数据看板 | `dashboard` | `generators/dashboard.py` | KPI 卡 + CSS 图表 + 表格 |
-| 架构文档 | `archdoc` | `generators/archdoc.py` | 分层图 + 组件表 + 决策 |
+内置基础预设与 Pixel Garden、Duotone Studio、Editorial Ink、Swiss Signal、Soft Silver 等结构级视觉系统。模板差异不仅是换颜色，而是排版、间距、卡片、网格和信息节奏的整体变化。
 
-风格预设（`generators/_tokens.py`，CSS 变量驱动）：`linear-light` / `vercel-dark` /
-`guizang-magazine` / `shadcn-dashboard` / `vibrant-poster` / `doc-clean`。
-反馈迭代只改 token（`_tokens.apply_feedback`），生成器零改动。
+## AI 与隐私
 
----
+- AI 是增强能力，不是运行前提。
+- API Key 保存到当前输出目录的 `.settings/ai.json`，不会写入项目快照、诊断包或 Git 仓库。
+- 设置读取接口只返回 `api_key_set`，不返回 Key 明文。
+- 文件与图片输入保存在本地 `.inputs/`；单文件默认上限 8MB。
+- 未启用 AI、连接失败或没有 Key 时，自动继续使用离线规则分析。
+
+## 测试与信任证据
+
+本版本在 **2026-09-01** 完成以下验证：
+
+| 验证项 | 结果 | 证据 |
+|---|---:|---|
+| Python / API / 存储 / 安全 / 浏览器测试 | **146 passed** | [pytest 原始日志](docs/test-evidence/v0.3.0b2-pytest.txt) |
+| Chromium 真实生成与交互验收 | **20 / 20 passed** | [E2E 原始日志](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
+| 生成器 | Landing / Dashboard / Deck / Poster / Archdoc 均成功 | [测试报告](docs/TEST-REPORT-v0.3.0b2.md) |
+| 反馈迭代 | `rev1` Token 修改与 `rev2` 预设切换成功 | [E2E 日志](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
+| 工作台 | 拖动、重命名、颜色、多工作区、双主题、无 JS 错误 | [E2E 日志](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
+| 发布包 | Windows / Linux / wheel 均生成 SHA256 | [校验值](docs/test-evidence/v0.3.0b2-release-sha256.txt) |
+
+运行环境记录见：[v0.3.0b2-environment.txt](docs/test-evidence/v0.3.0b2-environment.txt)。
+
+```bash
+python -m pytest tests -q -p no:cacheprovider
+python e2e_verify.py
+```
 
 ## 产物结构
 
-```
+```text
 output/html9n-<时间戳>/
-├── output.html       # 单文件可发布 HTML（双击即开）
-├── brief.json / .md  # Brief 标准 v0.1（LLM 优先 / 离线规则兜底）
-├── style.md          # 风格 token 表
-├── assets.json       # 区块规划
-├── .foxstate.json    # 迭代状态（反馈重渲染依据）
-├── revisions/        # rev1.html / rev2.html …
-└── feedback.md       # 反馈沉淀
+├── output.html
+├── brief.json / brief.md
+├── style.md
+├── assets.json
+├── .foxstate.json
+├── revisions/
+└── feedback.md
 ```
 
----
+`.foxstate.json` 会记录模板、页面区块、附件、Skill 和选择模式，确保后续反馈迭代不是重新猜测。
 
-## Skill 联盟
+## 当前状态与路线
 
-- 内置 manifest：`htmlninefox/data/alliance/`（guizang-ppt / huashu-design / archify）
-- 接入你的 skill：把 `skill-manifest.yaml` 放到 `~/.htmlninefox/alliance/` → `htmlninefox alliance reload`
-- 未安装的联盟 skill 自动走本地生成器兜底（`fallback: local:<intent>`），永不空转
+`v0.3.0b2` 是公开 Beta：Windows 和 Linux 包已可用，Web/PWA 可跨 Windows、macOS、iOS 和移动浏览器访问。原生 macOS、iOS、Android 和小程序客户端仍在后续路线中。
 
-## 审美模板贡献
+查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 
-参考 `examples/`；模板 = 一个目录 + `style.json`（token 表）+ 可选 `README.md`：
+## 贡献与致谢
 
-```json
-{ "name": "我的品牌风", "dark": true,
-  "tokens": { "bg": "#101010", "primary": "#FF5A00", "...": "..." } }
-```
+欢迎提交 Issue、模板、视觉系统、测试和 Skill 联盟适配。设计方法受到归藏、花叔 Design 和 Archify 等开源社区工作的启发；详细来源和许可审查见 [DESIGN-SOURCES](docs/DESIGN-SOURCES.md)。
 
-放到 `~/.htmlninefox/templates/<模板ID>/style.json` → `htmlninefox template list` 立即可见；
-`htmlninefox expert --template <模板ID>` 直接使用。
+## 许可证
 
----
-
-## 测试与验收
-
-```bash
-python -m pytest tests/ -q      # 102 例：核心/CRUD/恢复/Job/诊断/API/PWA
-python e2e_verify.py            # 14 项端到端验收 + 截图（e2e-shots/）
-```
-
----
-
-MIT License © 2026 KratosLee · Html九尾狐项目组
+[MIT License](LICENSE) © 2026 **KratosLee · Html九尾狐项目组**

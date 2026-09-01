@@ -7,7 +7,7 @@ on:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   windows:
@@ -23,11 +23,26 @@ jobs:
       - run: python -m pip wheel . --no-deps --no-build-isolation --wheel-dir dist
       - run: choco install innosetup -y --no-progress
       - run: python packaging/windows/build_portable.py --installer
+      - name: Create installer checksum
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem release/HtmlNineFox-Setup-*.exe | Select-Object -First 1
+          if (-not $installer) { throw "Windows installer was not generated" }
+          $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash
+          "$hash  $($installer.Name)" | Set-Content "$($installer.FullName).sha256.txt" -Encoding ascii
       - uses: actions/upload-artifact@v4
         with:
           name: htmlninefox-windows
           path: release/*
           if-no-files-found: error
+      - name: Upload Windows installer to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $assets = Get-ChildItem release/HtmlNineFox-Setup-*.exe*
+          gh release upload "${{ github.ref_name }}" $assets.FullName --clobber
 
   linux:
     runs-on: ubuntu-latest
