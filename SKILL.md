@@ -1,7 +1,7 @@
 ---
 name: htmlninefox
 version: 0.2.4
-author: 汐构科技 (Html九尾狐 项目组)
+author: KratosLee (Html九尾狐项目组)
 license: MIT
 description: |
   Html九尾狐 · HTML 创作 Skill 联盟主编排器（v0.2.4 工作区管理与多风格系统）。
@@ -167,7 +167,7 @@ cache_settings: { enabled: true, ttl_days: 7 }
 
 ## 许可证（License）
 
-MIT License © 2026 汐构科技 · Html九尾狐 项目组
+MIT License © 2026 KratosLee · Html九尾狐项目组
 
 ---
 

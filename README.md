@@ -166,4 +166,4 @@ python e2e_verify.py            # 14 项端到端验收 + 截图（e2e-shots/）
 
 ---
 
-MIT License © 2026 汐构科技 · Html九尾狐 项目组
+MIT License © 2026 KratosLee · Html九尾狐项目组

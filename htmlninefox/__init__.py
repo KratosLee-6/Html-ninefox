@@ -5,5 +5,5 @@ v0.3.0 Beta 2 · 2026-09-01 · Windows / Linux 跨平台交付：CLI / Web / PWA
 """
 
 __version__ = "0.3.0b2"
-__author__ = "汐构科技 · Html九尾狐 项目组"
+__author__ = "KratosLee · Html九尾狐项目组"
 __license__ = "MIT"

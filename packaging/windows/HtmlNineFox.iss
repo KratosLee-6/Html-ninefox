@@ -15,7 +15,7 @@
 AppId={{CC732B92-C625-48B2-B20D-CF8588C6B0B4}
 AppName=Html九尾狐
 AppVersion={#MyVersion}
-AppPublisher=Html九尾狐项目组
+AppPublisher=KratosLee · Html九尾狐项目组
 DefaultDirName={localappdata}\Programs\HtmlNineFox
 DefaultGroupName=Html九尾狐
 OutputDir={#OutputDir}

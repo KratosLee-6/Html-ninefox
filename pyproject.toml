@@ -8,7 +8,7 @@ version = "0.3.0b2"
 description = "Html九尾狐 · 开源 HTML 创作 Skill 联盟主编排器（v0.3.0 Beta 2 跨平台可安装版）"
 readme = "README.md"
 license = { text = "MIT" }
-authors = [{ name = "汐构科技 · Html九尾狐 项目组" }]
+authors = [{ name = "KratosLee · Html九尾狐项目组" }]
 requires-python = ">=3.10"
 dependencies = [
     "pyyaml>=6.0",
