@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🦊 Html九尾狐 · Web 工作台</title>
+<style>
+:root {
+  --bg:#0A0A0B; --surface:#141415; --surface2:#1C1C1F; --text:#EDEDED;
+  --muted:#8F8F8F; --primary:#5E6AD2; --primary2:#7B85E8; --accent:#22D3EE;
+  --border:#26262A; --ok:#22C55E; --warn:#F59E0B; --err:#EF4444;
+  --radius:10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg);
+  color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+header.top { display:flex; align-items:center; gap:14px; padding:14px 22px;
+  border-bottom:1px solid var(--border); background:var(--surface); }
+header.top .logo { font-weight:800; font-size:1.05rem; }
+header.top .logo em { font-style:normal; color:var(--primary2); }
+header.top .ver { color:var(--muted); font-size:.8rem; }
+header.top .sp { flex:1; }
+header.top a { color:var(--muted); font-size:.85rem; margin-left:18px; text-decoration:none; }
+header.top a:hover { color:var(--text); }
+main { flex:1; display:grid; grid-template-columns:340px 1fr 300px; min-height:0; }
+.panel { border-right:1px solid var(--border); background:var(--surface);
+  overflow-y:auto; padding:18px; }
+.panel:last-child { border-right:none; border-left:1px solid var(--border); }
+.panel h3 { font-size:.8rem; text-transform:uppercase; letter-spacing:.12em;
+  color:var(--muted); margin-bottom:12px; }
+label { display:block; font-size:.82rem; color:var(--muted); margin:14px 0 6px; }
+textarea, select, input[type=text] { width:100%; background:var(--surface2);
+  border:1px solid var(--border); border-radius:8px; color:var(--text);
+  padding:10px 12px; font-size:.9rem; font-family:inherit; resize:vertical; }
+textarea:focus, select:focus, input:focus { outline:none; border-color:var(--primary); }
+textarea { min-height:96px; }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.btn { display:block; width:100%; padding:12px; border:none; border-radius:8px;
+  background:var(--primary); color:#fff; font-weight:700; font-size:.95rem;
+  cursor:pointer; margin-top:16px; font-family:inherit; }
+.btn:hover { background:var(--primary2); }
+.btn.ghost { background:transparent; border:1px solid var(--border); color:var(--text); }
+.btn:disabled { opacity:.5; cursor:wait; }
+.stage { flex:1; min-height:0; position:relative; background:#0D0D0F; min-width:0; }
+.stage iframe { position:absolute; inset:0; width:100%; height:100%; border:none; background:#fff; }
+.stage .empty { position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; color:var(--muted); gap:10px; }
+.stage .empty .fox { font-size:3rem; }
+.stage-bar { display:flex; align-items:center; gap:12px; padding:8px 14px;
+  border-bottom:1px solid var(--border); background:var(--surface); font-size:.8rem;
+  color:var(--muted); }
+.stage-bar .chip { background:var(--surface2); border:1px solid var(--border);
+  padding:2px 10px; border-radius:999px; }
+.stage-bar .chip b { color:var(--accent); font-weight:600; }
+.fb-item { background:var(--surface2); border:1px solid var(--border);
+  border-radius:8px; padding:10px 12px; margin-bottom:10px; font-size:.84rem; }
+.fb-item .rev { color:var(--accent); font-weight:700; margin-right:6px; }
+.fb-item .sug { color:var(--muted); margin-top:4px; font-size:.8rem; }
+.hist-item { padding:10px 12px; border:1px solid var(--border); border-radius:8px;
+  margin-bottom:8px; cursor:pointer; font-size:.84rem; }
+.hist-item:hover { border-color:var(--primary); }
+.hist-item .meta { color:var(--muted); font-size:.75rem; margin-top:4px; }
+.tagline { font-size:.78rem; color:var(--muted); margin-top:14px; line-height:1.7; }
+.status { font-size:.82rem; margin-top:10px; min-height:1.4em; }
+.status.ok { color:var(--ok); } .status.warn { color:var(--warn); }
+.status.err { color:var(--err); }
+.spin { display:inline-block; animation:sp 1s linear infinite; }
+@keyframes sp { to { transform:rotate(360deg); } }
+.kbd { background:var(--surface2); border:1px solid var(--border); border-radius:4px;
+  padding:0 6px; font-size:.75rem; }
+@media (max-width:1000px) { main { grid-template-columns:1fr; overflow:auto; }
+  body { overflow:auto; height:auto; } .stage { height:70vh; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="logo">🦊 Html<em>九尾狐</em></div>
+  <span class="ver" id="ver"></span>
+  <div class="sp"></div>
+  <a href="#" onclick="loadProjects();return false;">刷新项目</a>
+  <a href="https://github.com/" target="_blank" rel="noopener">Skill 联盟</a>
+</header>
+<main>
+  <!-- 左：Brief -->
+  <section class="panel">
+    <h3>Brief · 一句话需求</h3>
+    <textarea id="prompt" placeholder="例：做一个 SaaS 落地页，品牌「狐构」，主推 AI 创作工具，深色风格"></textarea>
+    <label>内容类型（自动路由可覆盖）</label>
+    <select id="intent">
+      <option value="">自动路由 🦊</option>
+      <option value="landing">落地页 landing</option>
+      <option value="dashboard">数据看板 dashboard</option>
+      <option value="deck">发布会 PPT deck</option>
+      <option value="poster">海报 poster</option>
+      <option value="archdoc">架构文档 archdoc</option>
+    </select>
+    <div class="row2">
+      <div><label>风格预设</label><select id="template"></select></div>
+      <div><label>联盟 skill</label><select id="skill"></select></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:14px">
+      <input type="checkbox" id="quiet" style="width:auto"> 纯离线模式（跳过 LLM 微调）
+    </label>
+    <button class="btn" id="go" onclick="generate()">🦊 生成 HTML</button>
+    <div class="status" id="gen-status"></div>
+    <p class="tagline">
+      五字段 Brief（目标/场景/内容/风格/约束）由 Brief Expert 自动补全；
+      风格 token 由 Style Expert 匹配 6 大预设；无 API Key 时走离线规则引擎。
+    </p>
+    <h3 style="margin-top:24px">最近项目</h3>
+    <div id="projects"></div>
+  </section>
+
+  <!-- 中：预览 -->
+  <section class="stage-wrap" style="display:flex;flex-direction:column;min-width:0;min-height:0">
+    <div class="stage-bar">
+      <span class="chip">类型 <b id="cur-intent">—</b></span>
+      <span class="chip">风格 <b id="cur-preset">—</b></span>
+      <span class="chip">路由 <b id="cur-route">—</b></span>
+      <span class="chip">版本 <b id="cur-rev">—</b></span>
+      <div class="sp" style="flex:1"></div>
+      <span>刷新</span><span class="kbd">Ctrl+R</span>
+      <button class="btn ghost" style="width:auto;margin:0;padding:5px 14px" onclick="reloadPreview()">↻</button>
+    </div>
+    <div class="stage">
+      <iframe id="preview" title="预览"></iframe>
+      <div class="empty" id="empty">
+        <div class="fox">🦊</div>
+        <div>左侧写一句话 Brief，生成后在这里预览</div>
+        <div style="font-size:.8rem">支持 5 类内容：落地页 / 看板 / PPT / 海报 / 架构文档</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 右：反馈 -->
+  <section class="panel">
+    <h3>反馈迭代</h3>
+    <textarea id="note" placeholder="例：颜色再深一点，参考 vercel；标题再大一点" style="min-height:72px"></textarea>
+    <button class="btn ghost" id="fb-btn" onclick="sendFeedback()" style="margin-top:10px">⚡ 提交反馈（改 token 重渲染）</button>
+    <div class="status" id="fb-status"></div>
+    <h3 style="margin-top:22px">迭代历史</h3>
+    <div id="fb-history"><p class="tagline">提交反馈后，每轮迭代（rev1、rev2…）会记录在这里，产物保存在项目 revisions/ 目录。</p></div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let currentProject = null;
+let revision = 0;
+
+(async function init() {
+  try {
+    const h = await (await fetch('/api/health')).json();
+    $('ver').textContent = 'v' + h.version;
+  } catch (e) { $('ver').textContent = '离线'; }
+  try {
+    const t = await (await fetch('/api/templates')).json();
+    $('template').innerHTML = '<option value="">自动匹配 🦊</option>' +
+      t.items.map(x => `<option value="${x.id}">${x.name}${x.source==='user'?'（用户）':''}</option>`).join('');
+  } catch (e) {}
+  try {
+    const a = await (await fetch('/api/alliance')).json();
+    $('skill').innerHTML = '<option value="">本地生成器兜底</option>' +
+      a.items.map(x => `<option value="${x.name}">${x.name}${x.installed?' ✓':''}</option>`).join('');
+  } catch (e) {}
+  loadProjects();
+})();
+
+async function loadProjects() {
+  try {
+    const r = await (await fetch('/api/projects')).json();
+    $('projects').innerHTML = r.items.length ? r.items.map(p => `
+      <div class="hist-item" onclick="openProject('${p.project.replace(/\\/g,'\\\\')}','${p.preview_url}')">
+        <div>${p.prompt || p.name}</div>
+        <div class="meta">${p.intent} · ${p.preset_id} · rev${p.revision}</div>
+      </div>`).join('') : '<p class="tagline">还没有项目。</p>';
+  } catch (e) {}
+}
+
+function openProject(project, url) {
+  currentProject = project;
+  $('preview').src = url;
+  $('empty').style.display = 'none';
+  $('cur-rev').textContent = 'rev?';
+}
+
+async function generate() {
+  const prompt = $('prompt').value.trim();
+  if (!prompt) { setStatus('gen-status', '请先写一句话需求', 'warn'); return; }
+  const btn = $('go'); btn.disabled = true;
+  setStatus('gen-status', '<span class="spin">🦊</span> 流水线执行中：Brief → Style → Asset → Generate…', '');
+  try {
+    const r = await fetch('/api/generate', { method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        prompt,
+        intent: $('intent').value || null,
+        template: $('template').value || null,
+        skill: $('skill').value || null,
+        quiet_llm: $('quiet').checked,
+      })});
+    const d = await r.json();
+    if (!d.ok) throw new Error(typeof d.error === 'string' ? d.error : d.error?.message || '生成失败');
+    currentProject = d.project;
+    revision = 0;
+    $('preview').src = d.preview_url + '?t=' + Date.now();
+    $('empty').style.display = 'none';
+    $('cur-intent').textContent = d.intent;
+    $('cur-preset').textContent = d.preset_id;
+    $('cur-route').textContent = d.route_decision + (d.skill ? ' · ' + d.skill : '');
+    $('cur-rev').textContent = 'rev0';
+    setStatus('gen-status', `✓ 生成完成（Brief 置信度 ${d.brief_confidence}）`, 'ok');
+    loadProjects();
+  } catch (e) {
+    setStatus('gen-status', '✗ ' + e.message, 'err');
+  } finally { btn.disabled = false; }
+}
+
+async function sendFeedback() {
+  const note = $('note').value.trim();
+  if (!currentProject) { setStatus('fb-status', '请先生成一个项目', 'warn'); return; }
+  if (!note) { setStatus('fb-status', '请写一句反馈', 'warn'); return; }
+  const btn = $('fb-btn'); btn.disabled = true;
+  setStatus('fb-status', '<span class="spin">🦊</span> 解析反馈 → 改 token → 重渲染…', '');
+  try {
+    const r = await fetch('/api/feedback', { method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ project: currentProject, note })});
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.ask_user || (typeof d.error === 'string' ? d.error : d.error?.message) || '失败');
+    revision = d.revision;
+    $('preview').src = d.preview_url + '?t=' + Date.now();
+    $('cur-rev').textContent = 'rev' + d.revision;
+    addHistory(d);
+    setStatus('fb-status', `✓ rev${d.revision}：${d.suggestion}`, 'ok');
+    $('note').value = '';
+    loadProjects();
+  } catch (e) {
+    setStatus('fb-status', '🦊 ' + e.message, 'warn');
+  } finally { btn.disabled = false; }
+}
+
+function addHistory(d) {
+  const box = $('fb-history');
+  if (box.querySelector('.tagline')) box.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'fb-item';
+  div.innerHTML = `<span class="rev">rev${d.revision}</span>${(d.applied_rules||[]).join(' · ') || 'token 调整'}
+    <div class="sug">${d.suggestion || ''}</div>`;
+  box.prepend(div);
+}
+
+function reloadPreview() { $('preview').src = $('preview').src; }
+function setStatus(id, html, cls) { const el = $(id); el.innerHTML = html; el.className = 'status ' + (cls||''); }
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); generate(); }
+});
+</script>
+</body>
+</html>

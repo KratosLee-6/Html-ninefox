@@ -1,174 +1,248 @@
-# Roadmap · 路线图
+# Html九尾狐 · 产品长期迭代路线 v4（跨端可用版）
 
-> 🦊 Personal project by [@KratosLee-6](https://github.com/KratosLee-6) · MIT licensed.
+> 制定日期：2026-08-31
+> 当前基线：v0.3.0 Beta 2
+> 目标：先让真实用户稳定完成“提出需求 → 生成 HTML → 预览 → 反馈修改 → 导出/分享”，再扩展平台数量。
 
-Where Html九尾狐 is going — and how you can shape the path.
+## 1. 产品北极星
 
----
+**北极星任务**：用户在 10 分钟内完成第一份可交付 HTML，并能在 3 次以内反馈迭代到可用状态。
 
-## 🎯 North Star (北极星)
+**北极星指标**：
 
-> **By 2027-Q4, Html九尾狐 is the de-facto open-source HTML creation studio with 10k+ GitHub stars, 100+ community-contributed skills, and 1M+ HTML artifacts generated.**
+- 首次成功生成率 ≥ 90%
+- 首份产物中位耗时 ≤ 10 分钟
+- 反馈迭代成功率 ≥ 85%
+- 7 日内二次使用率 ≥ 30%
+- 崩溃或不可恢复数据丢失率 < 0.1%
 
----
+## 2. 平台策略
 
-## 📅 Version Timeline (版本时间线)
+不同时维护五套业务实现。产品采用“一个核心、两个稳定 seam、多种客户端 adapter”。
 
-```
-2026 Q3          Q4            2027 Q1         Q2            Q3         Q4
-  │              │              │              │              │          │
-  ▼              ▼              ▼              ▼              ▼          ▼
-┌──────┐     ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐   ┌──────┐
-│ v0.2 │ ──► │ v0.3 │ ───► │ v0.4 │ ───► │ v1.0 │ ───► │ v1.5 │──►│ v2.0 │
-│ ✅   │     │ 🔜   │      │      │      │      │      │      │   │      │
-└──────┘     └──────┘      └──────┘      └──────┘      └──────┘   └──────┘
-5 agents     Real LLM       B2B SaaS      Public         Community  Enterprise
-3 sinks      Web UI         Feishu        Marketplace    Plugins    On-prem
-```
+### 2.1 一个核心
 
----
+Python Core 负责 Brief、模板、生成、反馈、项目、联盟路由与文件产物。所有客户端不得复制这套业务规则。
 
-## 🔜 v0.3 — Real LLM + Web UI (Month 1 · ~Sep 2026)
+### 2.2 两个稳定 seam
 
-> **Theme: Make the existing 5 agents production-grade**
+1. **本地 Python Interface**：CLI、桌面 sidecar、Codex/Claude Skill 使用。
+2. **HTTP Interface v1**：Web、PWA、iOS、小程序、Android 使用。
 
-### Scope
+HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必须进入 v2。
 
-- [ ] **Real LLM integration** — OpenAI / Claude / Gemini / DeepSeek (configurable via `~/.fox/config.yaml`)
-- [ ] **Web UI workbench** — browser-based Brief editor + live preview
-- [ ] **3 new templates** — terminal, glassmorphism, bauhaus
-- [ ] **Async pipeline** — run [3] asset fetch in parallel with [2] style pick
-- [ ] **Result caching** — same Brief hash → instant replay
-- [ ] **GitHub Actions CI** — auto-test on every PR (lint, types, integration, security)
-- [ ] **Discord community channel**
+### 2.3 客户端 adapter 顺序
 
-### Out of Scope
+| 顺序 | 客户端 | 定位 | 技术建议 | 是否承载完整画布 |
+|---|---|---|---|---|
+| 1 | Web / PWA | 最快验证完整闭环 | 现有 HTML 工作台 + HTTP v1 | 是 |
+| 2 | Windows | 核心付费/高频创作端 | Tauri 2 + Python sidecar | 是 |
+| 3 | macOS | 与 Windows 同一桌面代码 | Tauri 2 + Python sidecar | 是 |
+| 4 | iOS | 审阅、反馈、分享、轻编辑 | SwiftUI 或 Capacitor；连接云端 HTTP v1 | 否，先做轻客户端 |
+| 5 | 微信小程序 | 获客、查看模板、发起任务 | 原生小程序 + 云端 HTTP v1 | 否 |
+| 6 | Android | 与 iOS 同类轻客户端 | Kotlin/Compose 或 Capacitor | 否，后置 |
 
-- No paid tier yet (all free + MIT)
-- No SaaS dashboard (workbench is local-only)
-- No mobile app (web-responsive only)
+## 3. 已落地：v0.2.1 跨端底座（2026-08-31）
 
-### Success Metric
+- Web 工作台增加 PWA manifest、Service Worker、应用图标与安装入口。
+- Windows/macOS 浏览器可安装为独立窗口应用。
+- iOS/iPadOS 增加“添加到主屏幕”引导；正式使用要求 HTTPS 部署。
+- 素材库与检查器在手机/平板变为抽屉。
+- 素材支持触屏点按加入，画布节点支持 Pointer Events 拖动。
+- 工作区壳和本地画布状态可离线打开；生成与反馈明确要求连接后端。
+- 新增 `GET /api/capabilities`，作为未来客户端能力协商入口。
+- 包资源纳入 `pyproject.toml`，避免安装后缺失 PWA 文件。
 
-- 500 GitHub stars by end of v0.3
-- 10 community-contributed alliance skills
+## 4. 版本路线
 
----
+### v0.2.2 · 可恢复与可诊断（已于 2026-08-31 提前完成）
 
-## 🏢 v0.4 — B2B SaaS Tier (Month 3 · ~Nov 2026)
+**目标**：解决真实使用中最常见的失败与数据丢失。
 
-> **Theme: First revenue, first enterprise pilots**
+- [x] 项目自动保存、恢复、复制、重命名、软删除。
+- [x] API 统一错误码、request_id、可读错误提示。
+- [x] 生成任务状态：queued/running/succeeded/failed/cancelled。
+- [x] 脱敏“一键诊断包”。
+- [x] Canvas Schema v1 与旧 localStorage 兼容迁移。
+- [x] 新增项目、恢复、错误、Job、诊断与 HTTP 自动测试。
 
-### Scope
+**发布门槛**：异常中断后项目可恢复；失败任务不产生半成品覆盖。
 
-- [ ] **B2B SaaS tier** — paid subscription with team workspaces, audit log, role-based access
-- [ ] **Feishu integration** — generate HTML from Feishu doc, push to Feishu wiki
-- [ ] **Deploy agent (tail #6)** — auto-deploy to Vercel / Netlify / Cloudflare Pages
-- [ ] **Analytics agent (tail #7)** — track HTML opens, time-on-page, conversion
-- [ ] **Brand kit** — upload logo, color palette, fonts → all templates respect it
+### v0.2.3 · 丝滑画布与真实预览（已于 2026-08-31 完成）
 
-### Out of Scope
+**目标**：让用户不用猜版式，并在缩放、拖动和连线时保持稳定手感。
 
-- No mobile app
-- No AI auto-training (still uses OpenAI / Claude APIs)
-- No template marketplace yet
+- [x] 独立画布几何模块，统一世界坐标、节点尺寸、端口坐标与贝塞尔连线。
+- [x] 拖动热路径使用 `requestAnimationFrame`，交互结束后再持久化。
+- [x] 16px 网格吸附、同边/中心对齐线、工作区边界收纳与 `Alt` 临时关闭吸附。
+- [x] 左右输入/输出端口、扩大命中半径、候选端口高亮与缩放后准确连线。
+- [x] 6 类版式 × 6 风格真实 HTML 预览端点、缩略图和放大预览。
+- [x] Chromium 回归覆盖缩放拖动、模型/DOM 同步、吸附、连线和预览。
 
-### Success Metric
+**发布门槛**：缩放 125% 后拖动无错位；端口连线一次成功；选择模板前可看到真实 HTML。
 
-- 5 paying B2B customers (each $200/mo+)
-- 2000 GitHub stars
-- 50 community-contributed skills
+### v0.2.4 · 工作区管理与多风格系统（已于 2026-08-31 完成）
 
----
+**目标**：让多工作区无限画布真正可管理，并让模板预览摆脱单一白色骨架。
 
-## 🌐 v1.0 — Public Release + Template Marketplace (Month 6 · ~Feb 2027)
+- [x] 工作区列表、定位、重命名、独立颜色与当前工作区状态。
+- [x] 工作区整体拖动时同步移动内部素材，旧快照自动迁移工作区归属。
+- [x] 全局创作时间轴改为当前工作区独立进度。
+- [x] 新增 5 套九尾狐原创视觉系统，合计 11 套真实 HTML 风格预览。
+- [x] 完成 Huashu / Guizang 来源与许可证审计，采用 clean-room 适配。
+- [x] 输出三套品牌、Logo 与工作台视觉方向，等待用户选定后全面换肤。
 
-> **Theme: This is the LTS-grade release.**
+**发布门槛**：三个以上工作区仍可快速定位；重命名和颜色持久化；工作区拖动不拆散内部节点；每套新风格在 6 类内容中可渲染。
 
-### Scope
+### v0.2.5 · 像素花园品牌工作台（已于 2026-09-01 完成）
 
-- [ ] **Template marketplace** — community submits, votes, downloads templates
-- [ ] **A/B test agent (tail #8)** — generate 2 variants, serve, pick winner
-- [ ] **Stable API** — `fox.server` HTTP API with OpenAPI spec
-- [ ] **Plugin SDK** — write custom agents in any language (not just Python)
-- [ ] **Internationalization** — UI + docs in EN / ZH / JA
-- [ ] **Performance** — full Brief → HTML in < 10 seconds (P95)
+**目标**：让工作台脱离黑紫 AI 套壳感，形成可持续复用的品牌与界面系统。
 
-### Out of Scope
+- [x] 用户定稿 A「像素花园」品牌方向。
+- [x] 完成九尾狐 × HTML 可编辑 SVG Logo 系统。
+- [x] 完成暖纸白 / 夜蓝双主题及本地偏好保存。
+- [x] 工作台组件、网格、字体、图标、圆角、阴影与焦点态统一换肤。
+- [x] 首次工作区默认使用 `fox-pixel-garden` 真实 HTML 风格。
+- [x] 完成 VI 与 UI 手册，并补充品牌和主题自动验收。
 
-- No AI model fine-tuning (still API-based)
-- No content moderation tools (out of scope)
+**发布门槛**：两套主题均可读；刷新后主题不丢失；Logo/PWA 资产随 wheel 安装；既有画布与工作区功能回归全绿。
 
-### Success Metric
+### v0.3.0 · 公开可安装 Beta（Beta 1 已于 2026-09-01 完成）
 
-- 10k GitHub stars ⭐
-- 100+ marketplace templates
-- 50 paying B2B customers
-- First 100 SAU (self-hosted active users)
+**目标**：任何用户 clone 后可安装、启动、生成，不依赖项目作者电脑环境。
 
----
+- 把真实 Python 包、测试、PWA 资源同步到正式 Git 仓库。
+- [x] Windows 便携包、安装器定义与一键启动入口；macOS/Tauri 桌面壳后续继续。
+- 配置向导：模型、API Key、输出目录、隐私模式。
+- 支持 OpenAI/Claude/Gemini/DeepSeek 与本地模型 adapter。
+- 项目导入/导出 zip；产物一键打开目录。
+- [x] Windows / Linux 自动打包工作流；Python 多版本 CI 与 macOS 包继续补齐。
+- [ ] Windows 代码签名、自动升级与正式 Release 流程。
 
-## 💼 v1.5 — Community Plugins + Skill Ecosystem (Month 9 · ~May 2027)
+**发布门槛**：全新电脑按 README 15 分钟内启动；CI 全绿；至少 20 名种子用户完成首份产物。
 
-> **Theme: Make the alliance truly federated**
+### v0.4.0 · 桌面创作版（2026-11-01 ～ 2027-01-31）
 
-### Scope
+**目标**：Windows 与 macOS 成为稳定主创作端。
 
-- [ ] **Federated skill registry** — public/private skill servers
-- [ ] **Skill version manager** — semantic versioning, dependency resolution
-- [ ] **Skill marketplace revenue share** — community gets 70% of paid skill sales
-- [ ] **CLI for skill authors** — `fox skill init`, `fox skill publish`, `fox skill test`
-- [ ] **Monetize agent (tail #9)** — auto-insert affiliate links, sponsored sections
+- Tauri 2 桌面壳，共享 Web 前端。
+- Python Core 作为受控 sidecar，自动启动、健康检查、升级。
+- 原生文件选择、拖入素材、最近项目、系统托盘。
+- 本地密钥安全存储、自动更新、崩溃恢复。
+- 大项目性能：100 节点画布、20 次 revision 可流畅操作。
 
-### Success Metric
+**发布门槛**：连续 7 天 dogfood；核心路径崩溃率 < 0.5%；Windows/macOS 各 20 名活跃用户。
 
-- 500 published skills
-- 100 paid skills
-- 25k GitHub stars
+### v0.5.0 · 云同步与 iOS Companion（2027-02-01 ～ 2027-04-30）
 
----
+**目标**：移动端完成审阅与反馈，不复制桌面复杂画布。
 
-## 🏛️ v2.0 — Enterprise + On-Prem (Month 12 · ~Aug 2027)
+- 账户、项目同步、分享链接、版本评论。
+- iOS：项目列表、HTML 预览、语音/文字反馈、审批、分享。
+- 推送通知：生成完成、反馈完成、协作者评论。
+- 离线反馈队列，联网后同步。
+- 团队最小权限：owner/editor/reviewer。
 
-> **Theme: Enterprises can self-host with full data sovereignty**
+**发布门槛**：桌面创建项目后，iPhone 可在 2 分钟内完成审阅反馈闭环。
 
-### Scope
+### v0.6.0 · 小程序获客版（2027-05-01 ～ 2027-06-30）
 
-- [ ] **On-prem deployment** — Docker Compose + Helm chart
-- [ ] **Air-gapped mode** — no external API calls, uses local models
-- [ ] **SSO + RBAC** — SAML, OIDC, SCIM
-- [ ] **Audit log** — full activity log for compliance
-- [ ] **SOC 2 Type II** — for enterprise sales
-- [ ] **Dedicated support tier** — $5k/mo+ contracts
+- 模板浏览、案例展示、一句话发起生成。
+- 微信登录、分享卡片、任务通知。
+- 只做轻编辑和反馈，不实现无限画布。
+- 企业微信/飞书入口根据真实客户需求择一实现。
 
-### Success Metric
+### v0.7+ · Android 与生态扩展（2027-07-01 以后）
 
-- 5 enterprise on-prem customers ($50k+ ACV each)
-- 50k GitHub stars
-- Profitable as a company
+- Android 轻客户端复用 HTTP v1 与移动端产品模型。
+- 模板市场、联盟 skill registry、团队品牌资产。
+- 根据付费与留存数据决定是否建设云端完整画布。
 
----
+## 5. 产品能力分层
 
-## 🤝 How to Influence the Roadmap (怎么影响路线图)
+### P0：没有就不能用
 
-| Want to push for... | How |
-|---------------------|-----|
-| A new template style | File an issue with `template-request` label + 2 reference designs |
-| A new agent (tail #10+) | Open a discussion in GitHub Discussions > Ideas |
-| A new alliance skill | See [CONTRIBUTING.md](../CONTRIBUTING.md) for skill manifest format |
-| A breaking change | Major versions only — we follow semver strictly |
-| Bug fix priority | File an issue with `bug` + `priority:high` labels |
+- 安装、启动、首次生成、反馈迭代、项目恢复、导出。
+- 清晰错误提示与诊断。
+- 数据不丢失，旧版本项目可迁移。
 
----
+### P1：形成持续使用
 
-## 🚫 What We Won't Build (不会做)
+- 最近项目、模板收藏、品牌资产、版本对比、分享审批。
+- 模型配置向导、成本与用量展示。
+- 桌面系统集成与云同步。
 
-- ❌ A Figma competitor — Figma is great at what it does
-- ❌ A no-code visual editor — use Webflow / Framer
-- ❌ A CMS — use Ghost / Strapi / Sanity
-- ❌ A mobile app — web-responsive is enough
-- ❌ Fine-tuned in-house LLMs — too expensive vs. API quality
+### P2：形成商业与生态
 
----
+- 团队空间、权限、审计、模板市场、Skill 联盟、部署发布。
+- 小程序获客、移动通知、企业集成。
 
-<p align="center"><sub>🦊 The 9 tails grow one run at a time · Roadmap last updated 2026-08-29</sub></p>
+## 6. 技术架构原则
+
+- **Core 不感知客户端**：业务规则只在 Python Core。
+- **接口是测试面**：CLI 与 HTTP v1 复用同一 pipeline，不各写一套生成逻辑。
+- **本地优先**：项目和产物默认保存在本地；云同步是显式能力。
+- **异步任务化**：超过 1 秒的生成统一进入 Job 模型，避免客户端超时。
+- **schema 先行**：Project、Canvas、Brief、Revision、Job 都有版本号。
+- **安全默认**：API Key 不进入项目文件；输出路径必须限制在 workspace；分享默认私有。
+- **可观测**：每个任务有 request_id、阶段耗时、失败原因和可导出诊断。
+
+## 7. 近期四个 Sprint
+
+### Sprint 1 · 2026-08-31 ～ 2026-09-06
+
+- [x] PWA 安装与应用壳缓存
+- [x] 移动抽屉与触控拖动
+- [x] `/api/capabilities`
+- [x] 包资源与测试更新
+- [x] 源码同步到正式 Git 仓库
+- [ ] clone → install → serve 验收
+
+### Sprint 2 · 2026-09-07 ～ 2026-09-14
+
+- [x] Project CRUD 与恢复
+- [x] Canvas schema v1
+- [x] 统一错误模型
+- [x] 诊断包导出
+
+### Sprint 3 · 2026-09-15 ～ 2026-09-28
+
+- [x] Job 异步模型（v0.2.2 已提前完成）
+- [ ] 生成进度与取消
+- [ ] Windows/macOS 启动器
+- [ ] GitHub Actions
+
+### Sprint 4 · 2026-09-29 ～ 2026-10-12
+
+- [ ] 配置向导
+- [ ] 多模型 adapter 验收
+- [ ] 项目 zip 导入导出
+- [ ] 20 人种子测试
+
+## 8. 每次迭代的 Definition of Done
+
+一个功能只有同时满足以下条件才算完成：
+
+1. 用户路径可从 UI 或 CLI 完成，不需要手改内部文件。
+2. 核心成功路径与至少一个失败路径有自动测试。
+3. README/帮助文本同步更新。
+4. Windows 与 Web 必测；涉及触控时增加移动 viewport E2E。
+5. 不破坏现有项目 schema；需要破坏时提供迁移。
+6. 有可观察的成功指标，而不是只记录“代码完成”。
+
+## 9. 当前主要风险
+
+- **正式仓库无源码**：最高优先级，阻断外部安装和贡献。
+- **本地 HTTP 服务不是云产品**：iOS/小程序必须通过 HTTPS 云端或局域网安全网关访问。
+- **无限画布不适合手机主创作**：移动端应定位为审阅和反馈。
+- **多模型输出不稳定**：离线模板兜底、结构校验和 revision 回滚必须长期保留。
+- **平台过早扩张**：没有留存数据前不同时开 Windows、iOS、Android、小程序四条原生线。
+
+## 10. 下一步执行顺序
+
+1. 开发配置向导与多模型 adapter 验收。
+2. 增加项目 zip 导入导出与一键打开目录。
+3. 建立 GitHub Actions 与发布签名流程。
+4. 启动 Windows/macOS 启动器，再进入 Tauri 桌面壳。
+
+这条路线把“平台数量”放在“核心闭环稳定”之后，确保每新增一个客户端只是增加 adapter，而不是复制产品实现。

@@ -1,0 +1,14 @@
+# huashu-design · Skill 联盟成员 manifest（种子）
+# 高保真 HTML 原型/动画 —— 未安装时由本地 landing 生成器兜底
+name: huashu-design
+version: 1.0.0
+author: 花叔
+category: design
+description: 用 HTML 做高保真原型、幻灯片、动画、可视化与专家评审；新设计先出三个方向初稿
+intents: [landing, poster]
+python_module: huashu_design
+entry: python -m huashu_design --brief {brief_path}
+fallback: local:landing
+homepage: https://github.com/alchaincyf/huashu-design
+license: MIT
+integration: workflow-adapter

@@ -9,6 +9,149 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0b2] — 2026-09-01 · Real Template Gallery & Guided AI Composition
+
+### Added
+
+- Six original, real-HTML showcase templates inspired by Guizang editorial and Swiss layout methods, with page-level preview and extraction.
+- Guided creation entry for text, documents, and images: analyze, recommend a composition, accept it, or continue with custom canvas assembly.
+- Local AI model settings for OpenAI-compatible endpoints with secret-safe API responses and a built-in connection test.
+- Persistent composition metadata for selected gallery, pages, attachments, skills, and recommendation mode.
+
+### Changed
+
+- Layout, content, and style palettes now prioritize real rendered HTML rather than wireframe-only thumbnails.
+- Canvas generation consumes selected page blocks, uploaded context, skills, colors, fonts, and templates.
+- PWA cache and cross-platform package version advance to Beta 2.
+
+---
+
+## [0.3.0b1] — 2026-09-01 · Cross-platform Installable Beta 1
+
+### Added
+
+- Unified `htmlninefox app` launcher with health-based browser opening and automatic port fallback.
+- Windows portable PyInstaller bundle, branded icon pipeline, SHA256 output, and Inno Setup installer definition.
+- Linux user-level self-extracting `.run` installer and inspectable `.tar.gz` package.
+- Dockerfile, Docker Compose, uv launchers, desktop entry, and local-network deployment guidance.
+- Packaging automation for current Windows and Linux release artifacts.
+
+### Changed
+
+- Windows portable builds keep configuration, cache, projects, and output in a movable `user-data` directory.
+- Runtime health responses expose the distribution channel; Windows and Linux clients are now marked beta.
+- Installation documentation now separates portable, installed, container, PWA, and shared-server modes.
+
+---
+
+## [0.2.5] — 2026-09-01 · Pixel Garden Brand Workbench
+
+### Added
+
+- Final editable SVG brand system: app icon, standalone mark, and horizontal lockup combining a pixel fox with HTML angle brackets.
+- Pixel Paper and Pixel Night UI themes with persisted theme preference and synchronized browser theme color.
+- Complete visual identity and UI specifications in `docs/VI.md` and `docs/UI-GUIDE.md`.
+- Archived v0.2.4 workbench snapshot for design comparison.
+
+### Changed
+
+- Replaced the black-purple AI aesthetic with warm paper, cobalt, mint, night-blue, compact radii, fine pixel accents, and restrained offset shadows.
+- Updated canvas grid, panels, nodes, workspaces, status components, palette colors, focus states, and responsive brand lockup.
+- New workspaces now start with `fox-pixel-garden` instead of the legacy Vercel dark preset.
+- PWA manifest, service-worker cache, static routes, package version, screenshots, and tests now target v0.2.5.
+
+---
+
+## [0.2.4] — 2026-08-31 · Workspace Management & Visual Systems
+
+### Added
+
+- Persistent workspace navigator with one-click locate, active-workspace state, direct editing, and per-workspace material counts.
+- Workspace names, six identification colors, legacy snapshot migration, and whole-workspace dragging that preserves child positions.
+- Per-workspace creation progress replacing the unusable global infinite-canvas timeline.
+- Five original visual systems: Pixel Garden, Duotone Studio, Editorial Ink, Swiss Signal, and Soft Silver.
+- Three real brand/UI direction boards with Html × nine-tailed-fox logo concepts.
+- Design-source and license audit for Huashu Design and Guizang PPT Skill.
+
+### Changed
+
+- The primary “推进生成” action now targets the active workspace instead of the last-created workspace.
+- Generated output nodes retain their originating workspace identity.
+- Workspace snapping aligns against other workspaces and no longer jumps toward its own child nodes.
+- Template cards expose their visual-system origin and render structure-level differences instead of token-only recoloring.
+
+### Verified
+
+- 135 Python/API tests, 19 isolated Chromium acceptance checks, and 30 multi-intent rich-preview renders pass.
+
+---
+
+## [0.2.3] — 2026-08-31 · Smooth Canvas & Live Template Preview
+
+### Added
+
+- Real HTML thumbnails for all six layout types and six built-in visual presets.
+- Large preview dialog and a dedicated `GET /api/template-preview` endpoint.
+- Left/right input and output ports with expanded hit targets and candidate highlighting.
+- Grid snapping, edge/center alignment guides, and workspace containment on drop.
+- A dedicated `canvas-engine.js` geometry module shared by drag, snap, ports, and edges.
+
+### Changed
+
+- Pointer movement is batched through `requestAnimationFrame` and persistence happens after the interaction instead of on every move.
+- Node positioning uses one world-coordinate model and `translate3d`, preventing zoom-related DOM/model drift.
+- Edge endpoints are measured from real port positions instead of fixed node offsets.
+
+### Verified
+
+- 28 focused Python/API tests and 11 real Chromium canvas/preview checks pass.
+
+---
+
+## [0.2.2] — 2026-08-31 · Recoverable Workbench
+
+### Added
+
+- Project rename, duplicate, details, and recoverable soft delete.
+- Canvas Schema v1 with atomic server snapshots and automatic backup recovery.
+- Persistent asynchronous jobs with queued/running/succeeded/failed/cancelled states.
+- Privacy-conscious one-click diagnostic zip.
+- Unified HTTP error contract with stable codes and request IDs.
+
+### Changed
+
+- Web generation now submits a job and polls its state instead of blocking on one long request.
+- Project and workspace filesystem behavior is concentrated in `ProjectStore`.
+
+### Verified
+
+- Full pytest suite, JavaScript parsing, wheel resource checks, and a real async generation flow.
+
+---
+
+## [0.2.1] — 2026-08-31 · Cross-platform Foundation
+
+### Added
+
+- Installable PWA shell, manifest, service worker, application icon, and install guidance.
+- Responsive mobile drawers and Pointer Events canvas interactions.
+- `GET /api/capabilities` for future desktop and mobile clients.
+- Real Python package source and tests in the public repository.
+
+### Fixed
+
+- Windows GBK terminal crashes when Rich prints emoji.
+- Broken `brief list` / `brief add` CLI calls.
+- Jinja2 is optional again; the native generator remains the zero-dependency fallback.
+- Default LiteLLM config and all PWA/template resources are included in package data.
+
+### Verified
+
+- 90 pytest tests pass in both the development tree and public repository.
+- Fresh user-directory smoke test generates a valid HTML artifact.
+
+---
+
 ## [0.2.0] — 2026-08-29  ·  🎉 First Public Release
 
 > 🦊 **First release with all 5 agents real, all 3 sinks real, all tests passing, ready for GitHub.**

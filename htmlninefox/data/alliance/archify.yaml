@@ -1,0 +1,12 @@
+# archify · Skill 联盟成员 manifest（种子）
+# 5 种验证过的架构图 —— 未安装时由本地 archdoc 生成器兜底
+name: archify
+version: 1.0.0
+author: tt-a1i
+category: arch
+description: 生成 5 种验证过的架构图（分层/时序/数据流/部署/ER），JSON 驱动可版本化
+intents: [archdoc]
+python_module: archify
+entry: python -m archify --spec {spec_path} --format html
+fallback: local:archdoc
+homepage: https://github.com/tt-a1i/archify

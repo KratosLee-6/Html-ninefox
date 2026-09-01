@@ -1,0 +1,315 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "guizang-editorial-ink",
+      "name": "归藏 · 电子墨水发布会",
+      "intent": "deck",
+      "preset_id": "guizang-magazine",
+      "category": "editorial",
+      "origin": "归藏式电子杂志方法 · Html九尾狐原创演示",
+      "description": "暖纸、衬线大字、章节节奏与数据大字报，适合发布会和观点分享。",
+      "pages": [
+        {
+          "id": "cover",
+          "name": "封面",
+          "headline": "把复杂创作，折叠成一条清晰路径",
+          "kicker": "HTML NATIVE · VOL.01",
+          "block_id": "cover"
+        },
+        {
+          "id": "problem",
+          "name": "问题",
+          "headline": "模板很多，但选择仍然像猜谜",
+          "kicker": "WHY NOW",
+          "block_id": "problem"
+        },
+        {
+          "id": "solution",
+          "name": "解法",
+          "headline": "从输入、分析、推荐到生成，一次完成",
+          "kicker": "THE SYSTEM",
+          "block_id": "solution"
+        },
+        {
+          "id": "metrics",
+          "name": "数据",
+          "headline": "6×4",
+          "kicker": "REAL TEMPLATES / PAGE RECIPES",
+          "block_id": "metrics"
+        },
+        {
+          "id": "roadmap",
+          "name": "路线",
+          "headline": "看见 → 选择 → 组合 → 生成",
+          "kicker": "WORKFLOW",
+          "block_id": "roadmap"
+        },
+        {
+          "id": "ending",
+          "name": "结尾",
+          "headline": "不是更多按钮，而是更少猜测",
+          "kicker": "HTML 九尾狐",
+          "block_id": "ending"
+        }
+      ],
+      "file": "guizang-editorial-ink.html"
+    },
+    {
+      "id": "guizang-indigo-research",
+      "name": "归藏 · 靛蓝研究档案",
+      "intent": "deck",
+      "preset_id": "guizang-magazine",
+      "category": "research",
+      "origin": "归藏式电子杂志方法 · Html九尾狐原创演示",
+      "description": "靛蓝瓷主题、研究档案编号与证据网格，适合技术、研究和行业报告。",
+      "pages": [
+        {
+          "id": "cover",
+          "name": "研究封面",
+          "headline": "AI 原生创作工具的下一种工作方式",
+          "kicker": "FIELD NOTES · 2026",
+          "block_id": "cover"
+        },
+        {
+          "id": "problem",
+          "name": "观察",
+          "headline": "工具不是缺少功能，而是缺少编排",
+          "kicker": "OBSERVATION",
+          "block_id": "problem"
+        },
+        {
+          "id": "solution",
+          "name": "模型",
+          "headline": "需求、素材、模型与产物形成可追踪图谱",
+          "kicker": "MODEL",
+          "block_id": "solution"
+        },
+        {
+          "id": "demo",
+          "name": "证据",
+          "headline": "每个选择都能预览，每次生成都能复用",
+          "kicker": "EVIDENCE",
+          "block_id": "demo"
+        },
+        {
+          "id": "metrics",
+          "name": "指标",
+          "headline": "87%",
+          "kicker": "LESS GUESSING / MORE MAKING",
+          "block_id": "metrics"
+        },
+        {
+          "id": "ending",
+          "name": "结论",
+          "headline": "把经验沉淀为下一次创作的起点",
+          "kicker": "CONCLUSION",
+          "block_id": "ending"
+        }
+      ],
+      "file": "guizang-indigo-research.html"
+    },
+    {
+      "id": "guizang-swiss-signal",
+      "name": "归藏 · 瑞士信号系统",
+      "intent": "deck",
+      "preset_id": "fox-swiss-signal",
+      "category": "swiss",
+      "origin": "归藏瑞士网格方法 · Html九尾狐原创演示",
+      "description": "12 栏网格、单一锚点色、极致字号对比，适合产品战略和高密度汇报。",
+      "pages": [
+        {
+          "id": "cover",
+          "name": "信号封面",
+          "headline": "HTML / SKILL / CANVAS",
+          "kicker": "SYSTEM 01",
+          "block_id": "cover"
+        },
+        {
+          "id": "problem",
+          "name": "原则",
+          "headline": "一份作品，只保留一个视觉锚点",
+          "kicker": "RULE 01",
+          "block_id": "problem"
+        },
+        {
+          "id": "solution",
+          "name": "结构",
+          "headline": "12 COL GRID",
+          "kicker": "RULE 02",
+          "block_id": "solution"
+        },
+        {
+          "id": "metrics",
+          "name": "数据",
+          "headline": "24",
+          "kicker": "LAYOUTS READY",
+          "block_id": "metrics"
+        },
+        {
+          "id": "roadmap",
+          "name": "路径",
+          "headline": "INPUT → ANALYZE → COMPOSE → BUILD",
+          "kicker": "PIPELINE",
+          "block_id": "roadmap"
+        },
+        {
+          "id": "ending",
+          "name": "结束",
+          "headline": "MAKE THE CHOICE VISIBLE",
+          "kicker": "END",
+          "block_id": "ending"
+        }
+      ],
+      "file": "guizang-swiss-signal.html"
+    },
+    {
+      "id": "guizang-kraft-story",
+      "name": "归藏 · 牛皮纸品牌故事",
+      "intent": "deck",
+      "preset_id": "guizang-magazine",
+      "category": "story",
+      "origin": "归藏式叙事版式 · Html九尾狐原创演示",
+      "description": "牛皮纸、档案编号、时间线与引用页，适合品牌故事、文化和人文内容。",
+      "pages": [
+        {
+          "id": "cover",
+          "name": "故事封面",
+          "headline": "一只九尾狐，如何学会编排创作",
+          "kicker": "ARCHIVE · 09",
+          "block_id": "cover"
+        },
+        {
+          "id": "problem",
+          "name": "起点",
+          "headline": "最早的问题，是每次都从空白开始",
+          "kicker": "ORIGIN",
+          "block_id": "problem"
+        },
+        {
+          "id": "solution",
+          "name": "转折",
+          "headline": "模板不是答案，模板是可以修改的经验",
+          "kicker": "TURNING POINT",
+          "block_id": "solution"
+        },
+        {
+          "id": "demo",
+          "name": "档案",
+          "headline": "文字、图片、文件与技能被放进同一张地图",
+          "kicker": "ARCHIVE",
+          "block_id": "demo"
+        },
+        {
+          "id": "roadmap",
+          "name": "时间线",
+          "headline": "记录选择，也记录为什么这样选择",
+          "kicker": "TIMELINE",
+          "block_id": "roadmap"
+        },
+        {
+          "id": "ending",
+          "name": "尾声",
+          "headline": "让下一次创作，从这一次继续生长",
+          "kicker": "EPILOGUE",
+          "block_id": "ending"
+        }
+      ],
+      "file": "guizang-kraft-story.html"
+    },
+    {
+      "id": "guizang-dune-portfolio",
+      "name": "归藏 · 沙丘作品集",
+      "intent": "landing",
+      "preset_id": "fox-editorial-ink",
+      "category": "portfolio",
+      "origin": "归藏式编辑设计 · Html九尾狐原创演示",
+      "description": "沙丘中性色、编辑式留白和项目索引，适合作品集、品牌官网与设计服务。",
+      "pages": [
+        {
+          "id": "hero",
+          "name": "首页 Hero",
+          "headline": "让网页像一本可以交互的作品集",
+          "kicker": "SELECTED WORK · 2026",
+          "block_id": "hero"
+        },
+        {
+          "id": "features",
+          "name": "项目索引",
+          "headline": "三个方向，三种不同的视觉叙事",
+          "kicker": "INDEX",
+          "block_id": "features"
+        },
+        {
+          "id": "pricing",
+          "name": "服务方式",
+          "headline": "从快速原型到完整视觉系统",
+          "kicker": "SERVICE",
+          "block_id": "pricing"
+        },
+        {
+          "id": "faq",
+          "name": "方法说明",
+          "headline": "每个页面都能被单独抽取和重新组合",
+          "kicker": "METHOD",
+          "block_id": "faq"
+        },
+        {
+          "id": "cta",
+          "name": "行动召唤",
+          "headline": "从一个真实模板开始，而不是空白画布",
+          "kicker": "START",
+          "block_id": "cta"
+        }
+      ],
+      "file": "guizang-dune-portfolio.html"
+    },
+    {
+      "id": "pixel-garden-product",
+      "name": "九尾狐 · 像素花园产品页",
+      "intent": "landing",
+      "preset_id": "fox-pixel-garden",
+      "category": "product",
+      "origin": "Html九尾狐 Pixel Garden 原创模板",
+      "description": "像素密度更细的花园界面、模块化内容和双层卡片，适合工具产品与创作平台。",
+      "pages": [
+        {
+          "id": "hero",
+          "name": "首页 Hero",
+          "headline": "把灵感拖进画布，让它长成真正的 HTML",
+          "kicker": "PIXEL GARDEN",
+          "block_id": "hero"
+        },
+        {
+          "id": "features",
+          "name": "能力矩阵",
+          "headline": "真实预览、智能推荐、自由组合",
+          "kicker": "FEATURES",
+          "block_id": "features"
+        },
+        {
+          "id": "pricing",
+          "name": "使用方式",
+          "headline": "本地运行、便携包与 Web 入口",
+          "kicker": "ACCESS",
+          "block_id": "pricing"
+        },
+        {
+          "id": "faq",
+          "name": "常见问题",
+          "headline": "API Key 由用户自己掌握，离线仍可运行",
+          "kicker": "FAQ",
+          "block_id": "faq"
+        },
+        {
+          "id": "cta",
+          "name": "开始创作",
+          "headline": "输入一句需求，选择推荐或自己编排",
+          "kicker": "CREATE",
+          "block_id": "cta"
+        }
+      ],
+      "file": "pixel-garden-product.html"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "htmlninefox"
+version = "0.3.0b2"
+description = "Html九尾狐 · 开源 HTML 创作 Skill 联盟主编排器（v0.3.0 Beta 2 跨平台可安装版）"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "汐构科技 · Html九尾狐 项目组" }]
+requires-python = ">=3.10"
+dependencies = [
+    "pyyaml>=6.0",
+    "click>=8.1",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+templates = ["jinja2>=3.1"]
+# LLM 增强（可选）：无 Key 时自动走离线规则引擎，功能不缺失
+llm = ["litellm>=1.40.0"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "playwright>=1.40"]
+packaging = ["pyinstaller>=6.0,<7"]
+
+[project.scripts]
+htmlninefox = "htmlninefox.cli:main"
+htmlninefox-desktop = "htmlninefox.desktop:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["htmlninefox*"]
+exclude = ["tests*", "examples*"]
+
+[tool.setuptools.package-data]
+htmlninefox = ["data/alliance/*.yaml", "example/*.yaml", "templates/*.html", "server/static/*.html", "server/static/*.js", "server/static/*.svg", "server/static/*.webmanifest", "templates/gallery/*.html", "templates/gallery/*.json"]

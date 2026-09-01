@@ -1,0 +1,37 @@
+# Html九尾狐 用户配置示例
+# 复制到: ~/.htmlninefox/config.yaml
+# 至少配置一个供应商 API key（强烈建议用环境变量）
+
+llm:
+  default: minimax-cn
+
+routing:
+  brief_expert: minimax-cn
+  style_expert: minimax-cn
+  feedback_expert: minimax-cn
+  ppt_generation: openai-gpt4o
+  design_prototype: anthropic-claude
+
+fallback:
+  - ollama/qwen2.5:7b
+  - ollama/llama3.1:8b
+
+cache:
+  enabled: true
+  ttl_days: 7
+
+skill_alliance:
+  enabled: true   # v0.1 占位，v0.2 真接
+  skills:
+    ppt: guizang-ppt
+    design: huashu-design
+    arch: archify
+
+libraries:
+  briefs: ~/.htmlninefox/briefs/
+  templates: ~/.htmlninefox/templates/
+  feedback: ~/.htmlninefox/feedback/
+
+cost:
+  daily_budget_usd: 5.00
+  monthly_budget_usd: 50.00

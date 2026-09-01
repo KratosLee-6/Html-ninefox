@@ -1,0 +1,15 @@
+# guizang-ppt · Skill 联盟成员 manifest（种子）
+# 横向翻页网页 PPT —— 未安装时由 Html九尾狐 本地 deck 生成器兜底
+name: guizang-ppt
+version: 1.0.0
+author: 归藏
+category: deck
+description: 横向翻页网页 PPT（电子杂志 × 电子墨水 / 瑞士国际主义两种风格），WebGL 背景、章节幕封、数据大字报
+intents: [deck]
+python_module: guizang_ppt        # 可 import 即视为已安装
+entry: python -m guizang_ppt --topic "{topic}" --style {style}
+fallback: local:deck
+cost_estimate: 0.05-0.15          # 美元/次（LLM 增强时）
+homepage: https://github.com/op7418/guizang-ppt-skill
+license_review: README 声称 MIT，但本地 LICENSE 为 AGPL-3.0；仅 clean-room 适配，不复制代码资产
+integration: clean-room-design-adapter

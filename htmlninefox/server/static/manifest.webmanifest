@@ -1,0 +1,37 @@
+{
+  "name": "Html九尾狐 · 像素花园工作台",
+  "short_name": "Html九尾狐",
+  "description": "以工作区、真实 HTML 预览和反馈迭代完成可交付网页与版式。",
+  "lang": "zh-CN",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F4F0E7",
+  "theme_color": "#173C8F",
+  "categories": [
+    "productivity",
+    "design",
+    "developer"
+  ],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "新建工作区",
+      "short_name": "新建",
+      "url": "/?action=new"
+    },
+    {
+      "name": "经典表单版",
+      "short_name": "表单版",
+      "url": "/classic"
+    }
+  ]
+}

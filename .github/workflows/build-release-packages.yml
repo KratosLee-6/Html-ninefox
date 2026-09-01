@@ -1,0 +1,49 @@
+name: Build release packages
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[packaging]" cairosvg pillow
+      - run: python -m pip wheel . --no-deps --no-build-isolation --wheel-dir dist
+      - run: choco install innosetup -y --no-progress
+      - run: python packaging/windows/build_portable.py --installer
+      - uses: actions/upload-artifact@v4
+        with:
+          name: htmlninefox-windows
+          path: release/*
+          if-no-files-found: error
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install .
+      - run: python -m pip wheel . --no-deps --no-build-isolation --wheel-dir dist
+      - run: python packaging/linux/download_wheels.py
+      - run: python packaging/linux/build_linux.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: htmlninefox-linux
+          path: release/*
+          if-no-files-found: error

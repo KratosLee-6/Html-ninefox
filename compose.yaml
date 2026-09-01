@@ -1,0 +1,16 @@
+services:
+  htmlninefox:
+    build:
+      context: .
+      args:
+        HTMLNINEFOX_WHEEL: dist/htmlninefox-0.3.0b2-py3-none-any.whl
+    ports:
+      - "8620:8620"
+    volumes:
+      - htmlninefox-data:/home/fox/.htmlninefox
+      - htmlninefox-output:/home/fox/htmlninefox-output
+    restart: unless-stopped
+
+volumes:
+  htmlninefox-data:
+  htmlninefox-output:

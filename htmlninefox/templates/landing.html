@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ style.tokens.brand_name | default('Linear') }} · {{ brief.brief.content.core_message | default('为团队效率而生的下一代工具') }}</title>
+<style>
+:root {
+  --primary: {{ style.tokens.primary | default('#5B5FCF') }};
+  --primary-soft: {{ style.tokens.accent | default('#7C7FE8') }};
+  --bg: {{ style.tokens.bg | default('#0A0A0F') }};
+  --surface: {{ style.tokens.surface | default('#14141B') }};
+  --text: {{ style.tokens.text | default('#FAFAFA') }};
+  --text-dim: rgba(250,250,250,0.65);
+  --border: rgba(255,255,255,0.08);
+  --radius: 10px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --font-display: {{ style.tokens.font_display | default("'Inter','PingFang SC','Microsoft YaHei',sans-serif") }};
+  --font-body: {{ style.tokens.font_body | default("'Inter','PingFang SC',sans-serif") }};
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+.container { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: 0; background: 0; color: inherit; }
+
+/* Nav */
+.nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); background: rgba(10,10,15,0.7); border-bottom: 1px solid var(--border); }
+.nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+.brand-mark { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, var(--primary), var(--primary-soft)); display: grid; place-items: center; font-size: 12px; }
+.nav-links { display: flex; gap: 28px; font-size: 14px; color: var(--text-dim); }
+.nav-links a:hover { color: var(--text); }
+.nav-cta { padding: 8px 16px; border-radius: 8px; background: var(--text); color: var(--bg); font-weight: 500; font-size: 14px; transition: transform .15s; }
+.nav-cta:hover { transform: translateY(-1px); }
+
+/* Hero */
+.hero { padding: 96px 0 80px; text-align: center; position: relative; }
+.hero::before { content:""; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(91,95,207,0.15), transparent 70%); pointer-events: none; }
+.eyebrow { display: inline-block; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
+.hero h1 { font-family: var(--font-display); font-size: clamp(40px, 6vw, 68px); font-weight: 700; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 20px; }
+.hero h1 .grad { background: linear-gradient(120deg, var(--primary), var(--primary-soft)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p { font-size: clamp(16px, 1.5vw, 19px); color: var(--text-dim); max-width: 640px; margin: 0 auto 36px; }
+.hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-primary { padding: 12px 24px; border-radius: 8px; background: var(--primary); color: white; font-weight: 500; font-size: 15px; box-shadow: 0 0 0 0 rgba(91,95,207,0.4); transition: all .2s; }
+.btn-primary:hover { box-shadow: 0 6px 24px rgba(91,95,207,0.35); transform: translateY(-1px); }
+.btn-ghost { padding: 12px 24px; border-radius: 8px; border: 1px solid var(--border); font-weight: 500; font-size: 15px; color: var(--text); transition: all .2s; }
+.btn-ghost:hover { background: var(--surface); }
+
+/* Features */
+.section { padding: 80px 0; }
+.section-head { text-align: center; margin-bottom: 48px; }
+.section-head h2 { font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 40px); font-weight: 600; letter-spacing: -0.02em; margin-bottom: 12px; }
+.section-head p { color: var(--text-dim); max-width: 540px; margin: 0 auto; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.card { padding: 28px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); transition: all .25s; }
+.card:hover { border-color: rgba(91,95,207,0.4); transform: translateY(-2px); box-shadow: var(--shadow); }
+.card-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(91,95,207,0.15); display: grid; place-items: center; color: var(--primary-soft); font-size: 18px; margin-bottom: 16px; }
+.card h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.card p { font-size: 14px; color: var(--text-dim); }
+
+/* Pricing */
+.pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.price-card { padding: 32px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); }
+.price-card.featured { border-color: var(--primary); background: linear-gradient(180deg, rgba(91,95,207,0.08), var(--surface)); }
+.price-card h4 { font-size: 15px; color: var(--text-dim); font-weight: 500; margin-bottom: 12px; }
+.price { font-family: var(--font-display); font-size: 36px; font-weight: 700; letter-spacing: -0.02em; }
+.price small { font-size: 14px; font-weight: 400; color: var(--text-dim); }
+.price-card ul { list-style: none; margin: 20px 0; padding: 0; }
+.price-card li { padding: 8px 0; font-size: 14px; color: var(--text-dim); display: flex; gap: 10px; }
+.price-card li::before { content: "✓"; color: var(--primary-soft); font-weight: 600; }
+.price-card button { width: 100%; padding: 11px; border-radius: 8px; background: var(--text); color: var(--bg); font-weight: 500; font-size: 14px; }
+.price-card.featured button { background: var(--primary); color: white; }
+
+/* CTA */
+.cta-band { padding: 64px 40px; border-radius: 16px; background: linear-gradient(135deg, var(--primary), var(--primary-soft)); text-align: center; margin: 0 28px 80px; }
+.cta-band h2 { font-family: var(--font-display); font-size: clamp(24px, 3vw, 32px); font-weight: 600; margin-bottom: 12px; color: white; }
+.cta-band p { color: rgba(255,255,255,0.85); margin-bottom: 24px; }
+.cta-band button { padding: 12px 28px; border-radius: 8px; background: white; color: var(--primary); font-weight: 600; }
+.cta-band button:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(0,0,0,0.15); }
+
+footer { padding: 48px 0 32px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 13px; text-align: center; }
+footer .container { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+
+@media (max-width: 720px) {
+  .nav-links { display: none; }
+  .hero { padding: 64px 0 56px; }
+  .section { padding: 56px 0; }
+  .cta-band { margin: 0 16px 56px; padding: 48px 24px; }
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="container nav-inner">
+    <div class="brand">
+      <div class="brand-mark">狐</div>
+      <span>{{ style.tokens.brand_name | default('Html九尾狐') }}</span>
+    </div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a href="#cta" class="nav-cta">免费试用</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow">⚡ 现已发布 v2.0</span>
+    <h1>{{ brief.brief.content.headline | default('为高效团队') }}<br><span class="grad">重新定义工作流</span></h1>
+    <p>{{ brief.brief.content.core_message | default('把繁琐的工程化模板交给 AI，让你的团队专注于真正重要的事情。') }}</p>
+    <div class="hero-cta">
+      <a class="btn-primary" href="#cta">立即开始</a>
+      <a class="btn-ghost" href="#features">了解详情 →</a>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>为什么选择我们</h2>
+      <p>从规划到生成，每一步都被精心打磨，让创作回归本质。</p>
+    </div>
+    <div class="grid">
+      {% for feat in brief.brief.content.must_have | default(['5 智能体协同','联盟路由','离线可用','一键发布']) %}
+      <div class="card">
+        <div class="card-icon">{% if loop.index == 1 %}⚡{% elif loop.index == 2 %}🔗{% elif loop.index == 3 %}📦{% else %}🚀{% endif %}</div>
+        <h3>{{ feat if feat is string else feat }}</h3>
+        <p>每一处细节都经过反复打磨，确保在你的工作流中顺畅运行。</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="section" style="background: var(--surface);">
+  <div class="container">
+    <div class="section-head">
+      <h2>简单透明的定价</h2>
+      <p>免费开始，按需升级，无任何隐藏费用。</p>
+    </div>
+    <div class="pricing">
+      <div class="price-card">
+        <h4>免费版</h4>
+        <div class="price">¥0 <small>/ 月</small></div>
+        <ul><li>每月 10 次生成</li><li>基础 5 风格</li><li>社区支持</li></ul>
+        <button>开始使用</button>
+      </div>
+      <div class="price-card featured">
+        <h4>专业版</h4>
+        <div class="price">¥99 <small>/ 月</small></div>
+        <ul><li>无限生成</li><li>全部 6 风格预设</li><li>联盟 skill 优先</li><li>邮件优先支持</li></ul>
+        <button>立即升级</button>
+      </div>
+      <div class="price-card">
+        <h4>企业版</h4>
+        <div class="price">定制</div>
+        <ul><li>私有部署</li><li>专属联盟</li><li>SLA 保障</li><li>专属客户经理</li></ul>
+        <button>联系销售</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="cta" class="cta-band">
+  <h2>准备好重新定义你的工作流了吗？</h2>
+  <p>5 分钟上手，立即体验 AI 驱动的 HTML 创作。</p>
+  <button>免费试用 →</button>
+</div>
+
+<footer>
+  <div class="container">
+    <span>© 2026 汐构科技 · Html九尾狐</span>
+    <span>Powered by 联盟路由 · 5 智能体协同</span>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,167 @@
+# ============================================================
+# LiteLLM Router Config v0.1 · Html九尾狐 (Html九尾狐)
+# ============================================================
+# PoC 阶段 · 2026-08-29
+# 用途: 为个人版 CLI 提供多供应商路由 + fallback + 成本控制
+# 文档: E:\工作\【汐构科技】\客户跟进\Html九尾狐\02_方案规划\产品开发规划-v3.1-KX决策版.md §6
+# ============================================================
+#
+# KX 决策（v3.1）:
+#   1. 默认供应商 = minimax-cn (MiniMax-M3) — 汐构技术栈一致 + 国内访问快
+#   2. 4 供应商 fallback 链: minimax → Claude → GPT-4o → Ollama 本地
+#   3. 本地 Ollama 兜底 (成本=0) 用于开发调试
+# ============================================================
+
+model_list:
+  # ============================================================
+  # 默认供应商: MiniMax-M3 (KX 推荐)
+  # ============================================================
+  - model_name: minimax-cn
+    litellm_params:
+      model: minimax-cn
+      api_key: os.environ/MINIMAX_API_KEY
+      api_base: os.environ/MINIMAX_API_BASE  # https://api.minimaxi.com
+      rpm: 100
+      tpm: 100000
+
+  # ============================================================
+  # Fallback 1: Anthropic Claude 3.5 Sonnet
+  # ============================================================
+  - model_name: anthropic-claude
+    litellm_params:
+      model: anthropic/claude-3-5-sonnet-20241022
+      api_key: os.environ/ANTHROPIC_API_KEY
+      rpm: 60
+      tpm: 80000
+
+  # ============================================================
+  # Fallback 2: OpenAI GPT-4o
+  # ============================================================
+  - model_name: openai-gpt4o
+    litellm_params:
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+      rpm: 60
+      tpm: 80000
+
+  # ============================================================
+  # Fallback 3: 本地 Ollama (零成本兜底)
+  # ============================================================
+  - model_name: ollama-qwen
+    litellm_params:
+      model: ollama/qwen2.5:7b
+      api_base: os.environ/OLLAMA_API_BASE  # 默认 http://localhost:11434
+      rpm: 1000
+      tpm: 1000000
+
+  - model_name: ollama-llama
+    litellm_params:
+      model: ollama/llama3.1:8b
+      api_base: os.environ/OLLAMA_API_BASE
+      rpm: 1000
+      tpm: 1000000
+
+
+# ============================================================
+# 路由策略
+# ============================================================
+router_settings:
+  # 简单 shuffle（PoC 阶段; Week 3 考虑 usage-based / cost-based）
+  routing_strategy: simple-shuffle
+
+  # 重试 + 超时
+  num_retries: 3
+  timeout: 30
+
+  # Fallback 链: minimax → Claude → GPT-4o → Ollama
+  fallbacks:
+    - minimax-cn: ["anthropic-claude", "openai-gpt4o", "ollama-qwen"]
+    - anthropic-claude: ["openai-gpt4o", "ollama-qwen"]
+    - openai-gpt4o: ["ollama-qwen"]
+
+  # 长上下文 fallback（PoC 阶段先留接口，Week 3 接入）
+  context_window_fallbacks:
+    - minimax-cn: ["anthropic-claude"]
+    - anthropic-claude: ["openai-gpt4o"]
+
+  # 同一模型多 deployment 时的负载均衡权重（PoC 阶段均=1）
+  weights:
+    minimax-cn: 1
+    anthropic-claude: 1
+    openai-gpt4o: 1
+    ollama-qwen: 1
+    ollama-llama: 1
+
+  # 启用 cooldown：失败后 60s 内不再尝试该模型
+  cooldown_time: 60
+
+
+# ============================================================
+# 智能体 → 模型映射 (规划 v3.1 §6)
+# ============================================================
+agent_routing:
+  # 自研 3 个核心专家 → minimax-cn (国内快 + 中文强)
+  brief_expert:
+    primary: minimax-cn
+    fallback: [anthropic-claude, ollama-qwen]
+  style_expert:
+    primary: minimax-cn
+    fallback: [anthropic-claude, ollama-qwen]
+  feedback_expert:
+    primary: minimax-cn
+    fallback: [anthropic-claude, ollama-qwen]
+
+  # 路由到联盟 skill (Asset/Generate 通过 Skill 联盟, 不直接调 LLM)
+  asset_expert:
+    primary: minimax-cn        # 只做意图分类, 真正素材生成交给联盟
+    fallback: [ollama-qwen]
+  generate_expert:
+    primary: minimax-cn        # 只做意图分类, 真正 HTML 生成交给联盟
+    fallback: [ollama-qwen]
+
+  # 任务类型级别的额外路由 (Week 3 Skill 联盟接入后再用)
+  ppt_generation:
+    primary: openai-gpt4o      # GPT-4o 对结构化长文本更稳
+    fallback: [anthropic-claude, minimax-cn]
+  design_prototype:
+    primary: anthropic-claude  # Claude 对设计美学更敏感
+    fallback: [minimax-cn, ollama-qwen]
+  arch_diagram:
+    primary: minimax-cn
+    fallback: [anthropic-claude]
+
+
+# ============================================================
+# 成本控制（按供应商费率 USD / 1M tokens, 2026-08 最新估算）
+# ============================================================
+cost_rates:
+  minimax-cn:
+    input_per_1m: 0.30          # KX 内部结算
+    output_per_1m: 0.60
+  anthropic-claude:
+    input_per_1m: 3.00
+    output_per_1m: 15.00
+  openai-gpt4o:
+    input_per_1m: 2.50
+    output_per_1m: 10.00
+  ollama-qwen:
+    input_per_1m: 0.00          # 本地推理零边际成本
+    output_per_1m: 0.00
+  ollama-llama:
+    input_per_1m: 0.00
+    output_per_1m: 0.00
+
+  # 用户日配额 (个人版默认; SaaS 时改为 API 配额查询)
+  daily_budget_usd: 5.00
+  monthly_budget_usd: 50.00
+
+
+# ============================================================
+# 缓存配置 (cost.py + cache.py 配套)
+# ============================================================
+cache_settings:
+  enabled: true
+  ttl_days: 7                 # 7 天 TTL
+  storage: disk               # disk / redis (PoC 仅 disk)
+  path: ~/.htmlninefox/cache/llm/
+  key_strategy: sha256-prompt # 基于 prompt hash 缓存
