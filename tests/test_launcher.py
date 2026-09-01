@@ -21,6 +21,7 @@ def test_find_available_port_supports_ephemeral():
 
 
 def test_configure_portable_data(monkeypatch, tmp_path):
+    monkeypatch.setattr(launcher.os, "environ", launcher.os.environ.copy())
     root = tmp_path / "portable data"
     configured = launcher.configure_portable_data(root)
     assert configured == root.resolve()
