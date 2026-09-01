@@ -22,22 +22,10 @@ def version() -> str:
 
 
 def build_icon() -> Path:
-    import cairosvg
-    from PIL import Image
-
-    asset_dir = BUILD_ROOT / "assets"
-    asset_dir.mkdir(parents=True, exist_ok=True)
-    png_path = asset_dir / "htmlninefox-256.png"
-    ico_path = asset_dir / "htmlninefox.ico"
-    cairosvg.svg2png(
-        url=str(ROOT / "htmlninefox" / "server" / "static" / "icon.svg"),
-        write_to=str(png_path),
-        output_width=256,
-        output_height=256,
-    )
-    with Image.open(png_path) as image:
-        image.save(ico_path, sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
-    return ico_path
+    icon_path = ROOT / "packaging" / "windows" / "htmlninefox.ico"
+    if not icon_path.is_file():
+        raise FileNotFoundError(f"Missing Windows icon: {icon_path}")
+    return icon_path
 
 
 def build_portable() -> tuple[Path, Path]:
@@ -87,7 +75,7 @@ def build_installer(app_dir: Path) -> Path | None:
         return None
     release_version = version()
     output_dir = RELEASE_ROOT.resolve()
-    icon_path = (BUILD_ROOT / "assets" / "htmlninefox.ico").resolve()
+    icon_path = build_icon().resolve()
     command = [
         iscc, f"/DMyVersion={release_version}", f"/DSourceDir={app_dir.resolve()}",
         f"/DOutputDir={output_dir}", f"/DIconFile={icon_path}",
