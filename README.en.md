@@ -140,7 +140,7 @@ Verification completed on **September 1, 2026**:
 | Native generators | Landing, dashboard, deck, poster, and architecture document passed | [Test report](docs/TEST-REPORT-v0.3.0b2.md) |
 | Revision flow | Token revision and preset-switch revision passed | [Raw E2E log](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
 | Workbench | Drag, rename, colors, multiple workspaces, themes, and zero JS errors | [Raw E2E log](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
-| Release packages | Windows, Linux, and wheel SHA256 values recorded | [Checksums](docs/test-evidence/v0.3.0b2-release-sha256.txt) |
+| Release packages | Windows installer, portable ZIP, Linux, and wheel SHA256 values recorded | [Checksums](docs/test-evidence/v0.3.0b2-release-sha256.txt) |
 
 Environment details: [v0.3.0b2-environment.txt](docs/test-evidence/v0.3.0b2-environment.txt).
 

@@ -5,8 +5,8 @@
 - **测试日期**：2026-09-01
 - **版本**：`0.3.0b2`
 - **项目作者**：KratosLee · Html九尾狐项目组
-- **本地验证提交基线**：`529a9cc4949f54778a16e57ab210d3e84598a616`
-- **结论**：Python 测试 **146/146** 通过；Chromium 真实验收 **20/20** 通过；Windows、Linux 与 wheel 发布包均已生成 SHA256。
+- **本地验证提交基线**：`cf9412cb10d45fdf0f8e394c6ab607fa17dc8003`
+- **结论**：Python 测试 **146/146** 通过；Chromium 真实验收 **20/20** 通过；Windows 安装器、Windows 便携包、Linux 与 wheel 发布包均已生成 SHA256。
 
 ## 测试矩阵
 
@@ -67,6 +67,6 @@ Verification completed on September 1, 2026 for `v0.3.0b2`.
 
 - **146/146** Python, API, storage, security, and browser tests passed.
 - **20/20** real Chromium acceptance checks passed.
-- Windows portable health, six-item gallery, workbench assets, wheel contents, and Linux installer structure were validated.
+- Windows installer and portable health, six-item gallery, workbench assets, wheel contents, and Linux installer structure were validated.
 - Current source, delivery mirror, and Beta 2 packages use the personal attribution `KratosLee · Html九尾狐项目组`.
 - Raw logs, environment information, screenshots, and release checksums are committed as reproducible evidence.

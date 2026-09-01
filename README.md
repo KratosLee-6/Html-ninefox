@@ -152,7 +152,7 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 | 生成器 | Landing / Dashboard / Deck / Poster / Archdoc 均成功 | [测试报告](docs/TEST-REPORT-v0.3.0b2.md) |
 | 反馈迭代 | `rev1` Token 修改与 `rev2` 预设切换成功 | [E2E 日志](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
 | 工作台 | 拖动、重命名、颜色、多工作区、双主题、无 JS 错误 | [E2E 日志](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
-| 发布包 | Windows / Linux / wheel 均生成 SHA256 | [校验值](docs/test-evidence/v0.3.0b2-release-sha256.txt) |
+| 发布包 | Windows 安装器 / 便携包、Linux、wheel 均生成 SHA256 | [校验值](docs/test-evidence/v0.3.0b2-release-sha256.txt) |
 
 运行环境记录见：[v0.3.0b2-environment.txt](docs/test-evidence/v0.3.0b2-environment.txt)。
 

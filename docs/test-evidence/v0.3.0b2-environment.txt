@@ -5,4 +5,4 @@ Python 3.13.5
 v24.15.0
 uv 0.12.8 (68209e5c6 2026-08-31 x86_64-pc-windows-msvc)
 Browser: Playwright Chromium
-Repository commit before documentation update: 529a9cc4949f54778a16e57ab210d3e84598a616
+Release build commit: cf9412cb10d45fdf0f8e394c6ab607fa17dc8003
