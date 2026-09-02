@@ -27,6 +27,18 @@ from ._base import BaseExpert
 
 _TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 
+# v0.3 意图→模板别名：把联盟 intent 映射到本地 Jinja2 模板文件名（兜底用）
+# 优先级链：联盟 skill（installed） > 本地 Jinja2 模板 > 原生 generators
+_INTENT_TEMPLATE_ALIAS: Dict[str, str] = {
+    "ppt_image":     "baoyu-slide-deck",         # 飞书绝活大会·宝玉
+    "ppt_html":      "frontend-slides",          # 飞书绝活大会·张咋啦 PPT
+    "html_template": "beautiful-html-templates", # 飞书绝活大会·张咋啦 28 套
+    # 已有映射保留
+    "landing":   "landing",
+    "deck":      "landing",     # deck 用 landing 模板兜底（保留原行为）
+    "infographic": "landing",   # 信息图走 huashu 联盟，本地兜底到 landing
+}
+
 
 class GenerateExpert(BaseExpert):
     name = "generate_expert"
@@ -67,8 +79,10 @@ class GenerateExpert(BaseExpert):
                         "skill_used": inv.get("skill"),
                         "fallback_used": inv.get("fallback_used", False)}
 
-        # 第 2 路径：Jinja2 本地模板（templates/<intent>.html）
-        tmpl_path = _TEMPLATES_DIR / f"{intent}.html"
+        # 第 2 路径：Jinja2 本地模板（templates/<intent>.html 或别名模板）
+        # v0.3：用别名映射把 ppt_image/ppt_html/html_template 路由到对应模板文件
+        tmpl_name = _INTENT_TEMPLATE_ALIAS.get(intent, intent)
+        tmpl_path = _TEMPLATES_DIR / f"{tmpl_name}.html"
         if tmpl_path.exists() and jinja2 is not None:
             try:
                 env = jinja2.Environment(
@@ -76,7 +90,7 @@ class GenerateExpert(BaseExpert):
                     autoescape=jinja2.select_autoescape(["html"]),
                     trim_blocks=True, lstrip_blocks=True,
                 )
-                html = env.get_template(f"{intent}.html").render(
+                html = env.get_template(f"{tmpl_name}.html").render(
                     brief=brief if isinstance(brief, dict) else {},
                     style=preset, assets=assets, intent=intent,
                 )
@@ -84,7 +98,7 @@ class GenerateExpert(BaseExpert):
                     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
                     Path(output_path).write_text(html, encoding="utf-8")
                 return {"html": html, "intent": intent,
-                        "generator": f"jinja2:{intent}", "skill_used": None,
+                        "generator": f"jinja2:{tmpl_name}", "skill_used": None,
                         "fallback_used": True}
             except Exception:
                 pass  # 模板渲染失败 → 第 3 路径

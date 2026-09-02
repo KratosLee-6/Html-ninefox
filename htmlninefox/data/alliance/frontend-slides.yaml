@@ -1,0 +1,15 @@
+# frontend-slides · Html九尾狐 v0.3 联盟成员
+# 张咋啦 从零现场设计网页 PPT · 3 版首页选 · 避开 AI 紫渐变 · 单 HTML 文件
+# 未安装时 fallback → local:ppt_html
+name: frontend-slides
+version: 1.0.0
+author: 张咋啦 (zarazhangrui)
+category: deck
+description: 从零设计网页 PPT，3 版首页候选，避开 AI 紫渐变，衬线+无衬线混排
+intents: [ppt_html]
+python_module: frontend_slides
+entry: python -m frontend_slides --topic "{topic}" --output "{output}"
+fallback: local:ppt_html
+cost_estimate: 0.01-0.05
+homepage: https://github.com/zarazhangrui/frontend-slides
+tags: [ppt, slides, html, no-ai-gradient, mobile-safe]

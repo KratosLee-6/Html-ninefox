@@ -19,7 +19,12 @@ from typing import Any, Dict, List, Tuple
 # 1. 内容类型与意图分类
 # ============================================================
 
-CONTENT_TYPES = ("landing", "dashboard", "deck", "poster", "archdoc", "doc")
+CONTENT_TYPES = ("landing", "dashboard", "deck", "poster", "archdoc", "doc",
+                  # v0.3 飞书绝活大会新增 3 类
+                  "ppt_image",     # 宝玉图片版幻灯片
+                  "ppt_html",      # 张咋啦网页 PPT
+                  "html_template", # 张咋啦 28 套模板
+                  "infographic")   # 已有·huashu 走这条
 
 _INTENT_KEYWORDS: Dict[str, List[str]] = {
     "landing": [
@@ -35,6 +40,21 @@ _INTENT_KEYWORDS: Dict[str, List[str]] = {
     "deck": [
         "ppt", "发布会", "幻灯片", "slides", "deck", "keynote", "路演",
         "演示", "演讲", "汇报", "分享会", "翻页", "pitch",
+    ],
+    # v0.3 新增：宝玉 AI 画图图片版幻灯片
+    "ppt_image": [
+        "图片版ppt", "图片幻灯片", "ai画图ppt", "社媒ppt", "微信转发ppt",
+        "slide image", "image deck", "图片版幻灯片", "画图ppt",
+    ],
+    # v0.3 新增：张咋啦网页 PPT（3 版首页选，避开 AI 紫渐变）
+    "ppt_html": [
+        "网页ppt", "html幻灯片", "html演示", "避开紫渐变", "三版首页",
+        "web deck", "html slides", "网页演示", "前端ppt",
+    ],
+    # v0.3 新增：张咋啦 28 套现成 HTML 模板
+    "html_template": [
+        "28套模板", "html模板", "现成模板", "懒人出片", "模板选择",
+        "beautiful templates", "html template", "套模板",
     ],
     "poster": [
         "海报", "poster", "宣传单", "传单", "封面图", "banner", "易拉宝",

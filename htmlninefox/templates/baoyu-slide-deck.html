@@ -1,0 +1,72 @@
+<!--
+  baoyu-slide-deck.html · 宝玉 (JimLiu) 图片版幻灯片 · Html九尾狐 本地兜底模板
+  原技能：AI 画图生成每页 PPT（17 套风格，社媒/微信转发）
+  来源参考：https://github.com/JimLiu/baoyu-slide-deck
+  适配场景：当联盟 skill baoyu-slide-deck 未安装时，本地 fallback 渲染。
+  渲染方式：Jinja2 · 由 generate_expert.py 注入 brief / style / assets。
+  风格：每页一张全屏 <img> 占位 + 页码 + 标题叠加层。
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ style.tokens.brand_name | default('九尾狐') }} · {{ brief.brief.content.core_message | default('图片版幻灯片') }}</title>
+<style>
+:root {
+  --bg: {{ style.tokens.bg | default('#0A0A0F') }};
+  --surface: {{ style.tokens.surface | default('#14141B') }};
+  --text: {{ style.tokens.text | default('#FAFAFA') }};
+  --text-dim: rgba(250,250,250,0.65);
+  --primary: {{ style.tokens.primary | default('#5B5FCF') }};
+  --border: rgba(255,255,255,0.08);
+  --radius: 12px;
+  --font-display: {{ style.tokens.font_display | default("'Inter','PingFang SC',sans-serif") }};
+  --font-body: {{ style.tokens.font_body | default("'Inter','PingFang SC',sans-serif") }};
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+.deck { max-width: 1080px; margin: 0 auto; padding: 48px 24px 96px; }
+.deck-header { text-align: center; margin-bottom: 48px; }
+.deck-header h1 { font-family: var(--font-display); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
+.deck-header p { color: var(--text-dim); margin-top: 8px; font-size: 14px; }
+.slide-list { display: grid; grid-template-columns: 1fr; gap: 24px; }
+.slide { position: relative; aspect-ratio: 16 / 9; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.35); }
+.slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.slide-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px 20px; background: linear-gradient(180deg, transparent, rgba(0,0,0,0.55)); color: #fff; display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+.slide-num { font-variant-numeric: tabular-nums; opacity: 0.85; }
+.slide-cap { font-weight: 500; }
+.placeholder { display: grid; place-items: center; height: 100%; color: var(--text-dim); font-size: 14px; background: repeating-linear-gradient(45deg, var(--surface), var(--surface) 12px, rgba(255,255,255,0.02) 12px, rgba(255,255,255,0.02) 24px); }
+.footer-note { margin-top: 56px; padding: 20px; border: 1px dashed var(--border); border-radius: var(--radius); color: var(--text-dim); font-size: 12px; line-height: 1.7; }
+@media (min-width: 760px) { .slide-list { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<main class="deck">
+  <header class="deck-header">
+    <h1>{{ brief.brief.content.brand | default('图片幻灯片组') }}</h1>
+    <p>{{ brief.brief.content.headline | default('—  本地模板 · 由 Html九尾狐 兜底渲染 —') }}</p>
+  </header>
+
+  {# 默认 6 页；联盟 skill 真实生成时会替换为 N 张 AI 图组 #}
+  {% set pages = brief.brief.content.must_have | default(['封面','问题','方案','演示','指标','结尾']) %}
+  <section class="slide-list">
+    {% for cap in pages[:6] %}
+    <article class="slide">
+      <div class="placeholder">[ 图片占位 · 第 {{ loop.index }} 页 ]<br>{{ cap }}</div>
+      <div class="slide-overlay">
+        <span class="slide-cap">{{ cap }}</span>
+        <span class="slide-num">{{ loop.index }} / {{ pages[:6] | length }}</span>
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+
+  <p class="footer-note">
+    本页由 Html九尾狐 <code>templates/baoyu-slide-deck.html</code> 兜底渲染。<br>
+    安装联盟 skill <code>baoyu-slide-deck</code>（<code>pip install baoyu-slide-deck</code>）后，将由 AI 画图生成真实图片版幻灯片（17 套风格可选）。<br>
+    来源：宝玉（JimLiu）· <a href="https://github.com/JimLiu/baoyu-slide-deck" style="color:var(--primary)">github.com/JimLiu/baoyu-slide-deck</a>
+  </p>
+</main>
+</body>
+</html>

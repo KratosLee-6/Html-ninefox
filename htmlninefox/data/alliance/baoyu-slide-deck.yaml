@@ -1,0 +1,15 @@
+# baoyu-slide-deck · Html九尾狐 v0.3 联盟成员
+# 宝玉（JimLiu）AI 画图生成每页 PPT，17 套风格，图片版（社媒/微信转发友好）
+# 未安装时 fallback → local:ppt_image
+name: baoyu-slide-deck
+version: 1.0.0
+author: 宝玉 (JimLiu)
+category: deck
+description: AI 画图生成每页 PPT，17 套风格可选，图片版幻灯片组
+intents: [ppt_image]
+python_module: baoyu_slide_deck
+entry: python -m baoyu_slide_deck --topic "{topic}" --style "{style}" --output "{output}"
+fallback: local:ppt_image
+cost_estimate: 0.005-0.02
+homepage: https://github.com/JimLiu/baoyu-slide-deck
+tags: [ppt, slides, image-generation, social-media, wechat]

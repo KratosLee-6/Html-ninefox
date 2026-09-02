@@ -1,0 +1,15 @@
+# beautiful-html-templates · Html九尾狐 v0.3 联盟成员
+# 张咋啦 28 套现成 HTML 模板 · 字体配色稳定 · 懒人出片
+# 未安装时 fallback → local:html_template
+name: beautiful-html-templates
+version: 1.0.0
+author: 张咋啦 (zarazhangrui)
+category: design
+description: 28 套现成 HTML 模板，字体配色 token 化稳定，5 套精选（landing/dashboard/blog/pricing/docs）
+intents: [html_template]
+python_module: beautiful_html_templates
+entry: python -m beautiful_html_templates --topic "{topic}" --template "{template}" --output "{output}"
+fallback: local:html_template
+cost_estimate: 0.001-0.01
+homepage: https://github.com/zarazhangrui/beautiful-html-templates
+tags: [html, templates, stable, lazy-production, multi-purpose]

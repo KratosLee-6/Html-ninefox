@@ -33,6 +33,14 @@ python -m htmlninefox serve --port 8620
 
 浏览器打开 `http://127.0.0.1:8620`。Windows/macOS 可点击“安装”；iPhone/iPad 需要将服务部署到 HTTPS 后再“添加到主屏幕”。
 
+## 场景 5：生成图片版 PPT（宝玉 slides 风格 · v0.3）
+
+```bash
+htmlninefox expert "做一套 AI 工具发布会的图片版 PPT" --template ppt_image
+```
+
+输出：12 张全屏 PNG + 1 个 HTML 索引页 · 适合发 Twitter / 微信 / 即刻
+
 仓库内还提供：
 
 - `examples/expert_landing.sh`

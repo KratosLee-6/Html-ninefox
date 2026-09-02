@@ -164,6 +164,10 @@ This project wouldn't exist without these amazing open-source skills and inspira
 
 - 🎓 **[飞书官方 (飞书AI绝活大会)](https://www.bilibili.com/video/BV1bLMX6HE7b/)** — the Feishu 飞书绝活大会 methodology (清晰 Brief + 可复用的审美模板 + 一轮轮具体反馈) is the philosophical foundation of this project.
 
+- 🎨 **[宝玉 (JimLiu)](https://github.com/JimLiu)** — author of [baoyu-skills](https://github.com/JimLiu/baoyu-skills) (especially [baoyu-slide-deck](https://github.com/JimLiu/baoyu-skills/tree/main/skills/baoyu-slide-deck)). The "AI 画图生成每页 PPT · 17 套风格" image-based PPT approach inspired Html九尾狐 v0.3's `ppt_image` intent.
+
+- 🎨 **[张咋啦 (zarazhangrui)](https://github.com/zarazhangrui)** — author of [frontend-slides](https://github.com/zarazhangrui/frontend-slides), [beautiful-html-templates](https://github.com/zarazhangrui/beautiful-html-templates), [beautiful-feishu-whiteboard](https://github.com/zarazhangrui/beautiful-feishu-whiteboard). The "避开 AI 紫渐变" + "28 套稳定出片" philosophy deeply shaped Html九尾狐 v0.3's template library design.
+
 - 🔍 **[Refero](https://refero.design)** — design research inspiration library for the AI era.
 
 - 🎨 **[shadcn/ui](https://ui.shadcn.com)** — "Open Code" + "AI-Ready" philosophy inspired Html九尾狐's open-skill approach.
