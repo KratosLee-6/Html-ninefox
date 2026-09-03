@@ -9,6 +9,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] — 2026-09-03 · 🎉 Third Major Release · Skill Alliance 3 PPT Skills
+
+> 🎉 **v0.3.0 = v0.3.0b2 + 3 飞书绝活大会 PPT 技能集成**
+
+### ✨ Added — 3 PPT Skills (from 飞书绝活大会)
+
+- **🖼 [baoyu-slide-deck](https://github.com/JimLiu/baoyu-skills/tree/main/skills/baoyu-slide-deck)** (by [宝玉 JimLiu](https://github.com/JimLiu))
+  - AI 画图生成每页 PPT · 17 套风格 · 图片版 PPT
+  - 模板：`htmlninefox/templates/baoyu-slide-deck.html`
+- **📑 [frontend-slides](https://github.com/zarazhangrui/frontend-slides)** (by [张咋啦](https://github.com/zarazhangrui))
+  - 3 版首页选 · 避开 AI 紫渐变 · 单 HTML 文件
+  - 模板：`htmlninefox/templates/frontend-slides.html`
+- **🎨 [beautiful-html-templates](https://github.com/zarazhangrui/beautiful-html-templates)** (by [张咋啦](https://github.com/zarazhangrui))
+  - 28 套稳定模板 · 字体配色不动
+  - 模板：`htmlninefox/templates/beautiful-html-templates.html`
+
+### 🔧 Changed — 5 类意图 generate_expert
+
+- `generate_expert.py` 升级到 5 类意图：landing + ppt_image + ppt_html + html_template + infographic
+- `rules.py` 加 ppt_image / ppt_html / html_template 关键词触发
+- 优先级链：联盟 skill > 本地模板 > 占位
+- `data/alliance/` 新增 3 个 manifest 种子（baoyu-slide-deck / frontend-slides / beautiful-html-templates）
+
+### 🙏 Acknowledgments (v0.3 新增)
+
+- 🎨 **[宝玉 (JimLiu)](https://github.com/JimLiu)** — baoyu-skills / baoyu-slide-deck
+- 🎨 **[张咋啦 (zarazhangrui)](https://github.com/zarazhangrui)** — frontend-slides / beautiful-html-templates / beautiful-feishu-whiteboard
+- (继承 v0.2 起：歸藏 / 花叔 / tt-a1i)
+
+### 🧪 Tests
+
+- ✅ 4/4 集成测试 · 146/146 pytest · 20/20 Chromium E2E
+- ✅ P0 shell 注入已修 · 12/12 安全测试
+
+### 📦 下载
+
+- Windows 安装器：`HtmlNineFox-Setup-0.3.0.exe`
+- Windows 便携：`HtmlNineFox-Windows-x64-0.3.0.zip`
+- Linux：`HtmlNineFox-Linux-0.3.0.run` / `.tar.gz`
+- Python wheel：`htmlninefox-0.3.0-py3-none-any.whl`
+
+> v0.3.0 release 暂复用 v0.3.0b2 资产；下次 CI 重新构建 v0.3.0 品牌包。
+
+---
+
+## [Unreleased] — Private Template Compounding
+
+### Added
+
+- Local-only private template packages imported from one HTML file or a complete resource folder.
+- Safe asset copying, multi-page detection, page-role mapping, design-token extraction, preview assets, and private-template deletion.
+- Usage counts and intent-aware preference for previously successful private templates.
+- Workbench controls for importing standalone HTML files and folder-based prototypes/decks.
+- Canvas history with undo/redo, marquee and additive selection, grouped movement, node locking, minimap navigation, and a Ctrl+K command palette.
+
+### Changed
+
+- Private template page roles, colors, fonts, source metadata, and design tokens now influence generated deliverables instead of acting as preview-only references.
+- Imported HTML previews now run under a restrictive CSP sandbox that blocks API connections, form submission, object embedding, and same-origin access.
+- PWA shell cache advances to the v0.4 development channel so existing installations receive the new workbench UI.
+
+### Verified
+
+- 153 tests pass, including private-template security, canvas productivity, API, generation, and Chromium workbench coverage.
+
 ## [0.3.0b2] — 2026-09-01 · Real Template Gallery & Guided AI Composition
 
 ### Added
