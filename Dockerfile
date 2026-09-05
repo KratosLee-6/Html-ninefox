@@ -21,8 +21,8 @@ ENV PYTHONUNBUFFERED=1 \
 
 RUN useradd --create-home --uid 10001 fox
 WORKDIR /app
-COPY --from=builder /dist/*.whl /tmp/htmlninefox.whl
-RUN python -m pip install --no-cache-dir /tmp/htmlninefox.whl && rm /tmp/htmlninefox.whl
+COPY --from=builder /dist/*.whl /tmp/
+RUN python -m pip install --no-cache-dir /tmp/*.whl && rm /tmp/*.whl
 
 USER fox
 VOLUME ["/home/fox/.htmlninefox", "/home/fox/htmlninefox-output"]
