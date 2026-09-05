@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.3.0b2)
+[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.0)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
 [![Tests](https://img.shields.io/badge/pytest-146%20passed-1F8A70)](docs/test-evidence/v0.3.0b2-pytest.txt)
@@ -18,7 +18,7 @@
 
 </div>
 
-![HtmlNineFox v0.3.0 Beta 2 workbench](assets/screenshots/v0.3.0b2/workbench-overview.png)
+![HtmlNineFox v0.4.0 workbench](assets/screenshots/v0.4.0/workbench-overview.png)
 
 ## What it solves
 
@@ -38,36 +38,41 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
           ↓
        Single-file HTML
           ↓
-Natural-language revision with version history
+  Revise with natural language feedback, keeping rev history
 ```
 
-## Beta 2 highlights
+## v0.4.0 Core Features
 
-- **Real HTML gallery:** six complete templates and 34 individually previewable and extractable pages.
-- **Unified creation entry:** text, TXT, Markdown, JSON, CSV, HTML, and common image formats.
-- **Two creation paths:** accept a recommendation or customize every part on the canvas.
-- **Infinite canvas workspaces:** move, rename, color-code, navigate, snap, and connect nodes.
-- **Bring your own model:** OpenAI-compatible endpoints, Ollama, or a custom compatible API.
-- **Offline-first fallback:** deterministic rules keep generation available without an API key.
-- **Token-based revisions:** natural-language feedback updates design tokens and preserves revisions.
-- **Multiple delivery options:** Windows, Linux, Python CLI, local Web UI, and installable PWA.
+- **🎨 Pixel Garden Design System**: Unified design tokens (cobalt `#173C8F` + mint `#49B894` + warm paper `#F4F0E7`) across 5 visual artifacts.
+- **🤖 Real LLM Integration**: MiniMax-M3 / Claude / GPT-4o with env auto-config; offline rules engine as fallback.
+- **🖥️ Web Workbench**: `htmlninefox workbench` launches local Web UI with live preview, agent logs, and template selection.
+- **🐳 Docker Image**: `docker run htmlninefox` for cross-platform deployment; multi-stage build with env injection.
+- **Real HTML template library**: 6 complete templates with 34 individually previewable pages — no more wireframe guessing.
+- **Unified input**: Text, TXT, Markdown, JSON, CSV, HTML, and common image formats.
+- **Dual paths**: Accept recommendations directly, or compose layouts/pages/styles/files/skills on the canvas.
+- **Infinite canvas workspaces**: Global coordinates, renaming, per-workspace colors, navigation, snapping, and port connections.
+- **User-controlled AI**: OpenAI-compatible, Ollama, or custom endpoints; API keys stay local.
+- **Offline capable**: Deterministic rules engine works without API keys.
+- **Feedback iteration**: Natural language feedback → design token changes → re-render with `rev1 / rev2 / ...` history.
+- **Cross-platform**: Windows installer/portable, Linux `.run/.tar.gz`, Python CLI, Web/PWA, Docker.
+- 🎨 **Multiple PPT styles via Skill Alliance** (v0.3): baoyu-slide-deck (image) · frontend-slides (HTML, no AI gradient) · beautiful-html-templates (28 stable presets)
 
-## Product evidence
+## See it in action
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.3.0b2/guided-creation.png" alt="Guided creation"><br><b>Guided analysis and recommendation</b><br>The workbench recommends a content type, a real template, pages, and a visual system.</td>
-<td width="50%"><img src="assets/screenshots/v0.3.0b2/gallery-preview.png" alt="Template gallery preview"><br><b>Full template and page extraction</b><br>Preview the complete work and extract one page or the entire template.</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/pixel-garden-unified.png" alt="Pixel Garden unified design"><br><b>Pixel Garden Unified Design</b><br>5 visual artifacts unified with cobalt + mint + warm paper.</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/web-workbench.png" alt="Web workbench"><br><b>Web Workbench</b><br>htmlninefox workbench: live preview, agent logs, template selection.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.3.0b2/ai-settings.png" alt="AI settings"><br><b>User-managed AI configuration</b><br>Model, base URL, and API key stay under the user's control.</td>
-<td width="50%"><img src="assets/screenshots/v0.3.0b2/workbench-night.png" alt="Pixel Night theme"><br><b>Pixel Garden themes</b><br>Warm paper and night-blue themes with persisted preference.</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/llm-integration.png" alt="Real LLM integration"><br><b>Real LLM Integration</b><br>MiniMax-M3 / Claude / GPT-4o with env auto-config; offline fallback preserved.</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/docker-deploy.png" alt="Docker deployment"><br><b>Docker One-Click Deploy</b><br>docker run htmlninefox with multi-stage build and env injection.</td>
 </tr>
 </table>
 
-### Real generated outputs
+### Six real output types
 
-| Landing page | Dashboard | Presentation deck |
+| Landing | Dashboard | Deck |
 |---|---|---|
 | ![Landing](assets/screenshots/v0.3.0b2/output-landing.png) | ![Dashboard](assets/screenshots/v0.3.0b2/output-dashboard.png) | ![Deck](assets/screenshots/v0.3.0b2/output-deck.png) |
 
@@ -75,115 +80,68 @@ Natural-language revision with version history
 |---|---|
 | ![Poster](assets/screenshots/v0.3.0b2/output-poster.png) | ![Architecture document](assets/screenshots/v0.3.0b2/output-archdoc.png) |
 
-## Download and install
+## Download & Install
 
-Download the current build from **[v0.3.0 Beta 2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.3.0b2)**.
+Go to [v0.4.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.0) to download the latest version.
 
-| Platform | Recommended asset | Usage |
+| Platform | Recommended file | Usage |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.3.0b2.exe` | Standard per-user installer |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.3.0b2.zip` | Extract and launch `HtmlNineFox.exe` |
-| Linux | `HtmlNineFox-Linux-0.3.0b2.run` | Self-extracting user-level installer |
-| Linux / audit | `HtmlNineFox-Linux-0.3.0b2.tar.gz` | Inspectable package contents |
-| Python 3.10+ | `htmlninefox-0.3.0b2-py3-none-any.whl` | Install with `pip` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.4.0.exe` | Installer for regular users |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.4.0.zip` | Extract and run `HtmlNineFox.exe` |
+| Linux | `HtmlNineFox-Linux-0.4.0.run` | `chmod +x` and run; installs to user directory |
+| Linux / audit | `HtmlNineFox-Linux-0.4.0.tar.gz` | Inspectable full installation contents |
+| Python 3.10+ | `htmlninefox-0.4.0-py3-none-any.whl` | Install with `pip install` |
+| Docker | `htmlninefox:v0.4.0` | `docker run -p 8620:8620 -e MINIMAX_API_KEY=xxx htmlninefox` |
 
-### Run from source
+### Quick start
+
+```bash
+# 1. Install (choose one)
+pip install htmlninefox
+# or download release package
+# or docker run htmlninefox
+
+# 2. Configure LLM (optional; offline works too)
+export MINIMAX_API_KEY="***"
+# or export OPENAI_API_KEY="***"
+# or export ANTHROPIC_API_KEY="***"
+
+# 3. Launch Web workbench
+htmlninefox workbench
+# Open http://127.0.0.1:8620
+
+# 4. Or CLI direct generation
+htmlninefox brief "Build a SaaS landing page"
+```
+
+### 从源码运行
 
 ```bash
 git clone https://github.com/KratosLee-6/Html-ninefox.git
 cd Html-ninefox
-
-uv sync
-uv run htmlninefox app
+pip install -e .
+htmlninefox --help
 ```
 
-Traditional Python installation is also supported:
+## 文档
 
-```bash
-python -m pip install -e .
-htmlninefox app
-```
+- [架构设计](docs/ARCHITECTURE.md)
+- [设计手册](docs/DESIGN.md)
+- [使用示例](docs/EXAMPLES.md)
+- [路线图](docs/ROADMAP.md)
+- [私有模板导入](docs/PRIVATE-TEMPLATE-IMPORT.md)
 
-CLI examples:
+## 贡献
 
-```bash
-htmlninefox expert "Create an AI product launch deck"
-htmlninefox expert --type landing --template fox-pixel-garden "Creative tool website"
-htmlninefox feedback --project output/html9n-<timestamp> --note "Use a larger title and calmer colors"
-```
+欢迎提交 Issue 和 PR！详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-Documentation: [Installation](docs/INSTALL.md) · [Running options](docs/RUNNING-OPTIONS.md) · [UI guide](docs/UI-GUIDE.md) · [Visual identity](docs/VI.md)
+## 许可证
 
-## Templates and visual systems
+MIT License · 详见 [LICENSE](LICENSE)
 
-### v0.4 development preview: private template library
+---
 
-- Import one standalone HTML file or a complete folder containing CSS, JavaScript, images, and fonts from the Layout panel.
-- Detect multiple HTML pages plus `data-page`, `.page`, and `.slide` structures, then extract page roles, colors, and font signals.
-- Private packages stay under `.library/gallery/` in the selected output directory and are never committed automatically.
-- Imported structure and visual tokens influence generation, while successful usage becomes a future recommendation signal.
-- The canvas supports undo/redo, Shift marquee selection, multi-node movement, grouping, locking, minimap navigation, and `Ctrl+K` search.
-
-See [Private template import](docs/PRIVATE-TEMPLATE-IMPORT.md) and [v0.4 product iteration](docs/PRODUCT-ITERATION-v0.4.md).
-
-The gallery contains six original HtmlNineFox demonstrations: Editorial Ink, Indigo Research, Swiss Signal, Kraft Story, Dune Portfolio, and Pixel Garden Product. Together they provide **34 extractable pages**.
-
-The native generators cover `deck`, `doc`, `poster`, `landing`, `dashboard`, and `archdoc`. Eleven visual presets include both foundational themes and structural systems such as Pixel Garden, Duotone Studio, Editorial Ink, Swiss Signal, and Soft Silver.
-
-## AI and privacy
-
-- AI is an enhancement, not a runtime requirement.
-- API settings are stored locally in `.settings/ai.json`.
-- The settings API reports only whether a key exists and never returns the plaintext key.
-- Inputs are stored locally under `.inputs/`; the default per-file limit is 8 MB.
-- Offline rules remain available when AI is disabled, unavailable, or not configured.
-- API keys, full prompts, generated HTML, briefs, and feedback content are excluded from diagnostic archives.
-
-## Verification and trust
-
-Verification completed on **September 1, 2026**:
-
-| Check | Result | Evidence |
-|---|---:|---|
-| Python, API, storage, security, and browser tests | **146 passed** | [Raw pytest log](docs/test-evidence/v0.3.0b2-pytest.txt) |
-| Real Chromium generation and interaction acceptance | **20 / 20 passed** | [Raw E2E log](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
-| Native generators | Landing, dashboard, deck, poster, and architecture document passed | [Test report](docs/TEST-REPORT-v0.3.0b2.md) |
-| Revision flow | Token revision and preset-switch revision passed | [Raw E2E log](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
-| Workbench | Drag, rename, colors, multiple workspaces, themes, and zero JS errors | [Raw E2E log](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
-| Release packages | Windows installer, portable ZIP, Linux, and wheel SHA256 values recorded | [Checksums](docs/test-evidence/v0.3.0b2-release-sha256.txt) |
-
-Environment details: [v0.3.0b2-environment.txt](docs/test-evidence/v0.3.0b2-environment.txt).
-
-```bash
-python -m pytest tests -q -p no:cacheprovider
-python e2e_verify.py
-```
-
-## Project output
-
-```text
-output/html9n-<timestamp>/
-├── output.html
-├── brief.json / brief.md
-├── style.md
-├── assets.json
-├── .foxstate.json
-├── revisions/
-└── feedback.md
-```
-
-The state file preserves template, page blocks, attachments, skills, and selection mode so later revisions continue from explicit choices instead of guessing again.
-
-## Status and roadmap
-
-`v0.3.0b2` is a public beta. Windows and Linux packages are available now. The Web/PWA client can be used from Windows, macOS, iOS, and mobile browsers. Native macOS, iOS, Android, and mini-program clients remain on the roadmap.
-
-See [ROADMAP](docs/ROADMAP.md) and [CHANGELOG](CHANGELOG.md).
-
-## Contributing and acknowledgements
-
-Issues, templates, visual systems, tests, and Skill Alliance integrations are welcome. The design process was inspired by work from the Guizang, Huashu Design, and Archify open-source communities. See [DESIGN-SOURCES](docs/DESIGN-SOURCES.md) for attribution and license notes.
-
-## License
-
-[MIT License](LICENSE) © 2026 **KratosLee · Html九尾狐项目组**
+<div align="center">
+  <p><strong>让灵感在 HTML 里生长。</strong></p>
+  <p>Html九尾狐 · Pixel Garden · 个人开源项目</p>
+</div>

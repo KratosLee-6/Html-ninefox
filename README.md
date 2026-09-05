@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.3.0b2)
+[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.0)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
 [![Tests](https://img.shields.io/badge/pytest-146%20passed-1F8A70)](docs/test-evidence/v0.3.0b2-pytest.txt)
@@ -18,7 +18,7 @@
 
 </div>
 
-![Html九尾狐 v0.3.0 Beta 2 工作台](assets/screenshots/v0.3.0b2/workbench-overview.png)
+![Html九尾狐 v0.4.0 工作台](assets/screenshots/v0.4.0/workbench-overview.png)
 
 ## 它解决什么问题
 
@@ -41,8 +41,12 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
   用自然语言反馈，按版本继续迭代
 ```
 
-## v0.3.0 Beta 2 核心能力
+## v0.4.0 核心能力
 
+- **🎨 Pixel Garden 设计系统**：深钴蓝 `#173C8F` + 薄荷绿 `#49B894` + 暖纸白 `#F4F0E7` 统一设计令牌，5 大视觉产物一致体验。
+- **🤖 真实 LLM 接入**：MiniMax-M3 / Claude / GPT-4o 三家 API，环境变量自动配置，离线规则引擎兜底。
+- **🖥️ Web 工作台**：`htmlninefox workbench` 一键启动本地 Web UI，实时预览 + 智能体日志 + 模板选择。
+- **🐳 Docker 镜像**：`docker run htmlninefox` 跨平台部署，多阶段构建，compose.yaml 注入环境变量。
 - **真实 HTML 模板库**：6 套完整模板、34 个可单独预览和抽取的页面，不再只展示线框。
 - **统一需求入口**：支持文字、TXT、Markdown、JSON、CSV、HTML 和常见图片。
 - **推荐与自由组合双路径**：可以直接接受推荐，也可以在工作区拖入版式、页面、风格、文件和 Skill。
@@ -50,19 +54,19 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 - **AI 模型自主配置**：支持 OpenAI-compatible、Ollama 和自定义兼容接口；API Key 只保存在本地。
 - **离线可用**：没有 API Key 时继续使用确定性的规则引擎，不阻塞生成。
 - **反馈迭代**：自然语言反馈转成设计 Token 修改并重渲染，保留 `rev1 / rev2 / ...` 历史。
-- **跨平台使用**：Windows 便携包/安装器、Linux `.run/.tar.gz`、Python CLI、Web/PWA。
+- **跨平台使用**：Windows 便携包/安装器、Linux `.run/.tar.gz`、Python CLI、Web/PWA、Docker。
 - 🎨 **Multiple PPT styles via Skill Alliance** (v0.3): baoyu-slide-deck (image) · frontend-slides (HTML, no AI gradient) · beautiful-html-templates (28 stable presets)
 
 ## 看得见的真实效果
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.3.0b2/guided-creation.png" alt="需求分析与推荐组合"><br><b>需求分析与推荐组合</b><br>输入需求后，系统给出内容类型、真实模板、页面与视觉风格。</td>
-<td width="50%"><img src="assets/screenshots/v0.3.0b2/gallery-preview.png" alt="完整模板与页面抽取"><br><b>完整模板与页面抽取</b><br>查看整套作品，并把当前页面或整套模板加入工作区。</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/pixel-garden-unified.png" alt="Pixel Garden 统一设计"><br><b>Pixel Garden 统一设计</b><br>5 大视觉产物统一为深钴蓝 + 薄荷绿 + 暖纸白，杂志感与像素识别并存。</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/web-workbench.png" alt="Web 工作台"><br><b>Web 工作台</b><br>htmlninefox workbench 一键启动，实时预览 + 智能体日志 + 模板选择。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.3.0b2/ai-settings.png" alt="AI 模型配置"><br><b>用户自主配置 AI</b><br>模型、Base URL 和 API Key 均由用户掌握，读取接口不返回 Key 明文。</td>
-<td width="50%"><img src="assets/screenshots/v0.3.0b2/workbench-night.png" alt="Pixel Night 夜蓝主题"><br><b>Pixel Garden 双主题</b><br>暖纸白与夜蓝主题均可使用，并自动保存偏好。</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/llm-integration.png" alt="真实 LLM 接入"><br><b>真实 LLM 接入</b><br>MiniMax-M3 / Claude / GPT-4o 三家 API，环境变量自动配置，离线兜底保留。</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/docker-deploy.png" alt="Docker 部署"><br><b>Docker 一键部署</b><br>docker run htmlninefox 跨平台运行，多阶段构建，环境变量注入。</td>
 </tr>
 </table>
 
@@ -78,15 +82,37 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 下载与安装
 
-前往 **[v0.3.0 Beta 2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.3.0b2)** 下载当前版本。
+前往 [v0.4.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.0) 下载当前版本。
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.3.0b2.exe` | 双击安装，适合普通用户 |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.3.0b2.zip` | 解压后双击 `HtmlNineFox.exe`，无需安装 |
-| Linux | `HtmlNineFox-Linux-0.3.0b2.run` | `chmod +x` 后运行，安装到当前用户目录 |
-| Linux / 审计 | `HtmlNineFox-Linux-0.3.0b2.tar.gz` | 可查看完整安装内容 |
-| Python 3.10+ | `htmlninefox-0.3.0b2-py3-none-any.whl` | 使用 `pip install` 安装 |
+| Windows 10/11 | `HtmlNineFox-Setup-0.4.0.exe` | 左侧安装，适合普通用户 |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.4.0.zip` | 解压后 `HtmlNineFox.exe`，免安装 |
+| Linux | `HtmlNineFox-Linux-0.4.0.run` | `chmod +x` 后运行，安装到当前用户目录 |
+| Linux/审计 | `HtmlNineFox-Linux-0.4.0.tar.gz` | 可查看完整安装内容 |
+| Python 3.10+ | `htmlninefox-0.4.0-py3-none-any.whl` | 使用 `pip install` 安装 |
+| Docker | `htmlninefox:v0.4.0` | `docker run -p 8620:8620 -e MINIMAX_API_KEY=xxx htmlninefox` |
+
+### 快速开始
+
+```bash
+# 1. 安装（任选其一）
+pip install htmlninefox
+# 或下载 release 包
+# 或 docker run htmlninefox
+
+# 2. 配置 LLM（可选，离线也可用）
+export MINIMAX_API_KEY="***"
+# 或 export OPENAI_API_KEY="***"
+# 或 export ANTHROPIC_API_KEY="***"
+
+# 3. 启动 Web 工作台
+htmlninefox workbench
+# 打开 http://127.0.0.1:8620
+
+# 4. 或 CLI 直接生成
+htmlninefox brief "做一个 SaaS 落地页"
+```
 
 ### 从源码运行
 
