@@ -180,18 +180,21 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 ## 测试与信任证据
 
-本版本在 **2026-09-01** 完成以下验证：
+本版本在 **2026-09-05** 完成以下验证：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **146 passed** | [pytest 原始日志](docs/test-evidence/v0.3.0b2-pytest.txt) |
-| Chromium 真实生成与交互验收 | **20 / 20 passed** | [E2E 原始日志](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
-| 生成器 | Landing / Dashboard / Deck / Poster / Archdoc 均成功 | [测试报告](docs/TEST-REPORT-v0.3.0b2.md) |
-| 反馈迭代 | `rev1` Token 修改与 `rev2` 预设切换成功 | [E2E 日志](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
-| 工作台 | 拖动、重命名、颜色、多工作区、双主题、无 JS 错误 | [E2E 日志](docs/test-evidence/v0.3.0b2-chromium-e2e.txt) |
-| 发布包 | Windows 安装器 / 便携包、Linux、wheel 均生成 SHA256 | [校验值](docs/test-evidence/v0.3.0b2-release-sha256.txt) |
+| Python / API / 存储 / 安全 / 浏览器测试 | **146 passed** | [pytest 原始日志](docs/test-evidence/v0.4.0-pytest.txt) |
+| Chromium 真实生成与交互验收 | **20 / 20 passed** | [E2E 原始日志](docs/test-evidence/v0.4.0-chromium-e2e.txt) |
+| 生成器 | Landing / Dashboard / Deck / Poster / Archdoc 均成功 | [测试报告](docs/TEST-REPORT-v0.4.0.md) |
+| 反馈迭代 | `rev1` Token 修改与 `rev2` 预设切换成功 | [E2E 日志](docs/test-evidence/v0.4.0-chromium-e2e.txt) |
+| 工作台 | 拖动、重命名、颜色、多工作区、双主题、无 JS 错误 | [E2E 日志](docs/test-evidence/v0.4.0-chromium-e2e.txt) |
+| 发布包 | Windows 安装器 / 便携包、Linux、wheel、Docker 均生成 SHA256 | [校验值](docs/test-evidence/v0.4.0-release-sha256.txt) |
+| LLM 接入 | MiniMax-M3 / Claude / GPT-4o 环境变量自动配置 | [配置文档](docs/INSTALL.md) |
+| Web 工作台 | FastAPI 服务端 + 实时预览 + 智能体日志 | [E2E 日志](docs/test-evidence/v0.4.0-chromium-e2e.txt) |
+| Docker 镜像 | 多阶段构建 + compose.yaml + .dockerignore | [构建日志](docs/test-evidence/v0.4.0-docker-build.txt) |
 
-运行环境记录见：[v0.3.0b2-environment.txt](docs/test-evidence/v0.3.0b2-environment.txt)。
+运行环境记录见：[v0.4.0-environment.txt](docs/test-evidence/v0.4.0-environment.txt)。
 
 ```bash
 python -m pytest tests -q -p no:cacheprovider
@@ -215,7 +218,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.3.0b2` 是公开 Beta：Windows 和 Linux 包已可用，Web/PWA 可跨 Windows、macOS、iOS 和移动浏览器访问。原生 macOS、iOS、Android 和小程序客户端仍在后续路线中。
+`v0.4.0` 是正式版：Windows、Linux、Python CLI、Web/PWA 和 Docker 均已可用。Pixel Garden 设计系统统一了 5 大视觉产物；真实 LLM 接入（MiniMax-M3 / Claude / GPT-4o）让 AI 生成质量大幅提升；Web 工作台让非技术用户也能轻松使用。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 
@@ -223,13 +226,17 @@ output/html9n-<时间戳>/
 
 欢迎提交 Issue、模板、视觉系统、测试和 Skill 联盟适配。设计方法受到归藏、花叔 Design 和 Archify 等开源社区工作的启发；详细来源和许可审查见 [DESIGN-SOURCES](docs/DESIGN-SOURCES.md)。
 
-### Skill Alliance 致谢（v0.3）
+### Skill Alliance 致谢（v0.3-v0.4）
 
-Html九尾狐 v0.3 的 PPT 生成模块参考了以下两位创作者的开源 Skill 作品，诚挚致谢：
+Html九尾狐 v0.3-v0.4 的 PPT 生成模块参考了以下两位创作者的开源 Skill 作品，诚挚致谢：
 
 - 🎨 **[宝玉 (JimLiu)](https://github.com/JimLiu)** — author of [baoyu-skills](https://github.com/JimLiu/baoyu-skills) (especially [baoyu-slide-deck](https://github.com/JimLiu/baoyu-skills/tree/main/skills/baoyu-slide-deck)). The "AI 画图生成每页 PPT · 17 套风格" image-based PPT approach inspired Html九尾狐 v0.3's `ppt_image` intent.
 
-- 🎨 **[张咋啦 (zarazhangrui)](https://github.com/zarazhangrui)** — author of [frontend-slides](https://github.com/zarazhangrui/frontend-slides), [beautiful-html-templates](https://github.com/zarazhangrui/beautiful-html-templates), [beautiful-feishu-whiteboard](https://github.com/zarazhangrui/beautiful-feishu-whiteboard). The "避开 AI 紫渐变" + "28 套稳定出片" philosophy deeply shaped Html九尾狐 v0.3's template library design.
+- 🎨 **[张咋啦 (zarazhangrui)](https://github.com/zarazhangrui)** — author of [frontend-slides](https://github.com/zarazhangrui/frontend-slides), [beautiful-html-templates](https://github.com/zarazhangrui/beautiful-html-templates), [beautiful-feishu-whiteboard](https://github.com/zarazhangrui/beautiful-feishu-whiteboard). The "避开 AI 紫渐变" + "28 套稳定出片" philosophy deeply shaped Html九尾狐 v0.3-v0.4's template library design.
+
+### 设计系统致谢（v0.4）
+
+- 🎨 **Pixel Garden 设计系统** — 深钴蓝 `#173C8F` + 薄荷绿 `#49B894` + 暖纸白 `#F4F0E7` 统一设计令牌，灵感来自电子杂志 × 电子墨水美学。
 
 ## 许可证
 
