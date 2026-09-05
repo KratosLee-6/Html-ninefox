@@ -45,3 +45,17 @@ def load_config(config_path: str | Path | None = None) -> Dict[str, Any]:
 
 def get_default_config() -> Dict[str, Any]:
     return load_config(DEFAULT_ROUTER_CONFIG)
+
+
+def load_llm_settings() -> Dict[str, Any] | None:
+    """v0.4：从环境变量加载真实 LLM 配置（MiniMax-M3 优先）。
+
+    支持的环境变量：
+      MINIMAX_API_KEY    MiniMax-M3（默认供应商，https://api.minimaxi.com/v1）
+      OPENAI_API_KEY     GPT-4o
+      ANTHROPIC_API_KEY  Claude
+      HTMLNINEFOX_PROVIDER  强制指定 minimax / gpt4o / claude
+      HTMLNINEFOX_MODEL / HTMLNINEFOX_BASE_URL  覆盖默认模型与端点
+    """
+    from .llm import runtime_settings_from_env
+    return runtime_settings_from_env()

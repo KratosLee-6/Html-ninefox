@@ -116,6 +116,16 @@ Documentation: [Installation](docs/INSTALL.md) · [Running options](docs/RUNNING
 
 ## Templates and visual systems
 
+### v0.4 development preview: private template library
+
+- Import one standalone HTML file or a complete folder containing CSS, JavaScript, images, and fonts from the Layout panel.
+- Detect multiple HTML pages plus `data-page`, `.page`, and `.slide` structures, then extract page roles, colors, and font signals.
+- Private packages stay under `.library/gallery/` in the selected output directory and are never committed automatically.
+- Imported structure and visual tokens influence generation, while successful usage becomes a future recommendation signal.
+- The canvas supports undo/redo, Shift marquee selection, multi-node movement, grouping, locking, minimap navigation, and `Ctrl+K` search.
+
+See [Private template import](docs/PRIVATE-TEMPLATE-IMPORT.md) and [v0.4 product iteration](docs/PRODUCT-ITERATION-v0.4.md).
+
 The gallery contains six original HtmlNineFox demonstrations: Editorial Ink, Indigo Research, Swiss Signal, Kraft Story, Dune Portfolio, and Pixel Garden Product. Together they provide **34 extractable pages**.
 
 The native generators cover `deck`, `doc`, `poster`, `landing`, `dashboard`, and `archdoc`. Eleven visual presets include both foundational themes and structural systems such as Pixel Garden, Duotone Studio, Editorial Ink, Swiss Signal, and Soft Silver.

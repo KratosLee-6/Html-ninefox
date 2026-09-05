@@ -165,6 +165,64 @@ def test_gallery_api_returns_real_html_and_page_preview(api_server):
     assert ".nav,.counter{display:none" in page_html
 
 
+def test_private_gallery_import_preview_asset_and_delete(api_server):
+    base, root = api_server
+    imported, _ = request(base, "/api/gallery/import", "POST", {
+        "name": "本地多页原型",
+        "files": [
+            {"path": "index.html", "data_base64": base64.b64encode(
+                b'<!doctype html><title>Local prototype</title><link rel="stylesheet" href="assets/app.css"><h1>Home</h1>'
+            ).decode()},
+            {"path": "detail.html", "data_base64": base64.b64encode(
+                b'<!doctype html><title>Detail page</title><h1>Detail</h1>'
+            ).decode()},
+            {"path": "assets/app.css", "data_base64": base64.b64encode(
+                b'body{color:#123456}'
+            ).decode()},
+        ],
+    }, expected=201)
+    item_id = imported["item"]["id"]
+    assert imported["item"]["html_count"] == 2
+
+    gallery, _ = request(base, "/api/gallery")
+    item = next(entry for entry in gallery["items"] if entry["id"] == item_id)
+    assert item["source"] == "user"
+    assert len(item["pages"]) == 2
+
+    with urllib.request.urlopen(base + item["preview_url"], timeout=10) as response:
+        html = response.read().decode("utf-8")
+        csp = response.headers["Content-Security-Policy"]
+    assert "htmlninefox-private-template" in html
+    assert f"/api/gallery-assets/{urllib.parse.quote(item_id)}/" in html
+    assert "sandbox allow-scripts" in csp
+    assert "allow-same-origin" not in csp
+
+    with urllib.request.urlopen(
+        base + f"/api/gallery-assets/{urllib.parse.quote(item_id)}/assets/app.css", timeout=10
+    ) as response:
+        assert response.read() == b"body{color:#123456}"
+
+    generated, _ = request(base, "/api/generate", "POST", {
+        "prompt": "做一个采购数据后台",
+        "intent": "dashboard",
+        "template": item["preset_id"],
+        "gallery_id": item_id,
+        "blocks": [page["block_id"] for page in item["pages"]],
+        "quiet_llm": True,
+    })
+    output_html = (root / generated["project_name"] / "output.html").read_text(encoding="utf-8")
+    state = json.loads((root / generated["project_name"] / pipeline.STATE_FILE).read_text(encoding="utf-8"))
+    assert "#123456" in output_html
+    assert state["composition"]["gallery_source"] == "user"
+    assert state["composition"]["template_design_tokens"]["colors"] == ["#123456"]
+    manifest = json.loads((root / ".library" / "gallery" / item_id / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["usage_count"] == 1
+
+    deleted, _ = request(base, f"/api/gallery/{urllib.parse.quote(item_id)}", "DELETE")
+    assert deleted["deleted"] == item_id
+    assert not (root / ".library" / "gallery" / item_id).exists()
+
+
 def test_ai_settings_are_local_and_secret_safe(api_server):
     base, root = api_server
     saved, _ = request(base, "/api/settings/ai", "PUT", {

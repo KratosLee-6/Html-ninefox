@@ -127,7 +127,9 @@ class TestWebApi:
         assert "Html" in ui and "manifest.webmanifest" in ui and "/canvas-engine.js" in ui
         assert "pixel-paper" in ui and "/logo-mark.svg" in ui
         engine = self._get("/canvas-engine.js").read().decode("utf-8")
+        productivity = self._get("/canvas-productivity.js").read().decode("utf-8")
         assert "snapNode" in engine and "nearestInput" in engine
+        assert "commitHistory" in productivity and "renderMinimap" in productivity
 
     def test_pwa_assets_and_capabilities(self):
         manifest = json.loads(self._get("/manifest.webmanifest").read().decode("utf-8"))

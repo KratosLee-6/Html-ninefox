@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import mimetypes
 import os
 import shutil
 import traceback
@@ -13,6 +14,7 @@ from typing import Callable
 from urllib.parse import parse_qs, unquote, urlparse
 
 from .. import __version__, llm, pipeline, template_gallery
+from ..user_gallery import UserGalleryError, UserGalleryStore
 from .diagnostics import create_diagnostic_bundle
 from .inputs import InputError, InputStore
 from .jobs import get_job_manager
@@ -27,6 +29,7 @@ STATIC_FILES = {
     "/logo-mark.svg": ("logo-mark.svg", "image/svg+xml; charset=utf-8", "public, max-age=86400"),
     "/logo-horizontal.svg": ("logo-horizontal.svg", "image/svg+xml; charset=utf-8", "public, max-age=86400"),
     "/canvas-engine.js": ("canvas-engine.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/canvas-productivity.js": ("canvas-productivity.js", "application/javascript; charset=utf-8", "no-cache"),
     "/workbench-features.js": ("workbench-features.js", "application/javascript; charset=utf-8", "no-cache"),
 }
 APP_CAPABILITIES = {
@@ -44,13 +47,17 @@ APP_CAPABILITIES = {
     "features": [
         "generate", "analyze", "feedback", "projects", "project_crud",
         "workspace_recovery", "jobs", "diagnostics", "templates", "template_preview", "template_gallery",
-        "page_extraction", "input_attachments", "ai_settings", "alliance",
+        "page_extraction", "private_template_import", "template_usage_learning",
+        "canvas_history", "canvas_multiselect", "canvas_grouping", "canvas_locking",
+        "canvas_minimap", "canvas_command_palette",
+        "input_attachments", "ai_settings", "alliance",
     ],
     "schemas": {"canvas": 1},
     "offline": {"workspace": True, "generation": False},
 }
 
 _OUTPUT_ROOT = Path.home() / "htmlninefox-output"
+MAX_REQUEST_BYTES = 36 * 1024 * 1024
 
 
 def serve(host: str = "127.0.0.1", port: int = 8620, output: str | None = None) -> None:
@@ -101,6 +108,9 @@ class _Handler(BaseHTTPRequestHandler):
 
     def _inputs(self) -> InputStore:
         return InputStore(_OUTPUT_ROOT)
+
+    def _user_gallery(self) -> UserGalleryStore:
+        return UserGalleryStore(_OUTPUT_ROOT / ".library" / "gallery")
 
     def _ai_settings(self) -> AISettingsStore:
         return AISettingsStore(_OUTPUT_ROOT)
@@ -160,13 +170,16 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _html(self, html: str, cache_control: str = "no-store"):
+    def _html(self, html: str, cache_control: str = "no-store",
+              headers: dict[str, str] | None = None):
         body = html.encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", cache_control)
         self.send_header("X-Request-ID", self.request_id)
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(body)
 
@@ -174,6 +187,8 @@ class _Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length") or 0)
         if not length:
             return {}
+        if length > MAX_REQUEST_BYTES:
+            raise StoreError("request_too_large", "请求体不能超过 36MB", 413)
         try:
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError) as exc:
@@ -233,15 +248,40 @@ class _Handler(BaseHTTPRequestHandler):
         if path == "/api/templates":
             return self._json({"items": pipeline.list_templates()})
         if path == "/api/gallery":
-            return self._json({"items": template_gallery.list_gallery()})
+            return self._json({"items": template_gallery.list_gallery(self._user_gallery().root)})
         if path == "/api/gallery-preview":
             item_id = (query.get("id") or [""])[0]
             page_id = (query.get("page") or [None])[0]
             try:
-                html = template_gallery.render_gallery_preview(item_id, page_id)
+                item = template_gallery.get_gallery_item(item_id, self._user_gallery().root)
+                html = template_gallery.render_gallery_preview(
+                    item_id, page_id, self._user_gallery().root)
             except ValueError as exc:
                 raise StoreError("gallery_preview_invalid", str(exc), 400) from exc
-            return self._html(html, "private, max-age=300")
+            headers = None
+            if item.get("source") == "user":
+                headers = {
+                    "Content-Security-Policy": (
+                        "default-src 'self' data: blob: https: http:; "
+                        "script-src 'self' 'unsafe-inline' data: blob: https: http:; "
+                        "style-src 'self' 'unsafe-inline' data: blob: https: http:; "
+                        "connect-src 'none'; object-src 'none'; form-action 'none'; "
+                        "frame-ancestors 'self'; sandbox allow-scripts"
+                    ),
+                    "X-Content-Type-Options": "nosniff",
+                }
+            return self._html(html, "private, max-age=300", headers)
+        if path.startswith("/api/gallery-assets/"):
+            relative = path[len("/api/gallery-assets/"):]
+            item_id, separator, asset_path = relative.partition("/")
+            if not separator:
+                raise StoreError("gallery_asset_invalid", "模板资源路径无效", 400)
+            try:
+                target = self._user_gallery().resolve_file(item_id, asset_path)
+            except UserGalleryError as exc:
+                raise StoreError("gallery_asset_invalid", str(exc), 404) from exc
+            mime = mimetypes.guess_type(target.name)[0] or "application/octet-stream"
+            return self._file(target, mime, "private, max-age=300")
         if path == "/api/settings/ai":
             return self._json({"ok": True, "settings": self._ai_settings().public()})
         if path == "/api/template-preview":
@@ -294,6 +334,16 @@ class _Handler(BaseHTTPRequestHandler):
             except InputError as exc:
                 raise StoreError("input_invalid", str(exc), 400) from exc
             return self._json({"ok": True, "input": item}, 201)
+        if path == "/api/gallery/import":
+            try:
+                item = self._user_gallery().import_files(
+                    body.get("files") if isinstance(body.get("files"), list) else [],
+                    name=str(body.get("name") or ""), entry=str(body.get("entry") or ""),
+                    tags=body.get("tags") if isinstance(body.get("tags"), list) else [],
+                )
+            except UserGalleryError as exc:
+                raise StoreError("gallery_import_invalid", str(exc), 400) from exc
+            return self._json({"ok": True, "item": item}, 201)
         if path == "/api/settings/ai/test":
             if not self._activate_ai():
                 raise StoreError("ai_not_configured", "请先启用并保存 AI 模型配置", 400)
@@ -339,6 +389,11 @@ class _Handler(BaseHTTPRequestHandler):
         if path.startswith("/api/projects/"):
             name = path[len("/api/projects/"):]
             return self._json({"ok": True, **self._store().delete_project(name)})
+        if path.startswith("/api/gallery/"):
+            item_id = path[len("/api/gallery/"):]
+            if not self._user_gallery().delete(item_id):
+                raise StoreError("gallery_not_found", "私人模板不存在", 404)
+            return self._json({"ok": True, "deleted": item_id})
         raise StoreError("not_found", "接口不存在", 404)
 
     def _api_generate(self, body: dict):
@@ -376,6 +431,17 @@ class _Handler(BaseHTTPRequestHandler):
             raise StoreError("prompt_required", "prompt 或附件至少需要一个", 400)
         ai_enabled = self._activate_ai()
         blocks = body.get("blocks") if isinstance(body.get("blocks"), list) else []
+        gallery_id = str(body.get("gallery_id") or "")
+        gallery_item = None
+        style_overrides = {key: body[key] for key in ("primary", "font") if body.get(key)}
+        if gallery_id:
+            try:
+                gallery_item = self._user_gallery().get(gallery_id)
+            except UserGalleryError:
+                gallery_item = None
+        if gallery_item:
+            for key, value in gallery_item.get("style_overrides", {}).items():
+                style_overrides.setdefault(key, value)
         result = pipeline.run_expert(
             prompt,
             skill=body.get("skill") or None,
@@ -383,15 +449,22 @@ class _Handler(BaseHTTPRequestHandler):
             output=str(output_root or _OUTPUT_ROOT),
             intent_override=body.get("intent") or None,
             quiet_llm=bool(body.get("quiet_llm", False)) or not ai_enabled,
-            style_overrides={key: body[key] for key in ("primary", "font") if body.get(key)} or None,
+            style_overrides=style_overrides or None,
             composition={
-                "gallery_id": body.get("gallery_id") or None,
+                "gallery_id": gallery_id or None,
+                "gallery_source": gallery_item.get("source") if gallery_item else "builtin",
+                "template_design_tokens": gallery_item.get("design_tokens", {}) if gallery_item else {},
                 "blocks": blocks,
                 "inputs": input_items,
                 "selection_mode": body.get("selection_mode") or "custom",
             },
         )
         work = result["work"]
+        if gallery_item:
+            try:
+                self._user_gallery().record_use(gallery_id)
+            except (UserGalleryError, OSError, json.JSONDecodeError):
+                pass
         return {
             "ok": True,
             "project": str(work),
@@ -418,7 +491,8 @@ class _Handler(BaseHTTPRequestHandler):
         content = payload.get("content", {})
         style = payload.get("style", {})
         preset_id = _tokens.match_preset(result, result.get("intent", "landing"))["id"]
-        recommended = template_gallery.recommend_gallery(result.get("intent", "landing"), preset_id)
+        recommended = template_gallery.recommend_gallery(
+            result.get("intent", "landing"), preset_id, self._user_gallery().root)
         return self._json({
             "ok": True,
             "intent": result.get("intent", "landing"),

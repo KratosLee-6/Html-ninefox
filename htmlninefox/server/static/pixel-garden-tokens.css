@@ -1,0 +1,104 @@
+/* ============================================================
+   Html九尾狐 · Pixel Garden 设计令牌 v1.0
+   来源：docs/VI.md + docs/UI-GUIDE.md（像素花园 VI 手册）
+   用法：各产物 @import / <link> 本文件即可。
+   --brand-* 为兼容别名（指向 Pixel Garden 值），
+   让已引用 hn-tokens.css 变量的产物零改动完成迁移。
+   ============================================================ */
+:root {
+  /* ---------- Pixel Paper（默认浅色） ---------- */
+  --bg-base: #F4F0E7;          /* 暖纸白背景 */
+  --bg-panel: #FFFDF6;         /* 面板纸面 */
+  --bg-elevated: #EDF3EC;      /* 薄荷浅底卡片 */
+  --text-primary: #17283D;     /* 墨色深蓝 */
+  --text-secondary: #536476;   /* 次要文字 */
+  --accent: #173C8F;           /* 深钴蓝 · 主色 */
+  --green: #49B894;            /* 薄荷绿 */
+  --focus: #E57A3F;            /* 陶土橙 · 聚焦/警示 */
+
+  /* ---------- Pixel Night（深色） ---------- */
+  --night-bg-base: #10253B;
+  --night-bg-panel: #16314A;
+  --night-accent: #76A5FF;
+  --night-green: #62C7A5;
+  --night-focus: #F0A16E;
+
+  /* ---------- 字体 ---------- */
+  --font-display: Georgia, 'Noto Serif SC', 'Songti SC', serif;
+  --font-ui: Inter, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, monospace;
+
+  /* ---------- 圆角（小圆角 · 像素感） ---------- */
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 6px;
+
+  /* ---------- 阴影（轻像素投影） ---------- */
+  --shadow-pixel: 3px 3px 0 rgba(23, 60, 143, 0.12);
+  --shadow-elev: 4px 4px 0 rgba(23, 60, 143, 0.08);
+
+  /* ========================================================
+     兼容别名：旧 hn-tokens.css（靛蓝瓷）变量 → Pixel Garden
+     ======================================================== */
+  --brand-primary: #173C8F;               /* 深钴蓝 */
+  --brand-accent: #2B4FA3;                /* 钴蓝 hover */
+  --brand-primary-soft: #76A5FF;          /* 夜蓝高亮 */
+  --brand-bg: #F4F0E7;                    /* 暖纸白 */
+  --brand-bg-tint: #EDF3EC;               /* 薄荷浅底 */
+  --brand-bg-paper: #FFFDF6;              /* 面板纸面 */
+  --brand-text: #17283D;
+  --brand-text-dim: #536476;
+  --brand-text-faint: rgba(23, 40, 61, 0.42);
+  --brand-hairline: rgba(23, 60, 143, 0.16);
+  --brand-on-dark: #F7F3EA;               /* 深底上的暖纸白 */
+  --brand-on-dark-dim: rgba(247, 243, 234, 0.62);
+
+  /* ---------- 语义色（Pixel Garden 语义） ---------- */
+  --brand-warning: #E57A3F;               /* 陶土橙（替代刺眼警示红） */
+  --brand-safe: #49B894;                  /* 薄荷绿 */
+  --brand-warn: #E57A3F;                  /* 陶土橙 */
+  --brand-danger: #D96C4A;                /* 深陶土（违规语义） */
+  --brand-warning-soft: rgba(229, 122, 63, 0.10);
+  --brand-safe-soft: rgba(73, 184, 148, 0.12);
+  --brand-warn-soft: rgba(229, 122, 63, 0.10);
+  --brand-danger-soft: rgba(217, 108, 74, 0.10);
+
+  /* ---------- 字体别名 ---------- */
+  --font-serif: Georgia, 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+  --font-sans: Inter, 'PingFang SC', -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+
+  /* ---------- 字号梯度（沿用，不动排版） ---------- */
+  --fs-hero: 96px;
+  --fs-h1: 56px;
+  --fs-h2: 40px;
+  --fs-h3: 32px;
+  --fs-lead: 26px;
+  --fs-body: 22px;
+  --fs-meta: 16px;
+  --fs-mono: 13px;
+
+  /* ---------- 字重/行高 ---------- */
+  --fw-serif: 600;
+  --fw-body: 400;
+  --fw-strong: 600;
+  --lh-title: 1.2;
+  --lh-body: 1.7;
+
+  /* ---------- 间距（16px 主网格 · 4px 微调） ---------- */
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+  --space-8: 96px;
+
+  /* ---------- 圆角别名（小圆角像素感） ---------- */
+  --radius-card: 6px;
+  --radius-button: 5px;
+  --radius-small: 3px;
+
+  /* ---------- 阴影别名（轻像素投影） ---------- */
+  --shadow-card: 3px 3px 0 rgba(23, 60, 143, 0.10);
+}

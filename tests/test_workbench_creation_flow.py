@@ -49,6 +49,28 @@ def test_gallery_pages_are_visible_and_extractable(tmp_path):
         thread.join(timeout=3)
 
 
+def test_workbench_imports_private_html_template(tmp_path):
+    base, server, thread = start_server(tmp_path)
+    template = tmp_path / "private-template.html"
+    template.write_text("<!doctype html><title>私人研究模板</title><h1>Research</h1>", encoding="utf-8")
+    try:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch()
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            page.on("dialog", lambda dialog: dialog.accept("我的私人模板"))
+            page.goto(base + "/")
+            page.wait_for_timeout(900)
+            page.set_input_files("#import-html-input", str(template))
+            page.wait_for_selector("text=我的私人模板", timeout=10000)
+            assert page.locator('[data-gallery-delete]').count() == 1
+            assert (tmp_path / ".library" / "gallery").is_dir()
+            browser.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=3)
+
+
 def test_guided_input_analysis_and_generation_persist_composition(tmp_path):
     base, server, thread = start_server(tmp_path)
     reference = tmp_path / "reference.md"

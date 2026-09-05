@@ -1,11 +1,13 @@
 services:
   htmlninefox:
-    build:
-      context: .
-      args:
-        HTMLNINEFOX_WHEEL: dist/htmlninefox-0.3.0b2-py3-none-any.whl
+    build: .
     ports:
       - "8620:8620"
+    environment:
+      # 真实 LLM 接入（MiniMax-M3 优先；按需替换为 OPENAI_API_KEY / ANTHROPIC_API_KEY）
+      MINIMAX_API_KEY: ${MINIMAX_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     volumes:
       - htmlninefox-data:/home/fox/.htmlninefox
       - htmlninefox-output:/home/fox/htmlninefox-output

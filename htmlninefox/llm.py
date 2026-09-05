@@ -1,9 +1,15 @@
-"""llm.py · LiteLLM Router 封装（复用 PoC v0.1）"""
+"""llm.py · LiteLLM Router 封装（复用 PoC v0.1）
+
+v0.4: 新增 PROVIDER_PRESETS（MiniMax-M3 优先，兼容 Claude / GPT-4o）
+与 runtime_settings_from_env() —— 用户只配环境变量即可接入真实 LLM，
+无需手写 litellm yaml。优先级：MINIMAX_API_KEY > ANTHROPIC_API_KEY > OPENAI_API_KEY。
+"""
 
 from __future__ import annotations
 
 import json
 import logging
+import os
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
@@ -17,6 +23,66 @@ from .cost import CostTracker
 logger = logging.getLogger(__name__)
 
 _LITELLM_ROUTER = None
+
+# ============================================================
+# v0.4 · 真实 LLM 供应商预设（MiniMax-M3 优先）
+# ============================================================
+PROVIDER_PRESETS: Dict[str, Dict[str, str]] = {
+    "minimax": {
+        "provider": "openai-compatible",
+        "model": "MiniMax-M3",
+        "base_url": "https://api.minimaxi.com/v1",
+        "api_key_env": "MINIMAX_API_KEY",
+    },
+    "claude": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-5",
+        "base_url": "https://api.anthropic.com",
+        "api_key_env": "ANTHROPIC_API_KEY",
+    },
+    "gpt4o": {
+        "provider": "openai-compatible",
+        "model": "gpt-4o",
+        "base_url": "https://api.openai.com/v1",
+        "api_key_env": "OPENAI_API_KEY",
+    },
+}
+
+# 环境变量探测顺序：MiniMax-M3 优先（国内访问快 + 中文强）
+_ENV_PRIORITY = ("minimax", "gpt4o", "claude")
+
+
+def call_minimax_m3(prompt: str, api_key: str, model: str = "MiniMax-M3",
+                    base_url: str = "https://api.minimaxi.com/v1") -> str:
+    """直连 MiniMax-M3（OpenAI 兼容端点），供无 litellm 场景使用。"""
+    settings = {"model": model, "base_url": base_url, "api_key": api_key}
+    response = HtmlNineFoxRouter._direct_completion(
+        settings, [{"role": "user", "content": prompt}], 0.7, 1024)
+    return response.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+
+def runtime_settings_from_env() -> Optional[Dict[str, Any]]:
+    """从环境变量解析 LLM 供应商配置。
+
+    返回 runtime_config_from_settings 可直接消费的 settings dict；
+    没有任何可用 key 时返回 None（保持离线兜底行为）。
+    """
+    forced = os.environ.get("HTMLNINEFOX_PROVIDER", "").strip().lower()
+    order = (forced,) if forced in PROVIDER_PRESETS else _ENV_PRIORITY
+    for name in order:
+        preset = PROVIDER_PRESETS[name]
+        api_key = os.environ.get(preset["api_key_env"], "").strip()
+        if not api_key:
+            continue
+        settings: Dict[str, Any] = {
+            "provider": preset["provider"],
+            "model": os.environ.get("HTMLNINEFOX_MODEL") or preset["model"],
+            "base_url": os.environ.get("HTMLNINEFOX_BASE_URL") or preset["base_url"],
+            "api_key": api_key,
+        }
+        logger.info("[llm] 环境变量接入真实 LLM: %s (%s)", name, settings["model"])
+        return settings
+    return None
 
 
 def runtime_config_from_settings(settings: Dict[str, Any]) -> Dict[str, Any]:
@@ -110,6 +176,16 @@ class HtmlNineFoxRouter:
             daily_budget_usd=self.config.get("cost_rates", {}).get("daily_budget_usd", 5.0),
         )
         self._router = None
+        # v0.4：无 UI/手动配置时，自动从环境变量接入真实 LLM（MiniMax-M3 优先）
+        if "_runtime_settings" not in self.config:
+            env_settings = runtime_settings_from_env()
+            if env_settings:
+                env_config = runtime_config_from_settings(env_settings)
+                if env_settings.get("provider") == "openai-compatible":
+                    self.config = env_config  # 直连（MiniMax-M3 / GPT-4o）
+                else:
+                    env_config.pop("_runtime_settings", None)  # Claude 走 litellm router
+                    self.config = env_config
 
     def configure(self, config: Dict[str, Any]) -> None:
         global _LITELLM_ROUTER

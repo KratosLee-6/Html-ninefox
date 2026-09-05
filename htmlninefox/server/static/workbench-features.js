@@ -15,6 +15,81 @@ async function loadGallery() {
   if (['layouts', 'blocks', 'styles'].includes(activeTab)) renderPalette();
 }
 
+function updateTemplateImportVisibility() {
+  const bar = document.querySelector('#template-import-bar');
+  if (bar) bar.hidden = activeTab !== 'layouts';
+}
+
+function fileAsBase64(file) {
+  return file.arrayBuffer().then(buffer => {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let offset = 0; offset < bytes.length; offset += 32768) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 32768));
+    }
+    return btoa(binary);
+  });
+}
+
+async function importTemplateFiles(fileList, folderMode = false) {
+  const files = [...fileList];
+  if (!files.length) return;
+  const rootName = folderMode ? (files[0].webkitRelativePath || '').split('/')[0] : '';
+  const fallbackName = rootName || files[0].name.replace(/\.html?$/i, '');
+  const name = prompt('私人模板名称', fallbackName);
+  if (name === null) return;
+  const buttons = ['#import-html-button', '#import-folder-button'].map(selector => $(selector));
+  buttons.forEach(button => { if (button) button.disabled = true; });
+  flash(`正在导入 ${files.length} 个文件…`, true);
+  try {
+    const payloadFiles = [];
+    for (const file of files) {
+      let relativePath = file.webkitRelativePath || file.name;
+      if (folderMode && rootName && relativePath.startsWith(rootName + '/')) {
+        relativePath = relativePath.slice(rootName.length + 1);
+      }
+      payloadFiles.push({ path:relativePath, data_base64:await fileAsBase64(file) });
+    }
+    const entryItem = payloadFiles.find(item => /(^|\/)index\.html?$/i.test(item.path))
+      || payloadFiles.find(item => /\.html?$/i.test(item.path));
+    const result = await api('/api/gallery/import', 'POST', {
+      name:name.trim(), entry:entryItem?.path || '', files:payloadFiles,
+    });
+    await loadGallery();
+    activeTab = 'layouts';
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('on', tab.dataset.tab === 'layouts'));
+    updateTemplateImportVisibility();
+    renderPalette();
+    flash(`已导入私人模板：${result.item.name} · ${result.item.pages.length} 个页面`, true);
+  } catch (error) {
+    flash('模板导入失败：' + error.message, false);
+  } finally {
+    buttons.forEach(button => { if (button) button.disabled = false; });
+    $('#import-html-input').value = '';
+    $('#import-folder-input').value = '';
+  }
+}
+
+async function deleteUserGallery(itemId) {
+  const item = galleryItem(itemId);
+  if (!item || item.source !== 'user') return;
+  if (!confirm(`删除私人模板“${item.name}”？本地模板包会被移除。`)) return;
+  try {
+    await api('/api/gallery/' + encodeURIComponent(itemId), 'DELETE');
+    await loadGallery();
+    renderPalette();
+    flash('已删除私人模板：' + item.name, true);
+  } catch (error) {
+    flash('删除模板失败：' + error.message, false);
+  }
+}
+
+$('#import-html-button').addEventListener('click', () => $('#import-html-input').click());
+$('#import-folder-button').addEventListener('click', () => $('#import-folder-input').click());
+$('#import-html-input').addEventListener('change', event => importTemplateFiles(event.target.files, false));
+$('#import-folder-input').addEventListener('change', event => importTemplateFiles(event.target.files, true));
+updateTemplateImportVisibility();
+
 function galleryTemplateData(item) {
   return {
     title: item.name,
@@ -43,8 +118,10 @@ function galleryPageData(item, page) {
   };
 }
 
-PALETTE.layouts = () => state.gallery.length
-  ? [{ group:'真实 HTML 模板作品 · 放大查看全部页面' }].concat(state.gallery.map(item => ({
+PALETTE.layouts = () => {
+  const privateItems = state.gallery.filter(item => item.source === 'user');
+  const builtInItems = state.gallery.filter(item => item.source !== 'user');
+  const cards = items => items.map(item => ({
       id:'gallery-layout-' + item.id,
       t:item.name,
       name:item.name,
@@ -54,9 +131,17 @@ PALETTE.layouts = () => state.gallery.length
       previewUrl:item.preview_url,
       previewIntent:item.intent,
       previewTemplate:item.preset_id,
+      userGallery:item.source === 'user',
       drag:{ kind:'template', data:galleryTemplateData(item) },
-    })))
-  : [{ header:'真实模板作品加载中…' }];
+    }));
+  if (!state.gallery.length) return [{ header:'真实模板作品加载中…' }];
+  return [
+    { group:'私人模板 · 用得越多，推荐越靠前' },
+    ...(privateItems.length ? cards(privateItems) : [{ header:'可导入单个 HTML，或包含资源的完整文件夹。私人模板只保存在本地。' }]),
+    { group:'内置真实 HTML 模板 · 放大查看全部页面' },
+    ...cards(builtInItems),
+  ];
+};
 
 PALETTE.blocks = () => {
   const pages = state.gallery.flatMap(item => item.pages.map(page => ({

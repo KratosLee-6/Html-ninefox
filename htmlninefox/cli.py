@@ -7,6 +7,7 @@
   template  审美模板库（list）
   alliance  Skill 联盟（list）
   app       一键启动工作台并打开浏览器
+  workbench 启动 Web 工作台（v0.4，默认 0.0.0.0，便于 Docker/LAN）
   serve     仅启动本地 REST API + UI 服务
 """
 
@@ -224,6 +225,21 @@ def app_command(host: str, port: int, output: str | None, open_browser: bool, st
     launch_workspace(
         host, port, output, open_browser=open_browser,
         fallback_port=not strict_port, distribution="python-app",
+    )
+
+
+@main.command()
+@click.option("--host", default="0.0.0.0", show_default=True)
+@click.option("--port", default=8620, show_default=True, help="工作台端口；占用时自动顺延")
+@click.option("--output", "-o", default=None, help="生成产物根目录（默认 ~/htmlninefox-output）")
+@click.option("--open-browser/--no-open-browser", default=True, show_default=True)
+def workbench(host: str, port: int, output: str | None, open_browser: bool):
+    """启动 Web 工作台（v0.4；等价于 app，默认监听 0.0.0.0 便于 Docker/LAN）。"""
+    from .launcher import launch_workspace
+
+    launch_workspace(
+        host, port, output, open_browser=open_browser,
+        fallback_port=True, distribution="workbench",
     )
 
 

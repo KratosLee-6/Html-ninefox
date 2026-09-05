@@ -57,8 +57,9 @@
       return best;
     }
 
-    function snapNode(node, rawX, rawY, disabled = false) {
+    function snapNode(node, rawX, rawY, disabled = false, excludeIds = []) {
       if (disabled) return { x: rawX, y: rawY, guideX: null, guideY: null };
+      const excluded = new Set(excludeIds);
       const camera = getCamera();
       const threshold = settings.alignmentPixels / camera.z;
       let x = rawX;
@@ -67,7 +68,7 @@
       let xMatch = null;
       let yMatch = null;
       for (const other of getNodes()) {
-        if (other.id === node.id) continue;
+        if (other.id === node.id || excluded.has(other.id)) continue;
         if (node.kind === 'ws' && other.kind !== 'ws') continue;
         const candidate = anchors(other);
         const nextX = bestAlignment(moving.x, candidate.x, threshold);
