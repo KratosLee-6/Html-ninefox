@@ -1,5 +1,5 @@
 # ============================================================
-# Html九尾狐 v0.4 · All-in-one 镜像（源码 → wheel → 运行时）
+# Html九尾狐 v0.4.1 · All-in-one 镜像（源码 → wheel → 运行时）
 # 构建:  docker build -t htmlninefox .
 # 运行:  docker run -p 8620:8620 -e MINIMAX_API_KEY=xxx htmlninefox
 # ============================================================
@@ -28,6 +28,6 @@ USER fox
 VOLUME ["/home/fox/.htmlninefox", "/home/fox/htmlninefox-output"]
 EXPOSE 8620
 
-# v0.4：Web 工作台入口（真实 LLM 通过 MINIMAX_API_KEY / OPENAI_API_KEY / ANTHROPIC_API_KEY 注入）
+# Web 工作台入口（真实 LLM 通过 MINIMAX_API_KEY / OPENAI_API_KEY / ANTHROPIC_API_KEY 注入）
 CMD ["htmlninefox", "workbench", "--host", "0.0.0.0", "--port", "8620", \
      "--output", "/home/fox/htmlninefox-output", "--no-open-browser"]

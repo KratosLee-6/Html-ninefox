@@ -9,6 +9,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Planned
+
+- Project Memory, Recipe Run, adoption feedback, and artifact version trees.
+- Export Center implementation following the HTML → PDF / image / PPTX / DOCX architecture.
+
+---
+
+## [0.4.1] — 2026-09-05 · Release Integrity Repair
+
+### Fixed
+
+- Unified package, CLI, API, Docker, installation documentation, and download names on version 0.4.1.
+- Added a release metadata guard that rejects mismatched Git tags before packaging.
+- Linux installers now receive their version from pyproject.toml during the build instead of a hard-coded value.
+- Corrected the README server description from FastAPI to the actual local Python HTTP service.
+- Repaired v0.4.1 test-evidence links and added the missing canvas-productivity.js syntax check.
+
+### Packaging
+
+- Windows release uploads now include both the installer and portable ZIP with checksums.
+- Linux release uploads now include .run, .tar.gz, wheel, and checksums.
+- Tag builds now verify the Docker image in a dedicated CI job.
+
+### Verified
+
+- 153 Python, API, storage, security, generation, and browser tests pass.
+- 20/20 Chromium generation and workbench acceptance checks pass.
+
+### Design
+
+- Added an Export Center architecture for PDF, images, high-fidelity PPTX, editable PPTX, and semantic DOCX.
+
+---
+
+## [0.4.0] — 2026-09-05 · Pixel Garden, Workbench and Private Template Compounding
+
+### Added
+
+- Pixel Garden visual identity, paper/night themes, branded logo, and five original NineFox style presets.
+- Real LLM runtime settings for OpenAI-compatible, MiniMax, Anthropic, and local-compatible endpoints.
+- Web workbench and Docker deployment path.
+- Local-only private template packages imported from one HTML file or a complete resource folder.
+- Safe asset copying, multi-page detection, page-role mapping, design-token extraction, and private-template deletion.
+- Canvas undo/redo, marquee selection, grouped movement, node locking, minimap navigation, and Ctrl+K search.
+
+### Changed
+
+- Private template pages, colors, fonts, source metadata, and design tokens now influence generated deliverables.
+- Imported HTML previews run under a restrictive CSP sandbox.
+- Usage counts and intent-aware ranking prioritize previously successful private templates.
+
+### Verified
+
+- 153 tests pass, including private-template security, canvas productivity, API, generation, and browser coverage.
+
+---
+
 ## [0.3.0] — 2026-09-03 · 🎉 Third Major Release · Skill Alliance 3 PPT Skills
 
 > 🎉 **v0.3.0 = v0.3.0b2 + 3 飞书绝活大会 PPT 技能集成**
@@ -53,26 +112,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > v0.3.0 release 暂复用 v0.3.0b2 资产；下次 CI 重新构建 v0.3.0 品牌包。
 
 ---
-
-## [Unreleased] — Private Template Compounding
-
-### Added
-
-- Local-only private template packages imported from one HTML file or a complete resource folder.
-- Safe asset copying, multi-page detection, page-role mapping, design-token extraction, preview assets, and private-template deletion.
-- Usage counts and intent-aware preference for previously successful private templates.
-- Workbench controls for importing standalone HTML files and folder-based prototypes/decks.
-- Canvas history with undo/redo, marquee and additive selection, grouped movement, node locking, minimap navigation, and a Ctrl+K command palette.
-
-### Changed
-
-- Private template page roles, colors, fonts, source metadata, and design tokens now influence generated deliverables instead of acting as preview-only references.
-- Imported HTML previews now run under a restrictive CSP sandbox that blocks API connections, form submission, object embedding, and same-origin access.
-- PWA shell cache advances to the v0.4 development channel so existing installations receive the new workbench UI.
-
-### Verified
-
-- 153 tests pass, including private-template security, canvas productivity, API, generation, and Chromium workbench coverage.
 
 ## [0.3.0b2] — 2026-09-01 · Real Template Gallery & Guided AI Composition
 

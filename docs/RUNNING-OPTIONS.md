@@ -1,7 +1,7 @@
 # Html九尾狐 · 安装包之外的顺畅运行方式
 
-> 版本：v0.3.0 Beta 2
-> 更新日期：2026-09-01
+> 版本：v0.4.1
+> 更新日期：2026-09-05
 
 ## 1. 方式对比
 
@@ -18,7 +18,7 @@
 
 ## 2. Windows 免安装便携版
 
-解压 `HtmlNineFox-Windows-x64-0.3.0b2.zip`，双击 `HtmlNineFox.exe`。
+解压 `HtmlNineFox-Windows-x64-0.4.1.zip`，双击 `HtmlNineFox.exe`。
 
 - 内置 Python 运行时和依赖。
 - 自动打开浏览器；8620 被占用时自动尝试后续端口。

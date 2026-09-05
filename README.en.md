@@ -8,17 +8,17 @@
 
 <div align="center">
 
-[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.0)
+[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-146%20passed-1F8A70)](docs/test-evidence/v0.3.0b2-pytest.txt)
-[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-20%2F20-173C8F)](docs/test-evidence/v0.3.0b2-chromium-e2e.txt)
+[![Tests](https://img.shields.io/badge/pytest-153%20passed-1F8A70)](docs/test-evidence/v0.4.1-pytest.txt)
+[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-20%2F20-173C8F)](docs/test-evidence/v0.4.1-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![HtmlNineFox v0.4.0 workbench](assets/screenshots/v0.4.0/workbench-overview.png)
+![HtmlNineFox v0.4.1 workbench](assets/screenshots/v0.4.1/workbench-overview.png)
 
 ## What it solves
 
@@ -41,8 +41,9 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
   Revise with natural language feedback, keeping rev history
 ```
 
-## v0.4.0 Core Features
+## v0.4.1 Core Features
 
+- **✅ Trustworthy release metadata**: Version, CLI, API, packages, Docker tag, test evidence, and Git tag stay aligned.
 - **🎨 Pixel Garden Design System**: Unified design tokens (cobalt `#173C8F` + mint `#49B894` + warm paper `#F4F0E7`) across 5 visual artifacts.
 - **🤖 Real LLM Integration**: MiniMax-M3 / Claude / GPT-4o with env auto-config; offline rules engine as fallback.
 - **🖥️ Web Workbench**: `htmlninefox workbench` launches local Web UI with live preview, agent logs, and template selection.
@@ -55,6 +56,8 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
 - **Offline capable**: Deterministic rules engine works without API keys.
 - **Feedback iteration**: Natural language feedback → design token changes → re-render with `rev1 / rev2 / ...` history.
 - **Cross-platform**: Windows installer/portable, Linux `.run/.tar.gz`, Python CLI, Web/PWA, Docker.
+
+> The next delivery milestone is the [Export Center](docs/EXPORT-CENTER.md): PDF and images first, followed by high-fidelity PPTX and constrained editable PPTX/DOCX.
 - 🎨 **Multiple PPT styles via Skill Alliance** (v0.3): baoyu-slide-deck (image) · frontend-slides (HTML, no AI gradient) · beautiful-html-templates (28 stable presets)
 
 ## See it in action
@@ -82,16 +85,16 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
 
 ## Download & Install
 
-Go to [v0.4.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.0) to download the latest version.
+Go to [v0.4.1 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.1) to download the latest version. See [RELEASE-NOTES-v0.4.1.md](docs/RELEASE-NOTES-v0.4.1.md).
 
 | Platform | Recommended file | Usage |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.4.0.exe` | Installer for regular users |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.4.0.zip` | Extract and run `HtmlNineFox.exe` |
-| Linux | `HtmlNineFox-Linux-0.4.0.run` | `chmod +x` and run; installs to user directory |
-| Linux / audit | `HtmlNineFox-Linux-0.4.0.tar.gz` | Inspectable full installation contents |
-| Python 3.10+ | `htmlninefox-0.4.0-py3-none-any.whl` | Install with `pip install` |
-| Docker | `htmlninefox:v0.4.0` | `docker run -p 8620:8620 -e MINIMAX_API_KEY=xxx htmlninefox` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.4.1.exe` | Installer for regular users |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.4.1.zip` | Extract and run `HtmlNineFox.exe` |
+| Linux | `HtmlNineFox-Linux-0.4.1.run` | `chmod +x` and run; installs to user directory |
+| Linux / audit | `HtmlNineFox-Linux-0.4.1.tar.gz` | Inspectable full installation contents |
+| Python 3.10+ | `htmlninefox-0.4.1-py3-none-any.whl` | Install with `pip install` |
+| Docker | `htmlninefox:v0.4.1` | `docker run -p 8620:8620 -e MINIMAX_API_KEY=xxx htmlninefox` |
 
 ### Quick start
 

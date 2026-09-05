@@ -1,4 +1,4 @@
-"""e2e_verify.py · v0.2 上线验收：生成 5 类内容 + 反馈迭代 + Web 工作台截图
+"""e2e_verify.py · 发布验收：生成 5 类内容 + 反馈迭代 + Web 工作台截图
 
 运行：python e2e_verify.py
 输出：e2e-shots/*.png + 控制台验收结果
@@ -12,7 +12,7 @@ import threading
 import time
 from pathlib import Path
 
-from htmlninefox import pipeline
+from htmlninefox import __version__, pipeline
 from htmlninefox.server import app as server_app
 
 HERE = Path(__file__).resolve().parent
@@ -150,9 +150,9 @@ async def main():
             theme_after = await page.get_attribute("html", "data-theme")
             stored_theme = await page.evaluate("localStorage.getItem('fox-ui-theme')")
             check("像素花园双主题", theme_before == "pixel-paper" and theme_after == "pixel-night" and stored_theme == "pixel-night", f"{theme_before} -> {theme_after}")
-            await page.screenshot(path=SHOTS / "workbench-v0.3.0b2-night.png")
+            await page.screenshot(path=SHOTS / f"workbench-v{__version__}-night.png")
             await page.click("#btn-theme")
-            await page.screenshot(path=SHOTS / "workbench-v0.3.0b2-paper.png")
+            await page.screenshot(path=SHOTS / f"workbench-v{__version__}-paper.png")
             check("工作台无 JS 错误", not page_errors, "; ".join(page_errors[:3]))
         finally:
             srv.shutdown()

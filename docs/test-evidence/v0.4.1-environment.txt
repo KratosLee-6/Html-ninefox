@@ -1,0 +1,10 @@
+Date: 2026-09-05
+OS: Microsoft Windows NT 10.0.26200.0
+PowerShell: 7.6.4
+Python 3.13.5
+v24.15.0
+uv 0.12.8 (68209e5c6 2026-08-31 x86_64-pc-windows-msvc)
+Git base commit: 49136aaa3a71da2662fa90f7cbb7ac3d38c2479a
+Browser: Playwright Chromium
+Docker CLI: installed; local daemon unavailable during this audit
+Packaging: PyInstaller 6.22.2 in isolated audit venv

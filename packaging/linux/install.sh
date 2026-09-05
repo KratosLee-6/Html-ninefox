@@ -2,7 +2,7 @@
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-APP_VERSION="0.3.0b2"
+APP_VERSION="__HTMLNINEFOX_VERSION__"
 PREFIX=${HTMLNINEFOX_PREFIX:-"$HOME/.local/share/htmlninefox"}
 BIN_DIR=${HTMLNINEFOX_BIN_DIR:-"$HOME/.local/bin"}
 DESKTOP_DIR=${XDG_DATA_HOME:-"$HOME/.local/share"}/applications

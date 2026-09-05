@@ -43,6 +43,14 @@ def main() -> None:
     staging.mkdir(parents=True)
     for name in ("install.sh", "run.sh", "uninstall.sh", "README.md"):
         shutil.copy2(TEMPLATES / name, staging / name)
+    install_script = staging / "install.sh"
+    install_script.write_text(
+        install_script.read_text(encoding="utf-8").replace(
+            "__HTMLNINEFOX_VERSION__", release_version
+        ),
+        encoding="utf-8",
+        newline="\n",
+    )
     shutil.copy2(wheel, staging / wheel.name)
     shutil.copy2(ROOT / "htmlninefox" / "server" / "static" / "icon.svg", staging / "icon.svg")
     wheelhouse = TEMPLATES / "wheels"
@@ -51,6 +59,9 @@ def main() -> None:
     for name in ("install.sh", "run.sh", "uninstall.sh"):
         os.chmod(staging / name, 0o755)
     RELEASE.mkdir(parents=True, exist_ok=True)
+    release_wheel = RELEASE / wheel.name
+    shutil.copy2(wheel, release_wheel)
+    checksum(release_wheel)
     archive = RELEASE / f"{package_name}.tar.gz"
     with tarfile.open(archive, "w:gz", format=tarfile.PAX_FORMAT) as package:
         package.add(staging, arcname=package_name)

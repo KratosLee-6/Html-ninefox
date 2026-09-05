@@ -1,0 +1,4 @@
+node --check htmlninefox/server/static/canvas-engine.js
+node --check htmlninefox/server/static/canvas-productivity.js
+node --check htmlninefox/server/static/workbench-features.js
+Result: all JavaScript syntax checks passed.

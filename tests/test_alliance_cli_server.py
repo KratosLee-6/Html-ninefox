@@ -7,6 +7,7 @@ from pathlib import Path
 
 from click.testing import CliRunner
 
+from htmlninefox import __version__
 from htmlninefox.alliance.router import AllianceRouter
 from htmlninefox.cli import main
 
@@ -120,7 +121,7 @@ class TestWebApi:
 
     def test_health_and_ui(self):
         h = json.loads(self._get("/api/health").read().decode("utf-8"))
-        assert h["ok"] and h["version"] == "0.3.0b2"
+        assert h["ok"] and h["version"] == __version__
         assert h["api_version"] == "v1"
         assert h["distribution"] == "python"
         ui = self._get("/").read().decode("utf-8")

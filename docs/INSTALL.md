@@ -1,4 +1,4 @@
-# Html九尾狐 v0.3.0 Beta 2 · 安装与运行
+# Html九尾狐 v0.4.1 · 安装与运行
 
 ## 推荐顺序
 
@@ -9,7 +9,7 @@
 
 ## Windows 便携包
 
-文件：`release/HtmlNineFox-Windows-x64-0.3.0b2.zip`
+文件：`release/HtmlNineFox-Windows-x64-0.4.1.zip`
 
 解压后双击 `HtmlNineFox.exe` 或 `启动Html九尾狐.cmd`。
 
@@ -24,11 +24,11 @@
 
 ## Linux 自解压安装包
 
-文件：`release/HtmlNineFox-Linux-0.3.0b2.run`
+文件：`release/HtmlNineFox-Linux-0.4.1.run`
 
 ```bash
-chmod +x HtmlNineFox-Linux-0.3.0b2.run
-./HtmlNineFox-Linux-0.3.0b2.run
+chmod +x HtmlNineFox-Linux-0.4.1.run
+./HtmlNineFox-Linux-0.4.1.run
 ```
 
 安装位置：
@@ -40,13 +40,13 @@ chmod +x HtmlNineFox-Linux-0.3.0b2.run
 只安装不启动：
 
 ```bash
-./HtmlNineFox-Linux-0.3.0b2.run --no-launch
+./HtmlNineFox-Linux-0.4.1.run --no-launch
 ```
 
 ## Python wheel
 
 ```bash
-python -m pip install htmlninefox-0.3.0b2-py3-none-any.whl
+python -m pip install htmlninefox-0.4.1-py3-none-any.whl
 htmlninefox app
 ```
 

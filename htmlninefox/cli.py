@@ -1,4 +1,4 @@
-"""cli.py · Click CLI 入口（Html九尾狐 v0.3.0 Beta 2「跨平台可安装版」）
+"""cli.py · Click CLI 入口（Html九尾狐跨平台工作台）
 
 子命令：
   expert    一句话生成 HTML（5 内容类型 × 6 风格预设 × 联盟路由）
@@ -35,7 +35,7 @@ console = Console()
 console_err = Console(stderr=True)
 
 
-@click.group(help="Html九尾狐 · HTML 创作工作台（v0.3.0 Beta 2 跨平台可安装版）")
+@click.group(help=f"Html九尾狐 · HTML 创作工作台（v{__version__}）")
 @click.version_option(__version__, prog_name="htmlninefox")
 def main():
     """Html九尾狐 CLI 入口。"""

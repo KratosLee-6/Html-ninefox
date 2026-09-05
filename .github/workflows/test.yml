@@ -25,12 +25,15 @@ jobs:
           node-version: "22"
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
+      - name: Release metadata consistency
+        run: python scripts/check_release_version.py
       - run: python -m playwright install --with-deps chromium
       - name: Python and browser test suite
         run: python -m pytest tests -q -p no:cacheprovider
       - name: JavaScript syntax
         run: |
           node --check htmlninefox/server/static/canvas-engine.js
+          node --check htmlninefox/server/static/canvas-productivity.js
           node --check htmlninefox/server/static/workbench-features.js
       - name: Chromium acceptance
         run: python e2e_verify.py
