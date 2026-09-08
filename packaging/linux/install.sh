@@ -64,4 +64,7 @@ command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$
 echo "[3/3] 安装完成。"
 echo "命令：$BIN_DIR/htmlninefox-app"
 echo "地址：http://127.0.0.1:8620"
+if ! command -v chromium >/dev/null 2>&1 && ! command -v chromium-browser >/dev/null 2>&1 && ! command -v google-chrome >/dev/null 2>&1; then
+  echo "提示：PDF / PNG 导出需要 Chromium 或 Chrome；可按发行版安装 chromium。"
+fi
 if [ "${1:-}" != "--no-launch" ]; then exec "$BIN_DIR/htmlninefox-app"; fi

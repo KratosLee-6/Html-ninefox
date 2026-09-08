@@ -3,6 +3,7 @@
 子命令：
   expert    一句话生成 HTML（5 内容类型 × 6 风格预设 × 联盟路由）
   feedback  反馈迭代（--revise 真实改写 output.html）
+  export    导出项目为 PDF 或 PNG
   brief     Brief 库管理（list / show / add）
   template  审美模板库（list）
   alliance  Skill 联盟（list）
@@ -26,7 +27,7 @@ import click
 from rich.console import Console
 from rich.table import Table
 
-from . import __version__
+from . import __version__, exporting
 from . import pipeline
 from .alliance.router import AllianceRouter
 from .libraries import brief_lib, feedback_lib
@@ -115,7 +116,56 @@ def feedback(project: str, note: str, dry_run: bool):
 
 
 # ============================================================
-# 3. brief
+# 3. export
+# ============================================================
+@main.command("export")
+@click.argument("project")
+@click.option("--format", "export_format", type=click.Choice(["pdf", "png"]), default="pdf", show_default=True)
+@click.option("--scope", type=click.Choice(["auto", "pages", "long"]), default="auto", show_default=True)
+@click.option("--pages", default="", help="页码范围，例如 1-3,5；留空为全部")
+@click.option("--width", default=1920, type=int, show_default=True)
+@click.option("--height", default=1080, type=int, show_default=True)
+@click.option("--scale", default=2, type=click.IntRange(1, 3), show_default=True)
+@click.option("--paper", type=click.Choice(["A4", "Letter", "A3"]), default="A4", show_default=True)
+@click.option("--landscape", is_flag=True, help="连续页面 PDF 使用横向纸张")
+@click.option("--output-root", default="~/htmlninefox-output", show_default=True,
+              help="工作台项目根目录；也可直接把 PROJECT 写成项目目录")
+def export_command(project: str, export_format: str, scope: str, pages: str, width: int,
+                   height: int, scale: int, paper: str, landscape: bool, output_root: str):
+    """把工作台项目导出为 PDF 或 PNG，并生成 export-report.json。"""
+    candidate = Path(project).expanduser()
+    if candidate.is_dir():
+        root = candidate.resolve().parent
+        project_name = candidate.resolve().name
+    else:
+        root = Path(output_root).expanduser().resolve()
+        project_name = project
+    try:
+        with console.status("[bold cyan]正在分析 HTML 并调用本地 Chromium…[/bold cyan]"):
+            result = exporting.export_project(root, {
+                "project_name": project_name,
+                "format": export_format,
+                "scope": scope,
+                "pages": pages,
+                "width": width,
+                "height": height,
+                "scale": scale,
+                "paper": paper,
+                "landscape": landscape,
+            })
+    except Exception as error:  # noqa: BLE001
+        console_err.print(f"[red]✗ 导出失败：{error}[/red]")
+        console_err.print("[dim]请确认已安装 Edge、Chrome，或执行 playwright install chromium。[/dim]")
+        raise click.ClickException(str(error)) from error
+    console.print(f"[bold green]✓ 导出完成[/bold green]  {result['format'].upper()} · "
+                  f"兼容性 {result['compatibility_score']} 分")
+    for item in result["files"]:
+        console.print(f"  [cyan]{root / project_name / 'exports' / result['export_id'] / item['name']}[/cyan]")
+    console.print(f"  报告: [dim]{root / project_name / 'exports' / result['export_id'] / 'export-report.json'}[/dim]")
+
+
+# ============================================================
+# 4. brief
 # ============================================================
 @main.group()
 def brief():

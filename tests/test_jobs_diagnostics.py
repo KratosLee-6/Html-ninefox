@@ -34,6 +34,17 @@ def test_job_succeeds_and_persists_result(tmp_path):
     manager.executor.shutdown(wait=True)
 
 
+def test_export_job_uses_exporting_stage(tmp_path):
+    manager = JobManager(tmp_path, max_workers=1)
+    release = threading.Event()
+    job = manager.submit("export", lambda: (release.wait(2), {"done": True})[1])
+    state = wait_status(manager, job["id"], {"running"})
+    assert state["stage"] == "exporting"
+    release.set()
+    wait_status(manager, job["id"], {"succeeded"})
+    manager.executor.shutdown(wait=True)
+
+
 def test_queued_job_can_be_cancelled(tmp_path):
     manager = JobManager(tmp_path, max_workers=1)
     release = threading.Event()

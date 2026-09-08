@@ -1,4 +1,4 @@
-# Html九尾狐 v0.4.1 · 安装与运行
+# Html九尾狐 v0.4.2 · 安装与运行
 
 ## 推荐顺序
 
@@ -9,7 +9,7 @@
 
 ## Windows 便携包
 
-文件：`release/HtmlNineFox-Windows-x64-0.4.1.zip`
+文件：`release/HtmlNineFox-Windows-x64-0.4.2.zip`
 
 解压后双击 `HtmlNineFox.exe` 或 `启动Html九尾狐.cmd`。
 
@@ -17,6 +17,7 @@
 - 不写注册表，不要求管理员权限。
 - 数据、配置和生成结果位于包体旁的 `user-data/`。
 - 关闭控制台窗口即可停止服务。
+- PDF / PNG 导出默认复用系统 Microsoft Edge，也支持 Chrome。
 
 ## Windows Setup 安装器
 
@@ -24,11 +25,11 @@
 
 ## Linux 自解压安装包
 
-文件：`release/HtmlNineFox-Linux-0.4.1.run`
+文件：`release/HtmlNineFox-Linux-0.4.2.run`
 
 ```bash
-chmod +x HtmlNineFox-Linux-0.4.1.run
-./HtmlNineFox-Linux-0.4.1.run
+chmod +x HtmlNineFox-Linux-0.4.2.run
+./HtmlNineFox-Linux-0.4.2.run
 ```
 
 安装位置：
@@ -40,14 +41,20 @@ chmod +x HtmlNineFox-Linux-0.4.1.run
 只安装不启动：
 
 ```bash
-./HtmlNineFox-Linux-0.4.1.run --no-launch
+./HtmlNineFox-Linux-0.4.2.run --no-launch
 ```
 
 ## Python wheel
 
 ```bash
-python -m pip install htmlninefox-0.4.1-py3-none-any.whl
+python -m pip install htmlninefox-0.4.2-py3-none-any.whl
 htmlninefox app
+```
+
+如需导出但系统没有 Edge / Chrome / Chromium：
+
+```bash
+python -m playwright install chromium
 ```
 
 ## 一键启动命令

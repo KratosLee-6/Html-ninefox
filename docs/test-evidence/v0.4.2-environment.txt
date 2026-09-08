@@ -1,0 +1,16 @@
+Html九尾狐 v0.4.2 validation environment
+Date: 2026-09-08
+
+OS: Windows 11 10.0.26200 (AMD64)
+Python: 3.13.5
+Node.js: v24.15.0
+uv: 0.12.8
+Git: 2.47.1.windows.1
+Playwright development runtime: 1.59.0
+Windows portable package runtime: Playwright 1.62.0 + Microsoft Edge fallback
+Linux wheelhouse runtime: Playwright 1.62.0 for x86_64 and aarch64
+
+Isolation:
+- pytest HOME and USERPROFILE redirected into repository .tmp
+- E2E HOME and USERPROFILE redirected into repository .tmp
+- No API key required; deterministic offline fallback used

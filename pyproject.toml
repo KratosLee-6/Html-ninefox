@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "htmlninefox"
-version = "0.4.1"
-description = "Html九尾狐 · 本地优先的可视化 HTML 创作工作台（v0.4.1 可信发布修复版）"
+version = "0.4.2"
+description = "Html九尾狐 · 本地优先的可视化 HTML 创作工作台（v0.4.2 导出中心版）"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "KratosLee · Html九尾狐项目组" }]
@@ -14,13 +14,14 @@ dependencies = [
     "pyyaml>=6.0",
     "click>=8.1",
     "rich>=13.0",
+    "playwright>=1.40,<2",
 ]
 
 [project.optional-dependencies]
 templates = ["jinja2>=3.1"]
 # LLM 增强（可选）：无 Key 时自动走离线规则引擎，功能不缺失
 llm = ["litellm>=1.40.0"]
-dev = ["pytest>=7.0", "pytest-cov>=4.0", "playwright>=1.40"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0"]
 packaging = ["pyinstaller>=6.0,<7"]
 
 [project.scripts]

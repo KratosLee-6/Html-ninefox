@@ -1,6 +1,6 @@
 # Html九尾狐 · 安装包之外的顺畅运行方式
 
-> 版本：v0.4.1
+> 版本：v0.4.2
 > 更新日期：2026-09-05
 
 ## 1. 方式对比
@@ -18,7 +18,7 @@
 
 ## 2. Windows 免安装便携版
 
-解压 `HtmlNineFox-Windows-x64-0.4.1.zip`，双击 `HtmlNineFox.exe`。
+解压 `HtmlNineFox-Windows-x64-0.4.2.zip`，双击 `HtmlNineFox.exe`。
 
 - 内置 Python 运行时和依赖。
 - 自动打开浏览器；8620 被占用时自动尝试后续端口。
@@ -69,3 +69,13 @@ htmlninefox serve --host 0.0.0.0 --port 8620
 ## 6. PWA
 
 服务运行后，在 Edge 或 Chrome 中点击顶部“安装”。PWA 提供独立窗口、桌面图标和离线工作区壳，但生成与反馈仍依赖本地服务或远程服务。
+
+
+## 7. PDF / PNG 导出运行要求
+
+- Windows 安装包：优先使用系统 Microsoft Edge，无需额外下载浏览器。
+- Linux：需要 Chromium 或 Chrome；缺少时工作台会显示明确提示。
+- Docker：镜像已内置 Chromium。
+- Python / uv：可执行 `python -m playwright install chromium` 安装隔离浏览器。
+
+导出文件保存在项目的 `exports/<export-id>/`，不会覆盖 `output.html`。

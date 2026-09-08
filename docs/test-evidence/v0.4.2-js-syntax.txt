@@ -1,0 +1,4 @@
+inline JavaScript syntax valid: 2 block(s)
+syntax valid: htmlninefox/server/static/canvas-engine.js
+syntax valid: htmlninefox/server/static/canvas-productivity.js
+syntax valid: htmlninefox/server/static/workbench-features.js

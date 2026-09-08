@@ -41,6 +41,7 @@ def build_portable() -> tuple[Path, Path]:
     command = [
         sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--onedir", "--console",
         "--name", "HtmlNineFox", "--icon", str(icon_path), "--collect-all", "htmlninefox",
+        "--collect-all", "playwright",
         "--distpath", str(dist_dir), "--workpath", str(work_dir), "--specpath", str(spec_dir),
         str(ROOT / "packaging" / "windows" / "launcher.py"),
     ]
@@ -49,7 +50,8 @@ def build_portable() -> tuple[Path, Path]:
     (app_dir / "START-HERE.txt").write_text(
         "Html九尾狐 · Windows 便携版\n\n双击 HtmlNineFox.exe 即可启动，浏览器会自动打开。\n"
         "数据与产物保存在当前目录的 user-data 文件夹。\n"
-        "若 8620 端口已占用，程序会自动选择后续可用端口。\n",
+        "若 8620 端口已占用，程序会自动选择后续可用端口。\n"
+        "PDF / PNG 导出优先使用系统自带 Microsoft Edge，也支持 Chrome。\n",
         encoding="utf-8",
     )
     (app_dir / "启动Html九尾狐.cmd").write_text(

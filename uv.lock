@@ -910,17 +910,17 @@ wheels = [
 
 [[package]]
 name = "htmlninefox"
-version = "0.4.1"
+version = "0.4.2"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
+    { name = "playwright" },
     { name = "pyyaml" },
     { name = "rich" },
 ]
 
 [package.optional-dependencies]
 dev = [
-    { name = "playwright" },
     { name = "pytest" },
     { name = "pytest-cov" },
 ]
@@ -939,7 +939,7 @@ requires-dist = [
     { name = "click", specifier = ">=8.1" },
     { name = "jinja2", marker = "extra == 'templates'", specifier = ">=3.1" },
     { name = "litellm", marker = "extra == 'llm'", specifier = ">=1.40.0" },
-    { name = "playwright", marker = "extra == 'dev'", specifier = ">=1.40" },
+    { name = "playwright", specifier = ">=1.40,<2" },
     { name = "pyinstaller", marker = "extra == 'packaging'", specifier = ">=6.0,<7" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0" },

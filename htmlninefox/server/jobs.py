@@ -97,7 +97,8 @@ class JobManager:
             state = self.get(job_id)
             if state["status"] == "cancelled":
                 return
-            state.update({"status": "running", "progress": 10, "stage": "generating",
+            active_stage = "exporting" if state.get("kind") == "export" else "generating"
+            state.update({"status": "running", "progress": 10, "stage": active_stage,
                           "started_at": self._now(), "updated_at": self._now()})
             self._write(state)
         try:

@@ -1,7 +1,7 @@
 # Html九尾狐 · v0.4 产品迭代与竞品拆解
 
 > 日期：2026-09-03  
-> 基线：v0.4.0 已发布；v0.4.1 发布可信度修复中
+> 基线：v0.4.2 已实现 PDF / PNG 导出中心；下一阶段为高保真 PPTX、Project Memory 与 Recipe Run
 > 结论：下一阶段不应继续横向堆客户端和模板数量，而应建立“私人模板 → 项目记忆 → 反馈评分 → 下次推荐”的本地复利闭环。
 
 ## 1. Executive takeaway
@@ -151,3 +151,11 @@
 - [tldraw Undo and redo](https://tldraw.dev/examples/undo-redo)：历史记录、撤销与重做。
 - [Lovable Visual edits](https://docs.lovable.dev/features/visual-edit)：直接选中页面元素并修改视觉属性。
 - [Lovable Knowledge](https://docs.lovable.dev/features/knowledge)：工作区与项目级知识、规则和上下文复用。
+
+
+## 10. v0.4.2 导出中心决策
+
+- HTML 保持唯一源文件，导出产物不反向污染编辑源。
+- 参考 ppt-master，把导出拆成分析、路由、渲染、验证和交付五层。
+- PDF / PNG 先解决客户查看、群内分享、打印与归档。
+- v0.5.0 的 PPTX 先做“一页一图”的高保真模式；元素级可编辑只服务受控组件，不做任意 HTML 的虚假无损转换。

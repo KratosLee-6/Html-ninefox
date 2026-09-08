@@ -25,3 +25,9 @@ user-data/
 .venv*/
 .tmp/
 **/.foxstate.json
+
+# Generated Linux export-runtime wheels (rebuilt by release CI)
+packaging/linux/wheels/playwright-*.whl
+packaging/linux/wheels/greenlet-*.whl
+packaging/linux/wheels/pyee-*.whl
+packaging/linux/wheels/typing_extensions-*.whl

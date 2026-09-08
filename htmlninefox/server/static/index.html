@@ -434,6 +434,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .selection-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
 @media(max-width:900px){.minimap{display:none}.hud .desktop-productivity{display:none}}
 
+
+.export-dialog{width:min(920px,94vw);max-height:92vh;display:grid;grid-template-rows:48px minmax(0,1fr);background:var(--bg-panel);border:1px solid var(--border-strong);box-shadow:0 30px 90px rgba(0,0,0,.42);overflow:hidden}
+.export-body{min-height:0;overflow:auto;padding:18px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}.export-panel{border:1px solid var(--border-default);background:var(--bg-elevated);padding:14px}.export-panel h3{font-size:12px;margin:0 0 12px}.export-score{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:center;margin-bottom:12px}.export-score strong{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;border:5px solid var(--green);font:800 20px var(--mono);background:var(--bg-panel)}.export-score p{font-size:11px;line-height:1.7;color:var(--text-secondary)}.export-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.export-meta div{padding:8px;border:1px solid var(--border-subtle);background:var(--bg-panel);font-size:10px}.export-meta b{display:block;margin-top:3px;font-size:12px;color:var(--text-primary)}.export-warning-list{display:grid;gap:7px;margin-top:12px}.export-warning{padding:8px 9px;border-left:3px solid var(--accent);background:var(--bg-panel);font-size:10.5px;line-height:1.55}.export-warning.warning{border-left-color:var(--orange)}.export-warning.error{border-left-color:#D35D5D}.export-options{display:grid;grid-template-columns:1fr 1fr;gap:9px}.export-options .flow-field{margin:0}.export-options [hidden]{display:none!important}.export-options .wide{grid-column:1/-1}.export-result{display:grid;gap:7px;margin-top:10px}.export-file{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--border-default);background:var(--bg-panel);font-size:11px}.export-file small{display:block;color:var(--text-tertiary);margin-top:2px}.export-runtime{margin-top:10px;padding:8px;border:1px dashed var(--border-default);font-size:10px;line-height:1.55;color:var(--text-tertiary)}
+@media(max-width:760px){.export-body{grid-template-columns:1fr}.export-options{grid-template-columns:1fr}.export-options .wide{grid-column:auto}}
+
 </style>
 </head>
 <body>
@@ -536,6 +541,31 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <button class="btn btn-ghost" id="preview-close">关闭</button></div>
     <div class="preview-content"><div class="preview-main"><iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe></div>
       <aside class="preview-pages" id="preview-pages" hidden></aside></div>
+  </div>
+</div>
+
+
+<div class="preview-modal" id="export-modal" hidden role="dialog" aria-modal="true" aria-labelledby="export-title">
+  <div class="export-dialog">
+    <div class="preview-bar"><strong id="export-title">导出中心</strong><span id="export-subtitle">HTML → 可分享文件</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeExportCenter()">关闭</button></div>
+    <div class="export-body">
+      <section class="export-panel"><h3>01 · 产物分析与兼容性</h3><div id="export-analysis" class="analysis-empty">正在读取 HTML 结构、分页和动态内容…</div></section>
+      <section class="export-panel"><h3>02 · 导出设置</h3>
+        <div class="export-options">
+          <div class="flow-field"><label>格式</label><select id="export-format" onchange="syncExportOptions()"><option value="pdf">PDF 文档</option><option value="png">PNG 图片</option></select></div>
+          <div class="flow-field"><label>范围</label><select id="export-scope"><option value="auto">智能判断</option><option value="pages">逐页导出</option><option value="long">整页 / 长图</option></select></div>
+          <div class="flow-field wide"><label>页面范围（留空为全部）</label><input id="export-pages" placeholder="例如 1-3,5"></div>
+          <div class="flow-field"><label>画布宽度</label><input id="export-width" type="number" min="320" max="3840" value="1920"></div>
+          <div class="flow-field"><label>画布高度</label><input id="export-height" type="number" min="240" max="2160" value="1080"></div>
+          <div class="flow-field" id="export-scale-field"><label>图片倍率</label><select id="export-scale"><option value="1">1×</option><option value="2" selected>2× 高清</option><option value="3">3× 超清</option></select></div>
+          <div class="flow-field" id="export-paper-field"><label>PDF 纸张</label><select id="export-paper"><option value="A4">A4</option><option value="Letter">Letter</option><option value="A3">A3</option></select></div>
+          <div class="flow-field wide" id="export-landscape-field"><label><input id="export-landscape" type="checkbox" style="width:auto;height:auto"> 横向 PDF（分页 Deck 会自动使用画布尺寸）</label></div>
+        </div>
+        <div class="export-runtime" id="export-runtime">导出在本机完成，不上传 HTML、附件或 API Key。</div>
+        <div class="flow-actions" style="margin-top:12px"><button class="btn btn-primary" id="export-start" onclick="startExport()">开始导出</button></div>
+        <div class="status-panel" id="export-status" style="margin-top:10px">等待分析</div><div class="export-result" id="export-result"></div>
+      </section>
+    </div>
   </div>
 </div>
 
@@ -1253,6 +1283,92 @@ async function waitForJob(jobId, onUpdate) {
     await delay(450);
   }
 }
+
+let exportDraft = { nodeId:null, manifest:null };
+function closeExportCenter() {
+  $('#export-modal').hidden = true;
+  exportDraft = { nodeId:null, manifest:null };
+}
+function exportBytes(bytes) {
+  const value = Number(bytes || 0);
+  if (value >= 1024 * 1024) return (value / 1024 / 1024).toFixed(1) + ' MB';
+  if (value >= 1024) return Math.ceil(value / 1024) + ' KB';
+  return value + ' B';
+}
+async function openExportCenter(nodeId) {
+  const node = nodes.find(item => item.id === nodeId);
+  if (!node?.data?.project_name) return flash('该产物缺少项目信息，无法导出', false);
+  exportDraft = { nodeId, manifest:null };
+  $('#export-modal').hidden = false;
+  $('#export-title').textContent = '导出中心 · ' + node.data.project_name;
+  $('#export-analysis').innerHTML = '<div class="analysis-empty"><span class="spin">分析 HTML 结构、分页和动态内容…</span></div>';
+  $('#export-status').textContent = '正在分析';
+  $('#export-result').innerHTML = '';
+  $('#export-start').disabled = true;
+  try {
+    const data = await post('/api/exports/analyze', { project_name:node.data.project_name });
+    exportDraft.manifest = data.manifest;
+    renderExportAnalysis(data.manifest);
+    $('#export-start').disabled = false;
+    $('#export-status').textContent = '分析完成，可以导出';
+  } catch (error) {
+    $('#export-analysis').innerHTML = `<div class="export-warning error">${esc(error.message)}</div>`;
+    $('#export-status').textContent = '分析失败';
+  }
+}
+function renderExportAnalysis(manifest) {
+  const paged = manifest.page_model?.paginated;
+  const count = manifest.page_model?.count || 1;
+  const warnings = manifest.warnings || [];
+  $('#export-analysis').innerHTML = `<div class="export-score"><strong>${manifest.compatibility_score}</strong><p><b>${esc(manifest.title)}</b><br>${paged ? `检测到 ${count} 个独立页面，可逐页导出。` : '连续 HTML 页面，默认按长图或自然 PDF 分页导出。'}</p></div>
+    <div class="export-meta"><div>内容类型<b>${esc(INTENT_LABEL[manifest.intent] || manifest.intent)}</b></div><div>分页模型<b>${paged ? esc(manifest.page_model.selector) : '连续页面'}</b></div><div>源文件<b>${exportBytes(manifest.source_size)}</b></div><div>动态特性<b>${manifest.features?.length ? esc(manifest.features.join(' / ')) : '静态内容'}</b></div></div>
+    <div class="export-warning-list">${warnings.length ? warnings.map(item => `<div class="export-warning ${esc(item.level)}">${esc(item.message)}</div>`).join('') : '<div class="export-warning">未发现阻塞性兼容问题。</div>'}</div>`;
+  $('#export-width').value = manifest.viewport?.width || 1440;
+  $('#export-height').value = manifest.viewport?.height || 900;
+  $('#export-format').value = manifest.recommended?.format || 'pdf';
+  $('#export-scope').value = manifest.recommended?.scope || 'auto';
+  const runtime = manifest.runtime || {};
+  $('#export-runtime').textContent = `本地导出 · ${runtime.engine || 'Chromium'} · ${runtime.package_ready ? '引擎已安装' : '引擎缺失'}。${runtime.install_hint || ''}`;
+  syncExportOptions();
+}
+function syncExportOptions() {
+  const image = $('#export-format').value === 'png';
+  $('#export-scale-field').hidden = !image;
+  $('#export-paper-field').hidden = image;
+  $('#export-landscape-field').hidden = image;
+}
+async function startExport() {
+  const node = nodes.find(item => item.id === exportDraft.nodeId);
+  if (!node?.data?.project_name || !exportDraft.manifest) return;
+  const button = $('#export-start');
+  button.disabled = true; button.textContent = '导出中…';
+  $('#export-result').innerHTML = '';
+  try {
+    const submitted = await post('/api/exports', {
+      project_name: node.data.project_name,
+      format: $('#export-format').value,
+      scope: $('#export-scope').value,
+      pages: $('#export-pages').value,
+      width: Number($('#export-width').value),
+      height: Number($('#export-height').value),
+      scale: Number($('#export-scale').value),
+      paper: $('#export-paper').value,
+      landscape: $('#export-landscape').checked,
+    });
+    const result = await waitForJob(submitted.job.id, job => {
+      $('#export-status').textContent = `任务 ${job.id.slice(0,8)} · ${job.stage} · ${job.progress}%`;
+    });
+    $('#export-status').textContent = `导出完成 · 兼容性 ${result.compatibility_score} 分 · ${result.browser?.source || 'Chromium'}`;
+    $('#export-result').innerHTML = [...result.files, result.report].map(file => `<div class="export-file"><span><b>${esc(file.name)}</b><small>${exportBytes(file.bytes)}</small></span><a class="btn btn-secondary" href="${esc(file.download_url)}">下载</a></div>`).join('');
+    flash(`✓ ${node.data.project_name} 已导出 ${result.files.length} 个文件`, true);
+  } catch (error) {
+    $('#export-status').textContent = '导出失败：' + error.message;
+    $('#export-result').innerHTML = `<div class="export-warning error">${esc(error.message)}<br><small>请确认本机已安装 Edge、Chrome 或 Playwright Chromium。</small></div>`;
+  } finally {
+    button.disabled = false; button.textContent = '开始导出';
+  }
+}
+
 async function createDiagnostic() {
   try {
     flash('正在生成脱敏诊断包…', true);
@@ -1281,7 +1397,7 @@ function renderInspector() {
       <div class="field"><label>反馈迭代（口语化）</label>
       <textarea id="fb-note" placeholder="颜色深一点，标题大一点，参考 vercel"></textarea></div>
       <button class="btn btn-primary" id="fb-send">⚡ 提交反馈（改 token 重渲染）</button>
-      <div class="field" style="margin-top:9px"><button class="btn btn-secondary" onclick="openOutput(${n.id})">↗ 新窗口打开</button></div>
+      <div class="field" style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn btn-secondary" onclick="openOutput(${n.id})">↗ 新窗口打开</button><button class="btn btn-primary" onclick="openExportCenter(${n.id})">⇩ 导出 PDF / PNG</button></div>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
         <button class="btn btn-secondary" onclick="renameProject(${n.id})">重命名</button>
         <button class="btn btn-secondary" onclick="duplicateProject(${n.id})">创建副本</button>
@@ -1296,7 +1412,7 @@ function renderInspector() {
       <div class="field"><div class="kv"><span>项目</span><span>${esc(n.data.project_name || '')}</span></div>
       <div class="kv"><span>类型</span><span>${esc(INTENT_LABEL[n.data.intent] || '—')}</span></div>
       <div class="kv"><span>风格</span><span>${esc(n.data.preset_id || '—')}</span></div></div>
-      <button class="btn btn-primary" onclick="openOutput(${n.id})">↗ 打开产物</button>
+      <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn btn-primary" onclick="openOutput(${n.id})">↗ 打开产物</button><button class="btn btn-secondary" onclick="openExportCenter(${n.id})">⇩ 导出</button></div>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px">
         <button class="btn btn-secondary" onclick="renameProject(${n.id})">重命名</button>
         <button class="btn btn-secondary" onclick="duplicateProject(${n.id})">创建副本</button>

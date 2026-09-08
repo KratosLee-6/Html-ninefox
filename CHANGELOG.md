@@ -14,9 +14,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned
 
 - Project Memory, Recipe Run, adoption feedback, and artifact version trees.
-- Export Center implementation following the HTML → PDF / image / PPTX / DOCX architecture.
+- High-fidelity PPTX, then constrained editable PPTX and semantic DOCX.
 
 ---
+
+## [0.4.2] — 2026-09-08 · Export Center
+
+### Added
+
+- Local-first PDF and PNG export from generated HTML projects.
+- Preflight manifest with pagination detection, compatibility score, dynamic-content warnings, and runtime diagnostics.
+- Page-range parsing, paginated Deck export, long-page PNG, image scaling, PDF paper selection, and landscape mode.
+- Persistent export jobs, secure download URLs, and per-run `export-report.json` files.
+- Export Center UI in output/history inspectors and the `htmlninefox export` CLI command.
+
+### Packaging
+
+- Playwright is now a runtime dependency while browsers remain locally selected.
+- Windows packages collect the Playwright driver and reuse Edge or Chrome.
+- Linux offline wheelhouses include Playwright, pyee, and cross-platform greenlet wheels.
+- Docker images include Chromium for deterministic server-side export.
+
+### Verified
+
+- 159 Python, API, storage, security, export, and browser tests pass.
+- 22/22 real Chromium generation, canvas interaction, and Export Center checks pass.
+- Wheel and Windows portable builds complete real PNG export smoke tests.
+- Linux offline archives contain x86_64/aarch64 Playwright plus CPython 3.10–3.13 platform wheels.
+
+### Architecture
+
+- Adopted a routed `Analyze → Route → Render → Verify → Deliver` export pipeline inspired by ppt-master's workflow and quality-gate approach.
+- Kept visual-fidelity exports separate from future editable PPTX/DOCX mappings.
 
 ## [0.4.1] — 2026-09-05 · Release Integrity Repair
 

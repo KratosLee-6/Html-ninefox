@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import asyncio
+import shutil
 import sys
 import threading
 import time
@@ -18,6 +19,8 @@ from htmlninefox.server import app as server_app
 HERE = Path(__file__).resolve().parent
 SHOTS = HERE / "e2e-shots"
 SHOTS.mkdir(exist_ok=True)
+RELEASE_SHOTS = HERE / "assets" / "screenshots" / f"v{__version__}"
+RELEASE_SHOTS.mkdir(parents=True, exist_ok=True)
 OUT = HERE / "e2e-output"
 
 PROMPTS = [
@@ -91,7 +94,10 @@ async def main():
         await page.close()
 
         # 无限画布工作台 UI（使用隔离输出目录，不读取或覆盖用户快照）
-        base, srv = start_server(OUT / f"workbench-{time.time_ns()}")
+        workbench_root = OUT / f"workbench-{time.time_ns()}"
+        workbench_root.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(outputs["deck"], workbench_root / "export-deck")
+        base, srv = start_server(workbench_root)
         page = await browser.new_page(viewport={"width": 1440, "height": 900})
         page_errors = []
         page.on("pageerror", lambda e: page_errors.append(str(e)))
@@ -151,8 +157,33 @@ async def main():
             stored_theme = await page.evaluate("localStorage.getItem('fox-ui-theme')")
             check("像素花园双主题", theme_before == "pixel-paper" and theme_after == "pixel-night" and stored_theme == "pixel-night", f"{theme_before} -> {theme_after}")
             await page.screenshot(path=SHOTS / f"workbench-v{__version__}-night.png")
+            await page.screenshot(path=RELEASE_SHOTS / "workbench-night.png")
             await page.click("#btn-theme")
             await page.screenshot(path=SHOTS / f"workbench-v{__version__}-paper.png")
+            await page.screenshot(path=RELEASE_SHOTS / "workbench-overview.png")
+
+            export_node = await page.evaluate("""() => {
+                const ws = activeWorkspace();
+                const node = addNode('output', ws.x + ws.w + 70, ws.y + 30, {
+                    workspaceId:ws.id, title:'发布会 · 可交付产物', project_name:'export-deck',
+                    preview_url:'/output/export-deck/output.html', intent:'deck',
+                    preset_id:'fox-pixel-garden', revision:0, feedback:[],
+                });
+                select(node.id);
+                return node.id;
+            }""")
+            await page.get_by_role("button", name="导出 PDF / PNG").click()
+            await page.wait_for_selector("#export-analysis .export-score", timeout=10000)
+            export_summary = await page.text_content("#export-analysis")
+            check("导出中心真实分页分析", "独立页面" in (export_summary or ""), f"node={export_node}")
+            await page.fill("#export-pages", "1")
+            await page.click("#export-start")
+            await page.wait_for_selector("#export-result .export-file", timeout=30000)
+            exported = list((workbench_root / "export-deck" / "exports").glob("*/page-01.png"))
+            report = list((workbench_root / "export-deck" / "exports").glob("*/export-report.json"))
+            check("工作台 PNG 导出与报告", bool(exported and report), f"files={len(exported)}")
+            await page.screenshot(path=SHOTS / f"export-center-v{__version__}.png")
+            await page.screenshot(path=RELEASE_SHOTS / "export-center.png")
             check("工作台无 JS 错误", not page_errors, "; ".join(page_errors[:3]))
         finally:
             srv.shutdown()

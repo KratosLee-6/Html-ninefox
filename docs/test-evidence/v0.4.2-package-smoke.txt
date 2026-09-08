@@ -1,0 +1,33 @@
+Html九尾狐 v0.4.2 package smoke
+Date: 2026-09-08
+
+[wheel-isolated-install]
+artifact=release/htmlninefox-0.4.2-py3-none-any.whl
+sha256=B581457D1D4FA5E75262FCEE8C7ABB91C5ABCF229A92C1C5DFA6CEF9DD49A93B
+version=0.4.2
+format=png
+browser=playwright-chromium
+source_pages=2
+exported_file=page-01.png
+exported_bytes=16934
+result=passed
+
+[windows-portable]
+version=0.4.2
+distribution=windows-portable
+format=png
+browser=msedge
+source_pages=2
+exported_file=page-01.png
+exported_bytes=7664
+result=passed
+
+[linux-offline-archive]
+archive_entries=33
+playwright_x86_64=true
+playwright_aarch64=true
+greenlet_cp310_cp313=true
+pyyaml_cp310_cp313=true
+installer_script=true
+application_wheel=true
+result=passed

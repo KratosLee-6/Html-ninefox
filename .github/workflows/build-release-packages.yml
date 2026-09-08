@@ -77,6 +77,10 @@ jobs:
         run: python scripts/check_release_version.py --tag "${{ github.ref_name }}"
       - name: Build Docker image
         run: docker build -t "htmlninefox:${{ github.ref_name }}" .
+      - name: Verify Docker export runtime
+        run: >-
+          docker run --rm "htmlninefox:${{ github.ref_name }}"
+          python -c "import os, playwright; assert os.path.isfile('/usr/bin/chromium'); print('export runtime ready')"
   publish-release:
     if: startsWith(github.ref, 'refs/tags/')
     needs: [windows, linux, docker]

@@ -8,17 +8,17 @@
 
 <div align="center">
 
-[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.1)
+[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-153%20passed-1F8A70)](docs/test-evidence/v0.4.1-pytest.txt)
-[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-20%2F20-173C8F)](docs/test-evidence/v0.4.1-chromium-e2e.txt)
+[![Tests](https://img.shields.io/badge/pytest-159%20passed-1F8A70)](docs/test-evidence/v0.4.2-pytest.txt)
+[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![Html九尾狐 v0.4.1 工作台](assets/screenshots/v0.4.1/workbench-overview.png)
+![Html九尾狐 v0.4.2 工作台](assets/screenshots/v0.4.2/workbench-overview.png)
 
 ## 它解决什么问题
 
@@ -38,12 +38,15 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
           ↓
       生成单文件 HTML
           ↓
+  导出 PDF / 逐页 PNG / 长图 + 兼容性报告
+          ↓
   用自然语言反馈，按版本继续迭代
 ```
 
-## v0.4.1 核心能力
+## v0.4.2 核心能力
 
-- **✅ 可信发布修复**：版本、CLI、API、安装包、Docker 标签、测试证据和 Git 标签保持一致。
+- **📤 Export Center**：产物节点直接导出 PDF、逐页 PNG 或完整长图，支持页码范围、画布尺寸、1x/2x/3x 和兼容性报告。
+- **✅ 可信发布链路**：版本、CLI、API、安装包、Docker 标签、测试证据和 Git 标签保持一致。
 - **🎨 Pixel Garden 设计系统**：深钴蓝 `#173C8F` + 薄荷绿 `#49B894` + 暖纸白 `#F4F0E7` 统一设计令牌，5 大视觉产物一致体验。
 - **🤖 真实 LLM 接入**：MiniMax-M3 / Claude / GPT-4o 三家 API，环境变量自动配置，离线规则引擎兜底。
 - **🖥️ Web 工作台**：`htmlninefox workbench` 一键启动本地 Web UI，实时预览 + 智能体日志 + 模板选择。
@@ -57,7 +60,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 - **反馈迭代**：自然语言反馈转成设计 Token 修改并重渲染，保留 `rev1 / rev2 / ...` 历史。
 - **跨平台使用**：Windows 便携包/安装器、Linux `.run/.tar.gz`、Python CLI、Web/PWA、Docker。
 
-> 下一阶段将增加 [Export Center](docs/EXPORT-CENTER.md)：先支持 PDF / PNG，再提供高保真 PPTX，以及受控范围内的可编辑 PPTX / DOCX。
+> [Export Center](docs/EXPORT-CENTER.md) 已完成 PDF / PNG 第一阶段。下一阶段提供高保真 PPTX，再推进受控范围内的可编辑 PPTX / DOCX。
 - 🎨 **Multiple PPT styles via Skill Alliance** (v0.3): baoyu-slide-deck (image) · frontend-slides (HTML, no AI gradient) · beautiful-html-templates (28 stable presets)
 
 ## 看得见的真实效果
@@ -73,6 +76,12 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 </tr>
 </table>
 
+### v0.4.2 导出中心
+
+![v0.4.2 导出中心](assets/screenshots/v0.4.2/export-center.png)
+
+产物节点可直接选择 PDF、逐页 PNG 或完整长图；导出前显示分页识别、兼容性评分、动态内容与网络资源风险，导出后提供文件和 `export-report.json`。
+
 ### 六类真实产物
 
 | 落地页 | 数据看板 | 发布会 PPT |
@@ -85,16 +94,16 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 下载与安装
 
-前往 [v0.4.1 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.1) 下载当前版本。发布说明见 [RELEASE-NOTES-v0.4.1.md](docs/RELEASE-NOTES-v0.4.1.md)。
+前往 [v0.4.2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2) 下载当前版本。发布说明见 [RELEASE-NOTES-v0.4.2.md](docs/RELEASE-NOTES-v0.4.2.md)。
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.4.1.exe` | 左侧安装，适合普通用户 |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.4.1.zip` | 解压后 `HtmlNineFox.exe`，免安装 |
-| Linux | `HtmlNineFox-Linux-0.4.1.run` | `chmod +x` 后运行，安装到当前用户目录 |
-| Linux/审计 | `HtmlNineFox-Linux-0.4.1.tar.gz` | 可查看完整安装内容 |
-| Python 3.10+ | `htmlninefox-0.4.1-py3-none-any.whl` | 使用 `pip install` 安装 |
-| Docker | `htmlninefox:v0.4.1` | `docker run -p 8620:8620 -e MINIMAX_API_KEY=xxx htmlninefox` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.4.2.exe` | 左侧安装，适合普通用户 |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.4.2.zip` | 解压后 `HtmlNineFox.exe`，免安装 |
+| Linux | `HtmlNineFox-Linux-0.4.2.run` | `chmod +x` 后运行，安装到当前用户目录 |
+| Linux/审计 | `HtmlNineFox-Linux-0.4.2.tar.gz` | 可查看完整安装内容 |
+| Python 3.10+ | `htmlninefox-0.4.2-py3-none-any.whl` | 使用 `pip install` 安装 |
+| Docker | `htmlninefox:v0.4.2` | `docker run -p 8620:8620 -e MINIMAX_API_KEY=xxx htmlninefox` |
 
 ### 快速开始
 
@@ -183,21 +192,21 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 ## 测试与信任证据
 
-本版本在 **2026-09-05** 完成以下验证：
+本版本在 **2026-09-08** 完成以下验证：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **153 passed** | [pytest 原始日志](docs/test-evidence/v0.4.1-pytest.txt) |
-| Chromium 真实生成与交互验收 | **20 / 20 passed** | [E2E 原始日志](docs/test-evidence/v0.4.1-chromium-e2e.txt) |
-| 生成器 | Landing / Dashboard / Deck / Poster / Archdoc 均成功 | [测试报告](docs/TEST-REPORT-v0.4.1.md) |
-| 反馈迭代 | `rev1` Token 修改与 `rev2` 预设切换成功 | [E2E 日志](docs/test-evidence/v0.4.1-chromium-e2e.txt) |
-| 工作台 | 拖动、重命名、颜色、多工作区、双主题、无 JS 错误 | [E2E 日志](docs/test-evidence/v0.4.1-chromium-e2e.txt) |
-| 本地发布包 | wheel、Linux `.run/.tar.gz` 生成 SHA256；Windows 与 Docker 由标签 CI 构建 | [校验值](docs/test-evidence/v0.4.1-release-sha256.txt) |
+| Python / API / 存储 / 安全 / 浏览器测试 | **159 passed** | [pytest 原始日志](docs/test-evidence/v0.4.2-pytest.txt) |
+| Chromium 真实生成与交互验收 | **22 / 22 passed** | [E2E 原始日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
+| 生成器 | Landing / Dashboard / Deck / Poster / Archdoc 均成功 | [测试报告](docs/TEST-REPORT-v0.4.2.md) |
+| 反馈迭代 | `rev1` Token 修改与 `rev2` 预设切换成功 | [E2E 日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
+| 工作台 | 拖动、重命名、颜色、多工作区、双主题、无 JS 错误 | [E2E 日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
+| 本地候选发布包 | wheel 与 Windows 便携包真实导出通过；Linux `.run/.tar.gz` 完成双架构结构校验与 SHA256；Docker 由标签 CI 验证 | [校验值](docs/test-evidence/v0.4.2-release-sha256.txt) |
 | LLM 接入 | MiniMax-M3 / Claude / GPT-4o 环境变量自动配置 | [配置文档](docs/INSTALL.md) |
-| Web 工作台 | Python 本地 HTTP 服务 + 实时预览 + 智能体日志 | [E2E 日志](docs/test-evidence/v0.4.1-chromium-e2e.txt) |
+| Web 工作台 | Python 本地 HTTP 服务 + 实时预览 + 智能体日志 | [E2E 日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
 | Docker 镜像 | 多阶段构建定义 + 标签 CI 独立验证 | [构建工作流](.github/workflows/build-release-packages.yml) |
 
-运行环境记录见：[v0.4.1-environment.txt](docs/test-evidence/v0.4.1-environment.txt)。
+运行环境记录见：[v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
 
 ```bash
 python -m pytest tests -q -p no:cacheprovider
@@ -221,7 +230,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.4.1` 是可信发布修复版：Windows、Linux、Python CLI、Web/PWA 和 Docker 均已可用。Pixel Garden 设计系统统一了 5 大视觉产物；真实 LLM 接入（MiniMax-M3 / Claude / GPT-4o）让 AI 生成质量大幅提升；Web 工作台让非技术用户也能轻松使用。
+`v0.4.2` 是导出中心版本：PDF / PNG、逐页选择、兼容性报告与 CLI 导出已经可用；Windows、Linux、Python CLI、Web/PWA 和 Docker 均已可用。Pixel Garden 设计系统统一了 5 大视觉产物；真实 LLM 接入（MiniMax-M3 / Claude / GPT-4o）让 AI 生成质量大幅提升；Web 工作台让非技术用户也能轻松使用。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

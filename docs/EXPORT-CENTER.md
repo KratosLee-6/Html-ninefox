@@ -1,7 +1,7 @@
 # Html九尾狐 · Export Center 导出中心设计
 
-> 状态：方案确定，尚未实现
-> 版本规划：v0.4.2 起分阶段交付
+> 状态：v0.4.2 已实现 PDF / PNG 第一阶段；PPTX / DOCX 按后续版本推进
+> 版本规划：v0.4.2 可分享，v0.5.0 可汇报，v0.6.0 受控可编辑
 > 原则：HTML 是唯一源文件，PDF / 图片 / PPTX / DOCX 是面向不同交付场景的派生格式。
 
 ## 1. 需求是否成立
@@ -48,7 +48,18 @@
 
 Word 不应作为落地页、数据看板或自由画布作品的通用导出目标；这些内容默认导出 PDF 或图片。
 
-## 4. 技术架构
+## 4. 参考 ppt-master 后的架构调整
+
+v0.4.2 参考 [hugohe3/ppt-master](https://github.com/hugohe3/ppt-master) 的工作流思想，但不复制其 PPTX 生成代码。重点吸收四个原则：
+
+1. **先路由再执行**：PDF、逐页 PNG、长图 PNG、高保真 PPTX、可编辑 PPTX、DOCX 是不同 profile，不交给一个万能转换器猜测。
+2. **源文件与交付物分离**：HTML 永远保留为唯一源文件，导出目录只保存派生文件和报告。
+3. **质量门禁独立存在**：导出前分析分页、网络资源、动画、音视频、WebGL；导出后记录浏览器、尺寸、文件大小和降级项。
+4. **不虚假承诺可编辑**：视觉一致与 Office 可编辑分成两条路线，无法映射的内容必须扁平化并写入报告。
+
+这使九尾狐的导出流程形成稳定的 `Analyze → Route → Render → Verify → Deliver`，以后接入 PPTX 时无需推翻 PDF / PNG 实现。
+
+## 5. 技术架构
 
 ```text
 Artifact HTML + artifact.json
@@ -72,16 +83,16 @@ Artifact HTML + artifact.json
 - `ExportJob`：异步状态、进度、错误、取消、重试和下载文件。
 - `export-report.json`：记录字体替换、动画扁平化、不可编辑元素和失败页面。
 
-## 5. 建议依赖
+## 6. 实现与依赖
 
-- PDF / 图片：Playwright Chromium，复用现有浏览器测试基础设施。
+- PDF / PNG：Playwright Chromium；优先使用 Playwright 自带 Chromium，随后自动尝试 Edge、Chrome 或系统 Chromium。
 - PPTX：PptxGenJS；先交付“一页一图”，再支持受约束组件的可编辑映射。
 - DOCX：python-docx 或等价 OOXML 生成器，只处理语义文档模型。
 - 可选转换：LibreOffice headless 只作为本地增强，不作为核心正确性的唯一依赖。
 
 所有导出默认在本地完成，不上传用户 HTML、文件或 API Key。
 
-## 6. 产品界面
+## 7. 产品界面
 
 产物节点增加“导出”按钮，打开 Export Center：
 
@@ -98,14 +109,16 @@ Artifact HTML + artifact.json
 - Deck：PPTX 高保真版 + PDF。
 - Doc / Archdoc：PDF + DOCX 语义版。
 
-## 7. 分阶段路线
+## 8. 分阶段路线
 
-### v0.4.2：可分享
+### v0.4.2：可分享（已完成）
 
-- PDF 导出。
-- 单页、逐页和长图 PNG 导出。
-- 页面范围、倍率、纸张和宽高比。
-- Export Job、进度、错误与下载。
+- PDF 导出：连续 HTML 使用 A4 / Letter / A3 自然分页，Deck 使用画布尺寸逐页输出。
+- PNG 导出：单页、指定页、逐页和完整长图；支持 1x / 2x / 3x。
+- 页面范围、画布尺寸、纸张方向和兼容性评分。
+- Export Job、任务状态、错误、下载和 `export-report.json`。
+- Web 工作台与 `htmlninefox export` CLI 双入口。
+- Windows 使用 Edge / Chrome，Linux 使用 Chromium / Chrome，Docker 内置 Chromium。
 
 ### v0.5.0：可汇报
 
@@ -119,7 +132,7 @@ Artifact HTML + artifact.json
 - PPTX 可编辑模式，无法映射的局部元素自动扁平化。
 - Doc / Archdoc 的 DOCX 语义导出。
 
-## 8. 验收标准
+## 9. 验收标准
 
 - PDF 和图片与 HTML 截图的关键区域视觉差异可控。
 - 导出失败不会损坏原始 HTML 或覆盖已有产物。
@@ -130,3 +143,20 @@ Artifact HTML + artifact.json
 ## English Summary
 
 The Export Center keeps HTML as the source of truth and derives PDF, images, PPTX, and DOCX for delivery. It separates visual-fidelity exports from editable exports. PDF and images come first, high-fidelity PPTX follows, and editable PPTX/DOCX are limited to supported semantic components with explicit fallback reporting.
+
+
+## 10. v0.4.2 文件协议
+
+每次导出写入项目内部的独立目录，不覆盖 HTML：
+
+```text
+project/
+├── output.html
+├── .foxstate.json
+└── exports/
+    └── 20260908-120000-a1b2c3/
+        ├── document.pdf 或 page-01.png ...
+        └── export-report.json
+```
+
+`export-report.json` 记录源项目、请求参数、分页选择器、浏览器版本、文件清单、网络资源和静态化告警，可用于复现与问题诊断。

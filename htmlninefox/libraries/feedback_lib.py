@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import time
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -48,7 +49,8 @@ def _to_meta(feedback_id: str, project_id: str, data: Dict[str, Any]) -> Dict[st
         "tokens_extracted": dict(data.get("tokens_extracted", {}) or {}),
         "raw_note": data.get("raw_note", ""),
         "_model": data.get("_model", "rules"),
-        "_persisted_at": datetime.now().isoformat(timespec="seconds"),
+        "_persisted_at": datetime.now().isoformat(timespec="microseconds"),
+        "_order_ns": time.time_ns(),
     }
 
 
@@ -73,16 +75,17 @@ class FeedbackLib:
 
     def list(self, project_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """列反馈（可选按 project_id 过滤）。按 mtime 升序，最新文件后追加 → 深 merge 时最新值覆盖。"""
-        out: List[Dict[str, Any]] = []
-        files = sorted(self.base_dir.glob("*.json"), key=lambda p: p.stat().st_mtime)
-        for p in files:
+        ordered: List[tuple[int, str, Dict[str, Any]]] = []
+        for path in self.base_dir.glob("*.json"):
             try:
-                data = json.loads(p.read_text(encoding="utf-8"))
-            except (json.JSONDecodeError, OSError):
+                data = json.loads(path.read_text(encoding="utf-8"))
+                order = int(data.get("_order_ns") or path.stat().st_mtime_ns)
+            except (json.JSONDecodeError, OSError, TypeError, ValueError):
                 continue
             if project_id is None or data.get("project_id") == project_id:
-                out.append(data)
-        return out
+                ordered.append((order, path.name, data))
+        ordered.sort(key=lambda item: (item[0], item[1]))
+        return [item[2] for item in ordered]
 
     def get(self, feedback_id: str) -> Optional[Dict[str, Any]]:
         path = self.base_dir / f"{feedback_id}.json"

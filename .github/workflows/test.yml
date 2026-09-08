@@ -35,6 +35,7 @@ jobs:
           node --check htmlninefox/server/static/canvas-engine.js
           node --check htmlninefox/server/static/canvas-productivity.js
           node --check htmlninefox/server/static/workbench-features.js
+          python scripts/check_inline_js.py
       - name: Chromium acceptance
         run: python e2e_verify.py
       - uses: actions/upload-artifact@v7

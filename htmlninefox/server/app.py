@@ -6,6 +6,7 @@ import json
 import mimetypes
 import os
 import shutil
+import sys
 import traceback
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -13,13 +14,18 @@ from pathlib import Path
 from typing import Callable
 from urllib.parse import parse_qs, unquote, urlparse
 
-from .. import __version__, llm, pipeline, template_gallery
+from .. import __version__, exporting, llm, pipeline, template_gallery
 from ..user_gallery import UserGalleryError, UserGalleryStore
 from .diagnostics import create_diagnostic_bundle
 from .inputs import InputError, InputStore
 from .jobs import get_job_manager
 from .settings import AISettingsStore
 from .storage import ProjectStore, StoreError
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 STATIC_FILES = {
@@ -51,6 +57,7 @@ APP_CAPABILITIES = {
         "canvas_history", "canvas_multiselect", "canvas_grouping", "canvas_locking",
         "canvas_minimap", "canvas_command_palette",
         "input_attachments", "ai_settings", "alliance",
+        "export_center", "export_pdf", "export_png",
     ],
     "schemas": {"canvas": 1},
     "offline": {"workspace": True, "generation": False},
@@ -245,6 +252,8 @@ class _Handler(BaseHTTPRequestHandler):
                                "distribution": os.getenv("HTMLNINEFOX_DISTRIBUTION", "python")})
         if path == "/api/capabilities":
             return self._json(APP_CAPABILITIES)
+        if path == "/api/exports/capabilities":
+            return self._json({"ok": True, **exporting.runtime_capabilities()})
         if path == "/api/templates":
             return self._json({"items": pipeline.list_templates()})
         if path == "/api/gallery":
@@ -316,9 +325,13 @@ class _Handler(BaseHTTPRequestHandler):
                 "text/html; charset=utf-8" if target.suffix == ".html" else
                 "application/json; charset=utf-8" if target.suffix == ".json" else
                 "application/zip" if target.suffix == ".zip" else
-                "text/plain; charset=utf-8"
+                mimetypes.guess_type(target.name)[0] or "application/octet-stream"
             )
-            return self._file(target, mime)
+            headers = None
+            if (query.get("download") or [""])[0] == "1":
+                safe_filename = target.name.replace('"', "")
+                headers = {"Content-Disposition": f'attachment; filename="{safe_filename}"'}
+            return self._file(target, mime, headers=headers)
         raise StoreError("not_found", "接口不存在", 404)
 
     def _post(self, path: str, body: dict):
@@ -355,6 +368,18 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json({"ok": True, "model": result.model, "reply": result.text[:120]})
         if path == "/api/jobs":
             return self._api_submit_job(body)
+        if path == "/api/exports/analyze":
+            project_name = str(body.get("project_name") or "").strip()
+            if not project_name:
+                raise StoreError("export_project_required", "请选择需要导出的项目", 400)
+            return self._json({"ok": True, "manifest": exporting.analyze_project(_OUTPUT_ROOT, project_name)})
+        if path == "/api/exports":
+            request = exporting.normalize_export_request(body)
+            exporting.analyze_project(_OUTPUT_ROOT, request["project_name"])
+            job = self._jobs().submit(
+                "export", lambda: exporting.export_project(_OUTPUT_ROOT, request)
+            )
+            return self._json({"ok": True, "job": job}, 202)
         if path == "/api/diagnostics":
             bundle = create_diagnostic_bundle(_OUTPUT_ROOT, APP_CAPABILITIES)
             return self._json({"ok": True, "bundle": bundle}, 201)
