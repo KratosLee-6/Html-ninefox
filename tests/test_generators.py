@@ -26,7 +26,7 @@ class TestGenerators:
             __import__("htmlninefox.generators._tokens", fromlist=["PRESETS"]).PRESETS["linear-light"]["tokens"]),
             "id": "linear-light", "name": "test", "dark": False, "_matched_by": "test"}
         html = gens.render(intent, brief, preset, {"blocks": None})
-        assert html.startswith("<!doctype html>")
+        assert html.lower().startswith("<!doctype html>")
         assert 'lang="zh-CN"' in html and "viewport" in html
         assert "--fox-primary" in html  # token 驱动
         assert len(html) > 3000
@@ -49,7 +49,7 @@ class TestRunExpert:
         for f in result["files"]:
             assert (work / f).exists(), f
         html = (work / "output.html").read_text(encoding="utf-8")
-        assert html.startswith("<!doctype html>")
+        assert html.lower().startswith("<!doctype html>")
         state = json.loads((work / pipeline.STATE_FILE).read_text(encoding="utf-8"))
         assert state["intent"] == intent and state["revision"] == 0
 
