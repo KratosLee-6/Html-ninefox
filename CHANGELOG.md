@@ -11,6 +11,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- v0.5 interaction system with typed Toast feedback, reversible button busy states, accessible dialog focus management, and a global command registry.
+- Ctrl+K now searches both workbench actions and canvas nodes with keyboard navigation.
+- Browser regression coverage for notifications, busy states, command execution, node search, Escape handling, and focus restoration.
+- Recipe Run records Analyze, Compose, Generate, Verify, and Deliver stages with timing, model/generator, fallback usage, and summarized inputs and outputs.
+- Per-project `recipe-run.json` evidence, HTML quality-gate reports, parent run links, and partial Generate/Verify reruns.
+
+### Changed
+
+- Canvas dragging is now fluid rather than continuously rounded to a 16px grid, with `Alt` available to temporarily disable snapping.
+- Alignment and connection targets now use acquisition/release hysteresis to prevent jitter and flickering near snap boundaries.
+- Port geometry is derived from rendered bounds and converted to world coordinates, keeping connections aligned through zoom and pan.
+- Fit-to-content preserves workspace navigator space and uses a 30% minimum zoom so generated content remains readable.
+- The active workspace timeline now switches from a generic checklist to the actual Recipe Run and stage durations after generation starts.
+- Job state reads and atomic writes share one lock, preventing Windows polling races from leaving jobs stuck at `starting`.
+
+### Fixed
+
+- Process the final pointer position before drag or connection release, preventing fast interactions from ending one frame behind.
+- Keep port hit areas from stealing pointer events from card content and keep connection stroke width stable while zooming.
+
+### Verified
+
+- 166/166 Python tests pass, including Recipe Run, interaction, canvas, generation, storage, security, diagnostics, and export coverage.
+- 22/22 Chromium product checks pass across generation, workspaces, templates, themes, and the Export Center.
+- 17/17 focused canvas checks cover workspace and card dragging, snapping, port connections, Recipe Run details, partial verification reruns, HTML preview, generation, feedback iteration, fit, persistence, and JavaScript errors.
+
 ### Planned
 
 - Project Memory, Recipe Run, adoption feedback, and artifact version trees.

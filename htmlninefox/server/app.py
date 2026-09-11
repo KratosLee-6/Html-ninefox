@@ -35,6 +35,7 @@ STATIC_FILES = {
     "/logo-mark.svg": ("logo-mark.svg", "image/svg+xml; charset=utf-8", "public, max-age=86400"),
     "/logo-horizontal.svg": ("logo-horizontal.svg", "image/svg+xml; charset=utf-8", "public, max-age=86400"),
     "/canvas-engine.js": ("canvas-engine.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/interaction-system.js": ("interaction-system.js", "application/javascript; charset=utf-8", "no-cache"),
     "/canvas-productivity.js": ("canvas-productivity.js", "application/javascript; charset=utf-8", "no-cache"),
     "/workbench-features.js": ("workbench-features.js", "application/javascript; charset=utf-8", "no-cache"),
 }
@@ -55,9 +56,10 @@ APP_CAPABILITIES = {
         "workspace_recovery", "jobs", "diagnostics", "templates", "template_preview", "template_gallery",
         "page_extraction", "private_template_import", "template_usage_learning",
         "canvas_history", "canvas_multiselect", "canvas_grouping", "canvas_locking",
-        "canvas_minimap", "canvas_command_palette",
+        "canvas_minimap", "canvas_command_palette", "interaction_system",
         "input_attachments", "ai_settings", "alliance",
         "export_center", "export_pdf", "export_png",
+        "recipe_run", "recipe_partial_rerun",
     ],
     "schemas": {"canvas": 1},
     "offline": {"workspace": True, "generation": False},
@@ -383,6 +385,18 @@ class _Handler(BaseHTTPRequestHandler):
         if path == "/api/diagnostics":
             bundle = create_diagnostic_bundle(_OUTPUT_ROOT, APP_CAPABILITIES)
             return self._json({"ok": True, "bundle": bundle}, 201)
+        if path.startswith("/api/projects/") and path.endswith("/recipe-rerun"):
+            name = path[len("/api/projects/"):-len("/recipe-rerun")]
+            stage = str(body.get("stage") or "generate")
+            if stage not in {"generate", "verify"}:
+                raise StoreError("recipe_stage_invalid", "局部重跑仅支持 generate 或 verify", 400)
+            project = self._store().get_project(name)
+            job = self._jobs().submit(
+                "recipe-rerun",
+                lambda report: pipeline.rerun_project(project["project"], stage, report),
+                with_reporter=True,
+            )
+            return self._json({"ok": True, "job": job}, 202)
         if path.startswith("/api/projects/") and path.endswith("/duplicate"):
             name = path[len("/api/projects/"):-len("/duplicate")]
             project = self._store().duplicate_project(name, body.get("new_name"))
@@ -429,13 +443,18 @@ class _Handler(BaseHTTPRequestHandler):
         if not prompt:
             raise StoreError("prompt_required", "prompt 不能为空", 400)
         staging_root = _OUTPUT_ROOT / ".jobs-work" / uuid.uuid4().hex
-        job = self._jobs().submit("generate", lambda: self._staged_generation(dict(body), staging_root))
+        job = self._jobs().submit(
+            "generate",
+            lambda report: self._staged_generation(dict(body), staging_root, report),
+            with_reporter=True,
+        )
         return self._json({"ok": True, "job": job}, 202)
 
-    def _staged_generation(self, body: dict, staging_root: Path) -> dict:
+    def _staged_generation(self, body: dict, staging_root: Path,
+                           progress_callback=None) -> dict:
         staging_root.mkdir(parents=True, exist_ok=True)
         try:
-            result = self._generation_result(body, staging_root)
+            result = self._generation_result(body, staging_root, progress_callback)
             source = Path(result["project"])
             target = _OUTPUT_ROOT / source.name
             suffix = 2
@@ -450,7 +469,8 @@ class _Handler(BaseHTTPRequestHandler):
         finally:
             shutil.rmtree(staging_root, ignore_errors=True)
 
-    def _generation_result(self, body: dict, output_root: Path | None = None) -> dict:
+    def _generation_result(self, body: dict, output_root: Path | None = None,
+                           progress_callback=None) -> dict:
         prompt, input_items = self._prompt_and_inputs(body)
         if not prompt:
             raise StoreError("prompt_required", "prompt 或附件至少需要一个", 400)
@@ -483,6 +503,7 @@ class _Handler(BaseHTTPRequestHandler):
                 "inputs": input_items,
                 "selection_mode": body.get("selection_mode") or "custom",
             },
+            progress_callback=progress_callback,
         )
         work = result["work"]
         if gallery_item:
@@ -501,6 +522,8 @@ class _Handler(BaseHTTPRequestHandler):
             "route_decision": result["route_decision"],
             "skill": result["skill"],
             "brief_confidence": result["brief_confidence"],
+            "verification": result.get("verification", {}),
+            "recipe_run": result.get("recipe_run", {}),
         }
 
     def _api_analyze(self, body: dict):

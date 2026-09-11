@@ -38,7 +38,8 @@ class JobManager:
         self.futures: dict[str, Future] = {}
         self._recover_interrupted_jobs()
 
-    def submit(self, kind: str, run: Callable[[], dict[str, Any]]) -> dict[str, Any]:
+    def submit(self, kind: str, run: Callable[..., dict[str, Any]], *,
+               with_reporter: bool = False) -> dict[str, Any]:
         job_id = uuid.uuid4().hex[:16]
         now = self._now()
         state = {
@@ -51,21 +52,24 @@ class JobManager:
             "updated_at": now,
             "result": None,
             "error": None,
+            "recipe_run": None,
         }
         with self.lock:
             self._write(state)
-            self.futures[job_id] = self.executor.submit(self._execute, job_id, run)
+            self.futures[job_id] = self.executor.submit(
+                self._execute, job_id, run, with_reporter)
         return state
 
     def get(self, job_id: str) -> dict[str, Any]:
         self._validate_id(job_id)
-        path = self._path(job_id)
-        if not path.is_file():
-            raise StoreError("job_not_found", f"任务不存在：{job_id}", 404)
-        try:
-            return json.loads(path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError) as exc:
-            raise StoreError("job_state_invalid", f"任务状态损坏：{job_id}", 409) from exc
+        with self.lock:
+            path = self._path(job_id)
+            if not path.is_file():
+                raise StoreError("job_not_found", f"任务不存在：{job_id}", 404)
+            try:
+                return json.loads(path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError) as exc:
+                raise StoreError("job_state_invalid", f"任务状态损坏：{job_id}", 409) from exc
 
     def list(self, limit: int = 30) -> list[dict[str, Any]]:
         states = []
@@ -92,17 +96,20 @@ class JobManager:
             self._write(state)
             return state
 
-    def _execute(self, job_id: str, run: Callable[[], dict[str, Any]]) -> None:
+    def _execute(self, job_id: str, run: Callable[..., dict[str, Any]],
+                 with_reporter: bool) -> None:
         with self.lock:
             state = self.get(job_id)
             if state["status"] == "cancelled":
                 return
-            active_stage = "exporting" if state.get("kind") == "export" else "generating"
-            state.update({"status": "running", "progress": 10, "stage": active_stage,
+            active_stage = "exporting" if state.get("kind") == "export" else "starting"
+            state.update({"status": "running", "progress": 5, "stage": active_stage,
                           "started_at": self._now(), "updated_at": self._now()})
             self._write(state)
+        reporter = lambda stage, progress, recipe: self._report_progress(
+            job_id, stage, progress, recipe)
         try:
-            result = run()
+            result = run(reporter) if with_reporter else run()
         except StoreError as error:
             self._finish_failed(job_id, error.code, error.message, error.details)
         except Exception as error:  # noqa: BLE001
@@ -113,8 +120,24 @@ class JobManager:
                 state.update({"status": "succeeded", "progress": 100, "stage": "completed",
                               "result": result, "error": None, "finished_at": self._now(),
                               "updated_at": self._now()})
+                if isinstance(result, dict) and isinstance(result.get("recipe_run"), dict):
+                    state["recipe_run"] = result["recipe_run"]
                 self._write(state)
 
+    def _report_progress(self, job_id: str, stage: str, progress: int,
+                         recipe: dict[str, Any]) -> None:
+        with self.lock:
+            state = self.get(job_id)
+            if state.get("status") not in _ACTIVE:
+                return
+            state.update({
+                "status": "running",
+                "stage": str(stage or "running"),
+                "progress": max(0, min(99, int(progress))),
+                "recipe_run": recipe,
+                "updated_at": self._now(),
+            })
+            self._write(state)
     def _finish_failed(self, job_id: str, code: str, message: str, details: dict[str, Any]) -> None:
         with self.lock:
             state = self.get(job_id)

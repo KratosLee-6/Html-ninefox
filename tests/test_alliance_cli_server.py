@@ -100,11 +100,16 @@ class TestWebApi:
         cls.out_root = Path(tempfile.mkdtemp()) / "output"
         mod._OUTPUT_ROOT = cls.out_root
         cls.out_root.mkdir(parents=True, exist_ok=True)
-        cls.server = threading.Thread(
-            target=lambda: mod.ThreadingHTTPServer(
-                ("127.0.0.1", 8631), mod._Handler).serve_forever(), daemon=True)
+        cls.httpd = mod.ThreadingHTTPServer(("127.0.0.1", 0), mod._Handler)
+        cls.server = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
         cls.server.start()
-        cls.base = "http://127.0.0.1:8631"
+        cls.base = f"http://127.0.0.1:{cls.httpd.server_port}"
+
+    @classmethod
+    def teardown_class(cls):
+        cls.httpd.shutdown()
+        cls.httpd.server_close()
+        cls.server.join(timeout=2)
 
     def _get(self, path):
         return urllib.request.urlopen(self.base + path, timeout=10)

@@ -4,10 +4,15 @@
   const DEFAULTS = {
     gridSize: 16,
     alignmentPixels: 7,
+    alignmentReleasePixels: 14,
     portHitPixels: 32,
+    portReleasePixels: 48,
     workspacePadding: 16,
     workspaceHeader: 46,
   };
+
+  /* G1 · 网格吸附档位：8 / 16 / 32 / 0（0 = 关闭，只保留对齐线） */
+  const SNAP_LEVELS = [8, 16, 32, 0];
 
   function create(options) {
     const settings = { ...DEFAULTS, ...(options.settings || {}) };
@@ -45,41 +50,78 @@
 
     function bestAlignment(movingAnchors, otherAnchors, threshold) {
       let best = null;
-      for (const moving of movingAnchors) {
-        for (const other of otherAnchors) {
+      movingAnchors.forEach((moving, movingIndex) => {
+        otherAnchors.forEach((other, otherIndex) => {
           const delta = other - moving;
           const distance = Math.abs(delta);
           if (distance <= threshold && (!best || distance < best.distance)) {
-            best = { delta, guide: other, distance };
+            best = { delta, guide:other, distance, movingIndex, otherIndex };
           }
-        }
-      }
+        });
+      });
       return best;
     }
 
-    function snapNode(node, rawX, rawY, disabled = false, excludeIds = []) {
-      if (disabled) return { x: rawX, y: rawY, guideX: null, guideY: null };
-      const excluded = new Set(excludeIds);
+    function lockedAlignment(movingAnchors, lock, threshold) {
+      if (!lock || movingAnchors[lock.movingIndex] == null) return null;
+      const delta = lock.guide - movingAnchors[lock.movingIndex];
+      const distance = Math.abs(delta);
+      if (distance > threshold) return null;
+      return { ...lock, delta, distance };
+    }
+
+    function createSnapSession() {
+      return { x:null, y:null };
+    }
+
+    function snapNode(node, rawX, rawY, disabledOrOptions = false, excludeIds = []) {
+      const options = typeof disabledOrOptions === 'object'
+        ? { grid:true, gridSize:settings.gridSize, excludeIds:[], ...disabledOrOptions }
+        : { disabled:Boolean(disabledOrOptions), grid:true, gridSize:settings.gridSize, excludeIds };
+      const session = options.session || null;
+      if (options.disabled) {
+        if (session) { session.x = null; session.y = null; }
+        return { x:rawX, y:rawY, guideX:null, guideY:null };
+      }
+      const excluded = new Set(options.excludeIds || []);
       const camera = getCamera();
+      const gridSize = Number(options.gridSize) > 0 ? Number(options.gridSize) : settings.gridSize;
+      const gridThreshold = Number(options.gridThreshold) > 0 ? Number(options.gridThreshold) / camera.z : null;
       const threshold = settings.alignmentPixels / camera.z;
+      const releaseThreshold = settings.alignmentReleasePixels / camera.z;
       let x = rawX;
       let y = rawY;
       const moving = anchors(node, rawX, rawY);
-      let xMatch = null;
-      let yMatch = null;
+      let xMatch = lockedAlignment(moving.x, session?.x, releaseThreshold);
+      let yMatch = lockedAlignment(moving.y, session?.y, releaseThreshold);
       for (const other of getNodes()) {
         if (other.id === node.id || excluded.has(other.id)) continue;
         if (node.kind === 'ws' && other.kind !== 'ws') continue;
         const candidate = anchors(other);
-        const nextX = bestAlignment(moving.x, candidate.x, threshold);
-        const nextY = bestAlignment(moving.y, candidate.y, threshold);
-        if (nextX && (!xMatch || nextX.distance < xMatch.distance)) xMatch = nextX;
-        if (nextY && (!yMatch || nextY.distance < yMatch.distance)) yMatch = nextY;
+        if (!xMatch) {
+          const nextX = bestAlignment(moving.x, candidate.x, threshold);
+          if (nextX && (!xMatch || nextX.distance < xMatch.distance)) xMatch = nextX;
+        }
+        if (!yMatch) {
+          const nextY = bestAlignment(moving.y, candidate.y, threshold);
+          if (nextY && (!yMatch || nextY.distance < yMatch.distance)) yMatch = nextY;
+        }
       }
-      if (xMatch) x += xMatch.delta;
-      else x = Math.round(rawX / settings.gridSize) * settings.gridSize;
-      if (yMatch) y += yMatch.delta;
-      else y = Math.round(rawY / settings.gridSize) * settings.gridSize;
+      if (session) {
+        session.x = xMatch ? { guide:xMatch.guide, movingIndex:xMatch.movingIndex, otherIndex:xMatch.otherIndex } : null;
+        session.y = yMatch ? { guide:yMatch.guide, movingIndex:yMatch.movingIndex, otherIndex:yMatch.otherIndex } : null;
+      }
+      /* 对齐线吸附（7px 强吸）优先；无对齐候选时才回落到网格取整（档位 gridSize，0 或 grid:false 表示关闭）。
+         gridThreshold 只给拖动热路径用：离网格线较远时保持原始位置，避免拖动中跳动；落位不传则按整数倍硬取整。 */
+      const resolve = (raw, match) => {
+        if (match) return raw + match.delta;
+        if (options.grid === false) return raw;
+        const snapped = Math.round(raw / gridSize) * gridSize;
+        if (gridThreshold != null && Math.abs(snapped - raw) > gridThreshold) return raw;
+        return snapped;
+      };
+      x = resolve(rawX, xMatch);
+      y = resolve(rawY, yMatch);
       return {
         x: Math.round(x),
         y: Math.round(y),
@@ -114,16 +156,22 @@
       const element = getNodeElement(nodeId);
       const port = element?.querySelector('[data-port-side="' + side + '"]');
       if (port) {
-        return {
-          x: node.x + port.offsetLeft + port.offsetWidth / 2,
-          y: node.y + port.offsetTop + port.offsetHeight / 2,
-        };
+        const rect = port.getBoundingClientRect();
+        if (rect.width || rect.height) {
+          const point = screenToWorld(rect.left + rect.width / 2, rect.top + rect.height / 2);
+          return { x:point[0], y:point[1] };
+        }
       }
       const size = nodeSize(node);
       return { x: node.x + (side === 'out' ? size.width : 0), y: node.y + 30 };
     }
 
-    function nearestInput(clientX, clientY, excludeId) {
+    function nearestInput(clientX, clientY, excludeId, currentTarget = null) {
+      if (currentTarget?.port?.isConnected) {
+        const currentRect = currentTarget.port.getBoundingClientRect();
+        const currentDistance = Math.hypot(clientX - (currentRect.left + currentRect.width / 2), clientY - (currentRect.top + currentRect.height / 2));
+        if (currentDistance <= settings.portReleasePixels) return { ...currentTarget, distance:currentDistance };
+      }
       let best = null;
       for (const port of document.querySelectorAll('.port-in[data-port]')) {
         const nodeId = Number(port.dataset.port);
@@ -167,6 +215,7 @@
     return {
       screenToWorld,
       nodeSize,
+      createSnapSession,
       snapNode,
       settleNode,
       portPoint,
@@ -177,5 +226,5 @@
     };
   }
 
-  window.FoxCanvasEngine = { create };
+  window.FoxCanvasEngine = { create, snapLevels:SNAP_LEVELS, defaultGridSize:DEFAULTS.gridSize };
 })();

@@ -22,7 +22,7 @@
   --accent:#173C8F; --accent-hover:#2455B6; --accent-soft:rgba(23,60,143,.12);
   --indigo:#3568B8; --success:#2F9778; --warning:#DCA934; --danger:#C95C50;
   --info:#2F73B8; --amber:#D79932; --cyan:#328CA3; --pink:#C45C79; --green:#49B894;
-  --radius:4px; --shadow:3px 3px 0 rgba(23,60,143,.12);
+  --radius:4px; --shadow-color:rgba(23,60,143,.12); --shadow:3px 3px 0 var(--shadow-color);
   --wire:#7D9BA9; --wire-soft:#C7D5D0; --grid-dot:#BAC8C1; --preview-base:#E9EFEA;
   --overlay:rgba(23,40,61,.34); --focus:#E57A3F; --workspace-glow:rgba(23,60,143,.16);
 }
@@ -34,7 +34,7 @@
   --accent:#76A5FF; --accent-hover:#9BC0FF; --accent-soft:rgba(118,165,255,.16);
   --indigo:#76A5FF; --success:#62C7A5; --warning:#F0C65A; --danger:#F08A7E;
   --info:#6CB9E9; --amber:#E4AE4F; --cyan:#63BCD0; --pink:#DF86A0; --green:#62C7A5;
-  --radius:4px; --shadow:3px 3px 0 rgba(4,14,25,.28);
+  --radius:4px; --shadow-color:rgba(4,14,25,.28); --shadow:3px 3px 0 var(--shadow-color);
   --wire:#7795A4; --wire-soft:#34566A; --grid-dot:#34536A; --preview-base:#18344C;
   --overlay:rgba(3,15,27,.68); --focus:#F0A16E; --workspace-glow:rgba(118,165,255,.2);
 }
@@ -67,6 +67,9 @@ input,textarea,select { font-family:inherit; }
 .btn-primary { background:var(--accent); color:#fff; font-weight:600; }
 .btn-primary:hover { background:var(--accent-hover); }
 .btn-primary:disabled { opacity:.45; cursor:wait; }
+.btn.is-busy { position:relative; cursor:wait; }
+.btn.is-busy::before { content:''; width:9px; height:9px; border:2px solid currentColor; border-right-color:transparent; display:inline-block; margin-right:6px; animation:fox-spin .7s linear infinite; }
+@keyframes fox-spin { to { transform:rotate(360deg); } }
 .btn-danger-ghost { color:var(--danger); }
 .status-dot { font-size:11.5px; color:var(--text-secondary); max-width:340px; overflow:hidden;
   text-overflow:ellipsis; white-space:nowrap; }
@@ -145,10 +148,12 @@ input,textarea,select { font-family:inherit; }
 #viewport { position:absolute; inset:0; cursor:grab; }
 #viewport.panning { cursor:grabbing; }
 #world { position:absolute; left:0; top:0; transform-origin:0 0; }
+/* G2 相机缓动：只有程序化跳转（适配/定位/缩放按钮）才挂 .is-animating；拖平移与滚轮平移必须不挂 */
+#world.is-animating { transition:transform 200ms cubic-bezier(.33,1,.68,1); }
 .grid-bg { position:absolute; inset:-6000px; background-image:
   radial-gradient(circle, var(--grid-dot) 1px, transparent 1px); background-size:16px 16px; pointer-events:none; }
 #edges { position:absolute; overflow:visible; pointer-events:none; }
-#edges path { fill:none; stroke:var(--border-strong); stroke-width:2; }
+#edges path { fill:none; stroke:var(--border-strong); stroke-width:2; vector-effect:non-scaling-stroke; }
 #edges path.hot { stroke:var(--accent); stroke-width:2.5; filter:drop-shadow(0 0 6px color-mix(in srgb,var(--accent) 52%,transparent)); }
 #edges path.temp { stroke:var(--accent-hover); stroke-dasharray:6 5; }
 .alignment-guide { position:absolute; z-index:20; pointer-events:none; background:var(--cyan);
@@ -159,6 +164,7 @@ input,textarea,select { font-family:inherit; }
 /* 节点 */
 .node { position:absolute; left:0; top:0; background:var(--bg-panel); border:1px solid var(--border-default);
   border-radius:10px; box-shadow:var(--shadow); min-width:150px; user-select:none; z-index:2;
+  transform:translate3d(var(--nx,0px),var(--ny,0px),0);
   will-change:transform; contain:layout style; }
 .node.dragging { z-index:12; box-shadow:0 18px 50px rgba(0,0,0,.42); cursor:grabbing; }
 .node.link-target { border-color:var(--cyan); box-shadow:0 0 0 2px rgba(34,211,238,.2),var(--shadow); }
@@ -178,8 +184,10 @@ input,textarea,select { font-family:inherit; }
 .port { position:absolute; top:29px; transform:translateY(-50%); width:14px; height:14px;
   border-radius:50%; background:var(--bg-elevated); border:2px solid var(--border-strong); cursor:crosshair; z-index:6;
   transition:transform .12s,border-color .12s,background .12s,box-shadow .12s; }
-.port::before { content:''; position:absolute; inset:-12px; border-radius:50%; }
+.port::before { content:''; position:absolute; top:-12px; bottom:-12px; border-radius:50%; }
 .port-in { left:-8px; } .port-out { right:-8px; }
+.port-in::before { left:-16px; right:-3px; }
+.port-out::before { left:-3px; right:-16px; }
 .port:hover, .port.link-target { border-color:var(--cyan); background:var(--cyan);
   transform:translateY(-50%) scale(1.28); box-shadow:0 0 0 5px rgba(34,211,238,.14); }
 .node iframe { width:100%; height:232px; border:none; background:#fff; border-radius:0 0 9px 9px; display:block; }
@@ -196,6 +204,22 @@ input,textarea,select { font-family:inherit; }
 .an-chips span.dim { background:var(--bg-elevated); color:var(--text-secondary); border-color:var(--border-subtle); font-weight:400; }
 .node .spin { color:var(--accent-hover); font-size:11px; animation:blink 1s infinite; }
 @keyframes blink { 50% { opacity:.35; } }
+
+/* G3 节点入场 / 落位：节点坐标走 --nx/--ny，动效只插值 transform + opacity（≤200ms，UI-GUIDE §3.1） */
+.node.node-enter { animation:fox-node-enter 200ms cubic-bezier(.33,1,.68,1) both; }
+.node.node-drop { animation:fox-node-drop 180ms cubic-bezier(.33,1,.68,1) both; }
+@keyframes fox-node-enter {
+  from { opacity:0; transform:translate3d(var(--nx,0px),var(--ny,0px),0) scale(.92); }
+  to { opacity:1; transform:translate3d(var(--nx,0px),var(--ny,0px),0) scale(1); }
+}
+@keyframes fox-node-drop {
+  from { box-shadow:1px 1px 0 var(--shadow-color); transform:translate3d(var(--nx,0px),var(--ny,0px),0) scale(1.03); }
+  to { box-shadow:var(--shadow); transform:translate3d(var(--nx,0px),var(--ny,0px),0) scale(1); }
+}
+@media (prefers-reduced-motion:reduce) {
+  #world.is-animating { transition:none; }
+  .node.node-enter, .node.node-drop { animation:none; }
+}
 
 /* 工作区框架 */
 .node.ws { --workspace-color:var(--accent); --workspace-tint:color-mix(in srgb,var(--accent) 6%,transparent);
@@ -286,6 +310,20 @@ input,textarea,select { font-family:inherit; }
 .kv { display:flex; justify-content:space-between; font-size:11.5px; padding:4px 0;
   border-bottom:1px dashed var(--border-subtle); }
 .kv span:first-child { color:var(--text-tertiary); } .kv span:last-child { color:var(--text-primary); }
+.recipe-run { display:grid; gap:7px; margin:10px 0 14px; }
+.recipe-run-head { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11px; color:var(--text-secondary); }
+.recipe-run-head strong { color:var(--text-primary); font-size:11.5px; }
+.recipe-stage { display:grid; grid-template-columns:18px minmax(0,1fr) auto; gap:8px; align-items:start;
+  padding:8px; border:1px solid var(--border-subtle); background:var(--bg-elevated); border-radius:7px; }
+.recipe-stage-dot { width:18px; height:18px; display:grid; place-items:center; border-radius:5px;
+  border:1px solid var(--border-default); color:var(--text-tertiary); font-size:10px; font-weight:800; }
+.recipe-stage.succeeded .recipe-stage-dot,.recipe-stage.reused .recipe-stage-dot { border-color:var(--success); color:var(--success); }
+.recipe-stage.running .recipe-stage-dot { border-color:var(--accent); background:var(--accent); color:#fff; }
+.recipe-stage.failed { border-color:color-mix(in srgb,var(--danger) 55%,var(--border-subtle)); }
+.recipe-stage.failed .recipe-stage-dot { border-color:var(--danger); color:var(--danger); }
+.recipe-stage-title { font-size:11.5px; color:var(--text-primary); line-height:1.4; }
+.recipe-stage-meta { font-size:10.5px; color:var(--text-tertiary); line-height:1.55; overflow-wrap:anywhere; }
+.recipe-stage button { width:auto !important; min-height:24px; padding:2px 7px; font-size:10px; }
 
 /* ---------- 当前工作区状态 ---------- */
 .timeline { grid-area:timeline; background:var(--bg-panel); border-top:1px solid var(--border-subtle);
@@ -301,6 +339,8 @@ input,textarea,select { font-family:inherit; }
   box-shadow:0 0 0 4px var(--accent-soft); }
 .tl-label { margin-left:9px; font-size:12px; color:var(--text-tertiary); white-space:nowrap; }
 .tl-stage.active .tl-label, .tl-stage.done .tl-label { color:var(--text-primary); }
+.tl-stage.failed .tl-dot { border-color:var(--danger); color:var(--danger); }
+.tl-stage.failed .tl-label { color:var(--danger); }
 .tl-line { flex:1; height:2px; background:var(--border-default); margin:0 12px; min-width:24px; }
 .tl-line.done { background:var(--success); }
 .tl-status { margin-left:auto; font-size:11.5px; color:var(--text-secondary); white-space:nowrap; }
@@ -418,19 +458,33 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .minimap-node { opacity:.72; rx:1.5; }
 .minimap-node.ws { fill-opacity:.15; stroke-width:1.2; stroke:currentColor; }
 .minimap-viewport { fill:color-mix(in srgb,var(--accent) 9%,transparent); stroke:var(--accent); stroke-width:1.5; vector-effect:non-scaling-stroke; }
-.canvas-command-dialog { width:min(560px,92vw); max-height:min(620px,82vh); background:var(--bg-panel);
-  border:1px solid var(--border-strong); border-radius:10px; box-shadow:0 30px 90px rgba(0,0,0,.38); overflow:hidden; }
+.canvas-command-dialog { width:min(640px,92vw); max-height:min(660px,84vh); background:var(--bg-panel);
+  border:1px solid var(--border-strong); border-radius:6px; box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 18%,transparent),0 30px 90px rgba(0,0,0,.32); overflow:hidden; }
 .canvas-command-head { padding:12px; border-bottom:1px solid var(--border-subtle); }
-.canvas-command-head input { width:100%; height:42px; padding:0 13px; border:1px solid var(--border-default);
-  background:var(--bg-base); color:var(--text-primary); font-size:14px; border-radius:7px; }
+.canvas-command-head input { width:100%; height:44px; padding:0 13px; border:1px solid var(--border-default);
+  background:var(--bg-base); color:var(--text-primary); font-size:14px; border-radius:4px; }
 .canvas-command-head input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft); }
-.canvas-command-results { padding:8px; display:grid; gap:4px; max-height:480px; overflow:auto; }
-.canvas-command-results button { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; padding:10px 11px;
-  text-align:left; border:1px solid transparent; border-radius:7px; }
-.canvas-command-results button:hover,.canvas-command-results button:focus { background:var(--bg-hover); border-color:var(--border-default); outline:none; }
-.canvas-command-results span { font-weight:650; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.canvas-command-results small { color:var(--text-tertiary); }
-.command-empty { padding:24px; text-align:center; color:var(--text-tertiary); }
+.canvas-command-results { padding:8px; display:grid; gap:4px; max-height:520px; overflow:auto; }
+.command-section-label { padding:8px 10px 3px; color:var(--text-tertiary); font:700 9px/1 var(--mono); letter-spacing:.16em; text-transform:uppercase; }
+.canvas-command-results button { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center; padding:10px 11px;
+  text-align:left; border:1px solid transparent; border-radius:4px; color:var(--text-primary); }
+.canvas-command-results button:hover,.canvas-command-results button:focus,.canvas-command-results button.is-active { background:var(--bg-hover); border-color:var(--border-default); outline:none; }
+.canvas-command-results button.is-active { box-shadow:inset 3px 0 0 var(--accent); }
+.command-result-main { min-width:0; display:grid; gap:3px; }
+.command-result-main b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
+.command-result-main small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-tertiary); font-size:10px; }
+.command-shortcut { padding:2px 5px; border:1px solid var(--border-default); background:var(--bg-elevated); color:var(--text-secondary); font:700 9px/1.2 var(--mono); }
+.command-empty { padding:28px; text-align:center; color:var(--text-tertiary); }
+.toast-region { position:fixed; z-index:180; top:58px; right:14px; width:min(380px,calc(100vw - 28px)); display:grid; gap:8px; pointer-events:none; }
+.fox-toast { --toast-color:var(--accent); display:grid; grid-template-columns:10px minmax(0,1fr) 24px; gap:9px; align-items:start; padding:11px 10px 11px 12px; border:1px solid var(--border-strong); border-left:4px solid var(--toast-color); background:color-mix(in srgb,var(--bg-panel) 96%,white); color:var(--text-primary); box-shadow:4px 4px 0 color-mix(in srgb,var(--toast-color) 18%,transparent),0 16px 42px rgba(0,0,0,.2); opacity:0; transform:translateY(-6px); transition:opacity .16s ease,transform .16s ease; pointer-events:auto; }
+.fox-toast.is-visible { opacity:1; transform:translateY(0); }
+.fox-toast.is-leaving { opacity:0; transform:translateY(-6px); }
+.fox-toast--success { --toast-color:var(--success); }
+.fox-toast--warning { --toast-color:var(--orange); }
+.fox-toast--error { --toast-color:#D35D5D; }
+.fox-toast-mark { width:8px; height:8px; margin-top:4px; background:var(--toast-color); box-shadow:2px 2px 0 color-mix(in srgb,var(--toast-color) 24%,transparent); }
+.fox-toast-message { font-size:11px; line-height:1.55; overflow-wrap:anywhere; }
+.fox-toast-close { width:22px; height:22px; padding:0; color:var(--text-tertiary); }
 .selection-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
 @media(max-width:900px){.minimap{display:none}.hud .desktop-productivity{display:none}}
 
@@ -454,8 +508,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     <button class="btn btn-ghost theme-toggle" id="btn-theme" onclick="toggleTheme()" aria-label="切换工作台主题"><span class="theme-glyph" aria-hidden="true"></span><span class="theme-label" id="theme-label">夜蓝</span></button>
     <button class="btn btn-ghost install-app" id="btn-install" hidden>安装</button>
     <button class="btn btn-ghost" id="btn-ai-settings" onclick="openAISettings()"><span id="ai-status-glyph">◇</span><span class="ai-label">AI 模型</span></button>
-    <button class="btn btn-secondary" onclick="openCreatePanel()">＋ <span class="creation-label">输入需求</span></button>
-    <button class="btn btn-ghost diagnostic-button" onclick="createDiagnostic()">诊断</button>
+    <button class="btn btn-secondary" id="btn-create" onclick="openCreatePanel()">＋ <span class="creation-label">输入需求</span></button>
+    <button class="btn btn-ghost diagnostic-button" id="btn-diagnostic" onclick="createDiagnostic()">诊断</button>
     <button class="btn btn-ghost classic-link" onclick="window.open('/classic','_blank')">经典表单版</button>
     <button class="btn btn-secondary workspace-add" onclick="addWorkspace()">＋ 工作区</button>
     <button class="btn btn-primary" id="btn-go" onclick="advanceActive()">▶ 推进生成</button>
@@ -499,7 +553,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     <div class="canvas-empty" id="empty-hint">
       <div class="big"><img src="/logo-mark.svg" alt="Html九尾狐"></div>
       <div>把素材拖进工作区 · 拖入一个需求 · 点 ▶ 推进</div>
-      <div style="margin-top:8px"><kbd>拖空白</kbd> 平移　<kbd>Shift+拖</kbd> 框选　<kbd>Ctrl+K</kbd> 定位</div>
+      <div style="margin-top:8px"><kbd>拖空白</kbd> 平移　<kbd>Shift+拖</kbd> 框选　<kbd>Alt+拖</kbd> 暂停吸附　<kbd>Ctrl+K</kbd> 命令</div>
     </div>
     <div class="hud">
       <button class="desktop-productivity" id="canvas-undo" onclick="FoxCanvasProductivity.undo()" title="撤销 Ctrl+Z" disabled>↶</button>
@@ -508,6 +562,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <button class="desktop-productivity" id="canvas-group" onclick="FoxCanvasProductivity.groupSelection()" title="组合所选节点" disabled>组</button>
       <button class="desktop-productivity" id="canvas-lock" onclick="FoxCanvasProductivity.toggleLockSelection()" title="锁定所选节点" disabled>锁</button>
       <button class="desktop-productivity" onclick="FoxCanvasProductivity.openSearch()" title="搜索并定位 Ctrl+K">⌕</button>
+      <button class="desktop-productivity" id="snap-level" onclick="cycleSnapLevel()" title="网格吸附档位（Ctrl+G 循环，Alt 拖动临时关闭）">16</button>
       <div class="hud-separator desktop-productivity"></div>
       <button onclick="zoomBy(1.2)" title="放大">＋</button>
       <div class="zl" id="zoom-label">100%</div>
@@ -533,6 +588,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     <span class="tl-status" id="tl-status"></span>
   </footer>
 </div>
+
+<div id="toast-region" class="toast-region" role="status" aria-live="polite" aria-atomic="false"></div>
 
 <div class="preview-modal" id="preview-modal" hidden role="dialog" aria-modal="true" aria-labelledby="preview-title">
   <div class="preview-dialog">
@@ -569,8 +626,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   </div>
 </div>
 
-<div class="preview-modal" id="canvas-command" hidden role="dialog" aria-modal="true" aria-label="搜索画布节点">
-  <div class="canvas-command-dialog"><div class="canvas-command-head"><input id="canvas-command-input" placeholder="搜索工作区、需求、模板、内容或产物…" autocomplete="off" oninput="FoxCanvasProductivity.renderCommandResults()"></div><div class="canvas-command-results" id="canvas-command-results"></div></div>
+<div class="preview-modal" id="canvas-command" hidden role="dialog" aria-modal="true" aria-label="全局命令与画布节点">
+  <div class="canvas-command-dialog"><div class="canvas-command-head"><input id="canvas-command-input" placeholder="输入操作，或搜索工作区、模板与产物…" autocomplete="off" aria-controls="canvas-command-results"></div><div class="canvas-command-results" id="canvas-command-results" role="listbox"></div></div>
 </div>
 
 <div class="preview-modal" id="create-modal" hidden role="dialog" aria-modal="true" aria-labelledby="create-title">
@@ -596,12 +653,13 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <div class="flow-field"><label>API Key</label><input id="ai-api-key" type="password" autocomplete="new-password" placeholder="留空表示保留已保存的 Key"></div>
       <div class="flow-field"><label><input type="checkbox" id="ai-clear-key" style="width:auto;height:auto"> 清除已保存的 API Key</label></div>
       <p class="settings-note">配置保存在当前工作目录的隐藏设置文件中；读取接口只返回“是否已设置”，不会返回 Key 明文。OpenAI-compatible 接口会调用 <code>/chat/completions</code>。</p>
-      <div class="flow-actions" style="margin-top:12px"><button class="btn btn-primary" onclick="saveAISettings()">保存配置</button><button class="btn btn-secondary" onclick="testAISettings()">测试连接</button></div><div class="status-panel" id="ai-settings-status" style="margin-top:12px">尚未读取配置</div>
+      <div class="flow-actions" style="margin-top:12px"><button class="btn btn-primary" id="ai-save" onclick="saveAISettings()">保存配置</button><button class="btn btn-secondary" id="ai-test" onclick="testAISettings()">测试连接</button></div><div class="status-panel" id="ai-settings-status" style="margin-top:12px">尚未读取配置</div>
     </section></div>
   </div>
 </div>
 
 <script src="/canvas-engine.js"></script>
+<script src="/interaction-system.js"></script>
 <script>
 /* ============================================================
    迷你线框预览（全可视化素材的核心：图形优先，文字最少）
@@ -690,6 +748,10 @@ const esc = s => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 let camera = { x:0, y:0, z:1 };
 let nodes = [], edges = [], selected = null, selectedIds = new Set(), uid = 1, wsSeq = 1, activeWorkspaceId = null;
 let workspaceNavigatorCollapsed = false;
+/* G1 网格吸附档位（8/16/32/0=关闭），随工作区快照持久化；G3 入场动效只在初始化完成后对新增节点播放 */
+const SNAP_LEVELS = window.FoxCanvasEngine?.snapLevels || [8, 16, 32, 0];
+let snapLevel = window.FoxCanvasEngine?.defaultGridSize || 16;
+let allowNodeEnter = false;
 const WORKSPACE_COLORS = [
   { hex:'#5B8DEF', tint:'rgba(91,141,239,.07)' },
   { hex:'#27A87D', tint:'rgba(39,168,125,.07)' },
@@ -736,7 +798,7 @@ window.addEventListener('pagehide', () => {
 let remoteSaveTimer = null, restoringWorkspace = false, remoteSaveFailed = false;
 function workspaceSnapshot() {
   return { schema_version:1, saved_at:new Date().toISOString(),
-    canvas:{ camera, nodes, edges, uid, wsSeq, activeWorkspaceId, workspaceNavigatorCollapsed } };
+    canvas:{ camera, nodes, edges, uid, wsSeq, activeWorkspaceId, workspaceNavigatorCollapsed, snapLevel } };
 }
 function normalizeWorkspaceState() {
   const workspaces = nodes.filter(n => n.kind === 'ws');
@@ -762,6 +824,7 @@ function applyWorkspaceSnapshot(snapshot) {
   uid = canvas.uid || (Math.max(0, ...nodes.map(n => Number(n.id) || 0)) + 1); wsSeq = canvas.wsSeq || 1;
   activeWorkspaceId = canvas.activeWorkspaceId ?? null;
   workspaceNavigatorCollapsed = Boolean(canvas.workspaceNavigatorCollapsed);
+  snapLevel = SNAP_LEVELS.includes(canvas.snapLevel) ? canvas.snapLevel : (window.FoxCanvasEngine?.defaultGridSize || 16);
   normalizeWorkspaceState();
   restoringWorkspace = false;
   return true;
@@ -798,52 +861,97 @@ async function loadRemoteWorkspace() {
     return true;
   } catch(e) { return false; }
 }
-function applyCamera(commit = true) {
+let cameraAnimTimer = null;
+function stopCameraAnimation() {
+  clearTimeout(cameraAnimTimer);
+  cameraAnimTimer = null;
+  worldEl.classList.remove('is-animating');
+}
+/* G2 相机缓动：animate=true 只用于程序化跳转（适配全部 / 定位节点 / HUD 缩放按钮 / 小地图跳转）。
+   拖平移与滚轮平移必须保持 false，否则跟手会飘。 */
+function applyCamera(commit = true, animate = false) {
+  if (animate) {
+    clearTimeout(cameraAnimTimer);
+    worldEl.classList.add('is-animating');
+    cameraAnimTimer = setTimeout(stopCameraAnimation, 260);
+  } else if (worldEl.classList.contains('is-animating')) stopCameraAnimation();
   worldEl.style.transform = `translate3d(${camera.x}px,${camera.y}px,0) scale(${camera.z})`;
   $('#zoom-label').textContent = Math.round(camera.z * 100) + '%';
   window.FoxCanvasProductivity?.scheduleMinimap();
   if (commit) save();
+}
+worldEl.addEventListener('transitionend', event => { if (event.propertyName === 'transform') stopCameraAnimation(); });
+
+/* G1 网格吸附档位：8 / 16 / 32 / 关闭（0 = 只保留对齐线） */
+function applySnapLevel(next) {
+  snapLevel = SNAP_LEVELS.includes(next) ? next : (window.FoxCanvasEngine?.defaultGridSize || 16);
+  const button = document.getElementById('snap-level');
+  if (button) {
+    button.textContent = snapLevel ? snapLevel : '—';
+    button.title = snapLevel ? `网格吸附 ${snapLevel}px（Ctrl+G 循环，Alt 拖动临时关闭）` : '网格吸附已关闭，仅保留对齐线（Ctrl+G 循环）';
+  }
+  return snapLevel;
+}
+function cycleSnapLevel() {
+  const index = SNAP_LEVELS.indexOf(snapLevel);
+  applySnapLevel(SNAP_LEVELS[(index + 1) % SNAP_LEVELS.length]);
+  save();
+  flash(snapLevel ? `网格吸附 ${snapLevel}px` : '网格吸附已关闭，仅保留对齐线', true);
+  return snapLevel;
 }
 function toWorld(e) { return canvasEngine.screenToWorld(e.clientX, e.clientY); }
 let viewportCommitTimer = null;
 function scheduleViewportCommit() {
   clearTimeout(viewportCommitTimer); viewportCommitTimer = setTimeout(save, 180);
 }
-function zoomBy(f, cx, cy) {
+function zoomBy(f, cx, cy, animate = true) {
   const r = viewport.getBoundingClientRect();
   cx = cx ?? r.width / 2; cy = cy ?? r.height / 2;
   const wx = (cx - camera.x) / camera.z, wy = (cy - camera.y) / camera.z;
   camera.z = Math.min(2.4, Math.max(0.25, camera.z * f));
   camera.x = cx - wx * camera.z; camera.y = cy - wy * camera.z;
-  applyCamera(false); scheduleViewportCommit();
+  applyCamera(false, animate); scheduleViewportCommit();
 }
-function fitRect(x, y, w, h, pad = 90) {
+function canvasFitInsets() {
+  const viewportRect = viewport.getBoundingClientRect();
+  const navigator = document.getElementById('workspace-navigator');
+  if (!navigator || viewportRect.width < 720) return { left:0, top:0, right:0, bottom:0 };
+  const navigatorRect = navigator.getBoundingClientRect();
+  return { left:Math.max(0, navigatorRect.right - viewportRect.left + 24), top:0, right:0, bottom:0 };
+}
+function fitRect(x, y, w, h, pad = 90, animate = true) {
   const r = viewport.getBoundingClientRect();
+  const insets = canvasFitInsets();
   const safeW = Math.max(1, w), safeH = Math.max(1, h);
-  const z = Math.max(0.25, Math.min(1.5, Math.min((r.width - pad*2) / safeW, (r.height - pad*2) / safeH)));
-  camera.z = z; camera.x = (r.width - safeW * z) / 2 - x * z; camera.y = (r.height - safeH * z) / 2 - y * z;
-  applyCamera();
+  const availableW = Math.max(160, r.width - insets.left - insets.right - pad*2);
+  const availableH = Math.max(160, r.height - insets.top - insets.bottom - pad*2);
+  const z = Math.max(0.3, Math.min(1.5, Math.min(availableW / safeW, availableH / safeH)));
+  camera.z = z;
+  camera.x = insets.left + pad + (availableW - safeW * z) / 2 - x * z;
+  camera.y = insets.top + pad + (availableH - safeH * z) / 2 - y * z;
+  applyCamera(true, animate);
 }
-function fitAll() {
+function fitAll(animate = true) {
   const vis = nodes.filter(n => n.kind !== 'ws');
-  if (!vis.length) { camera = {x:viewport.clientWidth/2,y:viewport.clientHeight/2,z:1}; return applyCamera(); }
+  if (!vis.length) { camera = {x:viewport.clientWidth/2,y:viewport.clientHeight/2,z:1}; return applyCamera(true, animate); }
   let x1=1e9,y1=1e9,x2=-1e9,y2=-1e9;
   for (const n of vis) { const size=canvasEngine.nodeSize(n); x1=Math.min(x1,n.x); y1=Math.min(y1,n.y);
     x2=Math.max(x2,n.x+size.width); y2=Math.max(y2,n.y+size.height); }
-  fitRect(x1,y1,x2-x1,y2-y1);
+  fitRect(x1,y1,x2-x1,y2-y1, 90, animate);
 }
 function resetView() { fitAll(); }
 viewport.addEventListener('wheel', e => {
   e.preventDefault();
-  if (e.ctrlKey || e.metaKey) { const r=viewport.getBoundingClientRect(); zoomBy(e.deltaY<0?1.1:1/1.1,e.clientX-r.left,e.clientY-r.top); }
+  if (e.ctrlKey || e.metaKey) { const r=viewport.getBoundingClientRect(); zoomBy(e.deltaY<0?1.1:1/1.1,e.clientX-r.left,e.clientY-r.top,false); }
   else { camera.x-=e.deltaX; camera.y-=e.deltaY; applyCamera(false); scheduleViewportCommit(); }
 }, {passive:false});
 
 /* ================= 平移 / 拖拽 / 缩放句柄 ================= */
 let pan=null,drag=null,resize=null,linking=null,pointerFrame=null,pendingPointer=null;
-function placeNode(n) { const el=document.getElementById('node-'+n.id); if(el) el.style.transform=`translate3d(${n.x}px,${n.y}px,0)`; window.FoxCanvasProductivity?.scheduleMinimap(); }
+/* 节点世界坐标走 CSS 变量：transform 只用来播放入场/落位动效，两者不再互相覆盖（G3 前置净改造） */
+function placeNode(n) { const el=document.getElementById('node-'+n.id); if(el){el.style.setProperty('--nx',n.x+'px');el.style.setProperty('--ny',n.y+'px');} window.FoxCanvasProductivity?.scheduleMinimap(); }
 function nodePorts(n) { return `<div class="port port-in" data-port="${n.id}" data-port-side="in" title="连接输入"></div>
-  <div class="port port-out" data-port="${n.id}" data-port-side="out" title="拖动连接"></div>`; }
+  <div class="port port-out" data-port="${n.id}" data-port-side="out" title="拖动连接 · 靠近输入端口自动吸附"></div>`; }
 function clearLinkTarget(){document.querySelectorAll('.port.link-target,.node.link-target').forEach(el=>el.classList.remove('link-target'));}
 function setLinkTarget(target){clearLinkTarget();if(!target)return;target.port.classList.add('link-target');target.port.closest('.node')?.classList.add('link-target');}
 function beginNodePointer(e,n){
@@ -867,7 +975,7 @@ function beginNodePointer(e,n){
   e.preventDefault();viewport.setPointerCapture?.(e.pointerId);const[wx,wy]=toWorld(e);
   const moving=window.FoxCanvasProductivity?.dragMembers(n)||[n];
   drag={id:n.id,pointerId:e.pointerId,ox:wx-n.x,oy:wy-n.y,startX:n.x,startY:n.y,
-    starts:moving.map(item=>({id:item.id,x:item.x,y:item.y}))};
+    snapSession:canvasEngine.createSnapSession(),starts:moving.map(item=>({id:item.id,x:item.x,y:item.y}))};
   moving.forEach(item=>document.getElementById('node-'+item.id)?.classList.add('dragging'));
 }
 viewport.addEventListener('pointerdown',e=>{if(!e.isPrimary)return;if(e.target===viewport||e.target===worldEl||e.target===nodesEl||e.target.classList.contains('grid-bg')){
@@ -880,17 +988,18 @@ document.addEventListener('pointerdown',e=>{const port=e.target.closest?.('.port
 function handlePointerMove(e){
   if(window.FoxCanvasProductivity?.moveLasso(e))return;
   if(pan){camera.x=pan.cx+e.clientX-pan.sx;camera.y=pan.cy+e.clientY-pan.sy;applyCamera(false);}
-  if(drag){const[wx,wy]=toWorld(e),n=nodes.find(item=>item.id===drag.id);if(n){const snapped=canvasEngine.snapNode(n,wx-drag.ox,wy-drag.oy,e.altKey,drag.starts.map(item=>item.id));
+  if(drag){const[wx,wy]=toWorld(e),n=nodes.find(item=>item.id===drag.id);if(n){const snapped=canvasEngine.snapNode(n,wx-drag.ox,wy-drag.oy,{disabled:e.altKey,grid:snapLevel>0,gridSize:snapLevel||undefined,excludeIds:drag.starts.map(item=>item.id),session:drag.snapSession});
     const dx=snapped.x-drag.startX,dy=snapped.y-drag.startY;
     for(const start of drag.starts){const member=nodes.find(item=>item.id===start.id);if(member){member.x=start.x+dx;member.y=start.y+dy;placeNode(member);}}
     canvasEngine.showGuides(snapped);drawEdges();}}
   if(resize){const n=nodes.find(item=>item.id===resize.id);if(n){const[wx,wy]=toWorld(e);n.w=Math.max(360,Math.round((wx-n.x)/16)*16);
     n.h=Math.max(260,Math.round((wy-n.y)/16)*16);const el=document.getElementById('node-'+n.id);if(el){el.style.width=n.w+'px';el.style.height=n.h+'px';}drawEdges();window.FoxCanvasProductivity?.scheduleMinimap();}}
-  if(linking){const start=canvasEngine.portPoint(linking.from,'out');if(start){linking.target=canvasEngine.nearestInput(e.clientX,e.clientY,linking.from);setLinkTarget(linking.target);
+  if(linking){const start=canvasEngine.portPoint(linking.from,'out');if(start){linking.target=canvasEngine.nearestInput(e.clientX,e.clientY,linking.from,linking.target);setLinkTarget(linking.target);
     const end=linking.target?canvasEngine.portPoint(linking.target.nodeId,'in'):(()=>{const p=toWorld(e);return{x:p[0],y:p[1]};})();tempEdge(start,end);}}
 }
 window.addEventListener('pointermove',e=>{pendingPointer=e;if(pointerFrame)return;pointerFrame=requestAnimationFrame(()=>{pointerFrame=null;const event=pendingPointer;pendingPointer=null;handlePointerMove(event);});});
 function finishPointerInteraction(e){let changed=false;
+  if(e?.type==='pointerup'&&(pan||drag||resize||linking)){if(pointerFrame){cancelAnimationFrame(pointerFrame);pointerFrame=null;}pendingPointer=null;handlePointerMove(e);}
   if(window.FoxCanvasProductivity?.finishLasso(e)){if(e?.pointerId!=null&&viewport.hasPointerCapture?.(e.pointerId))viewport.releasePointerCapture(e.pointerId);return;}
   if(drag){const primary=nodes.find(item=>item.id===drag.id);if(primary){const settled=canvasEngine.settleNode(primary);const adjustX=settled.x-primary.x,adjustY=settled.y-primary.y;
     for(const start of drag.starts){const member=nodes.find(item=>item.id===start.id);if(member){member.x+=adjustX;member.y+=adjustY;if(member.kind!=='ws')member.workspaceId=workspaceAtNode(member)?.id||null;placeNode(member);
@@ -929,10 +1038,18 @@ function addNode(kind, x, y, data = {}) {
 function kindLabel(k) { return { requirement:'需求', block:'内容', template:'版式', style:'风格',
   color:'色卡', font:'字体', source:'输入文件', file:'文件', skill:'技能', output:'产物', ws:'工作区', note:'brief' }[k] || k; }
 
+/* G3：入场/落位只播一轮，animationend 摘类，避免动画值长期盖住静态 transform */
+function animateNode(el, className, animationName) {
+  el.classList.add(className);
+  el.addEventListener('animationend', event => {
+    if (event.target === el && event.animationName === animationName) el.classList.remove(className);
+  });
+}
 function renderNode(n) {
   const el = document.createElement('div');
   el.className = 'node ' + n.kind + (n.locked ? ' locked' : '') + (n.groupId ? ' grouped' : '') + (selectedIds.has(n.id) ? ' selected' : ''); el.id = 'node-' + n.id;
-  el.style.transform = `translate3d(${n.x}px,${n.y}px,0)`;
+  el.style.setProperty('--nx', n.x + 'px');
+  el.style.setProperty('--ny', n.y + 'px');
   if (n.w) el.style.width = n.w + 'px';
   if (n.h) el.style.height = n.h + 'px';
   el.dataset.id = n.id;
@@ -998,6 +1115,7 @@ function renderNode(n) {
       `<div class="meta-row" id="meta-${n.id}"></div><iframe id="frame-${n.id}" sandbox="allow-same-origin"></iframe>${nodePorts(n)}`;
   }
   nodesEl.appendChild(el);
+  if (allowNodeEnter) animateNode(el, 'node-enter', 'fox-node-enter');
   if (n.kind === 'file' || n.kind === 'output') {
     const f = el.querySelector('iframe');
     if (n.data.preview_url) f.src = n.data.preview_url + '?t=' + Date.now();
@@ -1059,6 +1177,7 @@ function select(id, options = {}) {
 }
 document.addEventListener('keydown', e => {
   if (e.key === 'Delete' && selectedIds.size && !e.target.closest('textarea,input,select')) window.FoxCanvasProductivity?.deleteSelection();
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'g') { e.preventDefault(); cycleSnapLevel(); }
 });
 
 /* ================= 连线 ================= */
@@ -1164,7 +1283,7 @@ function membersOf(ws, options = {}) {
 async function advanceActive() {
   const ws = activeWorkspace();
   if (!ws) return flash('画布上还没有工作区 — 点 HUD 的 ▣ 新建', false);
-  advanceWs(ws.id);
+  return advanceWs(ws.id);
 }
 async function advanceWs(wsId, options = {}) {
   const ws = nodes.find(n => n.id === wsId);
@@ -1177,7 +1296,9 @@ async function advanceWs(wsId, options = {}) {
   if (!req || (!(req.data.text || '').trim() && !inputIds.length)) {
     return flash('请先点顶部“输入需求”，填写文字或添加文件/图片', false);
   }
-  btn && (btn.disabled = true, btn.textContent = '… 推进中');
+  const primaryButton = document.getElementById('btn-go');
+  window.FoxInteraction?.setBusy(btn, true, '推进中…');
+  window.FoxInteraction?.setBusy(primaryButton, true, '推进中…');
   try {
     /* 阶段 1 · 需求拆解 */
     setAn(req, `<span class="spin">拆解中…</span>`);
@@ -1220,14 +1341,18 @@ async function advanceWs(wsId, options = {}) {
     const submitted = await api('/api/jobs', 'POST', body);
     const d = await waitForJob(submitted.job.id, job => {
       const pct = Number(job.progress || 0);
-      btn && (btn.textContent = '… 生成 ' + pct + '%');
+      window.FoxInteraction?.setBusy(btn, true, '生成 ' + pct + '%');
+      window.FoxInteraction?.setBusy(primaryButton, true, '生成 ' + pct + '%');
+      if (job.recipe_run) { ws.data.recipeRun = job.recipe_run; timeline(); }
       flash('任务 ' + job.id.slice(0, 8) + ' · ' + job.stage + ' · ' + pct + '%', true);
     });
     const out = addNode('output', ws.x + ws.w + 80, ws.y + 30,
       { workspaceId:ws.id, title: INTENT_LABEL[d.intent] + ' · 产物', preview_url: d.preview_url, project: d.project,
         project_name: d.project_name, intent: d.intent, preset_id: d.preset_id, revision: 0, feedback: [],
-        gallery_id:galleryId, blocks, selection_mode:body.selection_mode });
+        gallery_id:galleryId, blocks, selection_mode:body.selection_mode,
+        recipe_run:d.recipe_run, verification:d.verification });
     if (!edges.some(e => e.from === req.id && e.to === out.id)) edges.push({ from: req.id, to: out.id });
+    ws.data.recipeRun = d.recipe_run || ws.data.recipeRun;
     drawEdges(); select(out.id);
     flash(`✓ ${INTENT_LABEL[d.intent]} · ${d.preset_id} · ${d.route_decision} · rev0`, true);
     loadProjects();
@@ -1237,7 +1362,8 @@ async function advanceWs(wsId, options = {}) {
   } catch (e) {
     flash('✗ ' + e.message, false); setAn(req, '');
   } finally {
-    btn && (btn.disabled = false, btn.textContent = '▶ 推进');
+    window.FoxInteraction?.setBusy(btn, false);
+    window.FoxInteraction?.setBusy(primaryButton, false);
   }
 }
 function setAn(req, html) {
@@ -1286,7 +1412,7 @@ async function waitForJob(jobId, onUpdate) {
 
 let exportDraft = { nodeId:null, manifest:null };
 function closeExportCenter() {
-  $('#export-modal').hidden = true;
+  window.FoxInteraction?.closeDialog('#export-modal');
   exportDraft = { nodeId:null, manifest:null };
 }
 function exportBytes(bytes) {
@@ -1299,21 +1425,24 @@ async function openExportCenter(nodeId) {
   const node = nodes.find(item => item.id === nodeId);
   if (!node?.data?.project_name) return flash('该产物缺少项目信息，无法导出', false);
   exportDraft = { nodeId, manifest:null };
-  $('#export-modal').hidden = false;
+  window.FoxInteraction?.openDialog('#export-modal', { initialFocus:'#export-format' });
   $('#export-title').textContent = '导出中心 · ' + node.data.project_name;
   $('#export-analysis').innerHTML = '<div class="analysis-empty"><span class="spin">分析 HTML 结构、分页和动态内容…</span></div>';
   $('#export-status').textContent = '正在分析';
   $('#export-result').innerHTML = '';
-  $('#export-start').disabled = true;
+  window.FoxInteraction?.setBusy('#export-start', true, '分析中…');
   try {
     const data = await post('/api/exports/analyze', { project_name:node.data.project_name });
     exportDraft.manifest = data.manifest;
     renderExportAnalysis(data.manifest);
-    $('#export-start').disabled = false;
+    window.FoxInteraction?.setBusy('#export-start', false);
     $('#export-status').textContent = '分析完成，可以导出';
   } catch (error) {
+    window.FoxInteraction?.setBusy('#export-start', false);
+    $('#export-start').disabled = true;
     $('#export-analysis').innerHTML = `<div class="export-warning error">${esc(error.message)}</div>`;
     $('#export-status').textContent = '分析失败';
+    flash('导出分析失败：' + error.message, false);
   }
 }
 function renderExportAnalysis(manifest) {
@@ -1341,7 +1470,7 @@ async function startExport() {
   const node = nodes.find(item => item.id === exportDraft.nodeId);
   if (!node?.data?.project_name || !exportDraft.manifest) return;
   const button = $('#export-start');
-  button.disabled = true; button.textContent = '导出中…';
+  window.FoxInteraction?.setBusy(button, true, '导出中…');
   $('#export-result').innerHTML = '';
   try {
     const submitted = await post('/api/exports', {
@@ -1365,21 +1494,95 @@ async function startExport() {
     $('#export-status').textContent = '导出失败：' + error.message;
     $('#export-result').innerHTML = `<div class="export-warning error">${esc(error.message)}<br><small>请确认本机已安装 Edge、Chrome 或 Playwright Chromium。</small></div>`;
   } finally {
-    button.disabled = false; button.textContent = '开始导出';
+    window.FoxInteraction?.setBusy(button, false);
   }
 }
 
 async function createDiagnostic() {
+  const button = $('#btn-diagnostic');
+  window.FoxInteraction?.setBusy(button, true, '生成中…');
   try {
-    flash('正在生成脱敏诊断包…', true);
+    flash('正在生成脱敏诊断包…', true, 'info');
     const data = await api('/api/diagnostics', 'POST', {});
     flash('诊断包已生成：' + data.bundle.name, true);
     window.open(data.bundle.download_url, '_blank');
-  } catch(e) { flash('诊断包生成失败：' + e.message, false); }
+  } catch(e) {
+    flash('诊断包生成失败：' + e.message, false);
+  } finally {
+    window.FoxInteraction?.setBusy(button, false);
+  }
 }
-function flash(msg, ok) { const el = $('#tl-status'); el.textContent = msg; el.className = 'tl-status' + (ok ? ' ok' : ''); }
+function flash(msg, ok, type = '') {
+  const el = $('#tl-status');
+  el.textContent = msg;
+  el.className = 'tl-status' + (ok ? ' ok' : '');
+  const inferred = type || (ok ? (/正在|任务 .+%|处理中|上传/.test(msg) ? 'info' : 'success') : 'error');
+  window.FoxInteraction?.notify(msg, inferred);
+}
 
 /* ================= 检查器 ================= */
+function recipeStageSummary(stage) {
+  const output = stage?.output_summary || {};
+  const values = [];
+  if (output.intent) values.push(INTENT_LABEL[output.intent] || output.intent);
+  if (output.preset_id) values.push(output.preset_id);
+  if (output.generator) values.push(output.generator);
+  if (output.score !== undefined) values.push('质量 ' + output.score + ' 分');
+  if (output.html_bytes) values.push(Math.ceil(output.html_bytes / 1024) + ' KB');
+  if (stage?.model) values.push(stage.model);
+  if (stage?.fallback_used === true) values.push('已兜底');
+  if (stage?.error?.message) values.push(stage.error.message);
+  return values.join(' · ') || (stage?.status === 'reused' ? '复用上次结果' : '等待执行');
+}
+function recipeRunMarkup(run, nodeId=null) {
+  if (!run?.stages?.length) return '<p class="ins-empty">本产物暂无 Recipe Run 记录。</p>';
+  const statusLabel = {running:'运行中',succeeded:'已完成',failed:'失败'}[run.status] || run.status;
+  const duration = run.duration_ms === null || run.duration_ms === undefined ? '—' : run.duration_ms + ' ms';
+  return `<div class="recipe-run" id="recipe-run-live">
+    <div class="recipe-run-head"><strong>Recipe Run · ${esc(statusLabel)}</strong><span>${duration}</span></div>
+    ${run.stages.map((stage, index) => `<div class="recipe-stage ${esc(stage.status)}">
+      <div class="recipe-stage-dot">${stage.status === 'succeeded' || stage.status === 'reused' ? '✓' : stage.status === 'failed' ? '!' : index + 1}</div>
+      <div><div class="recipe-stage-title">${esc(stage.label || stage.label_en || stage.id)}</div>
+      <div class="recipe-stage-meta">${esc(recipeStageSummary(stage))}${stage.duration_ms !== null && stage.duration_ms !== undefined ? ' · ' + stage.duration_ms + ' ms' : ''}</div></div>
+      ${nodeId && stage.rerunnable && ['succeeded','failed','reused'].includes(stage.status) ? `<button class="btn btn-secondary" onclick="rerunRecipeStage(${nodeId},'${stage.id}')">重跑</button>` : ''}
+    </div>`).join('')}
+  </div>`;
+}
+function updateRecipeRunView(run) {
+  const current = document.querySelector('#recipe-run-live');
+  if (!current) return;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = recipeRunMarkup(run, selected);
+  current.replaceWith(wrapper.firstElementChild);
+}
+async function rerunRecipeStage(nodeId, stage) {
+  const node = nodes.find(item => item.id === nodeId);
+  if (!node?.data?.project_name) return flash('产物缺少项目信息，无法局部重跑', false);
+  try {
+    const submitted = await api('/api/projects/' + encodeURIComponent(node.data.project_name) + '/recipe-rerun', 'POST', { stage });
+    const result = await waitForJob(submitted.job.id, job => {
+      if (job.recipe_run) {
+        node.data.recipe_run = job.recipe_run;
+        const ws = workspaceForNode(node);
+        if (ws) ws.data.recipeRun = job.recipe_run;
+        updateRecipeRunView(job.recipe_run);
+        timeline();
+      }
+      flash(`局部重跑 · ${job.stage} · ${job.progress}%`, true);
+    });
+    node.data.recipe_run = result.recipe_run;
+    node.data.verification = result.verification;
+    const ws = workspaceForNode(node);
+    if (ws) ws.data.recipeRun = result.recipe_run;
+    renderInspector();
+    timeline();
+    await persistWorkspaceNow();
+    flash(`✓ ${stage === 'verify' ? '质量验证' : '产物生成'} 已局部重跑`, true);
+  } catch (error) {
+    flash('局部重跑失败：' + error.message, false);
+    renderInspector();
+  }
+}
 function renderInspector() {
   const box = $('#inspector');
   if (window.FoxCanvasProductivity?.renderSelectionInspector(box)) return;
@@ -1394,6 +1597,7 @@ function renderInspector() {
       <div class="kv"><span>类型</span><span>${esc(INTENT_LABEL[n.data.intent] || '—')}</span></div>
       <div class="kv"><span>风格</span><span>${esc(n.data.preset_id || '—')}</span></div>
       <div class="kv"><span>版本</span><span id="ins-rev">rev${n.data.revision || 0}</span></div></div>
+      <h3 style="margin-top:14px">运行轨迹</h3>${recipeRunMarkup(n.data.recipe_run, n.id)}
       <div class="field"><label>反馈迭代（口语化）</label>
       <textarea id="fb-note" placeholder="颜色深一点，标题大一点，参考 vercel"></textarea></div>
       <button class="btn btn-primary" id="fb-send">⚡ 提交反馈（改 token 重渲染）</button>
@@ -1589,8 +1793,8 @@ function previewThumb(url,intent,templateId='',title='',galleryId='',galleryPage
   ${galleryId ? '<span class="template-badge">REAL HTML</span>' : ''}<button class="preview-open" type="button" data-preview-intent="${esc(intent)}" data-preview-template="${esc(templateId)}" data-preview-title="${esc(title)}" data-gallery-id="${esc(galleryId)}" data-gallery-page-id="${esc(galleryPageId)}">放大预览</button></div>`;}
 function activatePreviewFrames(){document.querySelectorAll('#pal iframe[data-src]').forEach(frame=>{if(previewObserver)previewObserver.observe(frame);else frame.src=frame.dataset.src;});}
 function openTemplatePreview(intent,templateId='',title='模板预览'){const url=previewUrl(intent,templateId);$('#preview-pages').hidden=true;$('#preview-pages').innerHTML='';$('#preview-title').textContent=title;
-  $('#preview-meta').textContent=INTENT_LABEL[intent]+(templateId?' · '+templateId:'');$('#preview-frame').src=url;$('#preview-modal').hidden=false;$('#preview-open-window').onclick=()=>window.open(url,'_blank');}
-function closeTemplatePreview(){$('#preview-modal').hidden=true;$('#preview-frame').src='about:blank';$('#preview-pages').hidden=true;$('#preview-pages').innerHTML='';}
+  $('#preview-meta').textContent=INTENT_LABEL[intent]+(templateId?' · '+templateId:'');$('#preview-frame').src=url;window.FoxInteraction?.openDialog('#preview-modal',{initialFocus:'#preview-close'});$('#preview-open-window').onclick=()=>window.open(url,'_blank');}
+function closeTemplatePreview(){window.FoxInteraction?.closeDialog('#preview-modal');$('#preview-frame').src='about:blank';$('#preview-pages').hidden=true;$('#preview-pages').innerHTML='';}
 $('#preview-close').onclick=closeTemplatePreview;$('#preview-modal').addEventListener('pointerdown',e=>{if(e.target===$('#preview-modal'))closeTemplatePreview();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#preview-modal').hidden)closeTemplatePreview();});
 function renderPalette() {
@@ -1658,6 +1862,8 @@ viewport.addEventListener('drop', e => {
     if (ws) {
       const settled=canvasEngine.settleNode(n);n.x=settled.x;n.y=settled.y;placeNode(n);
     }
+    const dropped = document.getElementById('node-' + n.id);
+    if (dropped) { dropped.classList.remove('node-enter'); animateNode(dropped, 'node-drop', 'fox-node-drop'); }
     $('#empty-hint').style.display = 'none';
     updateWsCount(); save();
   } catch (err) {}
@@ -1673,6 +1879,24 @@ function timeline() {
   }
   const recipe = membersOf(ws);
   const artifacts = membersOf(ws, { includeOutputs:true });
+  const latestOutput = artifacts.filter(n => n.kind === 'output').sort((a, b) => b.id - a.id)[0];
+  const run = ws.data?.recipeRun || latestOutput?.data?.recipe_run;
+  if (run?.stages?.length) {
+    const statusLabel = {running:'运行中',succeeded:'已完成',failed:'失败'}[run.status] || run.status;
+    $('#tl-title').textContent = ws.title + ' · Recipe Run';
+    $('#tl-status').textContent = `${statusLabel} · ${run.duration_ms ?? '—'} ms`;
+    $('#tl-status').className = 'tl-status' + (run.status === 'succeeded' ? ' ok' : '');
+    $('#tl-stages').innerHTML = run.stages.map((stage, index) => {
+      const done = ['succeeded','reused'].includes(stage.status);
+      const active = stage.status === 'running';
+      const failed = stage.status === 'failed';
+      return `${index ? `<div class="tl-line ${done || ['succeeded','reused'].includes(run.stages[index - 1]?.status) ? 'done' : ''}"></div>` : ''}
+        <div class="tl-stage ${done ? 'done' : active ? 'active' : failed ? 'failed' : ''}">
+        <div class="tl-dot">${done ? '✓' : failed ? '!' : index + 1}</div>
+        <div class="tl-label">${esc(stage.label || stage.label_en || stage.id)}${stage.duration_ms !== null && stage.duration_ms !== undefined ? ` · ${stage.duration_ms}ms` : ''}</div></div>`;
+    }).join('');
+    return;
+  }
   const requirement = recipe.find(n => n.kind === 'requirement' || n.kind === 'note');
   const done = [
     recipe.some(n => n.kind === 'source' || n.kind === 'block' || n.kind === 'template'),
@@ -1684,12 +1908,12 @@ function timeline() {
   const active = done.indexOf(false);
   $('#tl-title').textContent = ws.title;
   $('#tl-status').textContent = `${recipe.length} 素材 · ${artifacts.filter(n=>n.kind==='output').length} 产物`;
-  $('#tl-stages').innerHTML = done.map((d, i) => `
-    ${i ? `<div class="tl-line ${done[i - 1] ? 'done' : ''}"></div>` : ''}
-    <div class="tl-stage ${d ? 'done' : i === active ? 'active' : ''}">
-      <div class="tl-dot">${d ? '✓' : i + 1}</div><div class="tl-label">${STAGES[i]}</div></div>`).join('');
+  $('#tl-status').className = 'tl-status';
+  $('#tl-stages').innerHTML = done.map((completed, index) => `
+    ${index ? `<div class="tl-line ${done[index - 1] ? 'done' : ''}"></div>` : ''}
+    <div class="tl-stage ${completed ? 'done' : index === active ? 'active' : ''}">
+      <div class="tl-dot">${completed ? '✓' : index + 1}</div><div class="tl-label">${STAGES[index]}</div></div>`).join('');
 }
-
 /* ================= 数据加载 & 初始化 ================= */
 async function loadProjects() {
   try { state.projects = (await api('/api/projects')).items; } catch(e) { flash('项目列表加载失败：' + e.message, false); }
@@ -1704,6 +1928,11 @@ async function loadTemplates() {
   if (activeTab === 'styles') renderPalette();
 }
 async function init() {
+  window.FoxInteraction?.initialize();
+  window.FoxInteraction?.registerDialog('#preview-modal', { onRequestClose:closeTemplatePreview, initialFocus:'#preview-close' });
+  window.FoxInteraction?.registerDialog('#export-modal', { onRequestClose:closeExportCenter, initialFocus:'#export-format' });
+  window.FoxInteraction?.registerDialog('#create-modal', { onRequestClose:closeCreatePanel, initialFocus:'#creation-prompt' });
+  window.FoxInteraction?.registerDialog('#ai-modal', { onRequestClose:closeAISettings, initialFocus:'#ai-enabled' });
   updateConnectionStatus();
   const installBtn = $('#btn-install');
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -1745,7 +1974,11 @@ async function init() {
   }
   renderPalette(); renderWorkspaceNavigator(); timeline(); updateWsCount();
   window.FoxCanvasProductivity?.initialize();
-  if (!restored) setTimeout(fitAll, 120);
+  applySnapLevel(snapLevel);
+  /* 首屏（恢复快照 / 预置工作区）不做入场，只有初始化完成后的新增节点才播 G3 动效 */
+  allowNodeEnter = true;
+  /* 首屏适配不做相机缓动：缓动期间「渲染位置 ≠ 相机模型」，此刻的指针命中会错位 */
+  if (!restored) setTimeout(() => fitAll(false), 120);
 }
 window.addEventListener('DOMContentLoaded', init);
 </script>

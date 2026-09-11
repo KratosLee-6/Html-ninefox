@@ -257,7 +257,7 @@ function openGalleryPreview(itemId, pageId = '') {
   </div><p class="gallery-origin">${esc(item.description)}<br>${esc(item.origin)}</p>
   <div class="preview-page-list">${item.pages.map((page, index) => `<button class="preview-page ${page.id===pageId?'on':''}" data-page-id="${page.id}" onclick="previewGalleryPage('${item.id}','${page.id}')" ondblclick="addGalleryPage('${item.id}','${page.id}')"><b>${String(index+1).padStart(2,'0')}</b><span><strong>${esc(page.name)}</strong><br>${esc(page.headline)}</span></button>`).join('')}</div>`;
   previewGalleryPage(item.id, pageId);
-  $('#preview-modal').hidden = false;
+  window.FoxInteraction?.openDialog('#preview-modal', { initialFocus:'#preview-close' });
 }
 
 function openNodePreview(id) {
@@ -279,6 +279,7 @@ async function loadAISettings() {
 }
 
 async function openAISettings() {
+  const opener = document.activeElement;
   await loadAISettings();
   $('#ai-enabled').checked = Boolean(state.ai.enabled);
   $('#ai-provider').value = state.ai.provider || 'openai-compatible';
@@ -290,16 +291,19 @@ async function openAISettings() {
   $('#ai-settings-status').textContent = state.ai.enabled
     ? `AI 已启用 · ${state.ai.model || '未填写模型'} · Key ${state.ai.api_key_set ? '已设置' : '未设置'}`
     : '当前使用离线规则引擎；无需 API Key 也可以生成。';
-  $('#ai-modal').hidden = false;
+  opener?.focus?.();
+  window.FoxInteraction?.openDialog('#ai-modal', { initialFocus:'#ai-enabled' });
 }
 
 function closeAISettings() {
-  $('#ai-modal').hidden = true;
+  window.FoxInteraction?.closeDialog('#ai-modal');
   $('#ai-api-key').value = '';
 }
 
-async function saveAISettings() {
+async function saveAISettings(options = {}) {
   const status = $('#ai-settings-status');
+  const button = $('#ai-save');
+  if (options.manageBusy !== false) window.FoxInteraction?.setBusy(button, true, '保存中…');
   status.textContent = '正在保存…';
   try {
     const result = await api('/api/settings/ai', 'PUT', {
@@ -313,20 +317,33 @@ async function saveAISettings() {
     state.ai = result.settings;
     await loadAISettings();
     status.textContent = `保存成功 · ${state.ai.enabled ? 'AI 已启用' : '离线规则模式'} · Key ${state.ai.api_key_set ? '已设置' : '未设置'}`;
+    if (options.notify !== false) window.FoxInteraction?.notify('AI 模型配置已保存', 'success');
+    return true;
   } catch (error) {
     status.textContent = '保存失败：' + error.message;
+    window.FoxInteraction?.notify('AI 配置保存失败：' + error.message, 'error');
+    return false;
+  } finally {
+    if (options.manageBusy !== false) window.FoxInteraction?.setBusy(button, false);
   }
 }
 
 async function testAISettings() {
   const status = $('#ai-settings-status');
+  const button = $('#ai-test');
+  window.FoxInteraction?.setBusy(button, true, '测试中…');
   status.textContent = '正在测试模型连接…';
   try {
-    await saveAISettings();
+    const saved = await saveAISettings({ manageBusy:false, notify:false });
+    if (!saved) return;
     const result = await api('/api/settings/ai/test', 'POST', {});
     status.textContent = `连接成功 · ${result.model} · ${result.reply || 'OK'}`;
+    window.FoxInteraction?.notify('AI 模型连接成功', 'success');
   } catch (error) {
     status.textContent = '连接失败：' + error.message;
+    window.FoxInteraction?.notify('AI 模型连接失败：' + error.message, 'error');
+  } finally {
+    window.FoxInteraction?.setBusy(button, false);
   }
 }
 
@@ -339,12 +356,11 @@ function openCreatePanel(requirementId = null) {
   $('#creation-analysis').className = 'analysis-empty';
   $('#creation-analysis').innerHTML = '输入需求后，系统会推荐内容类型、真实 HTML 模板、页面组合和视觉风格。你可以直接采用，也可以进入工作区自行调整版式、内容、风格、文件和技能。';
   renderCreationInputs();
-  $('#create-modal').hidden = false;
-  setTimeout(() => $('#creation-prompt').focus(), 30);
+  window.FoxInteraction?.openDialog('#create-modal', { initialFocus:'#creation-prompt' });
 }
 
 function closeCreatePanel() {
-  $('#create-modal').hidden = true;
+  window.FoxInteraction?.closeDialog('#create-modal');
 }
 
 function renderCreationInputs() {
@@ -373,8 +389,7 @@ async function uploadCreationFiles(files) {
       flash(file.name + ' 超过 8MB，已跳过', false);
       continue;
     }
-    button.disabled = true;
-    button.textContent = '上传 ' + file.name;
+    window.FoxInteraction?.setBusy(button, true, '上传 ' + file.name);
     try {
       const result = await api('/api/inputs', 'POST', {
         name:file.name,
@@ -387,8 +402,7 @@ async function uploadCreationFiles(files) {
       flash('附件上传失败：' + error.message, false);
     }
   }
-  button.disabled = false;
-  button.textContent = 'AI 分析并推荐';
+  window.FoxInteraction?.setBusy(button, false);
   $('#creation-files').value = '';
 }
 
@@ -398,8 +412,7 @@ async function analyzeCreation() {
   const prompt = $('#creation-prompt').value.trim();
   if (!prompt && !creationDraft.inputs.length) return flash('请填写文字需求或添加附件', false);
   const button = $('#creation-analyze');
-  button.disabled = true;
-  button.textContent = '分析中…';
+  window.FoxInteraction?.setBusy(button, true, '分析中…');
   $('#creation-analysis').className = 'analysis-empty';
   $('#creation-analysis').textContent = 'AI 正在拆解需求并匹配真实模板…';
   try {
@@ -416,8 +429,7 @@ async function analyzeCreation() {
     $('#creation-analysis').className = 'analysis-empty';
     $('#creation-analysis').textContent = '分析失败：' + error.message;
   } finally {
-    button.disabled = false;
-    button.textContent = 'AI 分析并推荐';
+    window.FoxInteraction?.setBusy(button, false);
   }
 }
 

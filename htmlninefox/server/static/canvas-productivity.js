@@ -10,6 +10,10 @@
   let lasso = null;
   let minimapFrame = null;
   let minimapMap = null;
+  let commandResults = [];
+  let commandIndex = 0;
+  let commandListenersReady = false;
+  let commandsRegistered = false;
 
   const clone = value => JSON.parse(JSON.stringify(value));
   const selectedNodes = () => nodes.filter(node => selectedIds.has(node.id));
@@ -74,6 +78,8 @@
     historyIndex = 0;
     updateSelectionUI();
     updateToolbar();
+    registerWorkbenchCommands();
+    prepareCommandPalette();
     scheduleMinimap();
   }
 
@@ -83,8 +89,10 @@
     clearTimeout(historyTimer);
     historyTimer = null;
     const currentCamera = { ...camera };
+    const currentSnapLevel = snapLevel;
     applyWorkspaceSnapshot(clone(entry.snapshot));
     camera = currentCamera;
+    snapLevel = currentSnapLevel;
     selectedIds.clear();
     selected = null;
     nodesEl.innerHTML = '';
@@ -345,41 +353,143 @@
     const worldY = minimapMap.bounds.y + (svgY - minimapMap.offsetY) / minimapMap.scale;
     camera.x = viewport.clientWidth / 2 - worldX * camera.z;
     camera.y = viewport.clientHeight / 2 - worldY * camera.z;
-    applyCamera();
+    applyCamera(true, true);
+  }
+
+  function registerWorkbenchCommands() {
+    if (commandsRegistered || !window.FoxInteraction) return;
+    commandsRegistered = true;
+    const register = command => window.FoxInteraction.registerCommand(command);
+    const clickControl = id => {
+      const control = document.getElementById(id);
+      control?.focus();
+      control?.click();
+    };
+    register({ id:'create-input', label:'输入需求与素材', description:'添加文字、文件或图片并开始 AI 分析', keywords:['创作','附件','图片','文件'], shortcut:'I', run:() => clickControl('btn-create') });
+    register({ id:'advance', label:'推进当前工作区生成', description:'分析需求、组合素材并生成产物', keywords:['生成','运行','工作流'], shortcut:'G', run:() => clickControl('btn-go') });
+    register({ id:'new-workspace', label:'新建工作区', description:'在当前视图中心创建独立工作区', keywords:['画布','项目'], shortcut:'W', run:() => addWorkspace() });
+    register({ id:'ai-settings', label:'打开 AI 模型配置', description:'配置兼容接口、模型名称与 API Key', keywords:['模型','key','接口'], run:() => clickControl('btn-ai-settings') });
+    register({ id:'diagnostic', label:'生成脱敏诊断包', description:'收集本地运行信息用于故障定位', keywords:['日志','排错'], run:() => clickControl('btn-diagnostic') });
+    register({ id:'toggle-theme', label:'切换主题', description:'在纸白与夜蓝像素花园之间切换', keywords:['颜色','皮肤','深色'], run:() => clickControl('btn-theme') });
+    register({ id:'undo', label:'撤销画布操作', description:'恢复上一步节点或工作区变化', shortcut:'Ctrl Z', isEnabled:() => historyIndex > 0, run:undo });
+    register({ id:'redo', label:'重做画布操作', description:'恢复刚刚撤销的变化', shortcut:'Ctrl Y', isEnabled:() => historyIndex >= 0 && historyIndex < history.length - 1, run:redo });
+    register({ id:'selection-mode', label:'切换框选模式', description:'拖动画布批量选择节点', keywords:['多选','框选'], run:toggleSelectionMode });
+    register({ id:'fit-all', label:'适配全部内容', description:'自动缩放并居中所有画布节点', keywords:['定位','缩放','居中'], run:fitAll });
   }
 
   function commandItems(query = '') {
     const normalized = query.trim().toLowerCase();
-    return nodes.filter(node => {
+    const actions = (window.FoxInteraction?.searchCommands(query) || []).map(command => ({ type:'command', command }));
+    const canvasNodes = nodes.filter(node => {
       const haystack = [node.title, node.data?.title, node.data?.name, kindLabel(node.kind), workspaceForNode(node)?.title]
         .filter(Boolean).join(' ').toLowerCase();
       return !normalized || haystack.includes(normalized);
-    }).slice(0, 30);
+    }).slice(0, normalized ? 30 : 12).map(node => ({ type:'node', node }));
+    return [...actions, ...canvasNodes];
+  }
+
+  function commandResultMarkup(item, index) {
+    if (item.type === 'command') {
+      const command = item.command;
+      return `<button type="button" id="command-option-${index}" role="option" data-command-id="${esc(command.id)}" data-command-index="${index}"><span class="command-result-main"><b>${esc(command.label)}</b><small>${esc(command.description || command.group)}</small></span>${command.shortcut ? `<kbd class="command-shortcut">${esc(command.shortcut)}</kbd>` : '<span></span>'}</button>`;
+    }
+    const node = item.node;
+    return `<button type="button" id="command-option-${index}" role="option" data-canvas-result="${node.id}" data-command-index="${index}"><span class="command-result-main"><b>${esc(node.title || kindLabel(node.kind))}</b><small>${esc(kindLabel(node.kind))} · ${esc(workspaceForNode(node)?.title || '画布')}</small></span><kbd class="command-shortcut">定位</kbd></button>`;
+  }
+
+  function updateCommandSelection(nextIndex = commandIndex) {
+    const list = document.getElementById('canvas-command-results');
+    const input = document.getElementById('canvas-command-input');
+    if (!list || !commandResults.length) {
+      commandIndex = 0;
+      input?.removeAttribute('aria-activedescendant');
+      return;
+    }
+    commandIndex = (nextIndex + commandResults.length) % commandResults.length;
+    list.querySelectorAll('[data-command-index]').forEach(button => {
+      const active = Number(button.dataset.commandIndex) === commandIndex;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-selected', String(active));
+      if (active) {
+        input?.setAttribute('aria-activedescendant', button.id);
+        button.scrollIntoView({ block:'nearest' });
+      }
+    });
   }
 
   function renderCommandResults() {
     const input = document.getElementById('canvas-command-input');
     const list = document.getElementById('canvas-command-results');
     if (!input || !list) return;
-    const items = commandItems(input.value);
-    list.innerHTML = items.map(node => `<button type="button" data-canvas-result="${node.id}"><span>${esc(node.title || kindLabel(node.kind))}</span><small>${esc(kindLabel(node.kind))} · ${esc(workspaceForNode(node)?.title || '画布')}</small></button>`).join('') || '<div class="command-empty">没有匹配的节点</div>';
-    list.querySelectorAll('[data-canvas-result]').forEach(button => {
-      button.addEventListener('click', () => focusNode(Number(button.dataset.canvasResult)));
+    commandResults = commandItems(input.value);
+    commandIndex = 0;
+    if (!commandResults.length) {
+      list.innerHTML = '<div class="command-empty">没有匹配的操作或节点</div>';
+      updateCommandSelection();
+      return;
+    }
+    const actionCount = commandResults.filter(item => item.type === 'command').length;
+    const nodeCount = commandResults.length - actionCount;
+    const actions = commandResults.slice(0, actionCount).map((item, index) => commandResultMarkup(item, index)).join('');
+    const canvasNodes = commandResults.slice(actionCount).map((item, index) => commandResultMarkup(item, actionCount + index)).join('');
+    list.innerHTML = `
+      ${actions ? '<div class="command-section-label">操作</div>' + actions : ''}
+      ${canvasNodes ? '<div class="command-section-label">节点</div>' + canvasNodes : ''}`;
+    list.querySelectorAll('[data-command-index]').forEach(button => {
+      button.addEventListener('mouseenter', () => updateCommandSelection(Number(button.dataset.commandIndex)));
+      button.addEventListener('click', () => activateCommandResult(Number(button.dataset.commandIndex)));
     });
+    updateCommandSelection(0);
+  }
+
+  function activateCommandResult(index = commandIndex) {
+    const item = commandResults[index];
+    if (!item) return;
+    if (item.type === 'command') {
+      closeSearch();
+      window.FoxInteraction?.runCommand(item.command.id, { source:'palette' });
+    } else {
+      focusNode(item.node.id);
+    }
+  }
+
+  function handleCommandKeydown(event) {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      updateCommandSelection(commandIndex + 1);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      updateCommandSelection(commandIndex - 1);
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      activateCommandResult();
+    }
+  }
+
+  function prepareCommandPalette() {
+    if (commandListenersReady) return;
+    commandListenersReady = true;
+    const modal = document.getElementById('canvas-command');
+    const input = document.getElementById('canvas-command-input');
+    input?.addEventListener('input', renderCommandResults);
+    input?.addEventListener('keydown', handleCommandKeydown);
+    modal?.addEventListener('pointerdown', event => {
+      if (event.target === modal) closeSearch();
+    });
+    window.FoxInteraction?.registerDialog(modal, { onRequestClose:closeSearch, initialFocus:'#canvas-command-input' });
   }
 
   function openSearch() {
     const modal = document.getElementById('canvas-command');
     const input = document.getElementById('canvas-command-input');
-    modal.hidden = false;
+    prepareCommandPalette();
     input.value = '';
     renderCommandResults();
-    requestAnimationFrame(() => input.focus());
+    window.FoxInteraction?.openDialog(modal, { initialFocus:'#canvas-command-input' });
   }
 
   function closeSearch() {
-    const modal = document.getElementById('canvas-command');
-    if (modal) modal.hidden = true;
+    window.FoxInteraction?.closeDialog('#canvas-command');
   }
 
   function focusNode(id) {
@@ -390,10 +500,6 @@
     fitRect(node.x, node.y, size.width, size.height, 180);
     closeSearch();
   }
-
-  document.getElementById('canvas-command')?.addEventListener('pointerdown', event => {
-    if (event.target.id === 'canvas-command') closeSearch();
-  });
 
   document.addEventListener('keydown', event => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {

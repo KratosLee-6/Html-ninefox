@@ -130,6 +130,8 @@ class ProjectStore:
             "created_at": state.get("created_at", ""),
             "updated_at": state.get("updated_at", state.get("created_at", "")),
             "preview_url": f"/output/{path.name}/output.html" if output.is_file() else None,
+            "recipe_run": state.get("recipe_run"),
+            "verification": state.get("verification"),
             "files": sorted(item.name for item in path.iterdir() if item.is_file()),
         }
 

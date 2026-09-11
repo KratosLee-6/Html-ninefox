@@ -15,6 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from . import recipe_run
 from .alliance.router import AllianceRouter
 from .experts import asset_expert, brief_expert, generate_expert, style_expert
 from .experts import feedback_expert as feedback_expert_mod
@@ -87,92 +88,156 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
                output: str = "./output", intent_override: Optional[str] = None,
                quiet_llm: bool = False,
                style_overrides: Optional[Dict[str, Any]] = None,
-               composition: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """完整生成流水线。返回 {work, files, summary}。"""
+               composition: Optional[Dict[str, Any]] = None,
+               progress_callback: recipe_run.ProgressCallback | None = None) -> Dict[str, Any]:
+    """Run the observable five-stage generation pipeline."""
     out_dir = Path(output).expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y-%m-%d-%H%M%S")
     work = out_dir / f"html9n-{ts}"
-    n = 1
-    while work.exists():  # 同秒多次生成不互相覆盖
-        n += 1
-        work = out_dir / f"html9n-{ts}-{n}"
+    suffix = 1
+    while work.exists():
+        suffix += 1
+        work = out_dir / f"html9n-{ts}-{suffix}"
     work.mkdir(parents=True)
 
+    tracker = recipe_run.RecipeRunTracker(prompt, progress_callback)
+    active_stage = "analyze"
     router = AllianceRouter()
+    verification: dict[str, Any] = {}
+    state: dict[str, Any] = {}
 
-    # 1) Brief（LLM 优先 / 规则兜底）
-    brief_result = brief_expert.BriefExpert().execute({"prompt": prompt, "allow_llm": not quiet_llm})
-    intent = intent_override or brief_result.get("intent", "landing")
+    try:
+        tracker.start("analyze", {
+            "prompt_chars": len(prompt),
+            "llm_enabled": not quiet_llm,
+            "intent_override": intent_override,
+        })
+        brief_result = brief_expert.BriefExpert().execute({"prompt": prompt, "allow_llm": not quiet_llm})
+        intent = intent_override or brief_result.get("intent", "landing")
+        tracker.complete("analyze", {
+            "intent": intent,
+            "confidence": brief_result.get("confidence"),
+            "missing_fields": brief_result.get("missing_fields", []),
+        }, model=brief_result.get("_model"), fallback_used=brief_result.get("fallback_used", False))
 
-    # 2) 联盟路由
-    route = router.route(brief_result, intent, skill_override=skill)
+        active_stage = "compose"
+        tracker.start("compose", {
+            "requested_skill": skill,
+            "requested_template": template,
+            "selected_blocks": len((composition or {}).get("blocks", [])),
+        })
+        route = router.route(brief_result, intent, skill_override=skill)
+        style_result = style_expert.StyleExpert().execute(
+            {"brief": brief_result, "intent": intent, "allow_llm": not quiet_llm})
+        preset = style_result["preset"]
+        if template:
+            preset = {**_tokens.get_preset(template), "_matched_by": f"user-template:{template}"}
+            preset["tokens"] = dict(preset["tokens"])
 
-    # 3) Style（预设规则匹配 + LLM 微调）
-    style_result = style_expert.StyleExpert().execute(
-        {"brief": brief_result, "intent": intent, "allow_llm": not quiet_llm})
-    preset = style_result["preset"]
-    if template:  # 用户显式指定模板/预设
-        preset = {**_tokens.get_preset(template), "_matched_by": f"user-template:{template}"}
-        preset["tokens"] = dict(preset["tokens"])
+        if style_overrides:
+            tokens = preset["tokens"]
+            if style_overrides.get("primary") and re.fullmatch(
+                    r"#[0-9A-Fa-f]{6}", style_overrides["primary"]):
+                tokens["primary"] = style_overrides["primary"].upper()
+                preset["_matched_by"] += " +色卡覆盖"
+            font_map = {
+                "serif": "'Georgia','Noto Serif SC','Songti SC','SimSun',serif",
+                "sans": "'Inter','PingFang SC','Microsoft YaHei',sans-serif",
+                "mono": "'JetBrains Mono',Consolas,monospace",
+            }
+            font_key = style_overrides.get("font")
+            if font_key in font_map:
+                tokens["font_body"] = tokens["font_display"] = font_map[font_key]
+                preset["_matched_by"] += f" +字体({font_key})"
 
-    # 画布工作区的视觉素材覆盖（色卡 / 字体卡）
-    if style_overrides:
-        t = preset["tokens"]
-        if style_overrides.get("primary") and re.fullmatch(r"#[0-9A-Fa-f]{6}", style_overrides["primary"]):
-            t["primary"] = style_overrides["primary"].upper()
-            preset["_matched_by"] += " +色卡覆盖"
-        font_map = {
-            "serif": "'Georgia','Noto Serif SC','Songti SC','SimSun',serif",
-            "sans": "'Inter','PingFang SC','Microsoft YaHei',sans-serif",
-            "mono": "'JetBrains Mono',Consolas,monospace",
+        assets_result = asset_expert.AssetExpert().execute({"brief": brief_result, "intent": intent})
+        composition = dict(composition or {})
+        selected_blocks = [
+            str(block).strip() for block in composition.get("blocks", []) if str(block).strip()
+        ]
+        if selected_blocks:
+            assets_result["blocks"] = list(dict.fromkeys(selected_blocks))
+            assets_result["block_notes"] = "用户从模板作品或素材库中选择的页面配方"
+        assets_result["composition"] = composition
+        tracker.complete("compose", {
+            "intent": intent,
+            "route_decision": route.get("decision"),
+            "skill": route.get("skill"),
+            "preset_id": preset.get("id"),
+            "blocks": assets_result.get("blocks", []),
+            "selection_mode": composition.get("selection_mode"),
+        }, model=style_result.get("model"), fallback_used=style_result.get("fallback_used", False))
+
+        active_stage = "generate"
+        tracker.start("generate", {
+            "intent": intent,
+            "preset_id": preset.get("id"),
+            "route_decision": route.get("decision"),
+        })
+        gen_result = generate_expert.GenerateExpert().execute(
+            {"brief": brief_result, "style": {"preset": preset}, "assets": assets_result,
+             "route": route})
+        html = gen_result["html"]
+        tracker.complete("generate", {
+            "generator": gen_result.get("generator"),
+            "skill_used": gen_result.get("skill_used"),
+            "html_bytes": len(html.encode("utf-8")),
+        }, model=gen_result.get("generator"), fallback_used=gen_result.get("fallback_used", False))
+
+        active_stage = "verify"
+        tracker.start("verify", {"html_bytes": len(html.encode("utf-8"))})
+        verification = recipe_run.verify_html(html)
+        if not verification["ok"]:
+            raise ValueError("生成结果未通过 HTML 基础质量验证")
+        tracker.complete("verify", verification, model="html-quality-gate", fallback_used=False)
+
+        active_stage = "deliver"
+        tracker.start("deliver", {"output_root": str(out_dir), "project_name": work.name})
+        (work / "output.html").write_text(html, encoding="utf-8")
+        (work / "brief.json").write_text(
+            json.dumps(brief_result, ensure_ascii=False, indent=2), encoding="utf-8")
+        (work / "brief.md").write_text(_brief_to_md(brief_result.get("brief", {})), encoding="utf-8")
+        (work / "style.md").write_text(style_result.get("style_md", ""), encoding="utf-8")
+        (work / "assets.json").write_text(
+            json.dumps(assets_result, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        state = {
+            "version": "v0.3",
+            "prompt": prompt,
+            "intent": intent,
+            "preset_id": preset["id"],
+            "preset": {key: value for key, value in preset.items() if not key.startswith("_")},
+            "preset_matched_by": preset.get("_matched_by", ""),
+            "brief": brief_result,
+            "assets": assets_result,
+            "route": {key: value for key, value in route.items() if key != "output_path"},
+            "composition": composition,
+            "revision": 0,
+            "created_at": ts,
+            "verification": verification,
+            "recipe_run": tracker.snapshot(),
         }
-        fk = style_overrides.get("font")
-        if fk in font_map:
-            t["font_body"] = t["font_display"] = font_map[fk]
-            preset["_matched_by"] += f" +字体({fk})"
+        (work / STATE_FILE).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+        tracker.complete("deliver", {
+            "project_name": work.name,
+            "files": 7,
+            "preview": "output.html",
+        }, model="local-filesystem", fallback_used=False)
+        run = tracker.succeed()
+        state["recipe_run"] = run
+        (work / STATE_FILE).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+        recipe_run.write_recipe_run(work, run)
+    except Exception as error:
+        if tracker.run.get("status") != "failed":
+            tracker.fail(active_stage, error)
+        recipe_run.write_recipe_run(work, tracker.snapshot())
+        raise
 
-    # 4) Asset 规划
-    assets_result = asset_expert.AssetExpert().execute({"brief": brief_result, "intent": intent})
-    composition = dict(composition or {})
-    selected_blocks = [str(block).strip() for block in composition.get("blocks", []) if str(block).strip()]
-    if selected_blocks:
-        assets_result["blocks"] = list(dict.fromkeys(selected_blocks))
-        assets_result["block_notes"] = "用户从模板作品或素材库中选择的页面配方"
-    assets_result["composition"] = composition
-
-    # 5) Generate
-    gen_result = generate_expert.GenerateExpert().execute(
-        {"brief": brief_result, "style": {"preset": preset}, "assets": assets_result,
-         "route": route})
-
-    html = gen_result["html"]
-    (work / "output.html").write_text(html, encoding="utf-8")
-    (work / "brief.json").write_text(
-        json.dumps(brief_result, ensure_ascii=False, indent=2), encoding="utf-8")
-    (work / "brief.md").write_text(_brief_to_md(brief_result.get("brief", {})), encoding="utf-8")
-    (work / "style.md").write_text(style_result.get("style_md", ""), encoding="utf-8")
-    (work / "assets.json").write_text(
-        json.dumps(assets_result, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    # 状态（反馈迭代用）
-    state = {
-        "version": "v0.2",
-        "prompt": prompt,
-        "intent": intent,
-        "preset_id": preset["id"],
-        "preset": {k: v for k, v in preset.items() if not k.startswith("_")},
-        "preset_matched_by": preset.get("_matched_by", ""),
-        "brief": brief_result,
-        "assets": assets_result,
-        "route": {k: v for k, v in route.items() if k != "output_path"},
-        "composition": composition,
-        "revision": 0,
-        "created_at": ts,
-    }
-    (work / STATE_FILE).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    files = ["output.html", "brief.json", "brief.md", "style.md", "assets.json", STATE_FILE]
+    files = [
+        "output.html", "brief.json", "brief.md", "style.md", "assets.json",
+        STATE_FILE, recipe_run.RECIPE_RUN_FILE,
+    ]
     return {
         "work": work,
         "files": files,
@@ -183,10 +248,87 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
         "skill": route.get("skill"),
         "brief_confidence": brief_result.get("confidence"),
         "fallback_used": brief_result.get("fallback_used", False),
-        "html_bytes": len(html),
+        "html_bytes": len(html.encode("utf-8")),
+        "verification": verification,
+        "recipe_run": run,
     }
 
 
+def rerun_project(project: str | Path, stage: str = "generate",
+                  progress_callback: recipe_run.ProgressCallback | None = None) -> Dict[str, Any]:
+    """Rerun the render or verification stage using persisted project state."""
+    if stage not in {"generate", "verify"}:
+        raise ValueError("局部重跑仅支持 generate 或 verify")
+    project_path = Path(project).expanduser().resolve()
+    state_path = project_path / STATE_FILE
+    if not state_path.is_file():
+        raise ValueError(f"项目缺少 {STATE_FILE}")
+    state = json.loads(state_path.read_text(encoding="utf-8"))
+    previous_run = state.get("recipe_run") if isinstance(state.get("recipe_run"), dict) else {}
+    tracker = recipe_run.RecipeRunTracker(
+        state.get("prompt", ""), progress_callback,
+        parent_run_id=previous_run.get("id"), rerun_from=stage,
+    )
+    for reused_stage in ("analyze", "compose"):
+        tracker.reuse(reused_stage)
+    html_path = project_path / "output.html"
+    active_stage = stage
+    try:
+        if stage == "generate":
+            tracker.start("generate", {
+                "preset_id": state.get("preset_id"),
+                "revision": state.get("revision", 0),
+                "source": "persisted_project_state",
+            })
+            html = _render_state(state, state.get("preset", {}))
+            html_path.write_text(html, encoding="utf-8")
+            tracker.complete("generate", {
+                "generator": "local:state-rerender",
+                "html_bytes": len(html.encode("utf-8")),
+            }, model="local:state-rerender", fallback_used=False)
+        else:
+            tracker.reuse("generate", {"source": "existing_output.html"})
+            if not html_path.is_file():
+                raise ValueError("项目缺少 output.html")
+            html = html_path.read_text(encoding="utf-8")
+
+        active_stage = "verify"
+        tracker.start("verify", {"html_bytes": len(html.encode("utf-8"))})
+        verification = recipe_run.verify_html(html)
+        if not verification["ok"]:
+            raise ValueError("产物未通过 HTML 基础质量验证")
+        tracker.complete("verify", verification, model="html-quality-gate", fallback_used=False)
+
+        active_stage = "deliver"
+        tracker.start("deliver", {"project_name": project_path.name})
+        tracker.complete("deliver", {
+            "project_name": project_path.name,
+            "files_updated": ["output.html", STATE_FILE, recipe_run.RECIPE_RUN_FILE],
+        }, model="local-filesystem", fallback_used=False)
+        run = tracker.succeed()
+        state["verification"] = verification
+        state["recipe_run"] = run
+        state["updated_at"] = datetime.now().isoformat(timespec="seconds")
+        state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+        recipe_run.write_recipe_run(project_path, run)
+    except Exception as error:
+        if tracker.run.get("status") != "failed":
+            tracker.fail(active_stage, error)
+        recipe_run.write_recipe_run(project_path, tracker.snapshot())
+        raise
+
+    return {
+        "ok": True,
+        "project": str(project_path),
+        "project_name": project_path.name,
+        "preview_url": f"/output/{project_path.name}/output.html",
+        "intent": state.get("intent"),
+        "preset_id": state.get("preset_id"),
+        "revision": state.get("revision", 0),
+        "verification": verification,
+        "recipe_run": run,
+        "rerun_from": stage,
+    }
 def run_feedback(project: str, note: str, revise: bool = True, allow_llm: bool = True) -> Dict[str, Any]:
     """反馈迭代：解析反馈 → 改 token → 重渲染 output.html。
 
