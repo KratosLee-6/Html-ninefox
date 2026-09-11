@@ -20,7 +20,7 @@
   const editableTarget = target => Boolean(target?.closest?.('textarea,input,select,[contenteditable="true"]'));
 
   function historyPayload() {
-    return { nodes, edges, uid, wsSeq, activeWorkspaceId, workspaceNavigatorCollapsed };
+    return { nodes, edges, groups, uid, wsSeq, activeWorkspaceId, workspaceNavigatorCollapsed };
   }
 
   function historySignature() {
@@ -227,6 +227,7 @@
     const groupId = 'group-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
     items.forEach(node => { node.groupId = groupId; });
     updateSelectionUI();
+    window.FoxCanvasGroups?.sync();   /* G7：同步建立可视化组框容器 */
     renderInspector();
     save();
     scheduleHistory(true);
@@ -238,6 +239,7 @@
     if (!groupIds.size) return flash('所选节点尚未组合', false);
     nodes.forEach(node => { if (groupIds.has(node.groupId)) node.groupId = null; });
     updateSelectionUI();
+    window.FoxCanvasGroups?.sync();   /* G7：移除容器与组记录 */
     renderInspector();
     save();
     scheduleHistory(true);
