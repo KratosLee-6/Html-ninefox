@@ -1,4 +1,4 @@
-const CACHE_NAME = 'htmlninefox-shell-v0.5.0b2-20260908';
+const CACHE_NAME = 'htmlninefox-shell-v0.5.0rc1-20260914';
 const APP_SHELL = ['/', '/classic', '/canvas-engine.js', '/interaction-system.js', '/canvas-productivity.js', '/workbench-features.js', '/manifest.webmanifest', '/icon.svg', '/logo-mark.svg', '/logo-horizontal.svg'];
 
 self.addEventListener('install', event => {

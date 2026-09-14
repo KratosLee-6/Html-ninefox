@@ -257,3 +257,59 @@ def test_input_upload_feeds_analysis_and_recommendation(api_server):
     assert analyzed["inputs"][0]["name"] == "requirements.md"
     assert analyzed["recommended_template"]["preview_url"].startswith("/api/gallery-preview")
     assert analyzed["recommended_blocks"]
+
+
+def test_project_memory_http_generation_and_adoption(api_server):
+    base, root = api_server
+    saved, _ = request(base, "/api/memory", "PUT", {
+        "enabled": True,
+        "profile": {
+            "brand": "KratosLee",
+            "audience": "设计师与开发者",
+            "tone": "温暖、专业",
+            "forbidden": ["黑紫 AI 渐变"],
+            "preferred_preset_by_intent": {"landing": "fox-pixel-garden"},
+            "preferred_primary": "#173C8F",
+            "preferred_font": "sans",
+        },
+    })
+    assert saved["memory"]["profile"]["brand"] == "KratosLee"
+
+    analyzed, _ = request(base, "/api/analyze", "POST", {
+        "prompt": "制作一个落地页", "intent": "landing",
+    })
+    assert analyzed["brand"] == "KratosLee"
+    assert analyzed["preset_id"] == "fox-pixel-garden"
+    assert analyzed["memory_applied"]["applied"]
+
+    generated, _ = request(base, "/api/generate", "POST", {
+        "prompt": "制作一个落地页", "intent": "landing", "quiet_llm": True,
+    })
+    fields = {item["field"] for item in generated["memory_applied"]["applied"]}
+    assert {"brand", "audience", "tone", "template", "primary", "font"} <= fields
+    state = json.loads((root / generated["project_name"] / pipeline.STATE_FILE).read_text(encoding="utf-8"))
+    assert state["brief"]["brief"]["content"]["brand"] == "KratosLee"
+    assert state["memory_applied"]["applied"]
+
+    adopted, _ = request(base, f"/api/projects/{generated['project_name']}/adopt", "POST", {})
+    assert adopted["adopted"] is True
+    duplicate, _ = request(base, f"/api/projects/{generated['project_name']}/adopt", "POST", {})
+    assert duplicate["already_adopted"] is True
+
+    cleared, _ = request(base, "/api/memory", "DELETE")
+    assert cleared["memory"]["stats"]["adopted_count"] == 0
+
+
+def test_invalid_remembered_template_does_not_block_generation(api_server):
+    base, _ = api_server
+    request(base, "/api/memory", "PUT", {
+        "profile": {"preferred_preset_by_intent": {"landing": "removed-template"}}
+    })
+    generated, _ = request(base, "/api/generate", "POST", {
+        "prompt": "制作一个落地页", "intent": "landing", "quiet_llm": True,
+    })
+    assert generated["project_name"]
+    assert any(
+        item["field"] == "template" and "安全忽略" in item["reason"]
+        for item in generated["memory_applied"]["covered"]
+    )

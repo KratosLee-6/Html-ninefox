@@ -140,16 +140,39 @@
     scheduleMinimap();
   }
 
-  function selectWithin(rect, additive = false) {
+  function nodesWithin(rect, contained = rect.x2 >= rect.x1) {
     const minX = Math.min(rect.x1, rect.x2);
     const minY = Math.min(rect.y1, rect.y2);
     const maxX = Math.max(rect.x1, rect.x2);
     const maxY = Math.max(rect.y1, rect.y2);
-    const hits = nodes.filter(node => node.kind !== 'ws').filter(node => {
+    return nodes.filter(node => node.kind !== 'ws').filter(node => {
       const size = canvasEngine.nodeSize(node);
-      return node.x < maxX && node.x + size.width > minX && node.y < maxY && node.y + size.height > minY;
-    }).map(node => node.id);
-    selectMany(hits, { additive });
+      const left = node.x, top = node.y, right = node.x + size.width, bottom = node.y + size.height;
+      return contained
+        ? left >= minX && right <= maxX && top >= minY && bottom <= maxY
+        : left < maxX && right > minX && top < maxY && bottom > minY;
+    });
+  }
+
+  function clearSelectionPreview() {
+    document.querySelectorAll('.node.selection-preview').forEach(element => element.classList.remove('selection-preview'));
+  }
+
+  function previewWithin(rect, contained) {
+    const hits = nodesWithin(rect, contained);
+    const hitIds = new Set(hits.map(node => node.id));
+    document.querySelectorAll('.node[id]').forEach(element => {
+      const id = Number(element.id.replace('node-', ''));
+      element.classList.toggle('selection-preview', hitIds.has(id));
+    });
+    return hits;
+  }
+
+  function selectWithin(rect, additive = false, options = {}) {
+    const contained = options.contained ?? false;
+    const hits = nodesWithin(rect, contained).map(node => node.id);
+    if (options.subtract) selectMany([...selectedIds].filter(id => !hits.includes(id)));
+    else selectMany(hits, { additive });
     return hits;
   }
 
@@ -157,7 +180,7 @@
     selectionMode = !selectionMode;
     viewport.classList.toggle('selection-mode', selectionMode);
     updateToolbar();
-    flash(selectionMode ? '框选工具已开启：拖动画布空白区域选择节点' : '已返回画布平移模式', true);
+    flash(selectionMode ? '框选已开启：左→右完整包含，右→左触碰即选；Alt 可减选' : '已返回画布平移模式', true);
   }
 
   function isSelectionMode() {
@@ -170,10 +193,14 @@
     lasso = {
       pointerId:event.pointerId,
       x1:point[0], y1:point[1], x2:point[0], y2:point[1],
+      clientX:event.clientX, clientY:event.clientY,
       additive:event.ctrlKey || event.metaKey || event.shiftKey,
+      subtract:event.altKey, contained:true,
     };
     const box = document.getElementById('selection-box');
     box.hidden = false;
+    box.dataset.count = '0';
+    box.dataset.mode = '完整包含';
     box.style.left = point[0] + 'px';
     box.style.top = point[1] + 'px';
     box.style.width = '0px';
@@ -186,11 +213,17 @@
     const point = toWorld(event);
     lasso.x2 = point[0];
     lasso.y2 = point[1];
+    lasso.lastClientX = event.clientX;
+    lasso.lastClientY = event.clientY;
+    lasso.contained = lasso.x2 >= lasso.x1;
     const box = document.getElementById('selection-box');
     box.style.left = Math.min(lasso.x1, lasso.x2) + 'px';
     box.style.top = Math.min(lasso.y1, lasso.y2) + 'px';
     box.style.width = Math.abs(lasso.x2 - lasso.x1) + 'px';
     box.style.height = Math.abs(lasso.y2 - lasso.y1) + 'px';
+    box.dataset.mode = lasso.contained ? '完整包含' : '触碰即选';
+    const hits = previewWithin(lasso, lasso.contained);
+    box.dataset.count = String(hits.length);
     return true;
   }
 
@@ -200,13 +233,16 @@
     lasso = null;
     const box = document.getElementById('selection-box');
     box.hidden = true;
-    const distance = Math.hypot(current.x2 - current.x1, current.y2 - current.y1);
-    if (distance < 4) {
-      if (!current.additive) select(null);
+    clearSelectionPreview();
+    const screenDistance = Math.hypot((current.lastClientX ?? current.clientX) - current.clientX,
+      (current.lastClientY ?? current.clientY) - current.clientY);
+    if (screenDistance < 5) {
+      if (!current.additive && !current.subtract) select(null);
       return true;
     }
-    const hits = selectWithin(current, current.additive);
-    flash('已框选 ' + hits.length + ' 个节点', true);
+    const hits = selectWithin(current, current.additive, { contained:current.contained, subtract:current.subtract });
+    const verb = current.subtract ? '减选' : current.contained ? '完整框选' : '触碰框选';
+    flash(verb + ' ' + hits.length + ' 个节点', true);
     return true;
   }
 

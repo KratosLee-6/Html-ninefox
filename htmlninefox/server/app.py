@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Callable
 from urllib.parse import parse_qs, unquote, urlparse
 
-from .. import __version__, exporting, llm, pipeline, template_gallery
+from .. import __version__, exporting, llm, pipeline, project_memory, template_gallery
 from ..user_gallery import UserGalleryError, UserGalleryStore
 from .diagnostics import create_diagnostic_bundle
 from .inputs import InputError, InputStore
@@ -59,7 +59,7 @@ APP_CAPABILITIES = {
         "canvas_minimap", "canvas_command_palette", "interaction_system",
         "input_attachments", "ai_settings", "alliance",
         "export_center", "export_pdf", "export_png",
-        "recipe_run", "recipe_partial_rerun",
+        "recipe_run", "recipe_partial_rerun", "project_memory", "adoption_signal",
     ],
     "schemas": {"canvas": 1},
     "offline": {"workspace": True, "generation": False},
@@ -123,6 +123,25 @@ class _Handler(BaseHTTPRequestHandler):
 
     def _ai_settings(self) -> AISettingsStore:
         return AISettingsStore(_OUTPUT_ROOT)
+
+    def _memory(self) -> project_memory.ProjectMemoryStore:
+        return project_memory.ProjectMemoryStore(_OUTPUT_ROOT)
+
+    def _memory_recommendation(self, prompt: str, body: dict) -> dict:
+        recommendation = self._memory().recommend(prompt, body)
+        overrides = dict(recommendation.get("overrides", {}))
+        remembered_template = overrides.get("template")
+        if remembered_template and remembered_template not in {
+                item["id"] for item in pipeline.list_templates()}:
+            overrides.pop("template", None)
+            recommendation["overrides"] = overrides
+            recommendation.setdefault("covered", []).append({
+                "field": "template", "reason": "记忆模板已不可用，已安全忽略"})
+            recommendation["applied"] = [
+                item for item in recommendation.get("applied", [])
+                if item.get("field") != "template"
+            ]
+        return recommendation
 
     def _activate_ai(self) -> bool:
         settings = self._ai_settings().activate()
@@ -295,6 +314,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._file(target, mime, "private, max-age=300")
         if path == "/api/settings/ai":
             return self._json({"ok": True, "settings": self._ai_settings().public()})
+        if path == "/api/memory":
+            return self._json({"ok": True, "memory": self._memory().read()})
         if path == "/api/template-preview":
             intent = (query.get("intent") or ["landing"])[0]
             template_id = (query.get("template") or [None])[0]
@@ -397,6 +418,14 @@ class _Handler(BaseHTTPRequestHandler):
                 with_reporter=True,
             )
             return self._json({"ok": True, "job": job}, 202)
+        if path.startswith("/api/projects/") and path.endswith("/adopt"):
+            name = path[len("/api/projects/"):-len("/adopt")]
+            project = self._store().get_project(name)
+            try:
+                result = self._memory().adopt(project["project"])
+            except ValueError as exc:
+                raise StoreError("project_memory_adopt_invalid", str(exc), 400) from exc
+            return self._json({"ok": True, **result})
         if path.startswith("/api/projects/") and path.endswith("/duplicate"):
             name = path[len("/api/projects/"):-len("/duplicate")]
             project = self._store().duplicate_project(name, body.get("new_name"))
@@ -406,6 +435,12 @@ class _Handler(BaseHTTPRequestHandler):
     def _put(self, path: str, body: dict):
         if path == "/api/workspace":
             return self._json({"ok": True, **self._store().save_workspace(body)})
+        if path == "/api/memory":
+            try:
+                memory = self._memory().save(body)
+            except ValueError as exc:
+                raise StoreError("project_memory_invalid", str(exc), 400) from exc
+            return self._json({"ok": True, "memory": memory})
         if path == "/api/settings/ai":
             try:
                 settings = self._ai_settings().save(body)
@@ -423,6 +458,8 @@ class _Handler(BaseHTTPRequestHandler):
         raise StoreError("not_found", "接口不存在", 404)
 
     def _delete(self, path: str):
+        if path == "/api/memory":
+            return self._json({"ok": True, "memory": self._memory().clear()})
         if path.startswith("/api/jobs/"):
             return self._json({"ok": True, "job": self._jobs().cancel(path[len("/api/jobs/"):])})
         if path.startswith("/api/projects/"):
@@ -475,10 +512,16 @@ class _Handler(BaseHTTPRequestHandler):
         if not prompt:
             raise StoreError("prompt_required", "prompt 或附件至少需要一个", 400)
         ai_enabled = self._activate_ai()
+        memory_store = self._memory()
+        memory_applied = self._memory_recommendation(prompt, body)
+        memory_overrides = memory_applied.get("overrides", {})
         blocks = body.get("blocks") if isinstance(body.get("blocks"), list) else []
         gallery_id = str(body.get("gallery_id") or "")
         gallery_item = None
-        style_overrides = {key: body[key] for key in ("primary", "font") if body.get(key)}
+        style_overrides = {
+            key: body.get(key) or memory_overrides.get(key)
+            for key in ("primary", "font") if body.get(key) or memory_overrides.get(key)
+        }
         if gallery_id:
             try:
                 gallery_item = self._user_gallery().get(gallery_id)
@@ -490,7 +533,7 @@ class _Handler(BaseHTTPRequestHandler):
         result = pipeline.run_expert(
             prompt,
             skill=body.get("skill") or None,
-            template=body.get("template") or None,
+            template=body.get("template") or memory_overrides.get("template") or None,
             output=str(output_root or _OUTPUT_ROOT),
             intent_override=body.get("intent") or None,
             quiet_llm=bool(body.get("quiet_llm", False)) or not ai_enabled,
@@ -503,9 +546,11 @@ class _Handler(BaseHTTPRequestHandler):
                 "inputs": input_items,
                 "selection_mode": body.get("selection_mode") or "custom",
             },
+            memory_context=memory_applied,
             progress_callback=progress_callback,
         )
         work = result["work"]
+        memory_store.record_generation(memory_applied)
         if gallery_item:
             try:
                 self._user_gallery().record_use(gallery_id)
@@ -524,6 +569,7 @@ class _Handler(BaseHTTPRequestHandler):
             "brief_confidence": result["brief_confidence"],
             "verification": result.get("verification", {}),
             "recipe_run": result.get("recipe_run", {}),
+            "memory_applied": result.get("memory_applied", memory_applied),
         }
 
     def _api_analyze(self, body: dict):
@@ -533,12 +579,16 @@ class _Handler(BaseHTTPRequestHandler):
         from ..experts import brief_expert
         from ..generators import _tokens
         ai_enabled = self._activate_ai()
+        memory_applied = self._memory_recommendation(prompt, body)
+        memory_values = memory_applied.get("values", {})
+        memory_overrides = memory_applied.get("overrides", {})
         result = brief_expert.BriefExpert().execute({"prompt": prompt, "allow_llm": ai_enabled})
         payload = result.get("brief", {})
         goal = payload.get("goal", {})
         content = payload.get("content", {})
         style = payload.get("style", {})
-        preset_id = _tokens.match_preset(result, result.get("intent", "landing"))["id"]
+        preset_id = memory_overrides.get("template") or _tokens.match_preset(
+            result, result.get("intent", "landing"))["id"]
         recommended = template_gallery.recommend_gallery(
             result.get("intent", "landing"), preset_id, self._user_gallery().root)
         return self._json({
@@ -546,9 +596,9 @@ class _Handler(BaseHTTPRequestHandler):
             "intent": result.get("intent", "landing"),
             "intent_confidence": result.get("intent_confidence", 0),
             "confidence": result.get("confidence", 0),
-            "brand": content.get("brand", ""),
-            "audience": goal.get("audience", ""),
-            "tone": style.get("tone", ""),
+            "brand": memory_values.get("brand") or content.get("brand", ""),
+            "audience": memory_values.get("audience") or goal.get("audience", ""),
+            "tone": memory_values.get("tone") or style.get("tone", ""),
             "headline": content.get("headline", ""),
             "must_have": (content.get("must_have") or [])[:4],
             "blocks": content.get("blocks") or [],
@@ -557,6 +607,7 @@ class _Handler(BaseHTTPRequestHandler):
             "inputs": input_items,
             "recommended_template": recommended,
             "recommended_blocks": [page["block_id"] for page in recommended.get("pages", [])],
+            "memory_applied": memory_applied,
         })
 
     def _api_feedback(self, body: dict):

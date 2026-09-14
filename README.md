@@ -8,10 +8,10 @@
 
 <div align="center">
 
-[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)
+[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-159%20passed-1F8A70)](docs/test-evidence/v0.4.2-pytest.txt)
+[![Tests](https://img.shields.io/badge/pytest-179%20passed-1F8A70)](docs/test-evidence/v0.5.0rc1-pytest.txt)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -42,6 +42,18 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
           ↓
   用自然语言反馈，按版本继续迭代
 ```
+
+## v0.5.0 RC1 当前预览
+
+![项目记忆与采用信号](assets/screenshots/v0.5.0rc1/project-memory-dialog.png)
+
+- **🧠 Project Memory**：品牌、受众、语气、禁忌、模板、主色和字体保存在本地，可查看、编辑、关闭或清空。
+- **♡ 明确采用后学习**：只有在产物检查器点击“采用此版本并学习”才会进入长期记忆，测试稿和失败稿不会污染偏好。
+- **🔎 可解释复用**：分析、Recipe Run 和产物检查器会显示本次复用了什么，以及哪些记忆被本次明确要求覆盖。
+- **🔒 隐私边界**：不把 API Key、附件正文或完整反馈原文写入长期记忆。
+- **✅ RC1 验收**：179/179 Python、API、存储、安全与 Chromium 浏览器测试通过。
+
+> RC1 先完成“越用越懂你”的本地复利闭环；RC2 将继续推进 100 节点性能、无障碍与产物版本差异。
 
 ## v0.4.2 核心能力
 
@@ -94,7 +106,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 下载与安装
 
-前往 [v0.4.2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2) 下载当前版本。发布说明见 [RELEASE-NOTES-v0.4.2.md](docs/RELEASE-NOTES-v0.4.2.md)。
+前往 [v0.5.0 RC1 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc1) 下载当前预发布版本。发布说明见 [RELEASE-NOTES-v0.5.0rc1.md](docs/RELEASE-NOTES-v0.5.0rc1.md)。
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|

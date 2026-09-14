@@ -1,0 +1,1 @@
+inline JavaScript syntax valid: 2 block(s)

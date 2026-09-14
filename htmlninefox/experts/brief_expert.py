@@ -2,7 +2,7 @@
 
 输入：user prompt（一句话需求）
 输出：符合 Brief 标准 v0.1 的 5 字段 JSON（含 goal/context/content/style/constraints + confidence + missing_fields）
-副作用：写到 ~/.htmlninefox/briefs/<project_id>.json
+副作用：尽力写入 ~/.htmlninefox/briefs/<project_id>.json；失败不阻塞生成
 Fallback：3 层 — LiteLLM 重试 1 次 → 上次缓存 → "基础 Brief"（只填 goal）
 """
 
@@ -88,7 +88,7 @@ class BriefExpert(BaseExpert):
         parsed["intent"] = intent
         parsed["intent_confidence"] = intent_conf
 
-        # 持久化到 ~/.htmlninefox/briefs/
+        # 尽力持久化到 ~/.htmlninefox/briefs/，缓存失败不得中断主生成链路。
         project_id = input.get("project_id") or _derive_project_id(prompt)
         _persist_brief(project_id, parsed, fallback_used)
 
@@ -158,12 +158,16 @@ def _derive_project_id(prompt: str) -> str:
 
 def _persist_brief(project_id: str, payload: Dict[str, Any], fallback_used: bool) -> None:
     brief_dir = Path.home() / ".htmlninefox" / "briefs"
-    brief_dir.mkdir(parents=True, exist_ok=True)
     path = brief_dir / f"{project_id}.json"
     enriched = dict(payload)
     enriched["_persisted_at"] = datetime.now().isoformat(timespec="seconds")
     enriched["_fallback_used"] = fallback_used
-    path.write_text(json.dumps(enriched, ensure_ascii=False, indent=2), encoding="utf-8")
+    try:
+        brief_dir.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(enriched, ensure_ascii=False, indent=2), encoding="utf-8")
+    except OSError as error:
+        logger.warning("[brief_expert] cache skipped: %s", error)
+        return
     logger.info("[brief_expert] persisted → %s", path)
 
 

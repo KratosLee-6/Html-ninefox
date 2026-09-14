@@ -103,6 +103,21 @@ def test_canvas_productivity_workflow(tmp_path):
             }""", created)
             assert set(selection) >= {created["first"], created["second"]}
 
+
+            directional = page.evaluate("""() => {
+                const ws = activeWorkspace();
+                const first = addNode('note', ws.x + 100, ws.y + 330, {title:'完整包含', workspaceId:ws.id});
+                const size = canvasEngine.nodeSize(first);
+                const second = addNode('note', first.x + size.width - 18, first.y, {title:'部分触碰', workspaceId:ws.id});
+                const rect = {x1:first.x - 4, y1:first.y - 4, x2:first.x + size.width + 4, y2:first.y + size.height + 4};
+                const contained = FoxCanvasProductivity.selectWithin(rect, false, {contained:true});
+                const touched = FoxCanvasProductivity.selectWithin({x1:rect.x2, y1:rect.y1, x2:rect.x1, y2:rect.y2}, false, {contained:false});
+                return {first:first.id, second:second.id, contained, touched};
+            }""")
+            assert directional["first"] in directional["contained"]
+            assert directional["second"] not in directional["contained"]
+            assert {directional["first"], directional["second"]} <= set(directional["touched"])
+
             page.keyboard.press("Control+K")
             page.fill("#canvas-command-input", "组合测试 A")
             page.locator(f'[data-canvas-result="{created["first"]}"]').click()

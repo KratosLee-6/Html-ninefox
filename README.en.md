@@ -8,10 +8,10 @@
 
 <div align="center">
 
-[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)
+[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-159%20passed-1F8A70)](docs/test-evidence/v0.4.2-pytest.txt)
+[![Tests](https://img.shields.io/badge/pytest-179%20passed-1F8A70)](docs/test-evidence/v0.5.0rc1-pytest.txt)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -40,6 +40,18 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
           ↓
   Revise with natural language feedback, keeping rev history
 ```
+
+## v0.5.0 RC1 Preview
+
+![Project Memory and adoption signals](assets/screenshots/v0.5.0rc1/project-memory-dialog.png)
+
+- **🧠 Project Memory**: Brand, audience, tone, forbidden patterns, template, primary color, and font stay local and remain editable, disableable, and clearable.
+- **♡ Learn only after adoption**: Long-term memory changes only when the user explicitly selects “Adopt this version and learn.”
+- **🔎 Explainable reuse**: Analysis, Recipe Run, and the artifact inspector show what was reused and what the current explicit request overrode.
+- **🔒 Privacy boundary**: API keys, attachment bodies, and full private feedback text are excluded from long-term memory.
+- **✅ RC1 verification**: 179/179 Python, API, storage, security, and Chromium browser tests pass.
+
+> RC1 completes the local compounding loop. RC2 will focus on 100-node performance, accessibility, and artifact diffs.
 
 ## v0.4.2 Core Features
 
@@ -91,7 +103,7 @@ Output nodes can export PDF, paginated PNG, or a full-page image. Preflight show
 
 ## Download & Install
 
-Go to [v0.4.2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2) to download the latest version. See [RELEASE-NOTES-v0.4.2.md](docs/RELEASE-NOTES-v0.4.2.md).
+Go to the [v0.5.0 RC1 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc1) to download the current prerelease. See [RELEASE-NOTES-v0.5.0rc1.md](docs/RELEASE-NOTES-v0.5.0rc1.md).
 
 | Platform | Recommended file | Usage |
 |---|---|---|

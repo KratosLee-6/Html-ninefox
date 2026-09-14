@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- No unreleased changes yet.
+
+---
+
+## [0.5.0-rc1] — 2026-09-14 · Project Memory
+
 ### Added
 
 - v0.5 interaction system with typed Toast feedback, reversible button busy states, accessible dialog focus management, and a global command registry.
@@ -18,11 +24,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Browser regression coverage for notifications, busy states, command execution, node search, Escape handling, and focus restoration.
 - Recipe Run records Analyze, Compose, Generate, Verify, and Deliver stages with timing, model/generator, fallback usage, and summarized inputs and outputs.
 - Per-project `recipe-run.json` evidence, HTML quality-gate reports, parent run links, and partial Generate/Verify reruns.
+- Local Project Memory for brand, audience, tone, forbidden patterns, preferred templates, colors, fonts, and adopted design decisions.
+- Explicit adoption signals, memory management APIs, an editable memory dialog, and reuse explanations in analysis, Recipe Run, and the artifact inspector.
 
 ### Changed
 
 - Canvas dragging is now fluid rather than continuously rounded to a 16px grid, with `Alt` available to temporarily disable snapping.
 - Alignment and connection targets now use acquisition/release hysteresis to prevent jitter and flickering near snap boundaries.
+- Smart linking now accepts a 48px port radius, a 76px release radius, and whole-card drops, while exact ports outrank sticky card candidates.
+- Marquee selection now previews hits live: left-to-right requires full containment, right-to-left selects intersections, and Alt subtracts from the selection.
+- Connection curves adapt their control distance to horizontal and vertical separation for smoother short and long links.
 - Port geometry is derived from rendered bounds and converted to world coordinates, keeping connections aligned through zoom and pan.
 - Fit-to-content preserves workspace navigator space and uses a 30% minimum zoom so generated content remains readable.
 - The active workspace timeline now switches from a generic checklist to the actual Recipe Run and stage durations after generation starts.
@@ -32,16 +43,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Process the final pointer position before drag or connection release, preventing fast interactions from ending one frame behind.
 - Keep port hit areas from stealing pointer events from card content and keep connection stroke width stable while zooming.
+- Prefer a newly reached exact input port over a previous whole-card sticky target, preventing links from landing on a nearby wrong node.
 
 ### Verified
 
-- 166/166 Python tests pass, including Recipe Run, interaction, canvas, generation, storage, security, diagnostics, and export coverage.
+- 179/179 Python tests pass, including Recipe Run, interaction, canvas, generation, storage, security, diagnostics, and export coverage.
 - 22/22 Chromium product checks pass across generation, workspaces, templates, themes, and the Export Center.
 - 17/17 focused canvas checks cover workspace and card dragging, snapping, port connections, Recipe Run details, partial verification reruns, HTML preview, generation, feedback iteration, fit, persistence, and JavaScript errors.
 
 ### Planned
 
-- Project Memory, Recipe Run, adoption feedback, and artifact version trees.
+- 100-node performance, accessibility gates, artifact diffs, and version trees.
 - High-fidelity PPTX, then constrained editable PPTX and semantic DOCX.
 
 ---

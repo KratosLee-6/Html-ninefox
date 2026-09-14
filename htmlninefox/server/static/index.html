@@ -193,15 +193,18 @@ input,textarea,select { font-family:inherit; }
 .port { position:absolute; top:29px; transform:translateY(-50%); width:14px; height:14px;
   border-radius:50%; background:var(--bg-elevated); border:2px solid var(--border-strong); cursor:crosshair; z-index:6;
   transition:transform .12s,border-color .12s,background .12s,box-shadow .12s; }
-.port::before { content:''; position:absolute; top:-12px; bottom:-12px; border-radius:50%; }
+.port::before { content:''; position:absolute; top:-18px; bottom:-18px; border-radius:50%; }
 .port-in { left:-8px; } .port-out { right:-8px; }
-.port-in::before { left:-16px; right:-3px; }
-.port-out::before { left:-3px; right:-16px; }
+.port-in::before { left:-22px; right:-4px; }
+.port-out::before { left:-10px; right:-24px; }
 .port:hover, .port.link-target { border-color:var(--cyan); background:var(--cyan);
   transform:translateY(-50%) scale(1.28); box-shadow:0 0 0 5px rgba(34,211,238,.14); }
 /* G4 · 候选端口预判：hover 输出端口 / 拖线中，可连接的输入端口放大呼吸（scale 不改变命中几何） */
 .port.port-candidate { border-color:var(--success);
   transform:translateY(-50%) scale(1.35); box-shadow:0 0 0 2px color-mix(in srgb,var(--success) 30%,transparent); }
+.node.link-source { box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 54%,transparent),0 12px 34px rgba(23,60,143,.16); }
+.node.link-target { outline:2px solid var(--success); outline-offset:4px; box-shadow:0 16px 42px color-mix(in srgb,var(--success) 20%,transparent); }
+.node.link-target.smart-target::before { content:'松开连接'; position:absolute; left:10px; top:-25px; z-index:12; padding:3px 7px; border:1px solid var(--success); background:var(--bg-panel); color:var(--success); font:700 9px var(--mono,monospace); }
 .node iframe { width:100%; height:232px; border:none; background:#fff; border-radius:0 0 9px 9px; display:block; }
 .node .thumb-mini { padding:8px 9px 4px; }
 .rev-chip { font-size:10px; color:var(--cyan); background:rgba(34,211,238,.1);
@@ -455,6 +458,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .node.locked .node-head,.node.locked .ws-head,.node.locked .ws-handle { cursor:not-allowed; }
 #selection-box { position:absolute; z-index:40; pointer-events:none; border:1px solid var(--focus);
   background:color-mix(in srgb,var(--focus) 12%,transparent); box-shadow:0 0 0 1px color-mix(in srgb,var(--focus) 20%,transparent); }
+#selection-box::after { content:attr(data-count) ' 个 · ' attr(data-mode); position:absolute; right:-1px; top:-24px; padding:3px 6px; border:1px solid var(--focus); background:var(--bg-panel); color:var(--focus); font:700 9px var(--mono,monospace); white-space:nowrap; }
+.node.selection-preview { outline:2px solid color-mix(in srgb,var(--focus) 78%,transparent); outline-offset:3px; box-shadow:0 10px 28px color-mix(in srgb,var(--focus) 15%,transparent); }
 #selection-box[hidden] { display:none; }
 #viewport.selection-mode { cursor:crosshair; }
 .hud button:disabled { opacity:.35; cursor:not-allowed; }
@@ -555,6 +560,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .export-body{min-height:0;overflow:auto;padding:18px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}.export-panel{border:1px solid var(--border-default);background:var(--bg-elevated);padding:14px}.export-panel h3{font-size:12px;margin:0 0 12px}.export-score{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:center;margin-bottom:12px}.export-score strong{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;border:5px solid var(--green);font:800 20px var(--mono);background:var(--bg-panel)}.export-score p{font-size:11px;line-height:1.7;color:var(--text-secondary)}.export-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.export-meta div{padding:8px;border:1px solid var(--border-subtle);background:var(--bg-panel);font-size:10px}.export-meta b{display:block;margin-top:3px;font-size:12px;color:var(--text-primary)}.export-warning-list{display:grid;gap:7px;margin-top:12px}.export-warning{padding:8px 9px;border-left:3px solid var(--accent);background:var(--bg-panel);font-size:10.5px;line-height:1.55}.export-warning.warning{border-left-color:var(--orange)}.export-warning.error{border-left-color:#D35D5D}.export-options{display:grid;grid-template-columns:1fr 1fr;gap:9px}.export-options .flow-field{margin:0}.export-options [hidden]{display:none!important}.export-options .wide{grid-column:1/-1}.export-result{display:grid;gap:7px;margin-top:10px}.export-file{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--border-default);background:var(--bg-panel);font-size:11px}.export-file small{display:block;color:var(--text-tertiary);margin-top:2px}.export-runtime{margin-top:10px;padding:8px;border:1px dashed var(--border-default);font-size:10px;line-height:1.55;color:var(--text-tertiary)}
 @media(max-width:760px){.export-body{grid-template-columns:1fr}.export-options{grid-template-columns:1fr}.export-options .wide{grid-column:auto}}
 
+.memory-dialog{width:min(780px,94vw)}
+.memory-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 14px}.memory-stat{padding:10px;border:1px solid var(--border-default);background:var(--bg-panel)}.memory-stat strong{display:block;font:800 20px var(--mono);color:var(--accent)}.memory-stat span{font-size:10px;color:var(--text-tertiary)}
+.memory-explain{margin:10px 0;padding:9px;border:1px dashed var(--border-default);background:var(--bg-elevated);font-size:10.5px;line-height:1.65;color:var(--text-secondary)}.memory-explain b{color:var(--text-primary)}.memory-learned{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.memory-learned span{padding:3px 6px;border:1px solid color-mix(in srgb,var(--green) 50%,var(--border-default));background:color-mix(in srgb,var(--green) 10%,var(--bg-panel));font-size:9.5px}.memory-adopted{color:var(--green);font-size:10px;text-align:center;margin-top:7px}.memory-danger{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-subtle)}
+@media(max-width:760px){.memory-stats{grid-template-columns:1fr}.memory-danger{align-items:stretch;flex-direction:column}}
+
 </style>
 </head>
 <body>
@@ -570,6 +580,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     <button class="btn btn-ghost theme-toggle" id="btn-theme" onclick="toggleTheme()" aria-label="切换工作台主题"><span class="theme-glyph" aria-hidden="true"></span><span class="theme-label" id="theme-label">夜蓝</span></button>
     <button class="btn btn-ghost install-app" id="btn-install" hidden>安装</button>
     <button class="btn btn-ghost" id="btn-ai-settings" onclick="openAISettings()"><span id="ai-status-glyph">◇</span><span class="ai-label">AI 模型</span></button>
+    <button class="btn btn-ghost" id="btn-memory" onclick="openProjectMemory()"><span id="memory-status-glyph">◇</span><span>项目记忆</span></button>
     <button class="btn btn-secondary" id="btn-create" onclick="openCreatePanel()">＋ <span class="creation-label">输入需求</span></button>
     <button class="btn btn-ghost diagnostic-button" id="btn-diagnostic" onclick="createDiagnostic()">诊断</button>
     <button class="btn btn-ghost classic-link" onclick="window.open('/classic','_blank')">经典表单版</button>
@@ -721,6 +732,23 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   </div>
 </div>
 
+<div class="preview-modal" id="memory-modal" hidden role="dialog" aria-modal="true" aria-labelledby="memory-title">
+  <div class="flow-dialog memory-dialog"><div class="preview-bar"><strong id="memory-title">项目记忆</strong><span>明确采用后学习 · 本地保存 · 随时关闭</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeProjectMemory()">关闭</button></div>
+    <div class="flow-body"><section class="flow-card">
+      <div class="flow-field"><label><input type="checkbox" id="memory-enabled" style="width:auto;height:auto"> 在生成时使用项目记忆；本次明确要求始终优先</label></div>
+      <div class="memory-stats"><div class="memory-stat"><strong id="memory-adopted-count">0</strong><span>已采用产物</span></div><div class="memory-stat"><strong id="memory-used-count">0</strong><span>复用记忆生成</span></div><div class="memory-stat"><strong id="memory-last-project">—</strong><span>最近采用项目</span></div></div>
+      <div class="flow-grid"><div class="flow-field"><label>品牌</label><input id="memory-brand" maxlength="500" placeholder="例如 KratosLee"></div><div class="flow-field"><label>目标受众</label><input id="memory-audience" maxlength="500" placeholder="例如 设计师与开发者"></div></div>
+      <div class="flow-field"><label>默认语气</label><input id="memory-tone" maxlength="160" placeholder="例如 温暖、专业、克制"></div>
+      <div class="flow-field"><label>禁忌项</label><textarea id="memory-forbidden" placeholder="每行一项，例如：黑紫 AI 渐变"></textarea></div>
+      <div class="flow-grid"><div class="flow-field"><label>模板适用类型</label><select id="memory-template-intent"><option value="landing">落地页</option><option value="dashboard">数据看板</option><option value="deck">发布会 PPT</option><option value="poster">海报</option><option value="archdoc">架构文档</option><option value="doc">文档</option></select></div><div class="flow-field"><label>默认模板 ID</label><input id="memory-template" list="memory-template-list" placeholder="fox-pixel-garden"><datalist id="memory-template-list"></datalist></div></div>
+      <div class="flow-grid"><div class="flow-field"><label>默认主色</label><input id="memory-primary" placeholder="#173C8F"></div><div class="flow-field"><label>默认字体</label><select id="memory-font"><option value="">自动</option><option value="sans">无衬线</option><option value="serif">衬线</option><option value="mono">等宽</option></select></div></div>
+      <div class="flow-field"><label>长期说明</label><textarea id="memory-notes" maxlength="2000" placeholder="仅保存可长期复用的项目说明，不建议粘贴敏感原文。"></textarea></div>
+      <div class="flow-actions"><button class="btn btn-primary" id="memory-save" onclick="saveProjectMemory()">保存记忆</button></div><div class="status-panel" id="memory-status" style="margin-top:12px">尚未读取项目记忆</div>
+      <div class="memory-danger"><p class="settings-note">采用只记录品牌、受众、风格、禁忌、模板与设计决策，不保存 API Key 或附件正文。</p><button class="btn btn-danger-ghost" id="memory-clear" onclick="clearProjectMemory()">清空项目记忆</button></div>
+    </section></div>
+  </div>
+</div>
+
 <script src="/canvas-engine.js"></script>
 <script src="/interaction-system.js"></script>
 <script>
@@ -827,7 +855,7 @@ const WORKSPACE_COLORS = [
 ];
 const worldEl = $('#world'), nodesEl = $('#nodes'), edgesEl = $('#edges'), viewport = $('#viewport'), groupsEl = $('#groups');
 const guideX = $('#guide-x'), guideY = $('#guide-y');
-const state = { templates: [], gallery: [], projects: [], alliance: [], ai: { enabled:false } };
+const state = { templates: [], gallery: [], projects: [], alliance: [], ai: { enabled:false }, memory:null };
 const canvasEngine = FoxCanvasEngine.create({ viewport, getCamera:() => camera, getNodes:() => nodes,
   guideX, guideY, getNodeElement:id => document.getElementById('node-' + id) });
 let deferredInstallPrompt = null;
@@ -1017,9 +1045,9 @@ let pan=null,drag=null,resize=null,linking=null,pointerFrame=null,pendingPointer
 /* 节点世界坐标走 CSS 变量：transform 只用来播放入场/落位动效，两者不再互相覆盖（G3 前置净改造） */
 function placeNode(n) { const el=document.getElementById('node-'+n.id); if(el){el.style.setProperty('--nx',n.x+'px');el.style.setProperty('--ny',n.y+'px');} window.FoxCanvasProductivity?.scheduleMinimap(); scheduleGroupRender(); }
 function nodePorts(n) { return `<div class="port port-in" data-port="${n.id}" data-port-side="in" title="连接输入"></div>
-  <div class="port port-out" data-port="${n.id}" data-port-side="out" title="拖动连接 · 靠近输入端口自动吸附"></div>`; }
-function clearLinkTarget(){document.querySelectorAll('.port.link-target,.node.link-target').forEach(el=>el.classList.remove('link-target'));}
-function setLinkTarget(target){clearLinkTarget();if(!target)return;target.port.classList.add('link-target');target.port.closest('.node')?.classList.add('link-target');}
+  <div class="port port-out" data-port="${n.id}" data-port-side="out" title="拖动连接 · 放到目标卡片或输入端口即可吸附"></div>`; }
+function clearLinkTarget(){document.querySelectorAll('.port.link-target,.node.link-target,.node.smart-target').forEach(el=>el.classList.remove('link-target','smart-target'));}
+function setLinkTarget(target){clearLinkTarget();if(!target)return;target.port.classList.add('link-target');const node=target.port.closest('.node');node?.classList.add('link-target');if(target.capture==='node')node?.classList.add('smart-target');}
 function beginNodePointer(e,n){
   if(e.target.closest('button'))return;
   const additive=e.shiftKey||e.ctrlKey||e.metaKey;
@@ -1050,7 +1078,7 @@ viewport.addEventListener('pointerdown',e=>{if(!e.isPrimary)return;if(e.target==
   pan={pointerId:e.pointerId,sx:e.clientX,sy:e.clientY,cx:camera.x,cy:camera.y};viewport.classList.add('panning');select(null);}});
 document.addEventListener('pointerdown',e=>{const port=e.target.closest?.('.port-out');if(!port)return;e.preventDefault();e.stopPropagation();
   const node=nodes.find(item=>item.id===Number(port.dataset.port));if(node?.locked)return flash('节点已锁定，请先解锁',false);
-  viewport.setPointerCapture?.(e.pointerId);linking={from:Number(port.dataset.port),pointerId:e.pointerId,target:null};highlightCandidatePorts(linking.from);const start=canvasEngine.portPoint(linking.from,'out');if(start)tempEdge(start,start);});
+  viewport.setPointerCapture?.(e.pointerId);linking={from:Number(port.dataset.port),pointerId:e.pointerId,target:null};document.getElementById('node-'+linking.from)?.classList.add('link-source');highlightCandidatePorts(linking.from);const start=canvasEngine.portPoint(linking.from,'out');if(start)tempEdge(start,start);});
 function handlePointerMove(e){
   if(window.FoxCanvasProductivity?.moveLasso(e))return;
   if(pan){camera.x=pan.cx+e.clientX-pan.sx;camera.y=pan.cy+e.clientY-pan.sy;applyCamera(false);}
@@ -1073,7 +1101,8 @@ function finishPointerInteraction(e){let changed=false;
     for(const start of drag.starts)document.getElementById('node-'+start.id)?.classList.remove('dragging');}
   if(resize){const n=nodes.find(item=>item.id===resize.id);if(n&&(n.w!==resize.startW||n.h!==resize.startH))changed=true;}
   if(pan)changed=true;if(linking){if(linking.target&&!edges.some(edge=>edge.from===linking.from&&edge.to===linking.target.nodeId)){
-  edges.push({from:linking.from,to:linking.target.nodeId});changed=true;}linking=null;clearLinkTarget();clearCandidatePorts();clearTempEdge();}
+  edges.push({from:linking.from,to:linking.target.nodeId});changed=true;const sourceNode=nodes.find(item=>item.id===linking.from),targetNode=nodes.find(item=>item.id===linking.target.nodeId);flash('已智能连接：'+(sourceNode?.title||'节点')+' → '+(targetNode?.title||'节点'),true);}
+  document.getElementById('node-'+linking.from)?.classList.remove('link-source');linking=null;clearLinkTarget();clearCandidatePorts();clearTempEdge();}
   pan=null;drag=null;resize=null;viewport.classList.remove('panning');canvasEngine.clearGuides();drawEdges();updateWsCount();renderWorkspaceNavigator();timeline();if(changed){save();window.FoxCanvasProductivity?.commitHistory();}
   if(e?.pointerId!=null&&viewport.hasPointerCapture?.(e.pointerId))viewport.releasePointerCapture(e.pointerId);}
 window.addEventListener('pointerup',finishPointerInteraction);window.addEventListener('pointercancel',finishPointerInteraction);
@@ -1666,12 +1695,14 @@ async function advanceWs(wsId, options = {}) {
       { workspaceId:ws.id, title: INTENT_LABEL[d.intent] + ' · 产物', preview_url: d.preview_url, project: d.project,
         project_name: d.project_name, intent: d.intent, preset_id: d.preset_id, revision: 0, feedback: [],
         gallery_id:galleryId, blocks, selection_mode:body.selection_mode,
-        recipe_run:d.recipe_run, verification:d.verification });
+        recipe_run:d.recipe_run, verification:d.verification, memory_applied:d.memory_applied });
     if (!edges.some(e => e.from === req.id && e.to === out.id)) edges.push({ from: req.id, to: out.id });
     ws.data.recipeRun = d.recipe_run || ws.data.recipeRun;
     drawEdges(); select(out.id);
     flash(`✓ ${INTENT_LABEL[d.intent]} · ${d.preset_id} · ${d.route_decision} · rev0`, true);
     loadProjects();
+    loadProjectMemory();
+    if (d.memory_applied?.applied?.length) flash('项目记忆已复用 ' + d.memory_applied.applied.length + ' 项；本次明确要求优先', true);
     fitRect(Math.min(ws.x, out.x) - 30, ws.y - 10,
             ws.w + (out.x - ws.x) + out.w + 60, ws.h + 40);
     await persistWorkspaceNow();
@@ -1690,6 +1721,7 @@ function setAn(req, html) {
 function anChips(an) {
   if (!an) return '';
   return `<span>${INTENT_LABEL[an.intent]}</span><span>${an.preset_id}</span>` +
+    (an.memory_applied?.applied?.length ? `<span class="dim">记忆 ${an.memory_applied.applied.length} 项</span>` : '') +
     (an.tone ? `<span class="dim">${esc(an.tone)}</span>` : '') +
     (an.brand && an.brand !== 'Your Product' ? `<span class="dim">${esc(an.brand)}</span>` : '') +
     `<span class="dim">${Math.round((an.confidence || 0) * 100)}%</span>`;
@@ -1919,6 +1951,8 @@ function renderInspector() {
       <div class="kv"><span>风格</span><span>${esc(n.data.preset_id || '—')}</span></div>
       <div class="kv"><span>版本</span><span id="ins-rev">rev${n.data.revision || 0}</span></div></div>
       <h3 style="margin-top:14px">运行轨迹</h3>${recipeRunMarkup(n.data.recipe_run, n.id)}
+      ${memorySummaryMarkup(n.data.memory_applied)}
+      <button class="btn ${isProjectAdopted(n.data.project_name)?'btn-secondary':'btn-primary'}" style="margin-top:9px;width:100%" onclick="adoptProject(${n.id})" ${isProjectAdopted(n.data.project_name)?'disabled':''}>${isProjectAdopted(n.data.project_name)?'✓ 已采用并学习':'♡ 采用此版本并学习'}</button>
       <div class="field"><label>反馈迭代（口语化）</label>
       <textarea id="fb-note" placeholder="颜色深一点，标题大一点，参考 vercel"></textarea></div>
       <button class="btn btn-primary" id="fb-send">⚡ 提交反馈（改 token 重渲染）</button>
@@ -2255,6 +2289,7 @@ async function init() {
   window.FoxInteraction?.registerDialog('#export-modal', { onRequestClose:closeExportCenter, initialFocus:'#export-format' });
   window.FoxInteraction?.registerDialog('#create-modal', { onRequestClose:closeCreatePanel, initialFocus:'#creation-prompt' });
   window.FoxInteraction?.registerDialog('#ai-modal', { onRequestClose:closeAISettings, initialFocus:'#ai-enabled' });
+  window.FoxInteraction?.registerDialog('#memory-modal', { onRequestClose:closeProjectMemory, initialFocus:'#memory-enabled' });
   updateConnectionStatus();
   const installBtn = $('#btn-install');
   const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -2271,7 +2306,7 @@ async function init() {
   });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   try { const h = await (await fetch('/api/health')).json(); $('#ver').textContent = 'v' + h.version; } catch(e) {}
-  await Promise.all([loadTemplates(), loadGallery(), loadProjects(), loadAlliance(), loadAISettings()]);
+  await Promise.all([loadTemplates(), loadGallery(), loadProjects(), loadAlliance(), loadAISettings(), loadProjectMemory()]);
   let restored = loadSaved();
   if (!restored) restored = await loadRemoteWorkspace();
   if (restored) {

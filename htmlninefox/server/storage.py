@@ -132,6 +132,7 @@ class ProjectStore:
             "preview_url": f"/output/{path.name}/output.html" if output.is_file() else None,
             "recipe_run": state.get("recipe_run"),
             "verification": state.get("verification"),
+            "memory_applied": state.get("memory_applied"),
             "files": sorted(item.name for item in path.iterdir() if item.is_file()),
         }
 

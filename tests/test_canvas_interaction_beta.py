@@ -86,18 +86,24 @@ def test_canvas_geometry_snap_hysteresis_and_final_pointer_frame(tmp_path):
                 const rect = port.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
-                const acquired = canvasEngine.nearestInput(centerX + 28, centerY, -1);
-                const held = canvasEngine.nearestInput(centerX + 42, centerY, -1, acquired);
-                const released = canvasEngine.nearestInput(centerX + 58, centerY, -1, held);
+                const acquired = canvasEngine.nearestInput(centerX + 38, centerY, -1);
+                const held = canvasEngine.nearestInput(centerX + 65, centerY, -1, acquired);
+                const nodeRect = document.querySelector('#node-' + target.id).getBoundingClientRect();
+                const card = canvasEngine.nearestInput(nodeRect.left + nodeRect.width * .55, nodeRect.top + 80, -1);
+                const released = canvasEngine.nearestInput(centerX + 300, centerY, -1, held);
                 return {
                     targetId:target.id,
                     acquired:acquired?.nodeId || null,
                     held:held?.nodeId || null,
+                    card:card?.nodeId || null,
+                    capture:card?.capture || null,
                     released:released?.nodeId || null,
                 };
             }""")
             assert sticky_target["acquired"] == sticky_target["targetId"]
             assert sticky_target["held"] == sticky_target["targetId"]
+            assert sticky_target["card"] == sticky_target["targetId"]
+            assert sticky_target["capture"] == "node"
             assert sticky_target["released"] != sticky_target["targetId"]
 
             final_frame = page.evaluate("""() => {

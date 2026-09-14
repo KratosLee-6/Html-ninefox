@@ -84,11 +84,34 @@ def _brief_to_md(brief_payload: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _apply_memory_context(brief_result: dict[str, Any], memory_context: dict[str, Any] | None) -> None:
+    if not isinstance(memory_context, dict):
+        return
+    values = memory_context.get("values")
+    if not isinstance(values, dict) or not values:
+        return
+    brief = brief_result.setdefault("brief", {})
+    content = brief.setdefault("content", {})
+    goal = brief.setdefault("goal", {})
+    style = brief.setdefault("style", {})
+    constraints = brief.setdefault("constraints", {})
+    if values.get("brand"):
+        content["brand"] = values["brand"]
+    if values.get("audience"):
+        goal["audience"] = values["audience"]
+    if values.get("tone"):
+        style["tone"] = values["tone"]
+    if values.get("forbidden"):
+        current = constraints.get("forbidden") if isinstance(constraints.get("forbidden"), list) else []
+        constraints["forbidden"] = list(dict.fromkeys(current + list(values["forbidden"])))
+
+
 def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str] = None,
                output: str = "./output", intent_override: Optional[str] = None,
                quiet_llm: bool = False,
                style_overrides: Optional[Dict[str, Any]] = None,
                composition: Optional[Dict[str, Any]] = None,
+               memory_context: Optional[Dict[str, Any]] = None,
                progress_callback: recipe_run.ProgressCallback | None = None) -> Dict[str, Any]:
     """Run the observable five-stage generation pipeline."""
     out_dir = Path(output).expanduser().resolve()
@@ -112,13 +135,17 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
             "prompt_chars": len(prompt),
             "llm_enabled": not quiet_llm,
             "intent_override": intent_override,
+            "project_memory": bool((memory_context or {}).get("applied")),
         })
         brief_result = brief_expert.BriefExpert().execute({"prompt": prompt, "allow_llm": not quiet_llm})
+        _apply_memory_context(brief_result, memory_context)
         intent = intent_override or brief_result.get("intent", "landing")
         tracker.complete("analyze", {
             "intent": intent,
             "confidence": brief_result.get("confidence"),
             "missing_fields": brief_result.get("missing_fields", []),
+            "memory_applied": (memory_context or {}).get("applied", []),
+            "memory_covered": (memory_context or {}).get("covered", []),
         }, model=brief_result.get("_model"), fallback_used=brief_result.get("fallback_used", False))
 
         active_stage = "compose"
@@ -126,6 +153,7 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
             "requested_skill": skill,
             "requested_template": template,
             "selected_blocks": len((composition or {}).get("blocks", [])),
+            "memory_overrides": (memory_context or {}).get("overrides", {}),
         })
         route = router.route(brief_result, intent, skill_override=skill)
         style_result = style_expert.StyleExpert().execute(
@@ -167,6 +195,7 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
             "preset_id": preset.get("id"),
             "blocks": assets_result.get("blocks", []),
             "selection_mode": composition.get("selection_mode"),
+            "memory_applied": (memory_context or {}).get("applied", []),
         }, model=style_result.get("model"), fallback_used=style_result.get("fallback_used", False))
 
         active_stage = "generate"
@@ -217,6 +246,7 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
             "created_at": ts,
             "verification": verification,
             "recipe_run": tracker.snapshot(),
+            "memory_applied": memory_context or {"enabled": False, "applied": [], "covered": []},
         }
         (work / STATE_FILE).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
         tracker.complete("deliver", {
@@ -251,6 +281,7 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
         "html_bytes": len(html.encode("utf-8")),
         "verification": verification,
         "recipe_run": run,
+        "memory_applied": memory_context or {"enabled": False, "applied": [], "covered": []},
     }
 
 

@@ -347,6 +347,132 @@ async function testAISettings() {
   }
 }
 
+const MEMORY_FIELD_LABELS = { brand:'品牌', audience:'受众', tone:'语气', forbidden:'禁忌', template:'模板', primary:'主色', font:'字体', preferred_primary:'主色', preferred_font:'字体' };
+
+function memoryValueText(value) {
+  return Array.isArray(value) ? value.join('、') : String(value || '');
+}
+
+async function loadProjectMemory() {
+  try {
+    state.memory = (await api('/api/memory')).memory;
+  } catch (error) {
+    state.memory = { enabled:false, profile:{ preferred_preset_by_intent:{} }, stats:{}, evidence:[] };
+  }
+  const active = Boolean(state.memory?.enabled && ((state.memory?.stats?.adopted_count || 0) > 0));
+  $('#btn-memory')?.classList.toggle('ai-ready', active);
+  if ($('#memory-status-glyph')) $('#memory-status-glyph').textContent = active ? '●' : '◇';
+  return state.memory;
+}
+
+function fillProjectMemoryForm() {
+  const memory = state.memory || {};
+  const profile = memory.profile || {};
+  const stats = memory.stats || {};
+  $('#memory-enabled').checked = memory.enabled !== false;
+  $('#memory-brand').value = profile.brand || '';
+  $('#memory-audience').value = profile.audience || '';
+  $('#memory-tone').value = profile.tone || '';
+  $('#memory-forbidden').value = (profile.forbidden || []).join('\n');
+  $('#memory-primary').value = profile.preferred_primary || '';
+  $('#memory-font').value = profile.preferred_font || '';
+  $('#memory-notes').value = profile.notes || '';
+  const intent = $('#memory-template-intent').value || 'landing';
+  $('#memory-template').value = (profile.preferred_preset_by_intent || {})[intent] || '';
+  $('#memory-template-list').innerHTML = (state.templates || []).map(item => `<option value="${esc(item.id)}">${esc(item.name)}</option>`).join('');
+  $('#memory-adopted-count').textContent = stats.adopted_count || 0;
+  $('#memory-used-count').textContent = stats.generated_with_memory || 0;
+  $('#memory-last-project').textContent = stats.last_adopted_project || '—';
+}
+
+async function openProjectMemory() {
+  await loadProjectMemory();
+  fillProjectMemoryForm();
+  $('#memory-status').textContent = state.memory?.updated_at
+    ? '最后更新：' + state.memory.updated_at
+    : '尚未形成长期记忆。可手动填写，或在产物检查器中明确采用。';
+  window.FoxInteraction?.openDialog('#memory-modal', { initialFocus:'#memory-enabled' });
+}
+
+function closeProjectMemory() {
+  window.FoxInteraction?.closeDialog('#memory-modal');
+}
+
+async function saveProjectMemory() {
+  const button = $('#memory-save');
+  const status = $('#memory-status');
+  const intent = $('#memory-template-intent').value;
+  const presets = { ...(state.memory?.profile?.preferred_preset_by_intent || {}) };
+  const template = $('#memory-template').value.trim();
+  if (template) presets[intent] = template; else delete presets[intent];
+  window.FoxInteraction?.setBusy(button, true, '保存中…');
+  try {
+    const result = await api('/api/memory', 'PUT', { enabled:$('#memory-enabled').checked, profile:{
+      brand:$('#memory-brand').value.trim(), audience:$('#memory-audience').value.trim(),
+      tone:$('#memory-tone').value.trim(), forbidden:$('#memory-forbidden').value.split(/\n|，|,/).map(item=>item.trim()).filter(Boolean),
+      preferred_preset_by_intent:presets, preferred_primary:$('#memory-primary').value.trim(),
+      preferred_font:$('#memory-font').value, notes:$('#memory-notes').value.trim(),
+    }});
+    state.memory = result.memory;
+    fillProjectMemoryForm();
+    status.textContent = '项目记忆已保存；下次生成会在不冲突时自动复用。';
+    window.FoxInteraction?.notify('项目记忆已保存', 'success');
+  } catch (error) {
+    status.textContent = '保存失败：' + error.message;
+    window.FoxInteraction?.notify('项目记忆保存失败：' + error.message, 'error');
+  } finally { window.FoxInteraction?.setBusy(button, false); }
+}
+
+async function clearProjectMemory() {
+  if (!confirm('清空全部项目记忆？已采用记录、偏好和历史决策都会删除。')) return;
+  const button = $('#memory-clear');
+  window.FoxInteraction?.setBusy(button, true, '清空中…');
+  try {
+    state.memory = (await api('/api/memory', 'DELETE')).memory;
+    fillProjectMemoryForm();
+    $('#memory-status').textContent = '项目记忆已清空。';
+    renderInspector();
+    window.FoxInteraction?.notify('项目记忆已清空', 'success');
+  } catch (error) {
+    $('#memory-status').textContent = '清空失败：' + error.message;
+  } finally { window.FoxInteraction?.setBusy(button, false); }
+}
+
+function isProjectAdopted(projectName) {
+  return Boolean(projectName && (state.memory?.evidence || []).some(item => item.project === projectName));
+}
+
+function memorySummaryMarkup(recommendation) {
+  if (!recommendation || (!recommendation.applied?.length && !recommendation.covered?.length)) return '';
+  const applied = (recommendation.applied || []).map(item =>
+    `<span>复用${MEMORY_FIELD_LABELS[item.field] || item.field}：${esc(memoryValueText(item.value))}</span>`).join('');
+  const covered = (recommendation.covered || []).map(item =>
+    `<span>本次要求覆盖：${MEMORY_FIELD_LABELS[item.field] || item.field}</span>`).join('');
+  return `<div class="memory-explain"><b>本次项目记忆</b><div class="memory-learned">${applied}${covered}</div></div>`;
+}
+
+async function adoptProject(nodeId) {
+  const node = nodes.find(item => item.id === nodeId);
+  const projectName = node?.data?.project_name;
+  if (!projectName) return flash('该产物缺少项目信息，无法采用', false);
+  try {
+    const result = await api('/api/projects/' + encodeURIComponent(projectName) + '/adopt', 'POST', {});
+    state.memory = result.memory;
+    node.data.adopted = true;
+    const learned = (result.learned || []).map(item => MEMORY_FIELD_LABELS[item.field] || item.field);
+    renderInspector();
+    save();
+    flash(result.already_adopted ? '该项目已被采用，未重复学习' : '✓ 已采用并学习：' + (learned.join('、') || '项目偏好'), true);
+  } catch (error) {
+    flash('采用失败：' + error.message, false);
+  }
+}
+
+$('#memory-template-intent')?.addEventListener('change', () => {
+  const presets = state.memory?.profile?.preferred_preset_by_intent || {};
+  $('#memory-template').value = presets[$('#memory-template-intent').value] || '';
+});
+
 function openCreatePanel(requirementId = null) {
   creationDraft.requirementId = requirementId;
   creationDraft.analysis = null;
@@ -424,6 +550,7 @@ async function analyzeCreation() {
       <div class="recommend-title">${esc(item.name)}</div><div class="recommend-desc">${esc(item.description)}</div>
       <div class="recommend-preview"><iframe src="${esc(item.preview_url)}" sandbox="allow-scripts allow-same-origin"></iframe></div>
       <div class="analysis-chips">${item.pages.map(page => `<span>${esc(page.name)}</span>`).join('')}</div>
+      ${memorySummaryMarkup(analysis.memory_applied)}
       <div class="flow-actions"><button class="btn btn-primary" onclick="adoptRecommendedAndGenerate()">采用推荐并生成</button><button class="btn btn-secondary" onclick="sendToCustomWorkspace()">进入工作区自定义</button><button class="btn btn-ghost" onclick="openGalleryPreview('${item.id}')">查看全部页面</button></div>`;
   } catch (error) {
     $('#creation-analysis').className = 'analysis-empty';

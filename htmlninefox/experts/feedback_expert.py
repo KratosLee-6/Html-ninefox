@@ -145,7 +145,6 @@ def _ask_user(reason: str) -> Dict[str, Any]:
 
 def _persist_feedback(project_id: str, ts: str, user_note: str, parsed: Dict[str, Any]) -> None:
     fb_dir = Path.home() / ".htmlninefox" / "feedback"
-    fb_dir.mkdir(parents=True, exist_ok=True)
     md_path = fb_dir / f"{project_id}.md"
     entry = (
         f"\n---\n\n## {ts}\n\n"
@@ -159,6 +158,11 @@ def _persist_feedback(project_id: str, ts: str, user_note: str, parsed: Dict[str
     if parsed.get("tokens_extracted"):
         entry += (f"\n**提取的 token**: ```json\n"
                   f"{json.dumps(parsed['tokens_extracted'], ensure_ascii=False, indent=2)}\n```\n")
-    with md_path.open("a", encoding="utf-8") as f:
-        f.write(entry)
+    try:
+        fb_dir.mkdir(parents=True, exist_ok=True)
+        with md_path.open("a", encoding="utf-8") as handle:
+            handle.write(entry)
+    except OSError as error:
+        logger.warning("[feedback_expert] cache skipped: %s", error)
+        return
     logger.info("[feedback_expert] appended → %s", md_path)

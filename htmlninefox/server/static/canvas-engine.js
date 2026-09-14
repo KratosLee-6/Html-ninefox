@@ -5,8 +5,9 @@
     gridSize: 16,
     alignmentPixels: 7,
     alignmentReleasePixels: 14,
-    portHitPixels: 32,
-    portReleasePixels: 48,
+    portHitPixels: 48,
+    portReleasePixels: 76,
+    nodeCapturePixels: 18,
     workspacePadding: 16,
     workspaceHeader: 46,
   };
@@ -166,30 +167,79 @@
       return { x: node.x + (side === 'out' ? size.width : 0), y: node.y + 30 };
     }
 
+    function pointRectDistance(clientX, clientY, rect, padding = 0) {
+      const left = rect.left - padding;
+      const right = rect.right + padding;
+      const top = rect.top - padding;
+      const bottom = rect.bottom + padding;
+      const dx = Math.max(left - clientX, 0, clientX - right);
+      const dy = Math.max(top - clientY, 0, clientY - bottom);
+      return Math.hypot(dx, dy);
+    }
+
+    function inputMetrics(port, clientX, clientY, padding = settings.nodeCapturePixels) {
+      const portRect = port.getBoundingClientRect();
+      const nodeElement = port.closest('.node');
+      const nodeRect = nodeElement?.getBoundingClientRect();
+      if (!nodeRect || (!portRect.width && !portRect.height)) return null;
+      const portX = portRect.left + portRect.width / 2;
+      const portY = portRect.top + portRect.height / 2;
+      return {
+        portDistance:Math.hypot(clientX - portX, clientY - portY),
+        cardDistance:pointRectDistance(clientX, clientY, nodeRect, padding),
+        nodeRect, portX, portY, nodeElement,
+      };
+    }
+
+    function inputScore(metrics, sourceNode, targetNode, sourceRect) {
+      let score = metrics.cardDistance === 0 ? Math.min(metrics.portDistance, 10) : metrics.portDistance;
+      if (sourceNode?.workspaceId && sourceNode.workspaceId === targetNode?.workspaceId) score -= 7;
+      if (sourceRect && metrics.portX < sourceRect.right - 20) score += 10;
+      return score;
+    }
+
     function nearestInput(clientX, clientY, excludeId, currentTarget = null) {
+      const sourceNode = getNodes().find(item => item.id === excludeId);
+      const sourceElement = sourceNode ? getNodeElement(sourceNode.id) : null;
+      const sourceRect = sourceElement?.getBoundingClientRect();
+      let sticky = null;
       if (currentTarget?.port?.isConnected) {
-        const currentRect = currentTarget.port.getBoundingClientRect();
-        const currentDistance = Math.hypot(clientX - (currentRect.left + currentRect.width / 2), clientY - (currentRect.top + currentRect.height / 2));
-        if (currentDistance <= settings.portReleasePixels) return { ...currentTarget, distance:currentDistance };
+        const metrics = inputMetrics(currentTarget.port, clientX, clientY, settings.nodeCapturePixels + 10);
+        if (metrics && (metrics.portDistance <= settings.portReleasePixels || metrics.cardDistance === 0)) {
+          const targetNode = getNodes().find(item => item.id === currentTarget.nodeId);
+          const capture = metrics.portDistance <= settings.portHitPixels ? 'port' : 'node';
+          sticky = { ...currentTarget, distance:metrics.portDistance,
+            score:inputScore(metrics, sourceNode, targetNode, sourceRect), capture };
+        }
       }
       let best = null;
       for (const port of document.querySelectorAll('.port-in[data-port]')) {
         const nodeId = Number(port.dataset.port);
         if (nodeId === excludeId) continue;
-        const rect = port.getBoundingClientRect();
-        const x = rect.left + rect.width / 2;
-        const y = rect.top + rect.height / 2;
-        const distance = Math.hypot(clientX - x, clientY - y);
-        if (distance <= settings.portHitPixels && (!best || distance < best.distance)) {
-          best = { nodeId, port, distance };
+        const targetNode = getNodes().find(item => item.id === nodeId);
+        if (!targetNode || targetNode.locked) continue;
+        const metrics = inputMetrics(port, clientX, clientY);
+        if (!metrics) continue;
+        const insideCard = metrics.cardDistance === 0;
+        if (metrics.portDistance > settings.portHitPixels && !insideCard) continue;
+        const score = inputScore(metrics, sourceNode, targetNode, sourceRect);
+        if (!best || score < best.score || (score === best.score && metrics.portDistance < best.distance)) {
+          const capture = metrics.portDistance <= settings.portHitPixels ? 'port' : 'node';
+          best = { nodeId, port, distance:metrics.portDistance, score, capture };
         }
       }
-      return best;
+      if (!sticky) return best;
+      if (!best) return sticky;
+      if (best.nodeId === sticky.nodeId) return best;
+      const exactPort = best.capture === 'port' && best.distance <= settings.portHitPixels * 0.55;
+      if (exactPort || best.score + 14 < sticky.score) return best;
+      return sticky;
     }
 
     function edgePath(start, end) {
-      const distance = Math.abs(end.x - start.x);
-      const bend = Math.max(48, Math.min(220, distance * 0.5));
+      const horizontal = Math.abs(end.x - start.x);
+      const vertical = Math.abs(end.y - start.y);
+      const bend = Math.max(56, Math.min(260, horizontal * 0.48 + vertical * 0.16));
       const startControl = start.x + bend;
       const endControl = end.x - bend;
       return 'M ' + start.x + ' ' + start.y + ' C ' + startControl + ' ' + start.y

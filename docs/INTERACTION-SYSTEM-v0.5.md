@@ -1,7 +1,7 @@
 # Html九尾狐 v0.5 · 统一交互系统 / Interaction System
 
-> 状态：v0.5.0-beta2 Recipe Run 基线  
-> 日期：2026-09-08  
+> 状态：v0.5.0-rc1 Project Memory 基线
+> 日期：2026-09-14
 > 视觉方向：Pixel Garden / 像素花园
 
 ## 中文
@@ -28,6 +28,10 @@
 
 ![v0.5.0-beta2 Recipe Run](../assets/screenshots/v0.5.0b2/recipe-run.png)
 
+![v0.5.0-rc1 智能整卡连接](../assets/screenshots/v0.5.0rc1/canvas-smart-linking.png)
+
+![v0.5.0-rc1 双向框选](../assets/screenshots/v0.5.0rc1/canvas-directional-selection.png)
+
 ### v0.5.0-alpha1 已覆盖
 
 - 底部工作区状态继续保留，同时用 Toast 提供即时、可见、可读屏的反馈。
@@ -41,9 +45,11 @@
 - 节点改为自由拖动，不再在拖动过程中强制 16px 网格取整；按住 `Alt` 可临时停用吸附。
 - 对齐参考线采用 7px 捕获、14px 释放的磁吸滞回，减少临界位置反复跳动。
 - 端口坐标由真实视觉边界换算为世界坐标，修复缩放、平移和 CSS 位移造成的连线错位。
-- 输入端口采用 32px 捕获、48px 释放的连接滞回，让快速移动时的目标高亮更稳定。
+- 输入端口采用 48px 捕获、76px 释放的连接滞回；可直接拖到目标卡片上，精确端口始终优先于整卡吸附。
 - 指针松开前会处理最后一帧坐标，避免快速拖动或连线结束时回跳。
 - SVG 连线使用非缩放描边，缩放画布后仍保持清晰一致的线宽。
+- 贝塞尔曲线依据横纵距离自适应弯曲，短连线更紧凑、长连线更自然。
+- 框选提供实时命中预览：左→右要求完整包含，右→左触碰即选，按住 Alt 可从当前选择中减选。
 - 端口命中区域主要向卡片外侧扩展，不再抢占正文区域的节点拖动。
 - 自动适配为工作区导航器预留空间，最低缩放提高到 30%，生成后标题和内容保持可读。
 
@@ -63,6 +69,13 @@
 - 项目目录新增 `recipe-run.json`，同时把最近一次运行写入 `.foxstate.json`，重启后仍可查看。
 - `Generate` 与 `Verify` 阶段提供局部重跑；上游分析和组合结果会标记为复用，不重新消耗模型。
 - 局部重跑使用父运行 ID 串联历史，便于后续建设产物版本树和差异对比。
+
+### RC1 Project Memory
+
+- 只有产物检查器中的明确采用信号才写入长期记忆。
+- 本次明确需求优先，系统说明复用项与覆盖项。
+- 项目记忆可查看、编辑、关闭和清空，并排除 API Key、附件正文和完整私人反馈。
+- Analyze 与 Compose 阶段记录实际复用内容，产物状态持久化 memory_applied。
 
 ### Beta 2 验收门槛
 
@@ -107,9 +120,10 @@ Provide one interaction layer for feedback, asynchronous controls, dialogs, and 
 - Nodes move freely during drag instead of being continuously rounded to a 16px grid; holding `Alt` temporarily disables snapping.
 - Alignment guides use 7px acquisition and 14px release hysteresis to avoid jitter near snap boundaries.
 - Ports are measured from their rendered bounds and converted back to world coordinates, fixing connection offsets after zoom, pan, and CSS transforms.
-- Connection targets use 32px acquisition and 48px release hysteresis for stable highlighting during fast pointer movement.
+- Connection targets use a 48px acquisition radius and 76px release radius, accept whole-card drops, and always prioritize an exact input port over a sticky card candidate.
 - The final pointer position is processed before release, preventing end-of-drag and end-of-connection jumps.
 - SVG connections use non-scaling strokes, port hit areas expand primarily outside cards, and fit-to-content preserves navigator space with a readable 30% minimum zoom.
+- Adaptive Bézier controls keep short and long links visually smooth, while live marquee previews use full containment left-to-right and intersection selection right-to-left; Alt subtracts hits.
 
 ### Beta 1 Acceptance Gate
 

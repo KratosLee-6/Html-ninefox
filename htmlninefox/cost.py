@@ -22,7 +22,10 @@ class CostTracker:
         monthly_budget_usd: float = 50.0,
     ):
         self.log_path = Path(log_path) if log_path else DEFAULT_LOG_PATH
-        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        except OSError:
+            pass
         self.cost_rates = cost_rates or {}
         self.daily_budget_usd = daily_budget_usd
         self.monthly_budget_usd = monthly_budget_usd
@@ -56,9 +59,12 @@ class CostTracker:
             "cached": cached,
             "prompt_preview": prompt_preview[:120],
         }
-        with _write_lock:
-            with self.log_path.open("a", encoding="utf-8") as f:
-                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        try:
+            with _write_lock:
+                with self.log_path.open("a", encoding="utf-8") as f:
+                    f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except OSError:
+            entry["log_persisted"] = False
         return entry
 
     def today_total(self) -> float:
@@ -66,15 +72,18 @@ class CostTracker:
         total = 0.0
         if not self.log_path.exists():
             return total
-        with _write_lock:
-            with self.log_path.open("r", encoding="utf-8") as f:
-                for line in f:
-                    try:
-                        e = json.loads(line)
-                        if e.get("ts", "").startswith(today):
-                            total += e.get("cost_usd", 0.0)
-                    except json.JSONDecodeError:
-                        continue
+        try:
+            with _write_lock:
+                with self.log_path.open("r", encoding="utf-8") as f:
+                    for line in f:
+                        try:
+                            e = json.loads(line)
+                            if e.get("ts", "").startswith(today):
+                                total += e.get("cost_usd", 0.0)
+                        except json.JSONDecodeError:
+                            continue
+        except OSError:
+            return total
         return round(total, 4)
 
     def over_budget(self) -> bool:
