@@ -57,4 +57,11 @@ DSH 插件继续使用独立版本 [`dsh-htmlninefox@0.1.0-preview.1`](https://g
 - DSH 尚未用付费真实模型验证“对话中自主选择技能”，首版也没有专用工具卡片或聊天内 HTML 预览。
 - Windows 安装器未代码签名，可能触发 SmartScreen 提示。
 
+## 发布校验
+
+- [Test CI #35358695358](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358)：199 passed，Chromium 22/22，DSH 2/2。
+- [Build release packages #35358991909](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358991909)：Windows、Linux、Docker 与发布任务全部成功。
+- 五个正式应用包的 `.sha256.txt` 均与 GitHub asset digest 一致；正式 wheel 已完成下载、校验和隔离导入。
+- Release 为预发布，`v0.4.2` 继续作为稳定 Latest。
+
 问题与反馈请提交到 [GitHub Issues](https://github.com/KratosLee-6/Html-ninefox/issues)，附上系统、安装包名称、复现步骤和脱敏日志。

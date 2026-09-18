@@ -7,6 +7,7 @@
 - 应用预发布：[v0.5.0rc2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2)。
 - Windows 安装器 / 便携包、Linux `.run` / `.tar.gz`、Python wheel 和各自 SHA-256 由标签工作流生成。
 - Docker 镜像在标签 CI 中构建并验证导出运行时，不上传镜像仓库。
+- [标签构建 #35358991909](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358991909) 的 Windows、Linux、Docker 与发布任务全部成功；Release 为非草稿预发布，稳定 Latest 仍为 `v0.4.2`。
 - 发布详情与最终校验见 [v0.5.0rc2 Release Notes](RELEASE-NOTES-v0.5.0rc2.md) 和 [发布测试报告](TEST-REPORT-v0.5.0rc2.md)。
 
 ## 已完成的用户路径

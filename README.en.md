@@ -64,7 +64,7 @@ The application version is now `0.5.0rc2`. This installable prerelease combines 
 </tr>
 </table>
 
-Latest validation: **199 passed** on Linux CI, **22/22** Chromium acceptance checks, and **2/2** DSH registry and tarball integration tests. Remaining gaps include real-model DSH conversation selection, Safari / WebView2, cross-process writes, and crash-transaction recovery.
+Latest validation: **199 passed** on [Linux CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358), **22/22** Chromium acceptance checks, and **2/2** DSH registry and tarball integration tests. Remaining gaps include real-model DSH conversation selection, Safari / WebView2, cross-process writes, and crash-transaction recovery.
 
 ## v0.5.0 RC2 Capabilities
 
@@ -170,11 +170,11 @@ htmlninefox export PROJECT_NAME --format png --scope pages --pages 1-3
 
 | Check | Result | Evidence |
 |---|---:|---|
-| Python / API / storage / security / browser tests | **199 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) |
-| Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) |
+| Python / API / storage / security / browser tests | **199 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
+| Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
 | Revision, motion and 100-node gates | **Passed** | [motion delivery](docs/ITERATION-MOTION-20260918.md) |
 | DSH registry and final tarball integration | **2 / 2 passed** | [integration record](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| RC2 package validation | Isolated wheel, real PNG export, and Windows portable startup pass locally; tagged CI rebuilds Windows and Linux assets, publishes SHA-256 files, and verifies Docker | [v0.5.0rc2 test report](docs/TEST-REPORT-v0.5.0rc2.md) |
+| RC2 package validation | Isolated wheel, real PNG export, and Windows portable startup pass locally; tagged CI rebuilt Windows and Linux assets, published SHA-256 files, and verified Docker | [package CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358991909) · [test report](docs/TEST-REPORT-v0.5.0rc2.md) |
 | Historical stable package evidence | v0.4.2 wheel, Windows portable, and Linux archive evidence remains available | [package smoke](docs/test-evidence/v0.4.2-package-smoke.txt) |
 
 See the [v0.5.0rc2 release test report](docs/TEST-REPORT-v0.5.0rc2.md). The [v0.4.2 report](docs/TEST-REPORT-v0.4.2.md) and [environment record](docs/test-evidence/v0.4.2-environment.txt) remain as historical evidence.

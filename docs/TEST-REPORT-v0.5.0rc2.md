@@ -8,8 +8,8 @@
 | --- | --- | --- |
 | 已合并开发证据 | Python / HTTP / Chromium、版本历史、动效、100 节点、DSH 插件 | 见下方历史 CI 与专项报告 |
 | 发布前本地复验 | 元数据、JavaScript、完整 pytest、Chromium E2E、插件、wheel 隔离安装与导出 | 本次发布提交前执行 |
-| 标签构建 | Windows ZIP / EXE、Linux `.run` / `.tar.gz`、wheel、SHA-256、Docker Chromium | `v0.5.0rc2` 标签工作流执行 |
-| 发布后回读 | Release 状态、附件清单、下载文件与 SHA-256 | 标签工作流完成后执行 |
+| 标签构建 | Windows ZIP / EXE、Linux `.run` / `.tar.gz`、wheel、SHA-256、Docker Chromium | **通过** |
+| 发布后回读 | Release 状态、附件清单、正式 wheel 与 SHA-256 | **通过** |
 
 ## 发布前本地结果
 
@@ -27,6 +27,23 @@
 本机因无创建符号链接权限，`test_external_revision_symlink_is_rejected` 跳过；此前 Linux CI 已运行并通过该项。其余测试无失败。
 
 本地 Windows 候选 ZIP：`HtmlNineFox-Windows-x64-0.5.0rc2.zip`，SHA-256 为 `5F51ADAB40E4EFFE0A893B49ACEBB41269C5264FF92E37EAFDBD8F8948826348`。正式 Release 由 GitHub Actions 重建，必须使用 Release 同名 `.sha256.txt`，不能把本地候选值当作正式资产校验值。
+
+## GitHub 发布结果
+
+- [常规 Test CI #35358695358](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358)：**199 passed，62.95 秒**；Chromium **22/22**；DSH **2/2**；JavaScript 与版本元数据通过。
+- [标签构建 #35358991909](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358991909)：Windows、Linux、Docker 与 publish-release 四个任务全部成功。
+- [v0.5.0rc2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2)：非草稿、预发布；稳定 Latest 保持 `v0.4.2`。
+- Release 共 13 个附件：5 个应用包、5 个 SHA-256 sidecar、3 张 `v0.5.0rc2` 实测截图。
+- 正式 wheel 已完整下载，SHA-256 与 sidecar、GitHub asset digest 一致，并从隔离环境 `site-packages` 导入为 `0.5.0rc2`。
+- 其余四个大包的 sidecar 内容均与 GitHub 对对应完整资产计算的 digest 一致。
+
+| 正式应用包 | SHA-256 |
+| --- | --- |
+| `htmlninefox-0.5.0rc2-py3-none-any.whl` | `49a033de934365e7db9b4b0bc7a75e2d52e6536b4176557c77dfbd9fcf41091d` |
+| `HtmlNineFox-Windows-x64-0.5.0rc2.zip` | `13a826e0b9b0ea4b0439ad4e8c51267681823e19d9883b092067ba1a5ac04d96` |
+| `HtmlNineFox-Setup-0.5.0rc2.exe` | `ef68a79db42d83a3b5a3d585c31a4e35a911939647c104bc49a26a5a55dc29d0` |
+| `HtmlNineFox-Linux-0.5.0rc2.run` | `2822b84d3ef4925d624e5f940c10c5121400bbc6f7c0c31c8d6f95c6e80ae190` |
+| `HtmlNineFox-Linux-0.5.0rc2.tar.gz` | `4290e7dcd122e73deac1b472e4b433b6e71e820a878f3def74ae9b3e5a5a187d` |
 
 ## 已有可追溯证据
 
