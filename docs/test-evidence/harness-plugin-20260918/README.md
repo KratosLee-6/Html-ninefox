@@ -20,6 +20,6 @@
 | 离线海报生成 → dry-run → 反馈修改 | 通过，创建 `rev1` |
 | PDF 导出 | 通过，168130 字节，兼容性 100 分 |
 | 完整 PNG 导出 | 通过，1030088 字节，兼容性 100 分 |
-| GitHub CI | 插件 2/2、Python 197 passed、Chromium 22/22 |
+| GitHub CI | 插件 2/2、Python 199 passed、Chromium 22/22 |
 
 完整安装、边界与发布校验见 [DeepSeek Harness 接入记录](../../DEEPSEEK-HARNESS-INTEGRATION.md)。

@@ -97,6 +97,7 @@ CI 已加入插件测试步骤，与现有 Python / Chromium 验收一起运行�
 - 项目中保留[截图来源与实测表](test-evidence/harness-plugin-20260918/README.md)，首页同时展示 DSH 状态、生成结果、版本恢复和动效实验室四张真实截图。
 - 首页已改为完整开发快照，补齐功能矩阵、版本口径、最新 CI、当前限制和下载入口；原先指向不存在 `v0.5.0rc1` Release 的链接已修正为稳定应用 `v0.4.2` 与独立 DSH 插件预览版。
 - 首页补全提交首次 CI 暴露旧发布门禁强制要求未发布的 `v0.5.0rc1` Release 链接。校验已调整为：日常开发分支要求 README 明示源码版本；只有真正构建 `v*` 应用标签时，才要求匹配的 Release 链接。新增 2 项回归测试，确保删除假链接不会削弱正式标签检查。
+- 最终 [GitHub Actions #35353907293](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) 全部通过：发布元数据门禁、插件 2/2、Python / 浏览器 **199 passed，64.24 秒**、JavaScript 语法与 Chromium **22/22**。
 
 ## 反馈与下一步
 

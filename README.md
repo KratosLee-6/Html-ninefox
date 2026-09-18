@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-197%20passed-1F8A70)](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631)
+[![Tests](https://img.shields.io/badge/pytest-199%20passed-1F8A70)](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -73,8 +73,8 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 | 验证 | 结果 | 证据 |
 |---|---:|---|
-| Linux GitHub CI 全量 Python / HTTP / Chromium | **197 passed，61.80 秒** | [Actions #35350016631](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
-| Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [同一 CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
+| Linux GitHub CI 全量 Python / HTTP / Chromium | **199 passed，64.24 秒** | [Actions #35353907293](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) |
+| Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [同一 CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) |
 | DSH 插件注册、重载、卸载、tarball 独立安装 | **2 / 2 通过** | [插件测试](integrations/deepseek-harness/test/plugin.test.js) |
 | 本机动效与竞态专项 | **196 passed，1 skipped** | [动效测试日志](docs/test-evidence/motion-20260918/pytest.txt) |
 | 发布附件回读与 SHA-256 | **一致** | [发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md#正式执行插件预览发布2026-09-18) |
@@ -246,8 +246,8 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **197 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
-| Chromium 真实生成与交互验收 | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
+| Python / API / 存储 / 安全 / 浏览器测试 | **199 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) |
+| Chromium 真实生成与交互验收 | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) |
 | 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
 | 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
 | DSH 插件与最终 tarball 安装 | **2 / 2 通过** | [接入与发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |

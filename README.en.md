@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-197%20passed-1F8A70)](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631)
+[![Tests](https://img.shields.io/badge/pytest-199%20passed-1F8A70)](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -64,7 +64,7 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
 </tr>
 </table>
 
-Latest validation: **197 passed** on Linux CI, **22/22** Chromium acceptance checks, and **2/2** DSH registry and tarball integration tests. Remaining gaps include real-model DSH conversation selection, Safari / WebView2, cross-process writes, and crash-transaction recovery.
+Latest validation: **199 passed** on Linux CI, **22/22** Chromium acceptance checks, and **2/2** DSH registry and tarball integration tests. Remaining gaps include real-model DSH conversation selection, Safari / WebView2, cross-process writes, and crash-transaction recovery.
 
 ## v0.5.0 RC1 Preview
 
@@ -170,8 +170,8 @@ Latest `main` validation completed on **September 18, 2026**. The `v0.4.2` packa
 
 | Check | Result | Evidence |
 |---|---:|---|
-| Python / API / storage / security / browser tests | **197 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
-| Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
+| Python / API / storage / security / browser tests | **199 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) |
+| Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) |
 | Revision, motion and 100-node gates | **Passed** | [motion delivery](docs/ITERATION-MOTION-20260918.md) |
 | DSH registry and final tarball integration | **2 / 2 passed** | [integration record](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
 | Package smoke | Wheel and Windows portable export passed; Linux dual-architecture archive verified | [package smoke](docs/test-evidence/v0.4.2-package-smoke.txt) |
