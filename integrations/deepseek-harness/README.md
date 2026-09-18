@@ -4,25 +4,29 @@
 
 在 Harness 中发现并加载 `htmlninefox` 创作技能，通过已有命令工具调用九尾狐，完成单文件 HTML 生成、反馈迭代与 PDF / PNG 导出。英文请求也可使用。
 
-这是原生 Cordis **技能工作流插件**。当前没有独立的 `htmlninefox_generate` 工具、聊天内预览卡片或 MCP 服务；Python 应用需单独安装。插件不联网、不自动安装依赖、不收集遥测。此预览版源码在本仓库，**尚未发布 npm 或 GitHub Release 资产**。
+这是原生 Cordis **技能工作流插件**。当前没有独立的 `htmlninefox_generate` 工具、聊天内预览卡片或 MCP 服务；Python 应用需单独安装。插件不联网、不自动安装依赖、不收集遥测。
+
+通过 [GitHub Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) 分发预览版，附件包含安装包与 SHA-256 校验文件。**尚未发布 npm**，请使用下方的 Release 安装方式。
 
 ## 安装
 
-需要 Node.js 22+、可用的 DeepSeek Harness、Python 3.10+ 和 Git。首次安装 Python 应用建议使用虚拟环境。以下示例固定了已通过九尾狐 CI 的应用提交与本插件验证使用的 Harness 版本：
+需要 Node.js 22+、可用的 DeepSeek Harness、Python 3.10+ 和 Git。首次安装 Python 应用建议使用虚拟环境。先下载 [dsh-htmlninefox-0.1.0-preview.1.tgz](https://github.com/KratosLee-6/Html-ninefox/releases/download/dsh-htmlninefox-v0.1.0-preview.1/dsh-htmlninefox-0.1.0-preview.1.tgz)，在下载目录运行：
 
 ```sh
 python -m pip install "git+https://github.com/KratosLee-6/Html-ninefox.git@72e08732c9cfa964edba6ef4de99e6d2afaa17e5"
 htmlninefox version
 npm install -g @deepseek-ai/dsh@0.1.5-rc.2
-git clone https://github.com/KratosLee-6/Html-ninefox.git
-cd Html-ninefox
 dsh --profile fox-demo --from-default-profile web --dump-config
-dsh plugin --profile fox-demo add ./integrations/deepseek-harness
+dsh plugin --profile fox-demo add ./dsh-htmlninefox-0.1.0-preview.1.tgz
 dsh --profile fox-demo --dump-config
 dsh --profile fox-demo
 ```
 
 先从 `web` 模板建立新的 `fox-demo` profile，才能直接获得 Web 界面；若该名称已存在，请换一个新的 profile 名称。仅运行 `plugin add` 创建的默认 profile 只包含 base。无需再从 npm 单独安装内置 Web bundle。
+
+安装前可下载同一 Release 的 `SHA256SUMS.txt`，用 PowerShell `Get-FileHash ./dsh-htmlninefox-0.1.0-preview.1.tgz -Algorithm SHA256` 或 Linux `sha256sum -c SHA256SUMS.txt` 核对文件。
+
+开发者也可克隆本仓库，在仓库根目录运行 `dsh plugin --profile fox-demo add ./integrations/deepseek-harness`。
 
 在 Web UI 完成模型配置后，输入：
 
@@ -52,7 +56,9 @@ npm pack --ignore-scripts
 dsh plugin --profile fox-demo add ./dsh-htmlninefox-0.1.0-preview.1.tgz
 ```
 
-包内是直接可运行的 ESM JavaScript，没有安装脚本、构建脚本或运行依赖；测试依赖不进入生产安装。可将此 `.tgz` 上传到**本项目 GitHub Release 的附件区**。发布 npm 前先确认包名可用和 npm 账号归属，再执行 `npm publish --tag preview --access public`；发布成功后才可使用 `dsh plugin --profile fox-demo add dsh-htmlninefox@0.1.0-preview.1`。
+包内是直接可运行的 ESM JavaScript，没有安装脚本、构建脚本或运行依赖；测试依赖不进入生产安装。`.tgz` 通过**本项目 GitHub Release 的附件区**分发。插件标签使用 `dsh-htmlninefox-v<版本>`，与 Python 主程序版本独立。
+
+维护者发布 npm 前先确认包名可用和 npm 账号归属，再执行 `npm publish --tag preview --access public`；发布成功后才可使用 `dsh plugin --profile fox-demo add dsh-htmlninefox@0.1.0-preview.1`。
 
 不要使用 `dsh plugin add github:KratosLee-6/Html-ninefox`：仓库根目录是 Python 项目，不是这个 npm bundle。若以后建立独立插件仓库，把本目录文件放在仓库根目录，才可使用官方文档的 `github:owner/repo#commit` 安装方式。
 
@@ -62,4 +68,4 @@ dsh plugin --profile fox-demo add ./dsh-htmlninefox-0.1.0-preview.1.tgz
 
 ## 反馈
 
-请在 [九尾狐 Issues](https://github.com/KratosLee-6/Html-ninefox/issues) 提交系统、Harness / 插件 / 九尾狐版本、复现步骤、预期与实际结果及脱敏日志。插件不会自动发送用户提示词和产物。路线与官方来源见 [接入调研](../../docs/DEEPSEEK-HARNESS-INTEGRATION.md)。
+请在 [九尾狐 Issues](https://github.com/KratosLee-6/Html-ninefox/issues) 提交系统、Harness / 插件 / 九尾狐版本、复现步骤、预期与实际结果及脱敏日志。插件不会自动发送用户提示词和产物。路线与官方来源见 [接入调研](https://github.com/KratosLee-6/Html-ninefox/blob/main/docs/DEEPSEEK-HARNESS-INTEGRATION.md)。

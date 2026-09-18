@@ -45,7 +45,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## RC2 本地开发进展（2026-09-18）
 
-新增 [DeepSeek Harness 插件预览](integrations/deepseek-harness/README.md)：注册九尾狐创作技能，复用 CLI 生成、修改并导出 HTML 项目；支持本地目录与 tarball 安装。接入选择、发布位置与验证范围见 [调研和交付记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md)。
+新增 [DeepSeek Harness 插件预览](integrations/deepseek-harness/README.md)：注册九尾狐创作技能，复用 CLI 生成、修改并导出 HTML 项目；支持本地目录与 tarball 安装。[下载插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，接入选择、发布位置与验证范围见 [调研和交付记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md)。
 
 动效第一轮已落地：画布右上角可选择跟随系统、减少或关闭动效；生成阶段提示合并，快速重试保留正确进度。启动后访问 `/motion-lab` 可体验六类本地动效样例。全量测试 **196 通过、1 跳过**，端到端 **22/22 通过**，详见 [动效交付记录](docs/ITERATION-MOTION-20260918.md)。
 
