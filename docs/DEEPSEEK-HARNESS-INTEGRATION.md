@@ -17,13 +17,13 @@
 | 插件入口 | ESM JS / TS 模块导出 `apply`，用 `inject` 声明服务依赖 | 纯 JS，注入 `skills` |
 | 可安装插件 | `package.json` 声明 `dsh.bundle.patch`，YAML patch 插入插件行 | 独立子目录，包名 `dsh-htmlninefox` |
 | 发布代码 | 作者自己的 GitHub 仓库 | 当前 `Html-ninefox/integrations/deepseek-harness` |
-| 可下载安装包 | 官方支持本地 tarball | `npm pack` → `.tgz`，可上传本仓库 GitHub Release 的附件区 |
+| 可下载安装包 | 官方支持本地 tarball | `.tgz` 与 SHA-256 已上传本仓库插件预览 Release |
 | 包注册表 | npm 可选，非唯一渠道 | 尚未发布；发布前核验名称归属，使用 `preview` 标签 |
 | GitHub 安装 | git 依赖必须是可解析的 npm 包；TS 构建需 prepare 与用户授权 | 本目录直接运行 JS；当前根仓库是 Python 项目，不能用裸 `github:owner/Html-ninefox` 安装 |
-| 被发现 | 官方建议仓库 topic `dsh-plugin` | 添加该 topic，README 提供截图、安装与反馈入口 |
+| 被发现 | 官方建议仓库 topic `dsh-plugin` | 已添加 `dsh-plugin`、`deepseek-harness`；README 提供安装与反馈入口 |
 | 向官方贡献 | 官方目前不接受外部 PR | 不向官方仓库提交插件 PR；用户问题走自己的 Issues，Harness 本身问题可到官方 Discussions |
 
-源码、Release 资产和 npm 包是三个独立的发布动作。当前完成源码与本地 tarball；未发布 npm 包、未建立独立插件仓库、未上传 Release 附件、未向官方发布推广帖。
+源码、Release 资产和 npm 包是三个独立的发布动作。当前已发布源码、插件标签、GitHub Release 安装包及校验文件，并添加官方建议的 topic。npm 尚未发布：本机对官方 npm 注册表运行 `npm whoami` 返回 `ENEEDAUTH`，需要维护者登录账号；这不影响使用 DSH 官方支持的 tarball 安装。未建立独立插件仓库，也未向官方发布推广帖。
 
 ## 创建步骤与目录
 
@@ -78,10 +78,21 @@ CI 已加入插件测试步骤，与现有 Python / Chromium 验收一起运行�
 - Linux / Node.js 22：插件 **2 项通过**；Python / 浏览器 **197 passed，61.80 秒**；Chromium 端到端 **22/22 通过**。
 - 此段为 CI 通过后的文档追记；npm、Release 附件和 `dsh-plugin` 仓库 topic 尚未发布或修改。
 
+### 正式执行插件预览发布（2026-09-18）
+
+- [公开 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)：非草稿、预览发布；插件标签为 `dsh-htmlninefox-v0.1.0-preview.1`，指向提交 `2de697f`。
+- 附件：`dsh-htmlninefox-0.1.0-preview.1.tgz`（6124 字节）及 `SHA256SUMS.txt`。
+- 安装包 SHA-256：`a00fbece75ef02fce190d2e5af03e2f83b92944bb74ca79b676174172d24f431`。
+- 发布前再次执行插件集成测试，**2/2 通过**；用真实 DSH `0.1.5-rc.2` 将最终 tarball 安装进新的 Web profile，`--dump-config` 正确显示插件层。
+- 发布后重新下载两个附件，校验和与本地已测试包完全一致；GitHub API 记录的附件 digest 一致。
+- GitHub 仓库 topics 已核验包含 `dsh-plugin` 与 `deepseek-harness`。
+- 使用独立插件标签及 `--latest=false`，主应用的 GitHub Latest Release 仍为 `v0.4.2`。
+- 本次仅变更发布文档，运行代码沿用上节通过完整 CI 的实现；未修改此前已有的 Skill 迁移。
+
 ## 反馈与下一步
 
 1. 小范围试用：用户在自己的 Harness 配置下完成海报 / deck / dashboard 各一个，报告安装、生成、修改、导出的结果。
-2. 发布 `.tgz` Release 附件：复用本项目仓库；插件使用独立版本，避免误认为九尾狐主程序新版本。
+2. `.tgz` Release 附件已发布；后续插件更新递增独立版本，重新测试并生成校验文件。
 3. 验证实际需求后，增加结构化工具：生成、反馈、导出分别注册 `ctx.tools`，处理取消、并发、路径边界和清晰错误。
 4. 用户需要频繁安装时，再考虑独立仓库或 npm；有预览需求后再接 Harness 客户端扩展。
 
