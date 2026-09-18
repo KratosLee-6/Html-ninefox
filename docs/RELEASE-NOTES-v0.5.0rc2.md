@@ -47,7 +47,7 @@ DSH 插件继续使用独立版本 [`dsh-htmlninefox@0.1.0-preview.1`](https://g
 
 ## 验证范围
 
-发布前运行版本元数据、内联与独立 JavaScript、完整 pytest、Chromium 端到端、DSH 插件测试、wheel 隔离安装、真实 PNG 导出和 Windows 便携包启动冒烟。标签流水线另外重建 Windows / Linux 包、生成 SHA-256，并验证 Docker 导出运行时。结果与命令见 [发布测试报告](TEST-REPORT-v0.5.0rc2.md)。
+发布前运行版本元数据、内联与独立 JavaScript、完整 pytest、Chromium 端到端、DSH 插件测试、wheel 隔离安装、真实 PNG 导出和 Windows 便携包启动冒烟。标签流水线另外重建 Windows / Linux 包、生成 SHA-256，并验证 Docker 导出运行时。结果与命令见[发布测试报告](https://github.com/KratosLee-6/Html-ninefox/blob/main/docs/TEST-REPORT-v0.5.0rc2.md)。
 
 ## 已知限制
 
