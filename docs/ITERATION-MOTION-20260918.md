@@ -32,6 +32,14 @@
 
 跳过的是旧有新增版本模块的符号链接越界测试，本机未获创建符号链接权限，需在支持该能力的 CI 环境执行。动效专项 4 项均实际运行，通过系统减少动态效果、偏好持久化、重试竞态、节点替换 / 删除、100 次弹窗开关、取消与并发预算、提示合并、样页及手机宽度检查。
 
+### GitHub 交付核验
+
+- 仓库：`KratosLee-6/Html-ninefox`，分支：`main`。
+- 已推送代码提交：[20b5666](https://github.com/KratosLee-6/Html-ninefox/commit/20b5666b8711ea8a55bb50a03cdcb82428f54cf4)。
+- [GitHub Actions Test #35348061868](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35348061868)：**success**，总耗时 2 分 13 秒。
+- Linux 全量结果：**197 passed，65.68 秒**，本机跳过的符号链接测试在 CI 中通过；Chromium 端到端 **22/22 通过**。
+- 本段为通过 CI 后的文档追记，不改变已验证的源代码。
+
 构建说明：系统 Python 缺少 setuptools，第一次无隔离构建失败；随后使用 pip 标准隔离构建成功。冒烟测试从构建出的 wheel 解包导入，确认不误用源码目录，且禁止外网请求后样页操作正常。这不等于 Windows 安装器或 Safari 实机验收。
 
 ### 样页截图
