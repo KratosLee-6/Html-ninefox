@@ -1,6 +1,6 @@
 # RC2 本地增量测试报告
 
-日期：2026-09-18。环境：Windows、Python 3.13、Playwright Chromium。包版本仍为 `0.5.0rc1`，测试针对当前工作区的 RC2 改动。
+日期：2026-09-18。环境：Windows、Python 3.13、Playwright Chromium。本报告记录 RC2 功能开发阶段；该增量随后提升为应用版本 `0.5.0rc2`，最终发布门禁见 [发布测试报告](TEST-REPORT-v0.5.0rc2.md)。
 
 ## 结果
 
@@ -9,7 +9,7 @@
 | 全量 Python / HTTP / 存储 / 生成 / 导出 / Chromium | **192 passed, 1 skipped，87.52 秒** | [完整日志](test-evidence/rc2-20260918/pytest.txt) |
 | 内联 JavaScript | 2 个代码块通过语法检查 | `python scripts/check_inline_js.py` |
 | 独立前端脚本 | canvas-productivity、canvas-engine、workbench-features、sw 均通过 | `node --check` |
-| 发布元数据一致性 | `v0.5.0rc1` 一致 | `python scripts/check_release_version.py` |
+| 开发阶段发布元数据 | 当时的 `v0.5.0rc1` 一致；发布前已提升至 `v0.5.0rc2` | `python scripts/check_release_version.py` |
 | 100 节点 / 99 连线 | 渲染、框选、移动与保存门禁通过 | [实测数据](test-evidence/rc2-20260918/canvas-100-nodes.json) |
 | 桌面 / 手机版本管理 | 命名、恢复、转义、焦点与 390px 布局通过 | [浏览器验收](test-evidence/rc2-20260918/browser-evidence.txt) |
 

@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.4.2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)
+[![App Release](https://img.shields.io/badge/app-v0.5.0rc2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -19,7 +19,7 @@
 
 </div>
 
-![Html九尾狐 v0.4.2 工作台](assets/screenshots/v0.4.2/workbench-overview.png)
+![Html九尾狐 v0.5.0rc2 工作台](assets/screenshots/v0.5.0rc2/workbench-overview.png)
 
 ## 它解决什么问题
 
@@ -44,9 +44,9 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
   用自然语言反馈，按版本继续迭代
 ```
 
-## 最新开发快照（2026-09-18）
+## v0.5.0 RC2 发布快照（2026-09-18）
 
-当前 `main` 的应用版本字段仍为 `0.5.0rc1`，在其上已经完成 RC2 版本历史、原生动效和 DeepSeek Harness 插件增量。应用端尚未制作新的 RC2 安装包；可直接下载的稳定应用安装包仍是 `v0.4.2`。DSH 插件采用独立版本，已发布 `0.1.0-preview.1`。
+当前应用版本为 `0.5.0rc2`，已将 Project Memory、版本历史与恢复、原生动效、100 节点验收和无障碍增量合并为可安装的应用预发布版。`v0.4.2` 继续作为稳定版本；DSH 插件采用独立版本 `0.1.0-preview.1`，不与应用版本混用。
 
 | 增量 | 已完成内容 | 入口与记录 |
 |---|---|---|
@@ -81,7 +81,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 当前限制：没有完成 Safari / WebView2 实机、跨进程并发写入与断电事务恢复，也没有用真实模型验收 DSH 对话自动选用技能。DSH 首版是技能工作流，尚未提供专用工具卡片或聊天内 HTML 预览。
 
-## v0.5.0 RC1 当前预览
+## v0.5.0 RC2 核心能力
 
 ![项目记忆与采用信号](assets/screenshots/v0.5.0rc1/project-memory-dialog.png)
 
@@ -91,9 +91,9 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 - **🔒 隐私边界**：不把 API Key、附件正文或完整反馈原文写入长期记忆。
 - **✅ RC1 验收**：179/179 Python、API、存储、安全与 Chromium 浏览器测试通过。
 
-> RC1 完成本地项目记忆闭环；RC2 的版本历史、100 节点与键盘操作增量见上方开发记录。
+> RC1 建立本地项目记忆闭环；RC2 在其上加入版本历史、恢复、100 节点门禁、键盘操作和用户可控动效。
 
-## v0.4.2 核心能力
+## 工作台完整能力
 
 - **📤 Export Center**：产物节点直接导出 PDF、逐页 PNG 或完整长图，支持页码范围、画布尺寸、1x/2x/3x 和兼容性报告。
 - **✅ 可信发布链路**：版本、CLI、API、安装包、Docker 标签、测试证据和 Git 标签保持一致。
@@ -126,7 +126,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 </tr>
 </table>
 
-### v0.4.2 导出中心
+### 导出中心
 
 ![v0.4.2 导出中心](assets/screenshots/v0.4.2/export-center.png)
 
@@ -144,16 +144,16 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 下载与安装
 
-应用安装包请前往 [v0.4.2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)。`main` 上的 `0.5.0rc1` / RC2 增量尚未创建应用 Release，需从源码运行。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
+应用安装包请前往 [v0.5.0rc2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2)。这是应用预发布版；稳定版本仍为 [v0.4.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.4.2.exe` | 左侧安装，适合普通用户 |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.4.2.zip` | 解压后 `HtmlNineFox.exe`，免安装 |
-| Linux | `HtmlNineFox-Linux-0.4.2.run` | `chmod +x` 后运行，安装到当前用户目录 |
-| Linux/审计 | `HtmlNineFox-Linux-0.4.2.tar.gz` | 可查看完整安装内容 |
-| Python 3.10+ | `htmlninefox-0.4.2-py3-none-any.whl` | 使用 `pip install` 安装 |
-| Docker | `htmlninefox:v0.4.2` | `docker run -p 8620:8620 -e MINIMAX_API_KEY=xxx htmlninefox` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.5.0rc2.exe` | 安装到当前用户，创建开始菜单入口 |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0rc2.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
+| Linux | `HtmlNineFox-Linux-0.5.0rc2.run` | `chmod +x` 后运行，安装到当前用户目录 |
+| Linux/审计 | `HtmlNineFox-Linux-0.5.0rc2.tar.gz` | 可查看完整安装内容 |
+| Python 3.10+ | `htmlninefox-0.5.0rc2-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0rc2-py3-none-any.whl` |
+| Docker | 源码构建 | `docker compose up --build`；标签 CI 验证镜像但不上传镜像仓库 |
 
 ### 快速开始
 
@@ -242,7 +242,7 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 ## 测试与信任证据
 
-当前 `main` 在 **2026-09-18** 完成以下验证；`v0.4.2` 安装包证据保留在原报告中：
+`v0.5.0rc2` 在 **2026-09-18** 执行发布验收；开发增量与 `v0.4.2` 历史包证据继续保留：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
@@ -251,12 +251,12 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 | 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
 | 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
 | DSH 插件与最终 tarball 安装 | **2 / 2 通过** | [接入与发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| 本地候选发布包 | wheel 与 Windows 便携包真实导出通过；Linux `.run/.tar.gz` 完成双架构结构校验与 SHA256；Docker 由标签 CI 验证 | [校验值](docs/test-evidence/v0.4.2-release-sha256.txt) |
+| RC2 发布包 | wheel 隔离安装、真实 PNG 导出与 Windows 便携包启动在本地通过；标签工作流重建 Windows / Linux 资产、发布 SHA-256 并验证 Docker | [RC2 发布测试报告](docs/TEST-REPORT-v0.5.0rc2.md) |
 | LLM 接入 | MiniMax-M3 / Claude / GPT-4o 环境变量自动配置 | [配置文档](docs/INSTALL.md) |
 | Web 工作台 | Python 本地 HTTP 服务 + 实时预览 + 智能体日志 | [E2E 日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
 | Docker 镜像 | 多阶段构建定义 + 标签 CI 独立验证 | [构建工作流](.github/workflows/build-release-packages.yml) |
 
-运行环境记录见：[v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
+发布命令、环境与限制见：[v0.5.0rc2 测试报告](docs/TEST-REPORT-v0.5.0rc2.md)。旧版环境记录见：[v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
 
 ```bash
 python -m pytest tests -q -p no:cacheprovider
@@ -280,7 +280,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.4.2` 仍是当前稳定安装包版本。`main` 的开发基线为 `0.5.0rc1`，已完成 Project Memory、RC2 版本历史与恢复、原生动效系统，以及独立发布的 DeepSeek Harness 插件预览。下一步优先补齐真实模型 DSH 会话、Safari / WebView2、跨进程写入与持续性能验收，再决定 RC2 应用发布范围。
+`v0.5.0rc2` 是当前应用预发布版，`v0.4.2` 仍是稳定版。下一步根据 RC2 反馈补齐真实模型 DSH 会话、Safari / WebView2、跨进程写入、断电恢复和持续性能验收，再决定 `v0.5.0` 正式版范围。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

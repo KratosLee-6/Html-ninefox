@@ -15,6 +15,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0-rc2] — 2026-09-18 · Revision History and Native Motion
+
+### Added
+
+- Version labels, source diffs, parent and restore lineage, and restore-as-new-version for generated projects.
+- Native motion preferences for system, reduced, and off modes, plus a local `/motion-lab` with six interaction samples.
+- Browser acceptance gates for keyboard focus, 390px layouts, and a 100-node / 99-edge canvas workflow.
+- A separately versioned DeepSeek Harness plugin preview for generation, feedback, and PDF / PNG export workflows.
+
+### Changed
+
+- Feedback, regeneration, and restore now preserve HTML and generation-state snapshots instead of overwriting history.
+- Progress feedback uses stable stage updates, bounded visible notifications, cancellable animation cleanup, and an eight-target decoration budget.
+- Release documentation now separates the `v0.5.0rc2` application prerelease from the DSH plugin preview and the stable `v0.4.2` application.
+
+### Fixed
+
+- Reject stale concurrent restores with a revision conflict and protect the current artifact when validation or atomic replacement fails.
+- Preserve legacy HTML-only histories while clearly marking revisions that lack enough state for a full restore.
+- Prevent stale dialog focus callbacks and generation animation cleanup from affecting a newer interaction.
+
+### Verified
+
+- Full Python, HTTP, storage, generation, export, accessibility, performance, and Chromium suites.
+- Chromium end-to-end generation, revision, canvas, and export workflows.
+- Wheel isolation smoke, tagged Windows and Linux package builds, checksum publication, and Docker runtime verification.
+
+---
+
 ## [0.5.0-rc1] — 2026-09-14 · Project Memory
 
 ### Added

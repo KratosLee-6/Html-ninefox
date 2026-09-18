@@ -101,6 +101,13 @@ CI 已加入插件测试步骤，与现有 Python / Chromium 验收一起运行�
 
 ## 反馈与下一步
 
+### 与应用 v0.5.0rc2 的版本边界
+
+- 主应用现已进入 [`v0.5.0rc2`](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2) 预发布，提供 Windows、Linux 与 Python 安装包。
+- DSH 插件仍为独立的 `dsh-htmlninefox@0.1.0-preview.1`，插件 Release 只包含 `.tgz`、校验文件和实测截图。
+- 应用升级不会自动安装或升级 DSH 插件；插件通过宿主命令调用本机已安装的九尾狐 CLI。
+- npm 发布仍暂缓，GitHub tarball 是当前经过验证的插件安装渠道。
+
 1. 小范围试用：用户在自己的 Harness 配置下完成海报 / deck / dashboard 各一个，报告安装、生成、修改、导出的结果。
 2. `.tgz` Release 附件已发布；后续插件更新递增独立版本，重新测试并生成校验文件。
 3. 验证实际需求后，增加结构化工具：生成、反馈、导出分别注册 `ctx.tools`，处理取消、并发、路径边界和清晰错误。

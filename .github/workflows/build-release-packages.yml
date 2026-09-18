@@ -99,11 +99,18 @@ jobs:
         run: |
           tag="${{ github.ref_name }}"
           notes="docs/RELEASE-NOTES-$tag.md"
+          if [ -d "assets/screenshots/$tag" ]; then
+            cp "assets/screenshots/$tag"/*.png release-assets/
+          fi
           if ! gh release view "$tag" >/dev/null 2>&1; then
+            release_flags=()
+            if [[ "$tag" == *rc* || "$tag" == *alpha* || "$tag" == *beta* ]]; then
+              release_flags+=(--prerelease)
+            fi
             if [ -f "$notes" ]; then
-              gh release create "$tag" --title "Html九尾狐 $tag" --notes-file "$notes"
+              gh release create "$tag" --title "Html九尾狐 $tag" --notes-file "$notes" "${release_flags[@]}"
             else
-              gh release create "$tag" --title "Html九尾狐 $tag" --generate-notes
+              gh release create "$tag" --title "Html九尾狐 $tag" --generate-notes "${release_flags[@]}"
             fi
           fi
           find release-assets -type f -print0 | xargs -0 gh release upload "$tag" --clobber

@@ -1,6 +1,13 @@
 # RC2 迭代记录 · 版本历史、恢复与验收
 
-日期：2026-09-18。开发基线为 `0.5.0rc1`，本次为本地 RC2 增量，尚未创建 RC2 标签或安装包。
+日期：2026-09-18。功能开发始于 `0.5.0rc1`，完成验收后已提升应用版本为 `0.5.0rc2`，并纳入应用预发布标签与安装包流水线。
+
+## 发布追记
+
+- 应用预发布：[v0.5.0rc2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2)。
+- Windows 安装器 / 便携包、Linux `.run` / `.tar.gz`、Python wheel 和各自 SHA-256 由标签工作流生成。
+- Docker 镜像在标签 CI 中构建并验证导出运行时，不上传镜像仓库。
+- 发布详情与最终校验见 [v0.5.0rc2 Release Notes](RELEASE-NOTES-v0.5.0rc2.md) 和 [发布测试报告](TEST-REPORT-v0.5.0rc2.md)。
 
 ## 已完成的用户路径
 

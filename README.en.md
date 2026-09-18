@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.4.2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)
+[![App Release](https://img.shields.io/badge/app-v0.5.0rc2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -19,7 +19,7 @@
 
 </div>
 
-![HtmlNineFox v0.4.2 workbench](assets/screenshots/v0.4.2/workbench-overview.png)
+![HtmlNineFox v0.5.0rc2 workbench](assets/screenshots/v0.5.0rc2/workbench-overview.png)
 
 ## What it solves
 
@@ -42,9 +42,9 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
   Revise with natural language feedback, keeping rev history
 ```
 
-## Latest Development Snapshot (2026-09-18)
+## v0.5.0 RC2 Release Snapshot (September 18, 2026)
 
-`main` still reports application version `0.5.0rc1`. RC2 revision history, native motion, and the DeepSeek Harness integration are complete development increments on that baseline, but there is no new RC2 application installer yet. The downloadable application release remains `v0.4.2`; the DSH plugin has its own `0.1.0-preview.1` release.
+The application version is now `0.5.0rc2`. This installable prerelease combines Project Memory with revision history and restore, native motion, the 100-node gate, and accessibility improvements. `v0.4.2` remains the stable release. The DSH plugin uses its separate `0.1.0-preview.1` version.
 
 | Increment | Delivered behavior | Evidence |
 |---|---|---|
@@ -66,7 +66,7 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
 
 Latest validation: **199 passed** on Linux CI, **22/22** Chromium acceptance checks, and **2/2** DSH registry and tarball integration tests. Remaining gaps include real-model DSH conversation selection, Safari / WebView2, cross-process writes, and crash-transaction recovery.
 
-## v0.5.0 RC1 Preview
+## v0.5.0 RC2 Capabilities
 
 ![Project Memory and adoption signals](assets/screenshots/v0.5.0rc1/project-memory-dialog.png)
 
@@ -76,9 +76,9 @@ Latest validation: **199 passed** on Linux CI, **22/22** Chromium acceptance che
 - **🔒 Privacy boundary**: API keys, attachment bodies, and full private feedback text are excluded from long-term memory.
 - **✅ RC1 verification**: 179/179 Python, API, storage, security, and Chromium browser tests pass.
 
-> RC1 completes the local project memory loop. The RC2 history, 100-node, and keyboard interaction work is described above.
+> RC1 established the local project memory loop. RC2 adds revision history and restore, the 100-node gate, keyboard operation, and user-controlled motion.
 
-## v0.4.2 Core Features
+## Complete Workbench Features
 
 - **✅ Trustworthy release metadata**: Version, CLI, API, packages, Docker tag, test evidence, and Git tag stay aligned.
 - **🎨 Pixel Garden Design System**: Unified design tokens (cobalt `#173C8F` + mint `#49B894` + warm paper `#F4F0E7`) across 5 visual artifacts.
@@ -110,7 +110,7 @@ Latest validation: **199 passed** on Linux CI, **22/22** Chromium acceptance che
 </tr>
 </table>
 
-### v0.4.2 Export Center
+### Export Center
 
 ![v0.4.2 Export Center](assets/screenshots/v0.4.2/export-center.png)
 
@@ -128,16 +128,16 @@ Output nodes can export PDF, paginated PNG, or a full-page image. Preflight show
 
 ## Download & Install
 
-Download application installers from the [v0.4.2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2). The `0.5.0rc1` / RC2 work on `main` does not have an application Release yet and must be run from source. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
+Download application packages from the [v0.5.0rc2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2). It is an application prerelease; [v0.4.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2) remains stable. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
 
 | Platform | Recommended file | Usage |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.4.2.exe` | Installer for regular users |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.4.2.zip` | Extract and run `HtmlNineFox.exe` |
-| Linux | `HtmlNineFox-Linux-0.4.2.run` | `chmod +x` and run; installs to user directory |
-| Linux / audit | `HtmlNineFox-Linux-0.4.2.tar.gz` | Inspectable full installation contents |
-| Python 3.10+ | `htmlninefox-0.4.2-py3-none-any.whl` | Install with `pip install` |
-| Docker | `htmlninefox:v0.4.2` | `docker run -p 8620:8620 -e MINIMAX_API_KEY=xxx htmlninefox` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.5.0rc2.exe` | Per-user installer with a Start menu entry |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0rc2.zip` | Extract and run `HtmlNineFox.exe` |
+| Linux | `HtmlNineFox-Linux-0.5.0rc2.run` | `chmod +x` and run; installs to user directory |
+| Linux / audit | `HtmlNineFox-Linux-0.5.0rc2.tar.gz` | Inspectable full installation contents |
+| Python 3.10+ | `htmlninefox-0.5.0rc2-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0rc2-py3-none-any.whl` |
+| Docker | Build from source | `docker compose up --build`; tag CI verifies but does not publish the image |
 
 ### Quick start
 
@@ -166,7 +166,7 @@ htmlninefox export PROJECT_NAME --format png --scope pages --pages 1-3
 
 ## Testing & Trust Evidence
 
-Latest `main` validation completed on **September 18, 2026**. The `v0.4.2` package evidence remains available in its original report.
+`v0.5.0rc2` release validation runs on **September 18, 2026**. Development evidence and the original `v0.4.2` package report remain available.
 
 | Check | Result | Evidence |
 |---|---:|---|
@@ -174,10 +174,10 @@ Latest `main` validation completed on **September 18, 2026**. The `v0.4.2` packa
 | Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293) |
 | Revision, motion and 100-node gates | **Passed** | [motion delivery](docs/ITERATION-MOTION-20260918.md) |
 | DSH registry and final tarball integration | **2 / 2 passed** | [integration record](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| Package smoke | Wheel and Windows portable export passed; Linux dual-architecture archive verified | [package smoke](docs/test-evidence/v0.4.2-package-smoke.txt) |
-| Local release candidates | SHA256 recorded for wheel, Windows ZIP, Linux `.run`, and Linux `.tar.gz`; tag CI publishes official sidecars | [checksums](docs/test-evidence/v0.4.2-release-sha256.txt) |
+| RC2 package validation | Isolated wheel, real PNG export, and Windows portable startup pass locally; tagged CI rebuilds Windows and Linux assets, publishes SHA-256 files, and verifies Docker | [v0.5.0rc2 test report](docs/TEST-REPORT-v0.5.0rc2.md) |
+| Historical stable package evidence | v0.4.2 wheel, Windows portable, and Linux archive evidence remains available | [package smoke](docs/test-evidence/v0.4.2-package-smoke.txt) |
 
-See the full [v0.4.2 test report](docs/TEST-REPORT-v0.4.2.md) and [environment record](docs/test-evidence/v0.4.2-environment.txt).
+See the [v0.5.0rc2 release test report](docs/TEST-REPORT-v0.5.0rc2.md). The [v0.4.2 report](docs/TEST-REPORT-v0.4.2.md) and [environment record](docs/test-evidence/v0.4.2-environment.txt) remain as historical evidence.
 
 ### Run from source
 
