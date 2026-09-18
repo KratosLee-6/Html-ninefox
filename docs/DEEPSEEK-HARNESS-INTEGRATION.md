@@ -71,6 +71,13 @@ dsh --profile fox-demo
 
 CI 已加入插件测试步骤，与现有 Python / Chromium 验收一起运行。本轮未修改项目已有、尚未提交的 `SKILL.md` → `skill/` 迁移。
 
+### GitHub 交付核验
+
+- 源码已推送 `main`：[6dea899](https://github.com/KratosLee-6/Html-ninefox/commit/6dea8996ec125aefc1c60a1b69ec7e28d50c0ac2)。
+- [GitHub Actions #35350016631](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631)：**success**。
+- Linux / Node.js 22：插件 **2 项通过**；Python / 浏览器 **197 passed，61.80 秒**；Chromium 端到端 **22/22 通过**。
+- 此段为 CI 通过后的文档追记；npm、Release 附件和 `dsh-plugin` 仓库 topic 尚未发布或修改。
+
 ## 反馈与下一步
 
 1. 小范围试用：用户在自己的 Harness 配置下完成海报 / deck / dashboard 各一个，报告安装、生成、修改、导出的结果。
