@@ -45,6 +45,7 @@
     const text = String(message || '').trim();
     if (!text) return null;
     const now = Date.now();
+    for (const [key, time] of recentMessages) if (now - time > 10000) recentMessages.delete(key);
     const dedupeKey = `${type}:${text}`;
     if (now - (recentMessages.get(dedupeKey) || 0) < (options.dedupeMs ?? 1400)) return null;
     recentMessages.set(dedupeKey, now);
@@ -66,6 +67,7 @@
     };
     toast.querySelector('.fox-toast-close').addEventListener('click', remove);
     region.appendChild(toast);
+    while (region.children.length > 4) region.firstElementChild.remove();
     requestAnimationFrame(() => toast.classList.add('is-visible'));
 
     const duration = options.duration ?? (normalizedType === 'error' ? 7000 : 4200);
@@ -127,8 +129,10 @@
     const existingIndex = dialogStack.indexOf(dialog);
     if (existingIndex >= 0) dialogStack.splice(existingIndex, 1);
     dialogStack.push(dialog);
+    window.FoxMotion?.play('panel', dialog.firstElementChild, dialog);
 
     requestAnimationFrame(() => {
+      if (dialog.hidden || topDialog() !== dialog) return;
       const requested = elementOf(config.initialFocus);
       const fallback = focusableElements(dialog)[0] || dialog;
       if (!dialog.hasAttribute('tabindex') && fallback === dialog) dialog.tabIndex = -1;
@@ -140,6 +144,7 @@
   function closeDialog(target, options = {}) {
     const dialog = elementOf(target);
     if (!dialog) return false;
+    window.FoxMotion?.cancel(dialog);
     dialog.hidden = true;
     dialog.removeAttribute('data-fox-dialog-open');
     const stackIndex = dialogStack.lastIndexOf(dialog);

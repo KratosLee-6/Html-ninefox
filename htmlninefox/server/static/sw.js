@@ -1,5 +1,5 @@
-const CACHE_NAME = 'htmlninefox-shell-v0.5.0rc1-20260914';
-const APP_SHELL = ['/', '/classic', '/canvas-engine.js', '/interaction-system.js', '/canvas-productivity.js', '/workbench-features.js', '/manifest.webmanifest', '/icon.svg', '/logo-mark.svg', '/logo-horizontal.svg'];
+const CACHE_NAME = 'htmlninefox-shell-rc2-motion-20260918';
+const APP_SHELL = ['/', '/classic', '/motion-lab', '/motion-system.js', '/canvas-engine.js', '/interaction-system.js', '/canvas-productivity.js', '/workbench-features.js', '/manifest.webmanifest', '/icon.svg', '/logo-mark.svg', '/logo-horizontal.svg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));

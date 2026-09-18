@@ -15,7 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from . import recipe_run
+from . import recipe_run, revisions
 from .alliance.router import AllianceRouter
 from .experts import asset_expert, brief_expert, generate_expert, style_expert
 from .experts import feedback_expert as feedback_expert_mod
@@ -223,7 +223,7 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
 
         active_stage = "deliver"
         tracker.start("deliver", {"output_root": str(out_dir), "project_name": work.name})
-        (work / "output.html").write_text(html, encoding="utf-8")
+        revisions.atomic_write(work / "output.html", html)
         (work / "brief.json").write_text(
             json.dumps(brief_result, ensure_ascii=False, indent=2), encoding="utf-8")
         (work / "brief.md").write_text(_brief_to_md(brief_result.get("brief", {})), encoding="utf-8")
@@ -251,12 +251,13 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
         (work / STATE_FILE).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
         tracker.complete("deliver", {
             "project_name": work.name,
-            "files": 7,
+            "files": 9,
             "preview": "output.html",
         }, model="local-filesystem", fallback_used=False)
         run = tracker.succeed()
         state["recipe_run"] = run
         (work / STATE_FILE).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+        revisions.snapshot(work, state, html)
         recipe_run.write_recipe_run(work, run)
     except Exception as error:
         if tracker.run.get("status") != "failed":
@@ -265,7 +266,7 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
         raise
 
     files = [
-        "output.html", "brief.json", "brief.md", "style.md", "assets.json",
+        "output.html", "revisions/rev0.html", "revisions/rev0.json", "brief.json", "brief.md", "style.md", "assets.json",
         STATE_FILE, recipe_run.RECIPE_RUN_FILE,
     ]
     return {
@@ -285,6 +286,7 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
     }
 
 
+@revisions.locked_project
 def rerun_project(project: str | Path, stage: str = "generate",
                   progress_callback: recipe_run.ProgressCallback | None = None) -> Dict[str, Any]:
     """Rerun the render or verification stage using persisted project state."""
@@ -294,7 +296,8 @@ def rerun_project(project: str | Path, stage: str = "generate",
     state_path = project_path / STATE_FILE
     if not state_path.is_file():
         raise ValueError(f"项目缺少 {STATE_FILE}")
-    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state = revisions.load_state(project_path)
+    before = dict(state)
     previous_run = state.get("recipe_run") if isinstance(state.get("recipe_run"), dict) else {}
     tracker = recipe_run.RecipeRunTracker(
         state.get("prompt", ""), progress_callback,
@@ -312,7 +315,6 @@ def rerun_project(project: str | Path, stage: str = "generate",
                 "source": "persisted_project_state",
             })
             html = _render_state(state, state.get("preset", {}))
-            html_path.write_text(html, encoding="utf-8")
             tracker.complete("generate", {
                 "generator": "local:state-rerender",
                 "html_bytes": len(html.encode("utf-8")),
@@ -340,7 +342,10 @@ def rerun_project(project: str | Path, stage: str = "generate",
         state["verification"] = verification
         state["recipe_run"] = run
         state["updated_at"] = datetime.now().isoformat(timespec="seconds")
-        state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+        if stage == "generate":
+            state = revisions.commit(project_path, before, state, html, kind="rerun")
+        else:
+            revisions.atomic_write(state_path, json.dumps(state, ensure_ascii=False, indent=2))
         recipe_run.write_recipe_run(project_path, run)
     except Exception as error:
         if tracker.run.get("status") != "failed":
@@ -360,6 +365,7 @@ def rerun_project(project: str | Path, stage: str = "generate",
         "recipe_run": run,
         "rerun_from": stage,
     }
+@revisions.locked_project
 def run_feedback(project: str, note: str, revise: bool = True, allow_llm: bool = True) -> Dict[str, Any]:
     """反馈迭代：解析反馈 → 改 token → 重渲染 output.html。
 
@@ -371,7 +377,8 @@ def run_feedback(project: str, note: str, revise: bool = True, allow_llm: bool =
     if not state_path.exists():
         return {"ok": False, "error": f"项目缺少 {STATE_FILE}（请用 htmlninefox expert 生成）"}
 
-    state = json.loads(state_path.read_text(encoding="utf-8"))
+    state = revisions.load_state(proj)
+    before = dict(state)
     preset = state.get("preset") or {}
     if "tokens" not in preset:
         preset = _tokens.get_preset(state.get("preset_id", _tokens.DEFAULT_PRESET))
@@ -392,18 +399,16 @@ def run_feedback(project: str, note: str, revise: bool = True, allow_llm: bool =
     new_preset["_matched_by"] = f"feedback:rev{state.get('revision', 0) + 1}"
     html = _render_state(state, new_preset)
 
-    rev_dir = proj / "revisions"
-    rev_dir.mkdir(exist_ok=True)
-    new_rev = state.get("revision", 0) + 1
-    (rev_dir / f"rev{new_rev}.html").write_text(html, encoding="utf-8")
-    output_path.write_text(html, encoding="utf-8")
-
     state["preset"] = {k: v for k, v in new_preset.items() if not k.startswith("_")}
     state["preset_id"] = new_preset.get("id", state.get("preset_id"))
-    state["revision"] = new_rev
     state["last_feedback"] = {"note": note, "suggestion": fb.get("suggestion", ""),
                               "rules": fb.get("rules", []), "tokens": fb.get("tokens_extracted", {})}
-    state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+    state["verification"] = recipe_run.verify_html(html)
+    if not state["verification"]["ok"]:
+        raise ValueError("产物未通过 HTML 基础质量验证")
+    state["recipe_run"] = None
+    state = revisions.commit(proj, before, state, html, kind="feedback")
+    new_rev = state["revision"]
 
     # 项目内反馈沉淀
     fb_md = proj / "feedback.md"

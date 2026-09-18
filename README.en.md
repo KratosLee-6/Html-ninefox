@@ -41,6 +41,14 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
   Revise with natural language feedback, keeping rev history
 ```
 
+## RC2 Local Development (2026-09-18)
+
+The first motion increment adds system/reduced/off preferences, cancellable native animation, retry-safe progress cleanup, and stage-based notifications. Visit `/motion-lab` on the local workbench for six interactive samples. Validation: **196 passed, 1 skipped**, plus **22/22 end-to-end checks**. See the [delivery record](docs/ITERATION-MOTION-20260918.md).
+
+The artifact inspector now offers revision history, labels, source diffs, and restoration as a new revision. Feedback and generation reruns preserve separate revisions. Restoration includes the HTML and its generation settings, so subsequent edits use the restored configuration. Legacy HTML-only revisions remain available for comparison and labeling.
+
+The package baseline remains `0.5.0rc1`; these changes have not been released as an installer. See the [iteration notes](docs/ITERATION-RC2-20260918.md) and [test report](docs/TEST-REPORT-RC2-20260918.md).
+
 ## v0.5.0 RC1 Preview
 
 ![Project Memory and adoption signals](assets/screenshots/v0.5.0rc1/project-memory-dialog.png)
@@ -51,7 +59,7 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
 - **🔒 Privacy boundary**: API keys, attachment bodies, and full private feedback text are excluded from long-term memory.
 - **✅ RC1 verification**: 179/179 Python, API, storage, security, and Chromium browser tests pass.
 
-> RC1 completes the local compounding loop. RC2 will focus on 100-node performance, accessibility, and artifact diffs.
+> RC1 completes the local project memory loop. The RC2 history, 100-node, and keyboard interaction work is described above.
 
 ## v0.4.2 Core Features
 

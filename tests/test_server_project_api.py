@@ -123,6 +123,37 @@ def test_template_preview_http(api_server):
     assert invalid["error"]["code"] == "template_preview_invalid"
 
 
+def test_project_revision_diff_http(api_server):
+    base, root = api_server
+    project = make_project(root)
+    revisions = project / "revisions"
+    revisions.mkdir()
+    (revisions / "rev0.html").write_text(
+        "<!doctype html>\n<title>project</title>\n<p>old</p>\n", encoding="utf-8")
+    (revisions / "rev1.html").write_text(
+        "<!doctype html>\n<title>project v2</title>\n<p>new</p>\n", encoding="utf-8")
+    (project / "output.html").write_text(
+        "<!doctype html>\n<title>project v2</title>\n<p>new</p>\n", encoding="utf-8")
+    state = json.loads((project / pipeline.STATE_FILE).read_text(encoding="utf-8"))
+    state["revision"] = 1
+    (project / pipeline.STATE_FILE).write_text(json.dumps(state), encoding="utf-8")
+
+    diff, _ = request(base, "/api/projects/alpha/diff?from=0&to=1")
+    assert diff["from_revision"] == 0
+    assert diff["to_revision"] == 1
+    assert diff["summary"]["added_lines"] == 2
+    assert diff["summary"]["removed_lines"] == 2
+    assert diff["summary"]["changed_blocks"] == 1
+    assert "project v2" in diff["diff"]
+    assert len(diff["sha256"]["after"]) == 64
+    assert {item["revision"] for item in diff["revisions"]} == {0, 1}
+
+    missing, _ = request(base, "/api/projects/alpha/diff?from=0&to=9", expected=404)
+    assert missing["error"]["code"] == "revision_not_found"
+    invalid, _ = request(base, "/api/projects/alpha/diff?from=oops", expected=400)
+    assert invalid["error"]["code"] == "revision_invalid"
+
+
 def test_generate_job_and_diagnostic_download(api_server):
     base, root = api_server
     submitted, _ = request(base, "/api/jobs", "POST", {
@@ -313,3 +344,30 @@ def test_invalid_remembered_template_does_not_block_generation(api_server):
         item["field"] == "template" and "安全忽略" in item["reason"]
         for item in generated["memory_applied"]["covered"]
     )
+
+
+def test_revision_history_label_restore_and_conflict_http(api_server):
+    base, root = api_server
+    project = pipeline.run_expert("产品介绍落地页", output=str(root), quiet_llm=True)["work"]
+    original = (project / "output.html").read_bytes()
+    pipeline.run_feedback(str(project), "颜色再深一点", allow_llm=False)
+    path = "/api/projects/" + urllib.parse.quote(project.name)
+    named, _ = request(base, path + "/revision-label", "PATCH", {"revision": 0, "label": "客户确认稿"})
+    assert named["revisions"][0]["label"] == "客户确认稿"
+    history, _ = request(base, path + "/revisions")
+    assert history["current_revision"] == 1
+    assert history["revisions"][0]["can_restore"]
+    restored, _ = request(base, path + "/restore-revision", "POST", {"revision": 0, "expected_revision": 1})
+    assert restored["project"]["revision"] == 2
+    assert (project / "output.html").read_bytes() == original
+    conflict, _ = request(base, path + "/restore-revision", "POST", {"revision": 0, "expected_revision": 1}, expected=409)
+    assert conflict["error"]["code"] == "revision_conflict"
+    diff, _ = request(base, path + "/diff?from=0&to=2")
+    assert diff["summary"]["same"]
+    assert diff["revisions"][-1]["restored_from"] == 0
+    bad, _ = request(base, path + "/revision-label", "PATCH", {"revision": 0, "label": "x" * 81}, expected=400)
+    assert bad["error"]["code"] == "revision_label_invalid"
+    missing, _ = request(base, path + "/restore-revision", "POST", {"revision": 0}, expected=400)
+    assert missing["error"]["code"] == "revision_invalid"
+    invalid, _ = request(base, path + "/revision-label", "PATCH", {"revision": True, "label": "bad"}, expected=400)
+    assert invalid["error"]["code"] == "revision_invalid"

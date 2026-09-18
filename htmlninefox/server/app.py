@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Callable
 from urllib.parse import parse_qs, unquote, urlparse
 
-from .. import __version__, exporting, llm, pipeline, project_memory, template_gallery
+from .. import __version__, exporting, llm, pipeline, project_memory, revisions, template_gallery
 from ..user_gallery import UserGalleryError, UserGalleryStore
 from .diagnostics import create_diagnostic_bundle
 from .inputs import InputError, InputStore
@@ -36,6 +36,8 @@ STATIC_FILES = {
     "/logo-horizontal.svg": ("logo-horizontal.svg", "image/svg+xml; charset=utf-8", "public, max-age=86400"),
     "/canvas-engine.js": ("canvas-engine.js", "application/javascript; charset=utf-8", "no-cache"),
     "/interaction-system.js": ("interaction-system.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/motion-system.js": ("motion-system.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/motion-lab": ("motion-lab.html", "text/html; charset=utf-8", "no-cache"),
     "/canvas-productivity.js": ("canvas-productivity.js", "application/javascript; charset=utf-8", "no-cache"),
     "/workbench-features.js": ("workbench-features.js", "application/javascript; charset=utf-8", "no-cache"),
 }
@@ -60,6 +62,7 @@ APP_CAPABILITIES = {
         "input_attachments", "ai_settings", "alliance",
         "export_center", "export_pdf", "export_png",
         "recipe_run", "recipe_partial_rerun", "project_memory", "adoption_signal",
+        "revision_diff", "revision_history", "revision_labels", "revision_restore",
     ],
     "schemas": {"canvas": 1},
     "offline": {"workspace": True, "generation": False},
@@ -230,6 +233,8 @@ class _Handler(BaseHTTPRequestHandler):
             return action()
         except StoreError as error:
             return self._error(error)
+        except revisions.RevisionError as error:
+            return self._error(StoreError(error.code, str(error), error.status))
         except Exception:  # noqa: BLE001
             traceback.print_exc()
             return self._error(StoreError("internal_error", "服务内部错误", 500,
@@ -335,6 +340,24 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json(self._jobs().get(path[len("/api/jobs/"):]))
         if path == "/api/workspace":
             return self._json(self._store().load_workspace())
+        if path.startswith("/api/projects/") and path.endswith("/revisions"):
+            name = path[len("/api/projects/"):-len("/revisions")]
+            return self._json(self._store().revision_history(name))
+        if path.startswith("/api/projects/") and path.endswith("/diff"):
+            name = path[len("/api/projects/"):-len("/diff")]
+            def revision_param(key: str) -> int | None:
+                raw = (query.get(key) or [None])[0]
+                if raw in {None, ""}:
+                    return None
+                try:
+                    value = int(raw)
+                except ValueError as exc:
+                    raise StoreError("revision_invalid", f"{key} 版本必须是整数", 400) from exc
+                if value < 0:
+                    raise StoreError("revision_invalid", f"{key} 版本不能小于 0", 400)
+                return value
+            return self._json(self._store().compare_revisions(
+                name, revision_param("from"), revision_param("to")))
         if path.startswith("/api/projects/"):
             return self._json(self._store().get_project(path[len("/api/projects/"):]))
         if path.startswith("/output/"):
@@ -406,6 +429,10 @@ class _Handler(BaseHTTPRequestHandler):
         if path == "/api/diagnostics":
             bundle = create_diagnostic_bundle(_OUTPUT_ROOT, APP_CAPABILITIES)
             return self._json({"ok": True, "bundle": bundle}, 201)
+        if path.startswith("/api/projects/") and path.endswith("/restore-revision"):
+            name = path[len("/api/projects/"):-len("/restore-revision")]
+            return self._json(self._store().restore_revision(
+                name, body.get("revision"), body.get("expected_revision")))
         if path.startswith("/api/projects/") and path.endswith("/recipe-rerun"):
             name = path[len("/api/projects/"):-len("/recipe-rerun")]
             stage = str(body.get("stage") or "generate")
@@ -451,6 +478,9 @@ class _Handler(BaseHTTPRequestHandler):
         raise StoreError("not_found", "接口不存在", 404)
 
     def _patch(self, path: str, body: dict):
+        if path.startswith("/api/projects/") and path.endswith("/revision-label"):
+            name = path[len("/api/projects/"):-len("/revision-label")]
+            return self._json(self._store().name_revision(name, body.get("revision"), body.get("label")))
         if path.startswith("/api/projects/"):
             name = path[len("/api/projects/"):]
             project = self._store().rename_project(name, body.get("new_name", ""))

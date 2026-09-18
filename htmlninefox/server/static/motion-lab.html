@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>九尾狐 · 动效样页</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#F4F0E7;color:#17283D;font:16px/1.65 system-ui,sans-serif}main{max-width:1000px;margin:auto;padding:48px 24px}header{display:flex;gap:24px;justify-content:space-between;align-items:start;flex-wrap:wrap}h1{font-size:36px;line-height:1.2;margin:8px 0 16px}p{color:#536476}small{color:#173C8F;letter-spacing:.12em}select,button{font:inherit;min-height:40px;border:1px solid #78958B;border-radius:6px;padding:6px 12px;background:#FFFDF6;color:#173C8F;cursor:pointer}button:hover{background:#EDF3EC}button:focus-visible,select:focus-visible{outline:3px solid #E57A3F;outline-offset:3px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:20px;margin:28px 0}.card{padding:22px;border:1px solid #BAC8BD;border-radius:8px;background:#FFFDF6;box-shadow:3px 3px 0 #DFE6D9}.demo{height:92px;display:flex;align-items:center;justify-content:center;margin:16px 0;background:#EDF3EC;border-radius:4px}.tile{border:1px solid #78958B;background:#FFFDF6;padding:10px 18px;min-width:130px;text-align:center}.tile.selected{border:2px solid #173C8F}h2{font-size:18px;margin:0}.caption{font-size:13px;min-height:44px}.result{color:#1F795E}.wire{width:100%;height:60px;stroke:#173C8F;stroke-width:3;fill:none}.wire-enter{stroke-dasharray:1;animation:wire var(--motion-panel) var(--motion-ease)}@keyframes wire{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}#status{min-height:28px;border-left:4px solid #49B894;padding-left:12px}footer{font-size:13px;color:#536476}a{color:#173C8F}
+</style></head><body><main>
+<header><div><small>PIXEL GARDEN / MOTION 01</small><h1>动作，说明发生了什么。</h1><p>点击体验六种反馈。关闭动效后，状态仍然清楚可见。</p></div><label>动效偏好<br><select data-motion-preference aria-label="动效偏好"><option value="system">跟随系统</option><option value="reduced">减少动态效果</option><option value="off">关闭动态效果</option></select></label></header>
+<div class="grid">
+<section class="card"><h2>01 · 操作反馈</h2><p class="caption">轻强调确认操作，保持文字稳定。</p><div class="demo"><div class="tile" id="button-demo">等待操作</div></div><button data-demo="button">确认操作</button></section>
+<section class="card"><h2>02 · 选中素材</h2><p class="caption">边框表示选择，动效只作辅助。</p><div class="demo"><div class="tile" id="selection-demo">模板 A</div></div><button data-demo="selection" aria-pressed="false">切换选择</button></section>
+<section class="card"><h2>03 · 建立连接</h2><p class="caption">沿连接方向显示关系，不移动卡片。</p><div class="demo"><svg class="wire" viewBox="0 0 240 60" aria-label="输入连接到输出"><path id="wire-demo" pathLength="1" d="M20 30 C90 30 150 30 220 30" /></svg></div><button data-demo="wire">重播连接</button></section>
+<section class="card"><h2>04 · 阶段切换</h2><p class="caption">这里演示三个阶段；工作台以真实任务状态驱动。</p><div class="demo"><div class="tile" id="stage-demo">分析需求</div></div><button data-demo="stage">下一阶段</button></section>
+<section class="card"><h2>05 · 产物就绪</h2><p class="caption">状态立即可用，揭示动效不阻塞操作。</p><div class="demo"><div class="tile result" id="result-demo">HTML 已就绪</div></div><button data-demo="result">揭示结果</button></section>
+<section class="card"><h2>06 · 版本恢复</h2><p class="caption">强调新的版本编号，保留历史来源。</p><div class="demo"><div class="tile" id="revision-demo">rev1 · 当前</div></div><button data-demo="revision">演示恢复</button></section>
+</div><p id="status" role="status" aria-live="polite">此页为交互样例，不创建项目或提交生成任务。</p><footer>原生 CSS + Web Animations API · 无网络依赖 · <a href="/">返回工作台</a></footer>
+</main><script src="motion-system.js"></script><script>
+const stages=['分析需求','组合输入','产物就绪'];let stage=0,revision=1;
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-demo]');if(!button)return;
+ const type=button.dataset.demo;let target;
+ if(type==='wire'){FoxMotion.animateClass(document.querySelector('#wire-demo'),'wire-enter','wire',220);}
+ else{
+  target=document.querySelector('#'+({button:'button',selection:'selection',stage:'stage',result:'result',revision:'revision'}[type])+'-demo');
+  if(type==='button')target.textContent='✓ 操作完成';
+  if(type==='selection'){const selected=target.classList.toggle('selected');button.setAttribute('aria-pressed',String(selected));target.textContent=selected?'✓ 模板 A 已选':'模板 A';}
+  if(type==='stage')target.textContent=stages[++stage%stages.length];
+  if(type==='revision')target.textContent='rev'+(++revision)+' · 恢复自 rev0';
+  FoxMotion.play(type==='result'?'reveal':'emphasis',target);
+ }
+ document.querySelector('#status').textContent='已演示：'+button.textContent+' · 当前动效：'+document.documentElement.dataset.foxMotion;
+});
+</script></body></html>

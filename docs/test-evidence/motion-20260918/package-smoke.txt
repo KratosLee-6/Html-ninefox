@@ -1,0 +1,3 @@
+PASS: wheel imports from extracted distribution
+PASS: motion module, sample page and service worker are packaged and served
+PASS: sample controls work with all external network requests blocked

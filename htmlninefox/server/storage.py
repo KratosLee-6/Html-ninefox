@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import difflib
+import hashlib
 import json
 import os
 import re
@@ -10,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from .. import pipeline
+from .. import pipeline, revisions
 
 CANVAS_SCHEMA_VERSION = 1
 WORKSPACE_FILE = ".workspace.json"
@@ -52,6 +54,79 @@ class ProjectStore:
 
     def get_project(self, name: str) -> dict[str, Any]:
         return self._project_meta(self._existing_project(name))
+
+    def compare_revisions(self, name: str, from_revision: int | None = None,
+                          to_revision: int | None = None) -> dict[str, Any]:
+        """Return a bounded, metadata-rich diff between two HTML revisions."""
+        project = self._existing_project(name)
+        with revisions.project_lock(project):
+            return self._compare_revisions(project, from_revision, to_revision)
+
+    def revision_history(self, name: str) -> dict[str, Any]:
+        project = self._existing_project(name)
+        with revisions.project_lock(project):
+            state = revisions.load_state(project)
+            return {"ok": True, "current_revision": state.get("revision", 0),
+                    "revisions": revisions.history(project, state)}
+
+    def name_revision(self, name: str, revision: int, label: str) -> dict[str, Any]:
+        project = self._existing_project(name)
+        return {"ok": True, "revisions": revisions.name_revision(project, revision, label)}
+
+    def restore_revision(self, name: str, revision: int, expected_revision: int) -> dict[str, Any]:
+        project = self._existing_project(name)
+        with revisions.project_lock(project):
+            revisions.restore(project, revision, expected_revision)
+            return {"ok": True, "project": self._project_meta(project)}
+
+    def _compare_revisions(self, project: Path, from_revision: int | None,
+                           to_revision: int | None) -> dict[str, Any]:
+        state = revisions.load_state(project)
+        current = state.get("revision", 0)
+        available = revisions.available(project, state)
+        if not available:
+            raise StoreError("revision_not_found", "项目没有可比较的产物版本", 404)
+        right = current if to_revision is None else to_revision
+        left = max((revision for revision in available if revision < right), default=right) if from_revision is None else from_revision
+        if left < 0 or right < 0 or left not in available or right not in available:
+            raise StoreError("revision_not_found", "请求的产物版本不存在", 404,
+                             {"available": sorted(available), "current": current})
+
+        before, before_path = revisions.read_html(project, left, state)
+        after, after_path = revisions.read_html(project, right, state)
+        before_lines = before.splitlines(keepends=True)
+        after_lines = after.splitlines(keepends=True)
+        opcodes = difflib.SequenceMatcher(None, before_lines, after_lines).get_opcodes()
+        added = sum(len(after_lines[j1:j2]) for tag, _, _, j1, j2 in opcodes if tag in {"insert", "replace"})
+        removed = sum(len(before_lines[i1:i2]) for tag, i1, i2, _, _ in opcodes if tag in {"delete", "replace"})
+        changed_blocks = sum(1 for tag, *_ in opcodes if tag == "replace")
+        diff = "".join(difflib.unified_diff(
+            before_lines, after_lines, fromfile=f"rev{left}.html", tofile=f"rev{right}.html", n=3,
+        ))
+        truncated = len(diff) > 50000
+        return {
+            "ok": True,
+            "project_name": project.name,
+            "current_revision": current,
+            "revisions": revisions.history(project, state),
+            "from_revision": left,
+            "to_revision": right,
+            "summary": {
+                "same": before == after,
+                "added_lines": added,
+                "removed_lines": removed,
+                "changed_blocks": changed_blocks,
+                "before_bytes": len(before.encode("utf-8")),
+                "after_bytes": len(after.encode("utf-8")),
+            },
+            "files": {"before": before_path.name, "after": after_path.name},
+            "sha256": {
+                "before": hashlib.sha256(before.encode("utf-8")).hexdigest(),
+                "after": hashlib.sha256(after.encode("utf-8")).hexdigest(),
+            },
+            "diff": diff[:50000],
+            "truncated": truncated,
+        }
 
     def rename_project(self, name: str, new_name: str) -> dict[str, Any]:
         source = self._existing_project(name)

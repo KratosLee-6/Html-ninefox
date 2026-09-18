@@ -1,0 +1,22 @@
+index.html: inline JavaScript syntax valid: 2 block(s)
+motion-lab.html: inline JavaScript syntax valid: 1 block(s)
+motion-system.js: syntax valid
+interaction-system.js: syntax valid
+canvas-engine.js: syntax valid
+canvas-productivity.js: syntax valid
+workbench-features.js: syntax valid
+sw.js: syntax valid
+release metadata consistent: v0.5.0rc1
+warning: in the working copy of '.github/workflows/test.yml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.en.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/INTERACTION-SYSTEM-v0.5.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/ROADMAP.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'htmlninefox/pipeline.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'htmlninefox/server/app.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'htmlninefox/server/static/index.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'htmlninefox/server/static/interaction-system.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'htmlninefox/server/static/sw.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'htmlninefox/server/storage.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/check_inline_js.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tests/test_server_project_api.py', LF will be replaced by CRLF the next time Git touches it
