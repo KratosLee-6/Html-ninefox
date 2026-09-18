@@ -31,24 +31,31 @@ def require_text(relative: str, expected: str) -> None:
         raise SystemExit(f"{relative} is missing expected release metadata: {expected}")
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--tag", help="Git tag to compare, for example v0.4.1")
-    args = parser.parse_args()
-
+def validate_release_metadata(tag: str | None = None) -> str:
     version = project_version()
     source_version = package_version()
     if source_version != version:
         raise SystemExit(
             f"package version mismatch: pyproject={version}, htmlninefox={source_version}"
         )
-    if args.tag and args.tag.removeprefix("v") != version:
-        raise SystemExit(f"tag mismatch: tag={args.tag}, package=v{version}")
+    if tag and tag.removeprefix("v") != version:
+        raise SystemExit(f"tag mismatch: tag={tag}, package=v{version}")
 
-    require_text("README.md", f"releases/tag/v{version}")
-    require_text("README.en.md", f"releases/tag/v{version}")
+    require_text("README.md", f"`{version}`")
+    require_text("README.en.md", f"`{version}`")
+    if tag:
+        require_text("README.md", f"releases/tag/{tag}")
+        require_text("README.en.md", f"releases/tag/{tag}")
     require_text("uv.lock", f'name = "htmlninefox"\nversion = "{version}"')
     require_text("packaging/linux/install.sh", "__HTMLNINEFOX_VERSION__")
+    return version
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tag", help="Application Git tag to compare, for example v0.4.1")
+    args = parser.parse_args()
+    version = validate_release_metadata(args.tag)
     print(f"release metadata consistent: v{version}")
 
 
