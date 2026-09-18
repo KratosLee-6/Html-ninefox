@@ -1,0 +1,25 @@
+{
+  "name": "dsh-htmlninefox",
+  "version": "0.1.0-preview.1",
+  "description": "Html九尾狐 HTML creation, revision and export workflow for DeepSeek Harness",
+  "type": "module",
+  "main": "index.js",
+  "exports": "./index.js",
+  "files": ["index.js", "workflow.md", "cordis.patch.yml", "README.md", "LICENSE"],
+  "license": "MIT",
+  "author": "KratosLee",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KratosLee-6/Html-ninefox.git",
+    "directory": "integrations/deepseek-harness"
+  },
+  "bugs": {"url": "https://github.com/KratosLee-6/Html-ninefox/issues"},
+  "keywords": ["dsh-plugin", "deepseek-harness", "htmlninefox", "html", "skills"],
+  "engines": {"node": ">=22"},
+  "dsh": {"bundle": {"patch": "./cordis.patch.yml"}},
+  "scripts": {"test": "node --test test/*.test.js"},
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.2",
+    "@deepseek-ai/dsh-skill": "0.1.5-rc.2"
+  }
+}
