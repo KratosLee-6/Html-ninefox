@@ -8,10 +8,11 @@
 
 <div align="center">
 
-[![Release](https://img.shields.io/github/v/release/KratosLee-6/Html-ninefox?include_prereleases&label=release)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc1)
+[![App Release](https://img.shields.io/badge/app-v0.4.2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)
+[![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-179%20passed-1F8A70)](docs/test-evidence/v0.5.0rc1-pytest.txt)
+[![Tests](https://img.shields.io/badge/pytest-197%20passed-1F8A70)](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -43,15 +44,42 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
   用自然语言反馈，按版本继续迭代
 ```
 
-## RC2 本地开发进展（2026-09-18）
+## 最新开发快照（2026-09-18）
 
-新增 [DeepSeek Harness 插件预览](integrations/deepseek-harness/README.md)：注册九尾狐创作技能，复用 CLI 生成、修改并导出 HTML 项目；支持本地目录与 tarball 安装。[下载插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，接入选择、发布位置与验证范围见 [调研和交付记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md)。
+当前 `main` 的应用版本字段仍为 `0.5.0rc1`，在其上已经完成 RC2 版本历史、原生动效和 DeepSeek Harness 插件增量。应用端尚未制作新的 RC2 安装包；可直接下载的稳定应用安装包仍是 `v0.4.2`。DSH 插件采用独立版本，已发布 `0.1.0-preview.1`。
 
-动效第一轮已落地：画布右上角可选择跟随系统、减少或关闭动效；生成阶段提示合并，快速重试保留正确进度。启动后访问 `/motion-lab` 可体验六类本地动效样例。全量测试 **196 通过、1 跳过**，端到端 **22/22 通过**，详见 [动效交付记录](docs/ITERATION-MOTION-20260918.md)。
+| 增量 | 已完成内容 | 入口与记录 |
+|---|---|---|
+| 版本历史与恢复 | 每次反馈、重跑和恢复保留 HTML + 生成状态快照；支持命名、源码差异、父版本与恢复来源；恢复会生成新版本，不覆盖历史 | [RC2 迭代记录](docs/ITERATION-RC2-20260918.md) · [测试报告](docs/TEST-REPORT-RC2-20260918.md) |
+| 并发、兼容与无障碍 | 过期恢复返回版本冲突；原子文件替换与失败回滚；兼容旧 HTML-only 历史；弹窗 Tab 循环、Escape 焦点恢复、390px 手机布局 | [版本 API 与边界](docs/ITERATION-RC2-20260918.md#http-v1-增量) |
+| 100 节点画布验收 | 100 个节点 / 99 条连线覆盖渲染、框选、整体移动、保存和数量一致性；这是操作耗时门禁，不宣称 60fps | [实测 JSON](docs/test-evidence/motion-20260918/canvas-100-nodes.json) |
+| 原生动效系统 | 系统 / 减少 / 关闭三档偏好；可取消动画、并发预算、离屏跳过、重试竞态清理、阶段提示合并；`/motion-lab` 提供六类样例 | [动效交付记录](docs/ITERATION-MOTION-20260918.md) · [动效计划](docs/MOTION-PLAN-v0.5.md) |
+| DeepSeek Harness | 原生 Cordis `dsh.bundle` 注册 `htmlninefox` 技能，复用 CLI 完成生成 → 反馈 → PDF / PNG；发布 tarball、SHA-256 和 `dsh-plugin` topic | [下载插件](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) · [安装说明](integrations/deepseek-harness/README.md) |
 
-产物检查器的「查看版本差异」现在支持版本历史、命名与「恢复为新版本」。反馈和重跑生成会保存独立版本；恢复同时还原 HTML 与生成配置，便于继续编辑。早期缺少配置快照的版本可比较与命名。
+### 本轮真实截图
 
-开发基线仍为 `0.5.0rc1`，本次改动尚未发布安装包。使用方法、API 与兼容范围见 [RC2 迭代记录](docs/ITERATION-RC2-20260918.md)，验收结果见 [测试报告](docs/TEST-REPORT-RC2-20260918.md)。
+<table>
+<tr>
+<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/harness-plugin-enabled.png" alt="DeepSeek Harness 中 htmlninefox 插件已启用"><br><b>DSH 插件已启用</b><br>最终 tarball 安装进新的 Web profile；插件列表显示 htmlninefox 为全局插件并处于启用状态。</td>
+<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/generated-poster.png" alt="Harness 插件链路生成并导出的中文海报"><br><b>生成、修改与导出链路</b><br>离线生成中文海报，执行 dry-run 与真实反馈，再导出 PDF 和完整 PNG；兼容性报告 100 分。</td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/test-evidence/motion-20260918/revision-history-desktop.png" alt="版本历史、差异与恢复"><br><b>版本历史与恢复</b><br>查看父版本、恢复来源、命名与源码差异，历史版本恢复为新版本。</td>
+<td width="50%"><img src="docs/test-evidence/motion-20260918/motion-lab-desktop.png" alt="原生动效样页"><br><b>动效实验室</b><br>操作反馈、选中素材、建立连接、阶段切换、产物就绪与版本恢复六类动效。</td>
+</tr>
+</table>
+
+### 最新验证结果
+
+| 验证 | 结果 | 证据 |
+|---|---:|---|
+| Linux GitHub CI 全量 Python / HTTP / Chromium | **197 passed，61.80 秒** | [Actions #35350016631](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
+| Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [同一 CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
+| DSH 插件注册、重载、卸载、tarball 独立安装 | **2 / 2 通过** | [插件测试](integrations/deepseek-harness/test/plugin.test.js) |
+| 本机动效与竞态专项 | **196 passed，1 skipped** | [动效测试日志](docs/test-evidence/motion-20260918/pytest.txt) |
+| 发布附件回读与 SHA-256 | **一致** | [发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md#正式执行插件预览发布2026-09-18) |
+
+当前限制：没有完成 Safari / WebView2 实机、跨进程并发写入与断电事务恢复，也没有用真实模型验收 DSH 对话自动选用技能。DSH 首版是技能工作流，尚未提供专用工具卡片或聊天内 HTML 预览。
 
 ## v0.5.0 RC1 当前预览
 
@@ -116,7 +144,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 下载与安装
 
-前往 [v0.5.0 RC1 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc1) 下载当前预发布版本。发布说明见 [RELEASE-NOTES-v0.5.0rc1.md](docs/RELEASE-NOTES-v0.5.0rc1.md)。
+应用安装包请前往 [v0.4.2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)。`main` 上的 `0.5.0rc1` / RC2 增量尚未创建应用 Release，需从源码运行。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
@@ -145,7 +173,7 @@ htmlninefox workbench
 # 打开 http://127.0.0.1:8620
 
 # 4. 或 CLI 直接生成
-htmlninefox brief "做一个 SaaS 落地页"
+htmlninefox expert "做一个 SaaS 落地页"
 ```
 
 ### 从源码运行
@@ -214,15 +242,15 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 ## 测试与信任证据
 
-本版本在 **2026-09-08** 完成以下验证：
+当前 `main` 在 **2026-09-18** 完成以下验证；`v0.4.2` 安装包证据保留在原报告中：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **159 passed** | [pytest 原始日志](docs/test-evidence/v0.4.2-pytest.txt) |
-| Chromium 真实生成与交互验收 | **22 / 22 passed** | [E2E 原始日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
-| 生成器 | Landing / Dashboard / Deck / Poster / Archdoc 均成功 | [测试报告](docs/TEST-REPORT-v0.4.2.md) |
-| 反馈迭代 | `rev1` Token 修改与 `rev2` 预设切换成功 | [E2E 日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
-| 工作台 | 拖动、重命名、颜色、多工作区、双主题、无 JS 错误 | [E2E 日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
+| Python / API / 存储 / 安全 / 浏览器测试 | **197 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
+| Chromium 真实生成与交互验收 | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35350016631) |
+| 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
+| 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
+| DSH 插件与最终 tarball 安装 | **2 / 2 通过** | [接入与发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
 | 本地候选发布包 | wheel 与 Windows 便携包真实导出通过；Linux `.run/.tar.gz` 完成双架构结构校验与 SHA256；Docker 由标签 CI 验证 | [校验值](docs/test-evidence/v0.4.2-release-sha256.txt) |
 | LLM 接入 | MiniMax-M3 / Claude / GPT-4o 环境变量自动配置 | [配置文档](docs/INSTALL.md) |
 | Web 工作台 | Python 本地 HTTP 服务 + 实时预览 + 智能体日志 | [E2E 日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
@@ -252,7 +280,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.4.2` 是导出中心版本：PDF / PNG、逐页选择、兼容性报告与 CLI 导出已经可用；Windows、Linux、Python CLI、Web/PWA 和 Docker 均已可用。Pixel Garden 设计系统统一了 5 大视觉产物；真实 LLM 接入（MiniMax-M3 / Claude / GPT-4o）让 AI 生成质量大幅提升；Web 工作台让非技术用户也能轻松使用。
+`v0.4.2` 仍是当前稳定安装包版本。`main` 的开发基线为 `0.5.0rc1`，已完成 Project Memory、RC2 版本历史与恢复、原生动效系统，以及独立发布的 DeepSeek Harness 插件预览。下一步优先补齐真实模型 DSH 会话、Safari / WebView2、跨进程写入与持续性能验收，再决定 RC2 应用发布范围。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

@@ -89,6 +89,14 @@ CI 已加入插件测试步骤，与现有 Python / Chromium 验收一起运行�
 - 使用独立插件标签及 `--latest=false`，主应用的 GitHub Latest Release 仍为 `v0.4.2`。
 - 本次仅变更发布文档，运行代码沿用上节通过完整 CI 的实现；未修改此前已有的 Skill 迁移。
 
+### 发布页截图与首页补全（2026-09-18）
+
+- Release 新增 `harness-plugin-enabled.png`：最终 tarball 安装后的 DSH Web 插件列表，显示 `htmlninefox` 为启用中的全局插件。
+- Release 新增 `generated-poster.png`：同轮离线生成、反馈修改并导出的完整 PNG；对应 PDF / PNG 兼容性均为 100 分。
+- 两张图片都作为 Release 资产上传，并嵌入发布正文；GitHub API 返回各自的 SHA-256 digest。
+- 项目中保留[截图来源与实测表](test-evidence/harness-plugin-20260918/README.md)，首页同时展示 DSH 状态、生成结果、版本恢复和动效实验室四张真实截图。
+- 首页已改为完整开发快照，补齐功能矩阵、版本口径、最新 CI、当前限制和下载入口；原先指向不存在 `v0.5.0rc1` Release 的链接已修正为稳定应用 `v0.4.2` 与独立 DSH 插件预览版。
+
 ## 反馈与下一步
 
 1. 小范围试用：用户在自己的 Harness 配置下完成海报 / deck / dashboard 各一个，报告安装、生成、修改、导出的结果。

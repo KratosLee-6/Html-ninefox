@@ -8,6 +8,12 @@
 
 通过 [GitHub Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) 分发预览版，附件包含安装包与 SHA-256 校验文件。**尚未发布 npm**，请使用下方的 Release 安装方式。
 
+| DSH 安装状态 | 真实生成与导出结果 |
+|---|---|
+| ![htmlninefox 在 DeepSeek Harness 中已启用](../../docs/test-evidence/harness-plugin-20260918/harness-plugin-enabled.png) | ![插件链路生成并导出的中文海报](../../docs/test-evidence/harness-plugin-20260918/generated-poster.png) |
+
+截图来自最终 tarball 的隔离安装及同轮 CLI 生成 → feedback → PDF / PNG 测试，来源与尺寸记录见 [截图证据](../../docs/test-evidence/harness-plugin-20260918/README.md)。
+
 ## 安装
 
 需要 Node.js 22+、可用的 DeepSeek Harness、Python 3.10+ 和 Git。首次安装 Python 应用建议使用虚拟环境。先下载 [dsh-htmlninefox-0.1.0-preview.1.tgz](https://github.com/KratosLee-6/Html-ninefox/releases/download/dsh-htmlninefox-v0.1.0-preview.1/dsh-htmlninefox-0.1.0-preview.1.tgz)，在下载目录运行：
@@ -64,7 +70,7 @@ dsh plugin --profile fox-demo add ./dsh-htmlninefox-0.1.0-preview.1.tgz
 
 ## 验证范围
 
-`npm test` 使用真实 `@deepseek-ai/cordis@4.0.2` 和 `@deepseek-ai/dsh-skill@0.1.5-rc.2`，验证发现、加载、重载、卸载以及 tarball 安装后的资源读取（含中文与空格路径）。这不代表已经验证真实模型选用技能或所有 Harness 版本；完整验收还应在用户实际配置的 Harness 会话完成生成 → 修改 → 导出。
+`npm test` 使用真实 `@deepseek-ai/cordis@4.0.2` 和 `@deepseek-ai/dsh-skill@0.1.5-rc.2`，验证发现、加载、重载、卸载以及 tarball 安装后的资源读取（含中文与空格路径）。最终 tarball 还通过了真实 `dsh plugin add`、Web profile 配置、插件列表启用状态、九尾狐生成 → 修改 → PDF / PNG 导出。详见 [证据目录](../../docs/test-evidence/harness-plugin-20260918/README.md)。这不代表已经验证真实模型选用技能或所有 Harness 版本；完整验收还应在用户实际配置的 Harness 会话完成一次真实对话。
 
 ## 反馈
 
