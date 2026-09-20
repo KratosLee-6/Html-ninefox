@@ -6,6 +6,8 @@
 
 > 2026-09-18：RC2 已接入版本差异、命名、恢复为新版本、键盘、原生动效与 100 节点验收，并进入 `v0.5.0rc2` 应用预发布。详见 [迭代记录](ITERATION-RC2-20260918.md)、[Release Notes](RELEASE-NOTES-v0.5.0rc2.md) 和 [发布测试报告](TEST-REPORT-v0.5.0rc2.md)。下方早期 Sprint 清单为历史规划。
 
+> 工程审计（2026-09-20）：已按 `mattpocock/skills` 的 research、domain-modeling、codebase-design 与 code-review 方法完成全仓审计。当前优先级从继续堆叠功能调整为 RC3 架构加固：先统一文档与真实门禁，再建立应用用例 seam、Project commit 和前端业务 Module。详见[审计报告](AUDIT-MATTPOCOCK-20260920.md)与[RC3 计划](ITERATION-PLAN-POST-RC2-20260920.md)。
+
 > 动效下一轮：[动效执行方案 v0.5](MOTION-PLAN-v0.5.md)。按基础反馈统一、真实生成流程、离线打包与帧性能三阶段推进；Anime.js 优先验证，其余资源按组件或设计参考评估，许可核验尚待完成。
 
 > 动效第一轮已完成：[交付记录](ITERATION-MOTION-20260918.md)。全量 196 通过 / 1 跳过，端到端 22/22 通过；统一原生动效、三档偏好、重试清理和本地样页已落地。接下来进入时间线对照试验与帧性能验收。
@@ -155,6 +157,21 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 **阶段计划**：alpha1 统一组件与状态（已完成）；beta1 完成流畅画布（已完成）；beta2 完成 Recipe Run MVP（已完成）；RC1 完成 Project Memory MVP 与采用信号（已完成）；RC2 完成 100 节点性能、产物差异与无障碍门禁。
 
 **发布门槛**：第二次同类任务能解释复用哪些历史经验；失败节点可局部重跑；核心弹窗与命令可完整键盘操作。
+
+### v0.5 RC3 · 架构加固（2026 Q4）
+
+**目标**：在桌面壳和更多生态 Adapter 之前，让 CLI、HTTP、DSH 与未来 sidecar 复用同一应用用例，并补齐项目事务边界。
+
+- RC3-A：架构、领域词汇、贡献命令和 CI 对齐真实仓库。
+- RC3-B：共享测试 server fixture；用 Design It Twice 选择生成用例 Interface。
+- RC3-C：逐个引入 Generation / Feedback / Restore / Export request-result，并收窄 HTTP Adapter。
+- RC3-D：统一 durable write、Project commit、跨进程锁和崩溃恢复。
+- RC3-E：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module。
+- 动效继续作为生命周期反馈迭代，保持可取消、三档偏好和帧性能门禁。
+
+**发布门槛**：HTTP v1 与 Project schema 兼容；多文件写入失败不留下半成品；同一用例由至少两个真实 Adapter 复用；100 节点和完整 Chromium 验收不退化。
+
+完整阶段与验收标准见 [RC3 架构加固计划](ITERATION-PLAN-POST-RC2-20260920.md)。
 
 ### v0.6.0 · 桌面与可编辑交付版（2027 H1）
 

@@ -1,122 +1,169 @@
-# Contributing to Html九尾狐 / Fox-of-Nine-Tails HTML Studio
+# Contributing to Html九尾狐
 
-🦊 **Thanks for your interest in making Html九尾狐 better!** Whether you're fixing a typo, adding a new agent, or proposing a new template style — every contribution matters.
+感谢你改进 Html九尾狐。项目当前是本地优先的 Python + 原生 Web 工作台，并包含 Playwright/Chromium 导出与 DeepSeek Harness 集成。提交前请以本文件、`CONTEXT.md` 和当前自动化门禁为准。
 
-This guide is intentionally short. Read it once, then jump in.
+## 1. 准备环境
 
----
+要求：
 
-## 🐛 1. File an Issue (提 Issue)
-
-Before writing code, check if a related issue already exists. If not, file one with:
-
-- **Clear title**: e.g. "asset agent fails on SVG URLs"
-- **Repro steps**: exact command + Brief input that triggers the bug
-- **Expected vs actual**: what you expected, what you got
-- **Environment**: OS, Python version, LLM provider (if relevant)
-
-Bug templates live at `.github/ISSUE_TEMPLATE/` (after we add them in v0.3).
-
-For **feature requests**, use the `enhancement` label and describe:
-- What problem does this solve?
-- Who benefits? (designers? devs? PMs?)
-- Rough sketch of the API/UX
-
----
-
-## 🍴 2. Fork & Pull Request (Fork PR)
-
-Workflow:
+- Python 3.10+
+- Node.js 22（只在验证前端语法和 DSH 插件时需要）
+- Chromium（浏览器验收与 PDF/PNG 导出）
 
 ```bash
-# 1. Fork the repo on GitHub, then clone your fork
-git clone https://github.com/YOUR-USERNAME/html-nine-tails.git
-cd html-nine-tails
-
-# 2. Create a feature branch
-git checkout -b feat/awesome-template
-
-# 3. Make changes, commit
-git add .
-git commit -m "feat: add brutalist-portfolio template"
-
-# 4. Push and open a PR
-git push origin feat/awesome-template
-gh pr create --fill
+git clone https://github.com/YOUR-USERNAME/Html-ninefox.git
+cd Html-ninefox
+python -m venv .venv
 ```
 
-PR title convention (Conventional Commits):
+Windows PowerShell：
 
-- `feat: ...` — new feature
-- `fix: ...` — bug fix
-- `docs: ...` — docs only
-- `test: ...` — tests only
-- `refactor: ...` — code change that neither fixes a bug nor adds a feature
-- `chore: ...` — tooling, deps
+```powershell
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+python -m playwright install chromium
+```
 
----
-
-## 📐 3. Code Style (代码规范)
-
-- **Python**: PEP8 + type hints (`mypy` strict mode)
-- **Line length**: 100 chars max
-- **Naming**: snake_case for functions/vars, PascalCase for classes
-- **Docstrings**: Google style for public APIs
-- **Commits**: Conventional Commits (see above)
-
-Run before committing:
+macOS / Linux：
 
 ```bash
-ruff check fox/ tests/         # linting
-black fox/ tests/              # formatting
-mypy fox/                      # type check
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+python -m playwright install chromium
 ```
 
----
+## 2. 先明确领域语言和公共 seam
 
-## ✅ 4. Testing (测试要求)
+开始功能或重构前：
 
-Every PR **must include tests**:
+- 阅读 [CONTEXT.md](CONTEXT.md)，沿用 Project、Workspace、Artifact、Revision、Restore、Recipe Run 等规范词。
+- 阅读 [当前架构](docs/ARCHITECTURE.md)。
+- 对 HTTP v1、CLI、项目格式或 Revision 行为的变更，先说明用户可观察行为和兼容策略。
+- 测试应穿过与生产相同的 Interface。避免为内部实现细节写易碎测试。
+- 只有出现难以逆转、缺少上下文会显得意外且存在真实取舍的决定时才新增 ADR。
 
-- **New feature** → add at least 1 integration test under `tests/integration/`
-- **Bug fix** → add a regression test that fails before your fix
-- **Security-sensitive change** → add a test under `tests/security/`
-
-Run all tests:
+## 3. 分支与提交
 
 ```bash
-pytest tests/ -v
-pytest tests/integration/ -v    # must pass 4/4
-pytest tests/security/ -v       # must pass 12/12
+git checkout -b feat/short-description
+# edit and test
+git add <files>
+git commit -m "feat: describe the user-visible change"
+git push origin feat/short-description
 ```
 
-CI will reject PRs that break existing tests.
+提交信息使用 Conventional Commits：
 
----
+- `feat:` 新能力
+- `fix:` 缺陷修复
+- `docs:` 仅文档
+- `test:` 仅测试或测试基础设施
+- `refactor:` 不改变用户行为的结构调整
+- `chore:` 工具、依赖或维护
+- `release:` 发布准备
 
-## 🌍 5. Community (社区)
+不要在同一提交混入无关格式化、生成文件或本地工作区状态。
 
-- **GitHub Discussions** — Q&A, show & tell, ideas
-- **GitHub Issues** — bugs, feature requests
-- **Discord** — coming in v0.3
-- **Email** — kratoslee@users.noreply.github.com
+## 4. 代码约定
 
-### Code of Conduct (行为准则)
+当前仓库的自动门禁是 pytest、版本一致性、JavaScript 语法、DSH 插件测试和 Chromium acceptance。项目尚未启用 ruff、black 或 mypy CI，因此不要把这些未配置工具描述成合并前硬门禁。
 
-Be kind. Be patient. We assume good faith. No harassment, no spam, no AI-generated essays pretending to be human replies.
+仍应遵守：
 
----
+- Python 使用类型标注表达公共 Interface。
+- 领域编排放在 Core / 应用用例中；HTTP、CLI 和插件只做 Adapter 转换。
+- 不用 `dict[str, Any]` 扩展新的稳定跨 Module 协议；优先使用小 request/result 值对象。
+- 文件写入复用项目已有可靠性 Module，不新增另一套临时文件规则。
+- 原生 JavaScript 使用现有 Module 和设计令牌；不要为单个特效迁移整个前端框架。
+- 动效必须可取消，遵守系统 / 减少 / 关闭偏好，并且不能成为业务成功条件。
+- 公共行为、错误码、Project schema 或 HTTP v1 变化必须同步文档和兼容测试。
 
-## 📚 Reference Docs (引用)
+如果要引入 formatter、linter 或 type checker，请单独提交配置、依赖、基线修复和 CI 变更，让新门禁可以在本地真实复现。
 
-When contributing, please review:
+## 5. 测试要求
 
-- **[docs/DESIGN.md](docs/DESIGN.md)** — design philosophy + Brief schema
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — 5-agent contracts + alliance router protocol
-- **[CHANGELOG.md](CHANGELOG.md)** — what shipped in each version
+按改动选择最小相关测试，然后在提交前运行完整门禁。
 
----
+### Python 与浏览器测试
 
-<p align="center">
-  <sub>🦊 Built by KratosLee · MIT licensed · Welcome contributors of all backgrounds</sub>
-</p>
+```powershell
+python -m pytest tests -q -p no:cacheprovider
+```
+
+涉及浏览器用户路径或 Export 时：
+
+```powershell
+python e2e_verify.py
+```
+
+### 发布元数据与 JavaScript
+
+```powershell
+python scripts/check_release_version.py
+python scripts/check_inline_js.py
+node --check htmlninefox/server/static/canvas-engine.js
+node --check htmlninefox/server/static/canvas-productivity.js
+node --check htmlninefox/server/static/workbench-features.js
+node --check htmlninefox/server/static/motion-system.js
+node --check htmlninefox/server/static/interaction-system.js
+node --check htmlninefox/server/static/sw.js
+```
+
+### DeepSeek Harness 插件
+
+仅在修改 `integrations/deepseek-harness/` 或相关 CLI 契约时运行：
+
+```powershell
+cd integrations/deepseek-harness
+npm ci --ignore-scripts --no-audit --no-fund
+npm test
+```
+
+### 测试应覆盖什么
+
+- 新能力：一个成功路径和至少一个有意义的失败路径。
+- Bug：先增加能捕获用户症状的回归测试，再修复。
+- HTTP v1：响应字段、错误 code 和兼容行为。
+- Project / Revision：失败回滚、历史保留和冲突行为。
+- UI：用户可观察结果、键盘与动效关闭状态；不要只断言内部变量。
+- 性能：先保存基线和输入规模，再声明改善或没有退化。
+
+测试文件当前平铺在 `tests/` 并按能力命名。请不要创建不存在的旧式 `tests/integration/` 或 `tests/security/` 结构，除非先提交并说明新的测试组织方案。
+
+## 6. Pull Request 内容
+
+PR 描述至少说明：
+
+- 具体触发场景和之前的行为。
+- 修改后的用户可观察行为。
+- 选择的 Interface / seam，以及为何放在该 Module。
+- 兼容性、数据迁移或失败恢复影响。
+- 实际运行的测试命令和结果。
+- UI 改动的前后截图；动效改动可附短视频或关键帧。
+
+PR 保持单一目的。大规模重构应拆成“测试 seam → 一个纵向用例 → 后续迁移”，每一步都保持可运行。
+
+## 7. 报告问题
+
+Issue 请包含：
+
+- 环境：操作系统、Python、Node、浏览器和 Html九尾狐版本。
+- 精确复现步骤与最小输入。
+- 预期和实际结果。
+- 是否能稳定复现。
+- 脱敏诊断包、错误 code、request id 或相关截图。
+
+不要提交 API Key、项目私密正文或未脱敏的用户文件。
+
+## 8. 参考资料
+
+- [领域术语](CONTEXT.md)
+- [当前架构](docs/ARCHITECTURE.md)
+- [产品路线](docs/ROADMAP.md)
+- [RC3 架构加固计划](docs/ITERATION-PLAN-POST-RC2-20260920.md)
+- [mattpocock/skills 方法审计](docs/AUDIT-MATTPOCOCK-20260920.md)
+- [Changelog](CHANGELOG.md)
+
+项目采用 MIT License。参与讨论时请保持具体、耐心，并尊重用户数据与作品隐私。

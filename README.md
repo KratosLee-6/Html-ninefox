@@ -81,6 +81,20 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 当前限制：没有完成 Safari / WebView2 实机、跨进程并发写入与断电事务恢复，也没有用真实模型验收 DSH 对话自动选用技能。DSH 首版是技能工作流，尚未提供专用工具卡片或聊天内 HTML 预览。
 
+## 工程审计与下一轮迭代（2026-09-20）
+
+项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design 与 code-review 方法完成全仓审计。测试基线稳定，下一阶段重点是让架构文档、应用用例、持久化边界和前端业务 Module 跟上 RC2 的产品复杂度。
+
+| 优先级 | 结论 | 下一步 |
+|---|---|---|
+| P0 | 旧架构与贡献指南仍描述早期目录和门禁 | 已更新当前架构、领域词汇和真实测试命令 |
+| P1 | HTTP handler 同时承担 transport 与业务编排 | RC3 提取 CLI / HTTP / DSH 可复用的生成、反馈、恢复和导出用例 |
+| P1 | 多套文件写入规则并存，跨进程和断电事务未闭环 | 统一 durable write、Project commit、锁与崩溃恢复测试 |
+| P2 | 工作台状态仍集中在大页面 | 按 Project、Generation、Revision、Export 生命周期拆分 |
+| P2 | 多个浏览器测试重复启动本地 server | 先建立共享 pytest fixture，降低后续重构风险 |
+
+完整证据与阶段门槛见 [工程审计报告](docs/AUDIT-MATTPOCOCK-20260920.md)、[上游技能研究](docs/research/MATTPocock-SKILLS-AUDIT-20260920.md)和 [RC3 架构加固计划](docs/ITERATION-PLAN-POST-RC2-20260920.md)。动效仍沿用[动效执行方案](docs/MOTION-PLAN-v0.5.md)，并作为生命周期反馈进入前端 Module 迭代。
+
 ## v0.5.0 RC2 核心能力
 
 ![项目记忆与采用信号](assets/screenshots/v0.5.0rc1/project-memory-dialog.png)
