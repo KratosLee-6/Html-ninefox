@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-199%20passed-1F8A70)](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293)
+[![Tests](https://img.shields.io/badge/pytest-199%20passed-1F8A70)](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -44,9 +44,20 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
   用自然语言反馈，按版本继续迭代
 ```
 
-## v0.5.0 RC2 发布快照（2026-09-18）
+## 当前版本与 main 最新进展（2026-09-21）
 
-当前应用版本为 `0.5.0rc2`，已将 Project Memory、版本历史与恢复、原生动效、100 节点验收和无障碍增量合并为可安装的应用预发布版。`v0.4.2` 继续作为稳定版本；DSH 插件采用独立版本 `0.1.0-preview.1`，不与应用版本混用。
+当前应用包版本为 `0.5.0rc2`，对应预发布标签 `v0.5.0rc2`；稳定版仍是 `v0.4.2`。在发布 RC2 之后，`main` 已于 2026-09-20 完成基于 `mattpocock/skills` 的全仓工程审计和 RC3-A 工程基线更新；这部分是源码与工程文档迭代，尚未创建新的应用 Release，因此不会改变安装包版本号。
+
+| 轨道 | 当前状态 | 查看 |
+|---|---|---|
+| 应用 Release | `v0.5.0rc2` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2) |
+| `main` 最新增量 | RC3-A 已完成：领域语言、当前架构、贡献门禁、审计报告和阶段计划已对齐 | [工程审计](docs/AUDIT-MATTPOCOCK-20260920.md) · [RC3 计划](docs/ITERATION-PLAN-POST-RC2-20260920.md) |
+| 最新 `main` CI | `199 passed`，Chromium 验收 `22 / 22` | [Actions #35510548370](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
+| DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
+
+### v0.5.0 RC2 已发布基线（2026-09-18）
+
+RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验收和无障碍增量合并为可安装的应用预发布版。
 
 | 增量 | 已完成内容 | 入口与记录 |
 |---|---|---|
@@ -73,17 +84,17 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 | 验证 | 结果 | 证据 |
 |---|---:|---|
-| Linux GitHub CI 全量 Python / HTTP / Chromium | **199 passed，62.95 秒** | [Actions #35358695358](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
-| Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [同一 CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
+| 最新 `main` GitHub CI 全量 Python / HTTP / Chromium | **199 passed，62.30 秒** | [Actions #35510548370](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
+| Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [同一 CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
 | DSH 插件注册、重载、卸载、tarball 独立安装 | **2 / 2 通过** | [插件测试](integrations/deepseek-harness/test/plugin.test.js) |
 | 本机动效与竞态专项 | **196 passed，1 skipped** | [动效测试日志](docs/test-evidence/motion-20260918/pytest.txt) |
 | 发布附件回读与 SHA-256 | **一致** | [发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md#正式执行插件预览发布2026-09-18) |
 
 当前限制：没有完成 Safari / WebView2 实机、跨进程并发写入与断电事务恢复，也没有用真实模型验收 DSH 对话自动选用技能。DSH 首版是技能工作流，尚未提供专用工具卡片或聊天内 HTML 预览。
 
-## 工程审计与下一轮迭代（2026-09-20）
+## RC3 架构加固：审计已完成，开始执行（2026-09-21）
 
-项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design 与 code-review 方法完成全仓审计。测试基线稳定，下一阶段重点是让架构文档、应用用例、持久化边界和前端业务 Module 跟上 RC2 的产品复杂度。
+项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design 与 code-review 方法完成全仓审计，RC3-A 文档与工程基线已经进入 `main`。接下来从共享测试 server fixture 和生成用例 seam 开始，让 CLI、HTTP、DSH 与未来桌面 sidecar 逐步复用同一应用实现。
 
 | 优先级 | 结论 | 下一步 |
 |---|---|---|
@@ -256,12 +267,12 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 ## 测试与信任证据
 
-`v0.5.0rc2` 在 **2026-09-18** 执行发布验收；开发增量与 `v0.4.2` 历史包证据继续保留：
+`main` 最新工程基线在 **2026-09-20** 通过 CI；`v0.5.0rc2` 在 **2026-09-18** 完成应用发布验收，历史包证据继续保留：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **199 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
-| Chromium 真实生成与交互验收 | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
+| Python / API / 存储 / 安全 / 浏览器测试 | **199 passed** | [最新 main CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
+| Chromium 真实生成与交互验收 | **22 / 22 passed** | [最新 main CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
 | 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
 | 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
 | DSH 插件与最终 tarball 安装 | **2 / 2 通过** | [接入与发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
@@ -294,7 +305,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.5.0rc2` 是当前应用预发布版，`v0.4.2` 仍是稳定版。下一步根据 RC2 反馈补齐真实模型 DSH 会话、Safari / WebView2、跨进程写入、断电恢复和持续性能验收，再决定 `v0.5.0` 正式版范围。
+`v0.5.0rc2` 是当前应用预发布版，`v0.4.2` 仍是稳定版；`main` 已进入 RC3 架构加固。下一步依次完成共享测试 seam、CLI/HTTP/DSH 共用应用用例、durable Project commit、跨进程与断电恢复，以及按 Project / Generation / Revision / Export 生命周期拆分浏览器 Module，再决定 `v0.5.0` 正式版和 v0.6 桌面壳范围。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 
