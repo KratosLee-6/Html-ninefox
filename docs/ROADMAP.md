@@ -230,7 +230,7 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 - **安全默认**：API Key 不进入项目文件；输出路径必须限制在 workspace；分享默认私有。
 - **可观测**：每个任务有 request_id、阶段耗时、失败原因和可导出诊断。
 
-## 7. 近期四个 Sprint
+## 7. 历史 Sprint 与当前 RC3
 
 ### Sprint 1 · 2026-08-31 ～ 2026-09-06
 
@@ -253,7 +253,7 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 - [x] Job 异步模型（v0.2.2 已提前完成）
 - [ ] 生成进度与取消
 - [ ] Windows/macOS 启动器
-- [ ] GitHub Actions
+- [x] GitHub Actions（pytest、JavaScript、DSH 插件、Chromium acceptance 与发布元数据）
 
 ### Sprint 4 · 2026-09-29 ～ 2026-10-12
 
@@ -275,17 +275,20 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 
 ## 9. 当前主要风险
 
-- **正式仓库无源码**：最高优先级，阻断外部安装和贡献。
+- **HTTP Adapter 继续膨胀**：`server/app.py` 同时承担 transport、错误映射和业务编排，新增能力容易产生 Divergent Change。
+- **项目多文件写入没有统一事务边界**：跨进程并发和断电时仍可能出现状态文件不一致。
+- **领域状态依赖松散字典**：生成、反馈、恢复和导出跨 Module 传递大量字典，字段组合难以验证。
+- **浏览器状态仍集中在大页面**：项目、生成、Revision、Export 与动效生命周期相互交叉。
 - **本地 HTTP 服务不是云产品**：iOS/小程序必须通过 HTTPS 云端或局域网安全网关访问。
-- **无限画布不适合手机主创作**：移动端应定位为审阅和反馈。
-- **多模型输出不稳定**：离线模板兜底、结构校验和 revision 回滚必须长期保留。
-- **平台过早扩张**：没有留存数据前不同时开 Windows、iOS、Android、小程序四条原生线。
+- **平台过早扩张**：应用用例和 Project commit 稳定前，不启动多条原生客户端实现。
 
 ## 10. 下一步执行顺序
 
-1. 开发配置向导与多模型 adapter 验收。
-2. 增加项目 zip 导入导出与一键打开目录。
-3. 建立 GitHub Actions 与发布签名流程。
-4. 启动 Windows/macOS 启动器，再进入 Tauri 桌面壳。
+1. **RC3-B1**：建立共享 pytest HTTP server fixture，迁移重复 server/thread 启停代码。
+2. **RC3-B2**：用 Design It Twice 比较函数式应用服务与 `StudioApplication`，固定第一个生成用例 seam。
+3. **RC3-C**：让 CLI、HTTP 和 DSH 复用 Generation / Feedback / Restore / Export request-result。
+4. **RC3-D**：统一 durable write、Project commit、跨进程锁与崩溃恢复测试。
+5. **RC3-E**：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module，并继续执行动效帧预算门禁。
+6. 达成 RC3 退出条件后，再进入 v0.6 Tauri sidecar、可编辑 PPTX / DOCX 和桌面系统集成。
 
-这条路线把“平台数量”放在“核心闭环稳定”之后，确保每新增一个客户端只是增加 adapter，而不是复制产品实现。
+工程任务使用 GitHub Issues 跟踪，配置见 [`docs/agents/`](agents/)。完整验收和阶段边界见 [RC3 架构加固计划](ITERATION-PLAN-POST-RC2-20260920.md)。

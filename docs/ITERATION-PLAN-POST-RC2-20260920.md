@@ -1,6 +1,7 @@
 # RC2 后迭代计划：RC3 架构加固
 
 - 制定日期：2026-09-20
+- 最近校验：2026-09-21
 - 输入：[mattpocock/skills 工程审计](AUDIT-MATTPOCOCK-20260920.md)
 - 当前应用基线：`v0.5.0rc2`
 - 目标：在扩展桌面端和更多生态 Adapter 前，让应用用例、持久化和浏览器工作台拥有稳定、可测试的 seam。
@@ -35,6 +36,7 @@ RC3 完成时应满足：
 - 在 README 与 ROADMAP 暴露审计结论和本计划。
 - 保留早期“5 agents / 3 sinks / 1 router”作为历史背景，不再作为当前结构。
 - 明确当前 CI 真正运行的 pytest、发布元数据、JavaScript、DSH 和 Chromium 门禁。
+- 配置 `AGENTS.md`、GitHub Issues、默认 triage 标签和 single-context 领域文档消费规则。
 
 验收：
 
@@ -42,7 +44,7 @@ RC3 完成时应满足：
 - 文档不引用不存在的 `fox/`、`tests/integration/`、`tests/security/` 或未启用的 lint/type CI。
 - 完整测试保持通过。
 
-状态：**本轮执行**。
+状态：**已完成（2026-09-21）**。配置与全项目复验见 [Matt Pocock skills setup 校验记录](VALIDATION-MATTPOCOCK-SETUP-20260921.md)。
 
 ## RC3-B：共享测试 seam 与应用用例首切片
 

@@ -51,7 +51,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
 | 应用 Release | `v0.5.0rc2` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2) |
-| `main` 最新增量 | RC3-A 已完成：领域语言、当前架构、贡献门禁、审计报告和阶段计划已对齐 | [工程审计](docs/AUDIT-MATTPOCOCK-20260920.md) · [RC3 计划](docs/ITERATION-PLAN-POST-RC2-20260920.md) |
+| `main` 最新增量 | RC3-A 已完成：架构、贡献门禁、GitHub Issues、triage 标签与 Agent/domain 配置已对齐 | [工程审计](docs/AUDIT-MATTPOCOCK-20260920.md) · [setup 校验](docs/VALIDATION-MATTPOCOCK-SETUP-20260921.md) · [RC3 计划](docs/ITERATION-PLAN-POST-RC2-20260920.md) |
 | 最新 `main` CI | `199 passed`，Chromium 验收 `22 / 22` | [Actions #35510548370](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
