@@ -79,18 +79,11 @@ def test_recommendation_is_empty_when_disabled(tmp_path):
     assert result["applied"] == []
 
 
-def test_browser_memory_dialog_generation_and_adoption(tmp_path):
-    import threading
-
+def test_browser_memory_dialog_generation_and_adoption(workbench_server):
     from playwright.sync_api import sync_playwright
-    from htmlninefox.server import app as server_app
 
-    server_app._OUTPUT_ROOT = tmp_path
-    server = server_app.ThreadingHTTPServer(("127.0.0.1", 0), server_app._Handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    base = f"http://127.0.0.1:{server.server_address[1]}"
-    try:
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -132,10 +125,6 @@ def test_browser_memory_dialog_generation_and_adoption(tmp_path):
             assert page.locator("#memory-adopted-count").inner_text() == "1"
             assert not errors
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
 
 
 def test_concurrent_generation_counts_are_not_lost(tmp_path):

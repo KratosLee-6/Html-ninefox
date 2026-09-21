@@ -56,7 +56,9 @@ RC3 完成时应满足：
 - 迁移现有重复样板，保持测试观察行为不变。
 - 不在这一阶段改 HTTP API。
 
-第二步：Design It Twice 比较生成用例方案。
+状态：**已完成（2026-09-21）**。13 个工作台 HTTP 测试文件已迁移到统一 fixture，完整 pytest 与 Chromium 验收保持通过；实现与证据见 [RC3-B1 迭代记录](ITERATION-RC3-B1-20260921.md)。
+
+第二步（下一步）：Design It Twice 比较生成用例方案。
 
 候选 A：函数式应用服务。
 

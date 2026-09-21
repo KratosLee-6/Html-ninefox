@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import base64
 import json
-import threading
 import time
 import urllib.error
 import urllib.parse
@@ -14,7 +13,6 @@ from pathlib import Path
 import pytest
 
 from htmlninefox import pipeline
-from htmlninefox.server import app as server_app
 
 
 def make_project(root: Path, name: str = "alpha") -> Path:
@@ -32,18 +30,9 @@ def make_project(root: Path, name: str = "alpha") -> Path:
 
 
 @pytest.fixture()
-def api_server(tmp_path):
-    server_app._OUTPUT_ROOT = tmp_path
-    server = server_app.ThreadingHTTPServer(("127.0.0.1", 0), server_app._Handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    base = f"http://127.0.0.1:{server.server_address[1]}"
-    try:
-        yield base, tmp_path
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
+def api_server(workbench_server):
+    with workbench_server as server:
+        yield server.base_url, server.output_root
 
 
 def request(base: str, path: str, method: str = "GET", data: dict | None = None,

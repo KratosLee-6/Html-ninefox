@@ -1,37 +1,27 @@
 """Motion preferences and lifecycle must never alter business state or focus."""
 
 import os
-import threading
 from pathlib import Path
 
 import pytest
 from playwright.sync_api import sync_playwright
 
-from htmlninefox.server import app as server_app
-
 
 @pytest.fixture
-def workbench(tmp_path):
-    server_app._OUTPUT_ROOT = tmp_path
-    server = server_app.ThreadingHTTPServer(("127.0.0.1", 0), server_app._Handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch()
-        page = browser.new_page(viewport={"width": 1440, "height": 900}, reduced_motion="no-preference")
-        errors = []
-        page.on("pageerror", lambda error: errors.append(str(error)))
-        base = f"http://127.0.0.1:{server.server_port}"
-        try:
-            page.goto(base)
-            page.wait_for_function("window.FoxMotion && window.FoxCanvasProductivity && nodes.length >= 4")
-            yield page, base
-            assert not errors
-        finally:
-            browser.close()
-            server.shutdown()
-            server.server_close()
-            thread.join(timeout=3)
+def workbench(workbench_server):
+    with workbench_server as server:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch()
+            page = browser.new_page(viewport={"width": 1440, "height": 900}, reduced_motion="no-preference")
+            errors = []
+            page.on("pageerror", lambda error: errors.append(str(error)))
+            try:
+                page.goto(server.base_url)
+                page.wait_for_function("window.FoxMotion && window.FoxCanvasProductivity && nodes.length >= 4")
+                yield page, server.base_url
+                assert not errors
+            finally:
+                browser.close()
 
 
 def test_motion_preferences_follow_system_and_persist(workbench):

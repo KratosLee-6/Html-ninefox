@@ -46,13 +46,13 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 当前版本与 main 最新进展（2026-09-21）
 
-当前应用包版本为 `0.5.0rc2`，对应预发布标签 `v0.5.0rc2`；稳定版仍是 `v0.4.2`。在发布 RC2 之后，`main` 已于 2026-09-20 完成基于 `mattpocock/skills` 的全仓工程审计和 RC3-A 工程基线更新；这部分是源码与工程文档迭代，尚未创建新的应用 Release，因此不会改变安装包版本号。
+当前应用包版本为 `0.5.0rc2`，对应预发布标签 `v0.5.0rc2`；稳定版仍是 `v0.4.2`。在发布 RC2 之后，`main` 已完成基于 `mattpocock/skills` 的全仓工程审计、RC3-A 工程基线和 RC3-B1 共享测试 server fixture；这些是源码与工程文档迭代，尚未创建新的应用 Release，因此不会改变安装包版本号。
 
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
 | 应用 Release | `v0.5.0rc2` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2) |
-| `main` 最新增量 | RC3-A 已完成：架构、贡献门禁、GitHub Issues、triage 标签与 Agent/domain 配置已对齐 | [工程审计](docs/AUDIT-MATTPOCOCK-20260920.md) · [setup 校验](docs/VALIDATION-MATTPOCOCK-SETUP-20260921.md) · [RC3 计划](docs/ITERATION-PLAN-POST-RC2-20260920.md) |
-| 最新 `main` CI | `199 passed`，Chromium 验收 `22 / 22` | [Actions #35510548370](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
+| `main` 最新增量 | RC3-B1 已完成：13 个工作台测试统一 server fixture，修复测试顺序依赖；下一步进入生成用例 Design It Twice | [RC3-B1 记录](docs/ITERATION-RC3-B1-20260921.md) · [RC3 计划](docs/ITERATION-PLAN-POST-RC2-20260920.md) |
+| RC3-B1 完整复验 | `198 passed, 1 skipped`，Chromium 验收 `22 / 22` | [验证记录](docs/ITERATION-RC3-B1-20260921.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 ### v0.5.0 RC2 已发布基线（2026-09-18）
@@ -267,12 +267,12 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 ## 测试与信任证据
 
-`main` 最新工程基线在 **2026-09-20** 通过 CI；`v0.5.0rc2` 在 **2026-09-18** 完成应用发布验收，历史包证据继续保留：
+`main` 最新工程基线在 **2026-09-21** 完成 RC3-B1 本地全量复验；`v0.5.0rc2` 在 **2026-09-18** 完成应用发布验收，历史包证据继续保留：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **199 passed** | [最新 main CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
-| Chromium 真实生成与交互验收 | **22 / 22 passed** | [最新 main CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
+| Python / API / 存储 / 安全 / 浏览器测试 | **198 passed, 1 skipped** | [RC3-B1 验证记录](docs/ITERATION-RC3-B1-20260921.md) |
+| Chromium 真实生成与交互验收 | **22 / 22 passed** | [RC3-B1 验证记录](docs/ITERATION-RC3-B1-20260921.md) |
 | 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
 | 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
 | DSH 插件与最终 tarball 安装 | **2 / 2 通过** | [接入与发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
@@ -305,7 +305,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.5.0rc2` 是当前应用预发布版，`v0.4.2` 仍是稳定版；`main` 已进入 RC3 架构加固。下一步依次完成共享测试 seam、CLI/HTTP/DSH 共用应用用例、durable Project commit、跨进程与断电恢复，以及按 Project / Generation / Revision / Export 生命周期拆分浏览器 Module，再决定 `v0.5.0` 正式版和 v0.6 桌面壳范围。
+`v0.5.0rc2` 是当前应用预发布版，`v0.4.2` 仍是稳定版；`main` 已完成 RC3-B1 共享测试 seam。下一步先用 Design It Twice 选择 CLI/HTTP/DSH 共用生成用例 Interface，再推进 durable Project commit、跨进程与断电恢复，以及按 Project / Generation / Revision / Export 生命周期拆分浏览器 Module，最后决定 `v0.5.0` 正式版和 v0.6 桌面壳范围。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

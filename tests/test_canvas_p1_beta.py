@@ -2,25 +2,15 @@
 
 from __future__ import annotations
 
-import threading
 
 from playwright.sync_api import sync_playwright
 
-from htmlninefox.server import app as server_app
 
 
-def start_server(root):
-    server_app._OUTPUT_ROOT = root
-    server = server_app.ThreadingHTTPServer(("127.0.0.1", 0), server_app._Handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    return f"http://127.0.0.1:{server.server_address[1]}", server, thread
-
-
-def test_edge_incremental_render_and_motion(tmp_path):
+def test_edge_incremental_render_and_motion(tmp_path, workbench_server):
     """G4：drawEdges 走差量更新、新边生长、删除边淡出、预览线复用同一元素。"""
-    base, server, thread = start_server(tmp_path)
-    try:
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -106,16 +96,12 @@ def test_edge_incremental_render_and_motion(tmp_path):
 
             assert not errors
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
 
 
-def test_node_generation_progress_ring(tmp_path):
+def test_node_generation_progress_ring(tmp_path, workbench_server):
     """G5：进度环吃真实百分比，成功 200ms 收敛、失败走陶土橙 #E57A3F。"""
-    base, server, thread = start_server(tmp_path)
-    try:
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -199,16 +185,12 @@ def test_node_generation_progress_ring(tmp_path):
 
             assert not errors
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
 
 
-def test_group_container_wrap_drag_and_rename(tmp_path):
+def test_group_container_wrap_drag_and_rename(tmp_path, workbench_server):
     """G7：组框容器自动包裹成员 bounds、拖动容器整组移动、双击组名重命名。"""
-    base, server, thread = start_server(tmp_path)
-    try:
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -331,7 +313,3 @@ def test_group_container_wrap_drag_and_rename(tmp_path):
 
             assert not errors
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)

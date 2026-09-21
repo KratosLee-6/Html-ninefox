@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import threading
 import time
 import urllib.request
 from pathlib import Path
@@ -12,7 +11,6 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 from htmlninefox import exporting, pipeline
-from htmlninefox.server import app as server_app
 from htmlninefox.server.storage import StoreError
 
 
@@ -98,14 +96,10 @@ def test_export_project_creates_png_pages_pdf_and_report(tmp_path):
     assert pdf_path.stat().st_size > 1000
 
 
-def test_export_api_submits_job_and_serves_attachment(tmp_path):
+def test_export_api_submits_job_and_serves_attachment(tmp_path, workbench_server):
     project = make_project(tmp_path)
-    server_app._OUTPUT_ROOT = tmp_path
-    server = server_app.ThreadingHTTPServer(("127.0.0.1", 0), server_app._Handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    base = f"http://127.0.0.1:{server.server_address[1]}"
-    try:
+    with workbench_server as server:
+        base = server.base_url
         analyze = _json_request(base + "/api/exports/analyze", {
             "project_name": project.name,
         })
@@ -134,20 +128,12 @@ def test_export_api_submits_job_and_serves_attachment(tmp_path):
             assert response.headers.get_content_type() == "image/png"
             assert response.headers["Content-Disposition"].startswith("attachment;")
             assert response.read().startswith(b"\x89PNG")
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
 
 
-def test_workbench_export_center_shows_real_manifest(tmp_path):
+def test_workbench_export_center_shows_real_manifest(tmp_path, workbench_server):
     project = make_project(tmp_path)
-    server_app._OUTPUT_ROOT = tmp_path
-    server = server_app.ThreadingHTTPServer(("127.0.0.1", 0), server_app._Handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    base = f"http://127.0.0.1:{server.server_address[1]}"
-    try:
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -181,10 +167,6 @@ def test_workbench_export_center_shows_real_manifest(tmp_path):
             assert page.evaluate("exportDraft.nodeId") == node_id
             assert not errors
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
 
 
 def _json_request(url: str, payload: dict) -> dict:

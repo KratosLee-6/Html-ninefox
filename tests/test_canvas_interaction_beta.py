@@ -2,24 +2,14 @@
 
 from __future__ import annotations
 
-import threading
 
 from playwright.sync_api import sync_playwright
 
-from htmlninefox.server import app as server_app
 
 
-def start_server(root):
-    server_app._OUTPUT_ROOT = root
-    server = server_app.ThreadingHTTPServer(("127.0.0.1", 0), server_app._Handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    return f"http://127.0.0.1:{server.server_address[1]}", server, thread
-
-
-def test_canvas_geometry_snap_hysteresis_and_final_pointer_frame(tmp_path):
-    base, server, thread = start_server(tmp_path)
-    try:
+def test_canvas_geometry_snap_hysteresis_and_final_pointer_frame(tmp_path, workbench_server):
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -132,15 +122,11 @@ def test_canvas_geometry_snap_hysteresis_and_final_pointer_frame(tmp_path):
 
             assert not errors
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
 
 
-def test_workspace_header_drag_uses_visible_handle(tmp_path):
-    base, server, thread = start_server(tmp_path)
-    try:
+def test_workspace_header_drag_uses_visible_handle(tmp_path, workbench_server):
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -164,15 +150,11 @@ def test_workspace_header_drag_uses_visible_handle(tmp_path):
             after = page.evaluate("({x:nodes.find(node => node.kind === 'ws').x, y:nodes.find(node => node.kind === 'ws').y})")
             assert after != before, f"visible hit target did not drag workspace: {hit}"
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
 
 
-def test_visible_card_drag_and_port_linking(tmp_path):
-    base, server, thread = start_server(tmp_path)
-    try:
+def test_visible_card_drag_and_port_linking(tmp_path, workbench_server):
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -229,7 +211,3 @@ def test_visible_card_drag_and_port_linking(tmp_path):
             assert page.evaluate("ids => edges.some(edge => edge.from === ids.source && edge.to === ids.target)", ids)
             assert not errors
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)

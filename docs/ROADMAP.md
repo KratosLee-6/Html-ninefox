@@ -162,11 +162,12 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 
 **目标**：在桌面壳和更多生态 Adapter 之前，让 CLI、HTTP、DSH 与未来 sidecar 复用同一应用用例，并补齐项目事务边界。
 
-- RC3-A：架构、领域词汇、贡献命令和 CI 对齐真实仓库。
-- RC3-B：共享测试 server fixture；用 Design It Twice 选择生成用例 Interface。
-- RC3-C：逐个引入 Generation / Feedback / Restore / Export request-result，并收窄 HTTP Adapter。
-- RC3-D：统一 durable write、Project commit、跨进程锁和崩溃恢复。
-- RC3-E：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module。
+- [x] RC3-A：架构、领域词汇、贡献命令和 CI 对齐真实仓库。
+- [x] RC3-B1：统一工作台测试 server fixture，集中临时目录、启停与线程清理。详见 [迭代记录](ITERATION-RC3-B1-20260921.md)。
+- [ ] RC3-B2：用 Design It Twice 选择生成用例 Interface，并完成首个 CLI / HTTP 共用切片。
+- [ ] RC3-C：逐个引入 Generation / Feedback / Restore / Export request-result，并收窄 HTTP Adapter。
+- [ ] RC3-D：统一 durable write、Project commit、跨进程锁和崩溃恢复。
+- [ ] RC3-E：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module。
 - 动效继续作为生命周期反馈迭代，保持可取消、三档偏好和帧性能门禁。
 
 **发布门槛**：HTTP v1 与 Project schema 兼容；多文件写入失败不留下半成品；同一用例由至少两个真实 Adapter 复用；100 节点和完整 Chromium 验收不退化。

@@ -9,7 +9,6 @@ import urllib.request
 from pathlib import Path
 
 from htmlninefox import pipeline
-from htmlninefox.server import app as server_app
 from htmlninefox.server.jobs import JobManager
 
 
@@ -103,13 +102,9 @@ def test_job_manager_persists_live_recipe_progress(tmp_path):
     manager.executor.shutdown(wait=True)
 
 
-def test_generation_job_and_recipe_rerun_api(tmp_path):
-    server_app._OUTPUT_ROOT = tmp_path
-    server = server_app.ThreadingHTTPServer(("127.0.0.1", 0), server_app._Handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    base = f"http://127.0.0.1:{server.server_port}"
-    try:
+def test_generation_job_and_recipe_rerun_api(workbench_server):
+    with workbench_server as server:
+        base = server.base_url
         submitted = request(base, "/api/jobs", "POST", {
             "prompt": "做一个本地优先的 HTML 工具介绍页",
             "intent": "landing",
@@ -131,7 +126,3 @@ def test_generation_job_and_recipe_rerun_api(tmp_path):
         assert rerun["status"] == "succeeded", rerun.get("error")
         assert rerun["result"]["rerun_from"] == "verify"
         assert rerun["result"]["recipe_run"]["parent_run_id"] == result["recipe_run"]["id"]
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=2)

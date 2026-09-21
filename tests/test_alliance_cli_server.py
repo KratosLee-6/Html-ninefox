@@ -1,10 +1,9 @@
 """测试联盟路由 + CLI 全命令冒烟 + Web API"""
 
 import json
-import threading
 import urllib.request
-from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
 from htmlninefox import __version__
@@ -93,23 +92,11 @@ class TestCli:
 
 
 class TestWebApi:
-    @classmethod
-    def setup_class(cls):
-        import tempfile
-        import htmlninefox.server.app as mod
-        cls.out_root = Path(tempfile.mkdtemp()) / "output"
-        mod._OUTPUT_ROOT = cls.out_root
-        cls.out_root.mkdir(parents=True, exist_ok=True)
-        cls.httpd = mod.ThreadingHTTPServer(("127.0.0.1", 0), mod._Handler)
-        cls.server = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
-        cls.server.start()
-        cls.base = f"http://127.0.0.1:{cls.httpd.server_port}"
-
-    @classmethod
-    def teardown_class(cls):
-        cls.httpd.shutdown()
-        cls.httpd.server_close()
-        cls.server.join(timeout=2)
+    @pytest.fixture(autouse=True)
+    def _workbench_server(self, workbench_server):
+        with workbench_server as server:
+            self.base = server.base_url
+            yield
 
     def _get(self, path):
         return urllib.request.urlopen(self.base + path, timeout=10)
@@ -165,5 +152,12 @@ class TestWebApi:
         self._post("/api/generate", {"prompt": ""}, expect=400)
 
     def test_projects_listed(self):
+        generated = self._post(
+            "/api/generate",
+            {"prompt": "做一个深色数据看板", "quiet_llm": True},
+        )
         items = json.loads(self._get("/api/projects").read().decode("utf-8"))["items"]
-        assert any(i["intent"] == "dashboard" for i in items)
+        assert any(
+            item["name"] == generated["project_name"] and item["intent"] == "dashboard"
+            for item in items
+        )

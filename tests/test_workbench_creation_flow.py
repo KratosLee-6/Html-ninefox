@@ -3,25 +3,15 @@
 from __future__ import annotations
 
 import json
-import threading
 
 from playwright.sync_api import sync_playwright
 
 from htmlninefox import pipeline
-from htmlninefox.server import app as server_app
 
 
-def start_server(root):
-    server_app._OUTPUT_ROOT = root
-    server = server_app.ThreadingHTTPServer(("127.0.0.1", 0), server_app._Handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    return f"http://127.0.0.1:{server.server_address[1]}", server, thread
-
-
-def test_gallery_pages_are_visible_and_extractable(tmp_path):
-    base, server, thread = start_server(tmp_path)
-    try:
+def test_gallery_pages_are_visible_and_extractable(tmp_path, workbench_server):
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -43,17 +33,13 @@ def test_gallery_pages_are_visible_and_extractable(tmp_path):
             assert page.evaluate("nodes.some(node => node.kind === 'block' && node.data.gallery_id)")
             assert not errors
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
 
 
-def test_workbench_imports_private_html_template(tmp_path):
-    base, server, thread = start_server(tmp_path)
+def test_workbench_imports_private_html_template(tmp_path, workbench_server):
     template = tmp_path / "private-template.html"
     template.write_text("<!doctype html><title>私人研究模板</title><h1>Research</h1>", encoding="utf-8")
-    try:
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -65,17 +51,13 @@ def test_workbench_imports_private_html_template(tmp_path):
             assert page.locator('[data-gallery-delete]').count() == 1
             assert (tmp_path / ".library" / "gallery").is_dir()
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
 
 
-def test_guided_input_analysis_and_generation_persist_composition(tmp_path):
-    base, server, thread = start_server(tmp_path)
+def test_guided_input_analysis_and_generation_persist_composition(tmp_path, workbench_server):
     reference = tmp_path / "reference.md"
     reference.write_text("目标：展示真实模板、AI 推荐和本地数据安全。", encoding="utf-8")
-    try:
+    with workbench_server as server:
+        base = server.base_url
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -106,7 +88,3 @@ def test_guided_input_analysis_and_generation_persist_composition(tmp_path):
             assert page.evaluate("nodes.filter(node => node.kind === 'source').length") == 1
             assert not errors
             browser.close()
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=3)
