@@ -89,7 +89,7 @@ git push origin feat/short-description
 ### Python 与浏览器测试
 
 ```powershell
-python -m pytest tests -q -p no:cacheprovider
+python -m pytest -q -p no:cacheprovider
 ```
 
 涉及浏览器用户路径或 Export 时：
@@ -106,6 +106,7 @@ python scripts/check_inline_js.py
 node --check htmlninefox/server/static/canvas-engine.js
 node --check htmlninefox/server/static/canvas-productivity.js
 node --check htmlninefox/server/static/workbench-features.js
+node --check htmlninefox/server/static/workbench-ui.js
 node --check htmlninefox/server/static/motion-system.js
 node --check htmlninefox/server/static/interaction-system.js
 node --check htmlninefox/server/static/sw.js
@@ -128,6 +129,8 @@ npm test
 - HTTP v1：响应字段、错误 code 和兼容行为。
 - Project / Revision：失败回滚、历史保留和冲突行为。
 - UI：用户可观察结果、键盘与动效关闭状态；不要只断言内部变量。
+- 视觉改动：至少保存受影响 viewport 和业务状态的真实截图；新增 success、error 或 recovery 状态时，优先加入可复现的 Playwright 证据测试。
+- 截图路径、命名和证据目录遵循 [`assets/screenshots/README.md`](assets/screenshots/README.md)。
 - 性能：先保存基线和输入规模，再声明改善或没有退化。
 
 测试文件当前平铺在 `tests/` 并按能力命名。请不要创建不存在的旧式 `tests/integration/` 或 `tests/security/` 结构，除非先提交并说明新的测试组织方案。

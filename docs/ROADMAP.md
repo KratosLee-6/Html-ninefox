@@ -8,9 +8,9 @@
 
 > 工程审计（2026-09-20）：已按 `mattpocock/skills` 的 research、domain-modeling、codebase-design 与 code-review 方法完成全仓审计。当前优先级从继续堆叠功能调整为 RC3 架构加固：先统一文档与真实门禁，再建立应用用例 seam、Project commit 和前端业务 Module。详见[审计报告](AUDIT-MATTPOCOCK-20260920.md)与[RC3 计划](ITERATION-PLAN-POST-RC2-20260920.md)。
 
-> 动效下一轮：[动效执行方案 v0.5](MOTION-PLAN-v0.5.md)。按基础反馈统一、真实生成流程、离线打包与帧性能三阶段推进；Anime.js 优先验证，其余资源按组件或设计参考评估，许可核验尚待完成。
+> `main` 快照（2026-09-24）：RC3-A、RC3-B1 与 Pixel Garden 视觉基础切片已经完成。工作台已具备收敛后的主操作层级、四档响应式布局、语义缩放、本地 SVG Icon、统一组件状态和 14 张真实状态截图；完整测试为 201 通过、1 跳过。应用安装包仍为 `v0.5.0rc2`，本段只描述源码主线。详见[视觉收敛记录](ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
 
-> 动效第一轮已完成：[交付记录](ITERATION-MOTION-20260918.md)。全量 196 通过 / 1 跳过，端到端 22/22 通过；统一原生动效、三档偏好、重试清理和本地样页已落地。接下来进入时间线对照试验与帧性能验收。
+> 动效继续沿用[动效执行方案 v0.5](MOTION-PLAN-v0.5.md)和现有原生 CSS/WAAPI 路线。Anime.js 仅在真实生成时间线出现明确编排收益，并同时通过离线打包、取消、减少动效与帧预算验证时再引入；Motion Sites、Showreel Design、React Bits、Aceternity UI 与 Uiverse 作为交互规律或局部源码参考。
 
 > 2026-09-03 更新：v0.4 主线调整为“私人模板资产库 + 项目记忆 + 使用反馈学习”。竞品拆解与 30/90/180 天路线见 `PRODUCT-ITERATION-v0.4.md`。
 
@@ -164,6 +164,7 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 
 - [x] RC3-A：架构、领域词汇、贡献命令和 CI 对齐真实仓库。
 - [x] RC3-B1：统一工作台测试 server fixture，集中临时目录、启停与线程清理。详见 [迭代记录](ITERATION-RC3-B1-20260921.md)。
+- [x] RC3 视觉基础切片：收敛工作台层级、响应式任务视图、语义缩放、组件状态、本地 SVG Icon 与截图证据。详见 [视觉收敛记录](ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
 - [ ] RC3-B2：用 Design It Twice 选择生成用例 Interface，并完成首个 CLI / HTTP 共用切片。
 - [ ] RC3-C：逐个引入 Generation / Feedback / Restore / Export request-result，并收窄 HTTP Adapter。
 - [ ] RC3-D：统一 durable write、Project commit、跨进程锁和崩溃恢复。
@@ -285,11 +286,10 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 
 ## 10. 下一步执行顺序
 
-1. **RC3-B1**：建立共享 pytest HTTP server fixture，迁移重复 server/thread 启停代码。
-2. **RC3-B2**：用 Design It Twice 比较函数式应用服务与 `StudioApplication`，固定第一个生成用例 seam。
-3. **RC3-C**：让 CLI、HTTP 和 DSH 复用 Generation / Feedback / Restore / Export request-result。
-4. **RC3-D**：统一 durable write、Project commit、跨进程锁与崩溃恢复测试。
-5. **RC3-E**：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module，并继续执行动效帧预算门禁。
-6. 达成 RC3 退出条件后，再进入 v0.6 Tauri sidecar、可编辑 PPTX / DOCX 和桌面系统集成。
+1. **RC3-B2**：用 Design It Twice 比较函数式应用服务与 `StudioApplication`，固定第一个生成用例 seam。
+2. **RC3-C**：让 CLI、HTTP 和 DSH 复用 Generation / Feedback / Restore / Export request-result。
+3. **RC3-D**：统一 durable write、Project commit、跨进程锁与崩溃恢复测试。
+4. **RC3-E**：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module，并在已完成的视觉基础上继续执行真实状态截图、减少动效和帧预算门禁。
+5. 达成 RC3 退出条件后，再进入 v0.6 Tauri sidecar、可编辑 PPTX / DOCX 和桌面系统集成。
 
 工程任务使用 GitHub Issues 跟踪，配置见 [`docs/agents/`](agents/)。完整验收和阶段边界见 [RC3 架构加固计划](ITERATION-PLAN-POST-RC2-20260920.md)。

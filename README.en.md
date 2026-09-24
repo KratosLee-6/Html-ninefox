@@ -12,14 +12,14 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-199%20passed-1F8A70)](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35353907293)
+[![Tests](https://img.shields.io/badge/pytest-201%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![HtmlNineFox v0.5.0rc2 workbench](assets/screenshots/v0.5.0rc2/workbench-overview.png)
+![HtmlNineFox RC3 Pixel Garden workbench](assets/screenshots/v0.5.0rc3-visual/workbench-paper-1440.png)
 
 ## What it solves
 
@@ -42,29 +42,41 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
   Revise with natural language feedback, keeping rev history
 ```
 
-## v0.5.0 RC2 Release Snapshot (September 18, 2026)
+## Current release and `main` development snapshot (September 24, 2026)
 
-The application version is now `0.5.0rc2`. This installable prerelease combines Project Memory with revision history and restore, native motion, the 100-node gate, and accessibility improvements. `v0.4.2` remains the stable release. The DSH plugin uses its separate `0.1.0-preview.1` version.
+The application version remains `0.5.0rc2`, published under the installable prerelease tag `v0.5.0rc2`, while `v0.4.2` remains the stable release. Since RC2, `main` has completed the repository engineering baseline, the shared workbench test-server fixture, and the RC3 Pixel Garden visual and interaction convergence. These source changes do not create a new application package or change the release version.
 
-| Increment | Delivered behavior | Evidence |
+| Track | Current state | Evidence |
 |---|---|---|
-| Revision history | HTML plus generation-state snapshots, labels, source diffs, lineage, conflict-aware restore-as-new-version, legacy history compatibility | [RC2 notes](docs/ITERATION-RC2-20260918.md) · [test report](docs/TEST-REPORT-RC2-20260918.md) |
-| Accessibility and scale | Keyboard focus loop and restoration, 390px layout, 100 nodes / 99 edges render-select-move-save gate | [RC2 report](docs/TEST-REPORT-RC2-20260918.md) |
-| Native motion | System/reduced/off preferences, cancellable animations, concurrency budget, retry cleanup, stage-based notifications, six `/motion-lab` samples | [motion delivery](docs/ITERATION-MOTION-20260918.md) |
-| DeepSeek Harness | Native Cordis `dsh.bundle` skill workflow for generate → feedback → PDF / PNG, with tarball, SHA-256 and `dsh-plugin` topic | [plugin release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) · [guide](integrations/deepseek-harness/README.md) |
+| Application release | `v0.5.0rc2` prerelease, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2) |
+| Latest `main` increment | Simplified header, responsive task layouts, semantic zoom, local SVG icons, unified component states, and Pixel Garden classic mode | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [UI guide](docs/UI-GUIDE.md) |
+| Current local verification | `201 passed, 1 skipped`; focused visual and interaction suite `20 passed`; JavaScript syntax gates pass | [validation record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| DeepSeek Harness plugin | Separately versioned `0.1.0-preview.1` | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
+
+### RC3 visual and interaction convergence
+
+The workbench keeps the existing Pixel Garden brand and native HTML/CSS/JavaScript architecture. No React migration, Anime.js dependency, external icon service, or unrelated example palette was introduced.
+
+| Area | Delivered behavior |
+|---|---|
+| Information hierarchy | “Input requirements” and “Advance workspace” are the two primary actions; secondary tools move into the More menu |
+| Responsive product flow | Full three-column desktop, inspector drawer, dual tablet drawers, and a readable mobile task view at `≤620px` |
+| Semantic zoom | Overview below `0.78`, compact from `0.78` to `1`, and full editing detail at `≥1` |
+| Component system | Consistent focus, selected, disabled, busy, success, error, and reduced-motion behavior with local SVG icons |
+| Classic mode | Rejoined the same paper, cobalt, mint, terracotta, logo, typography, and form-state system |
 
 <table>
 <tr>
-<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/harness-plugin-enabled.png" alt="htmlninefox enabled in DeepSeek Harness"><br><b>Enabled in DSH</b><br>The final tarball is installed in a fresh Web profile and visible as an enabled global plugin.</td>
-<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/generated-poster.png" alt="Chinese poster generated and exported through the tested workflow"><br><b>Generate, revise, export</b><br>Offline Chinese poster generation, dry-run and applied feedback, then PDF and full-page PNG export with a 100 compatibility score.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/workbench-paper-1440.png" alt="RC3 Pixel Paper desktop workbench"><br><b>Desktop workbench</b><br>Three-column hierarchy and focused primary actions.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/workbench-mobile-390.png" alt="RC3 mobile task view"><br><b>Mobile task view</b><br>Workspace actions and node cards replace an unreadable scaled canvas.</td>
 </tr>
 <tr>
-<td width="50%"><img src="docs/test-evidence/motion-20260918/revision-history-desktop.png" alt="Revision history and restore UI"><br><b>Revision history</b><br>Labels, lineage, source diff and restore-as-new-version.</td>
-<td width="50%"><img src="docs/test-evidence/motion-20260918/motion-lab-desktop.png" alt="Native motion lab"><br><b>Motion lab</b><br>Six interaction samples with user-controlled motion preferences.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/command-palette-search.png" alt="Command palette search"><br><b>Command palette</b><br>Keyboard search, active result, and shortcut feedback.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/revision-restore-complete.png" alt="Revision restore complete"><br><b>Restore complete</b><br>Real rev0 → rev2 restore with lineage and success feedback.</td>
 </tr>
 </table>
 
-Latest validation: **199 passed** on [Linux CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358), **22/22** Chromium acceptance checks, and **2/2** DSH registry and tarball integration tests. Remaining gaps include real-model DSH conversation selection, Safari / WebView2, cross-process writes, and crash-transaction recovery.
+The RC3 evidence set contains 14 real screenshots, including Project Memory, controlled export errors, generated output, Export Center readiness, tablet drawers, and both themes.
 
 ## v0.5.0 RC2 Capabilities
 
@@ -166,18 +178,18 @@ htmlninefox export PROJECT_NAME --format png --scope pages --pages 1-3
 
 ## Testing & Trust Evidence
 
-`v0.5.0rc2` release validation runs on **September 18, 2026**. Development evidence and the original `v0.4.2` package report remain available.
+The latest `main` source baseline was verified locally on **September 24, 2026**. The installable `v0.5.0rc2` release evidence from September 18 remains available separately.
 
 | Check | Result | Evidence |
 |---|---:|---|
-| Python / API / storage / security / browser tests | **199 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
-| Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
-| Revision, motion and 100-node gates | **Passed** | [motion delivery](docs/ITERATION-MOTION-20260918.md) |
+| Full Python / API / storage / security / browser suite | **201 passed, 1 skipped** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| Focused command, memory, error, recovery, motion, interaction, revision, and export suite | **20 passed** | [reproducible Playwright gate](tests/test_rc3_visual_evidence_states.py) |
+| Inline and standalone JavaScript syntax | **Passed** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| Latest published Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
 | DSH registry and final tarball integration | **2 / 2 passed** | [integration record](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| RC2 package validation | Isolated wheel, real PNG export, and Windows portable startup pass locally; tagged CI rebuilt Windows and Linux assets, published SHA-256 files, and verified Docker | [package CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358991909) · [test report](docs/TEST-REPORT-v0.5.0rc2.md) |
-| Historical stable package evidence | v0.4.2 wheel, Windows portable, and Linux archive evidence remains available | [package smoke](docs/test-evidence/v0.4.2-package-smoke.txt) |
+| RC2 package validation | Isolated wheel, real PNG export, Windows portable startup, tagged Windows/Linux assets, SHA-256 files, and Docker verification | [test report](docs/TEST-REPORT-v0.5.0rc2.md) |
 
-See the [v0.5.0rc2 release test report](docs/TEST-REPORT-v0.5.0rc2.md). The [v0.4.2 report](docs/TEST-REPORT-v0.4.2.md) and [environment record](docs/test-evidence/v0.4.2-environment.txt) remain as historical evidence.
+The remaining product-engineering gaps are shared CLI/HTTP/DSH application use cases, durable multi-file Project commits, cross-process coordination, crash recovery, and Safari/WebView2 device validation.
 
 ### Run from source
 
@@ -191,7 +203,9 @@ htmlninefox --help
 ## Documentation
 
 - [Architecture](docs/ARCHITECTURE.md)
-- [Design guide](docs/DESIGN.md)
+- [Design philosophy](docs/DESIGN.md)
+- [Pixel Garden UI guide](docs/UI-GUIDE.md)
+- [RC3 visual convergence record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)
 - [Examples](docs/EXAMPLES.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Private template import](docs/PRIVATE-TEMPLATE-IMPORT.md)

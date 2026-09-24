@@ -1,6 +1,6 @@
 # Architecture · 当前架构
 
-> 当前基线：`v0.5.0rc2`，更新于 2026-09-20。早期“5 agents · 3 sinks · 1 router”描述记录了项目起点，已经不足以说明当前 Project、Revision、Export、Memory、Job、Workspace 和插件能力。
+> 当前基线：`v0.5.0rc2`，更新于 2026-09-24。早期“5 agents · 3 sinks · 1 router”描述记录了项目起点，已经不足以说明当前 Project、Revision、Export、Memory、Job、Workspace 和插件能力。
 >
 > 工程审计：[mattpocock/skills 方法版审计](AUDIT-MATTPOCOCK-20260920.md) · 下一阶段：[RC3 架构加固计划](ITERATION-PLAN-POST-RC2-20260920.md)
 
@@ -135,9 +135,12 @@ HTTP v1 是 Web/PWA 和未来轻客户端的兼容 seam。约束：
 - `canvas-engine.js`：Canvas 节点与连线基础行为。
 - `canvas-productivity.js`：框选、批量移动、导航和生产力操作。
 - `workbench-features.js`：工作台功能增强。
+- `workbench-ui.js`：工作台布局模式、Icon、抽屉、命令面板与状态呈现。
 - `interaction-system.js`：选择、提示和通用交互反馈。
 - `motion-system.js`：可取消动效、并发预算和动效偏好。
 - `sw.js`：PWA 缓存与离线壳。
+
+视觉样式由 `pixel-garden-tokens.css` 提供品牌令牌，`workbench-system.css` 提供响应式布局、语义缩放、组件状态和 reduced-motion 收敛层。
 
 动效是状态反馈，不是业务成功条件。所有关键行为必须在系统 / 减少 / 关闭三档动效偏好下完成。
 

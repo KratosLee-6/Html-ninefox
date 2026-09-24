@@ -1,9 +1,10 @@
 # RC2 后迭代计划：RC3 架构加固
 
 - 制定日期：2026-09-20
-- 最近校验：2026-09-21
+- 最近校验：2026-09-24
 - 输入：[mattpocock/skills 工程审计](AUDIT-MATTPOCOCK-20260920.md)
-- 当前应用基线：`v0.5.0rc2`
+- 当前应用发布基线：`v0.5.0rc2`
+- 当前 `main`：RC3-A、RC3-B1 与视觉基础切片已完成；完整测试 201 通过、1 跳过
 - 目标：在扩展桌面端和更多生态 Adapter 前，让应用用例、持久化和浏览器工作台拥有稳定、可测试的 seam。
 
 ## 成功标准
@@ -58,7 +59,9 @@ RC3 完成时应满足：
 
 状态：**已完成（2026-09-21）**。13 个工作台 HTTP 测试文件已迁移到统一 fixture，完整 pytest 与 Chromium 验收保持通过；实现与证据见 [RC3-B1 迭代记录](ITERATION-RC3-B1-20260921.md)。
 
-第二步（下一步）：Design It Twice 比较生成用例方案。
+并行完成的视觉基础（2026-09-24）：工作台主操作层级、四档响应式布局、语义缩放、本地 SVG Icon、组件状态、Paper / Pixel Night 主题与 14 张真实状态截图已经落地。该切片为后续浏览器业务 Module 提供稳定呈现层，不改变应用发布版本。详见 [RC3 视觉收敛记录](ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
+
+第二步（当前下一步）：Design It Twice 比较生成用例方案。
 
 候选 A：函数式应用服务。
 
@@ -185,6 +188,7 @@ python scripts/check_inline_js.py
 node --check htmlninefox/server/static/canvas-engine.js
 node --check htmlninefox/server/static/canvas-productivity.js
 node --check htmlninefox/server/static/workbench-features.js
+node --check htmlninefox/server/static/workbench-ui.js
 node --check htmlninefox/server/static/motion-system.js
 node --check htmlninefox/server/static/interaction-system.js
 node --check htmlninefox/server/static/sw.js
