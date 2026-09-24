@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-200%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)
+[![Tests](https://img.shields.io/badge/pytest-201%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -52,7 +52,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 |---|---|---|
 | 应用 Release | `v0.5.0rc2` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2) |
 | `main` 最新增量 | RC3 视觉与交互收敛已完成：桌面三栏、平板双抽屉、移动任务视图、语义缩放、本地 SVG Icon 与经典模式统一为 Pixel Garden | [视觉收敛记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [UI 规范](docs/UI-GUIDE.md) |
-| RC3 当前完整复验 | `200 passed, 1 skipped`；发布级 API / 可访问性 / 视觉门禁 `16 passed`；JavaScript 语法检查全部通过 | [本轮记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
+| RC3 当前完整复验 | `201 passed, 1 skipped`；命令、记忆、错误与恢复专项门禁 `20 passed`；JavaScript 语法检查全部通过 | [本轮记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 ### RC3 视觉与交互收敛（2026-09-24）
@@ -78,7 +78,20 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 </tr>
 </table>
 
-完整组件状态、抽屉、真实生成产物与导出中心截图见[本轮迭代记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
+### 四项状态证据补齐
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/command-palette-search.png" alt="命令面板搜索生成操作"><br><b>命令面板</b><br>键盘打开、输入搜索、活动项和快捷键提示。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/project-memory-saved.png" alt="项目记忆保存完成"><br><b>项目记忆</b><br>真实保存品牌、受众、语气、禁忌、模板与长期说明，并显示成功状态。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/export-analysis-error.png" alt="导出分析失败状态"><br><b>可控错误</b><br>服务端返回项目不存在，导出按钮禁用，错误面板与 Toast 同步反馈。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/revision-restore-complete.png" alt="版本恢复完成状态"><br><b>版本恢复</b><br>真实把 rev0 恢复为新的 rev2，原版本保留并显示恢复来源与成功 Toast。</td>
+</tr>
+</table>
+
+RC3 截图集现包含 14 张真实页面和状态证据，完整清单见[本轮迭代记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
 
 ### v0.5.0 RC2 已发布基线（2026-09-18）
 
@@ -109,8 +122,8 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 
 | 验证 | 结果 | 证据 |
 |---|---:|---|
-| 本轮本地全量 Python / HTTP / Chromium | **200 passed，1 skipped，108.13 秒** | [RC3 视觉收敛记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
-| 发布级 API / 可访问性 / 视觉门禁 | **16 passed，20.48 秒** | [同一记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| 本轮本地全量 Python / HTTP / Chromium | **201 passed，1 skipped，102.94 秒** | [RC3 视觉收敛记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| 命令、记忆、错误、恢复与相关交互专项 | **20 passed，53.71 秒** | [同一记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
 | 最近一次 `main` GitHub CI | **199 passed，62.30 秒** | [Actions #35510548370](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
 | Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [同一 CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35510548370) |
 | DSH 插件注册、重载、卸载、tarball 独立安装 | **2 / 2 通过** | [插件测试](integrations/deepseek-harness/test/plugin.test.js) |
@@ -298,7 +311,7 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **200 passed, 1 skipped** | [RC3 视觉收敛记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| Python / API / 存储 / 安全 / 浏览器测试 | **201 passed, 1 skipped** | [RC3 视觉收敛记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
 | Chromium 真实生成与交互验收 | **22 / 22 passed** | [RC3-B1 验证记录](docs/ITERATION-RC3-B1-20260921.md) |
 | 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
 | 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |

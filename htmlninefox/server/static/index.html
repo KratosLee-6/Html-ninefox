@@ -729,7 +729,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
         </div>
         <div class="export-runtime" id="export-runtime">导出在本机完成，不上传 HTML、附件或 API Key。</div>
         <div class="flow-actions" style="margin-top:12px"><button class="btn btn-primary" id="export-start" onclick="startExport()">开始导出</button></div>
-        <div class="status-panel" id="export-status" style="margin-top:10px">等待分析</div><div class="export-result" id="export-result"></div>
+        <div class="status-panel" id="export-status" role="status" aria-live="polite" style="margin-top:10px">等待分析</div><div class="export-result" id="export-result"></div>
       </section>
     </div>
   </div>
@@ -792,7 +792,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <div class="flow-grid"><div class="flow-field"><label>模板适用类型</label><select id="memory-template-intent"><option value="landing">落地页</option><option value="dashboard">数据看板</option><option value="deck">发布会 PPT</option><option value="poster">海报</option><option value="archdoc">架构文档</option><option value="doc">文档</option></select></div><div class="flow-field"><label>默认模板 ID</label><input id="memory-template" list="memory-template-list" placeholder="fox-pixel-garden"><datalist id="memory-template-list"></datalist></div></div>
       <div class="flow-grid"><div class="flow-field"><label>默认主色</label><input id="memory-primary" placeholder="#173C8F"></div><div class="flow-field"><label>默认字体</label><select id="memory-font"><option value="">自动</option><option value="sans">无衬线</option><option value="serif">衬线</option><option value="mono">等宽</option></select></div></div>
       <div class="flow-field"><label>长期说明</label><textarea id="memory-notes" maxlength="2000" placeholder="仅保存可长期复用的项目说明，不建议粘贴敏感原文。"></textarea></div>
-      <div class="flow-actions"><button class="btn btn-primary" id="memory-save" onclick="saveProjectMemory()">保存记忆</button></div><div class="status-panel" id="memory-status" style="margin-top:12px">尚未读取项目记忆</div>
+      <div class="flow-actions"><button class="btn btn-primary" id="memory-save" onclick="saveProjectMemory()">保存记忆</button></div><div class="status-panel" id="memory-status" role="status" aria-live="polite" style="margin-top:12px">尚未读取项目记忆</div>
       <div class="memory-danger"><p class="settings-note">采用只记录品牌、受众、风格、禁忌、模板与设计决策，不保存 API Key 或附件正文。</p><button class="btn btn-danger-ghost" id="memory-clear" onclick="clearProjectMemory()">清空项目记忆</button></div>
     </section></div>
   </div>

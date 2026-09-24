@@ -95,6 +95,17 @@
 | `generated-output-inspector.png` | 离线真实生成后的产物检查器 |
 | `export-center-ready.png` | 真实产物进入导出中心 |
 | `classic-pixel-garden.png` | 统一品牌后的经典模式 |
+| `command-palette-search.png` | 命令面板搜索、活动项和快捷键状态 |
+| `project-memory-saved.png` | 项目记忆真实保存与成功反馈 |
+| `export-analysis-error.png` | 导出分析的服务端错误、禁用与错误 Toast |
+| `revision-restore-complete.png` | rev0 真实恢复为新 rev2，并保留来源与成功 Toast |
+
+### 四项状态证据
+
+- 命令面板通过 `Ctrl+K` 打开，搜索“生成”后验证活动命令、键盘焦点和快捷键提示。
+- 项目记忆通过真实保存接口写入品牌、受众、语气、禁忌、模板、主色与长期说明；保存状态使用 `role="status"` 和 `aria-live="polite"`。
+- 导出错误使用不存在的项目调用真实 `/api/exports/analyze`，验证错误面板、禁用导出按钮、错误 Toast 和可访问状态区域。
+- 版本恢复使用真实 rev0/rev1 文件与恢复 API，把 rev0 恢复为新 rev2，验证输出文件、节点 revision、恢复来源和成功 Toast。
 
 ## 验证结果
 
@@ -106,21 +117,21 @@
 - `node --check htmlninefox/server/static/workbench-features.js`：通过。
 - `node --check htmlninefox/server/static/workbench-ui.js`：通过。
 
-### 发布级回归
+### 四项状态与相关能力专项回归
 
 ```text
-python -m pytest tests/test_server_project_api.py tests/test_rc2_revision_accessibility_performance.py tests/test_workbench_visual_convergence.py -q --basetemp .codex_tmp/pytest-rc3-visual-gate -p no:cacheprovider
-16 passed in 20.48s
+python -m pytest tests/test_workbench_visual_convergence.py tests/test_rc3_visual_evidence_states.py tests/test_motion_system.py tests/test_interaction_system.py tests/test_project_memory_rc1.py tests/test_rc2_revision_accessibility_performance.py tests/test_exports.py -q --basetemp .codex_tmp/pytest-rc3-evidence-focused -p no:cacheprovider
+20 passed in 53.71s
 ```
 
 ### 全量回归
 
 ```text
-python -m pytest -q --basetemp .codex_tmp/pytest-full-rc3-visual-2 -p no:cacheprovider
-200 passed, 1 skipped in 108.13s
+python -m pytest -q --basetemp .codex_tmp/pytest-full-rc3-evidence -p no:cacheprovider
+201 passed, 1 skipped in 102.94s
 ```
 
-浏览器门禁覆盖 1440px 顶栏、768px 抽屉、390px 移动任务视图、控件尺寸、本地 SVG、语义缩放、抽屉可访问状态、移动节点到检查器，以及经典模式品牌 Token 和焦点环。
+浏览器门禁覆盖 1440px 顶栏、768px 抽屉、390px 移动任务视图、控件尺寸、本地 SVG、语义缩放、抽屉可访问状态、移动节点到检查器、经典模式品牌 Token 和焦点环；新增专项门禁通过真实 API 覆盖命令面板、项目记忆保存、导出分析失败和 rev0 → rev2 恢复。截图通过 `HTMLNINEFOX_RC3_EVIDENCE_DIR` 由 `tests/test_rc3_visual_evidence_states.py` 可重复生成。
 
 ## 已知限制
 
