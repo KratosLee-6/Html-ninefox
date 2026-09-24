@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.5.0rc2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2)
+[![App Release](https://img.shields.io/badge/app-v0.5.0rc3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -44,12 +44,12 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
 
 ## Current release and `main` development snapshot (September 24, 2026)
 
-The application version remains `0.5.0rc2`, published under the installable prerelease tag `v0.5.0rc2`, while `v0.4.2` remains the stable release. Since RC2, `main` has completed the repository engineering baseline, the shared workbench test-server fixture, and the RC3 Pixel Garden visual and interaction convergence. These source changes do not create a new application package or change the release version.
+The application version remains `0.5.0rc3`, published under the installable prerelease tag `v0.5.0rc3`, while `v0.4.2` remains the stable release. This RC3 prerelease packages the repository engineering baseline, shared workbench test-server fixture, and Pixel Garden visual and interaction convergence for Windows, Linux, and Python users.
 
 | Track | Current state | Evidence |
 |---|---|---|
-| Application release | `v0.5.0rc2` prerelease, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2) |
-| Latest `main` increment | Simplified header, responsive task layouts, semantic zoom, local SVG icons, unified component states, and Pixel Garden classic mode | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [UI guide](docs/UI-GUIDE.md) |
+| Application release | `v0.5.0rc3` prerelease, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
+| RC3 application increment | Simplified header, responsive task layouts, semantic zoom, local SVG icons, unified component states, and Pixel Garden classic mode | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [UI guide](docs/UI-GUIDE.md) |
 | Current local verification | `201 passed, 1 skipped`; focused visual and interaction suite `20 passed`; JavaScript syntax gates pass | [validation record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
 | DeepSeek Harness plugin | Separately versioned `0.1.0-preview.1` | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
@@ -140,15 +140,15 @@ Output nodes can export PDF, paginated PNG, or a full-page image. Preflight show
 
 ## Download & Install
 
-Download application packages from the [v0.5.0rc2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2). It is an application prerelease; [v0.4.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2) remains stable. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
+Download application packages from the [v0.5.0rc3 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3). It is an application prerelease; [v0.4.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2) remains stable. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
 
 | Platform | Recommended file | Usage |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.5.0rc2.exe` | Per-user installer with a Start menu entry |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0rc2.zip` | Extract and run `HtmlNineFox.exe` |
-| Linux | `HtmlNineFox-Linux-0.5.0rc2.run` | `chmod +x` and run; installs to user directory |
-| Linux / audit | `HtmlNineFox-Linux-0.5.0rc2.tar.gz` | Inspectable full installation contents |
-| Python 3.10+ | `htmlninefox-0.5.0rc2-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0rc2-py3-none-any.whl` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.5.0rc3.exe` | Per-user installer with a Start menu entry |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0rc3.zip` | Extract and run `HtmlNineFox.exe` |
+| Linux | `HtmlNineFox-Linux-0.5.0rc3.run` | `chmod +x` and run; installs to user directory |
+| Linux / audit | `HtmlNineFox-Linux-0.5.0rc3.tar.gz` | Inspectable full installation contents |
+| Python 3.10+ | `htmlninefox-0.5.0rc3-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0rc3-py3-none-any.whl` |
 | Docker | Build from source | `docker compose up --build`; tag CI verifies but does not publish the image |
 
 ### Quick start
@@ -178,7 +178,7 @@ htmlninefox export PROJECT_NAME --format png --scope pages --pages 1-3
 
 ## Testing & Trust Evidence
 
-The latest `main` source baseline was verified locally on **September 24, 2026**. The installable `v0.5.0rc2` release evidence from September 18 remains available separately.
+The `v0.5.0rc3` release candidate was verified locally on **September 24, 2026**; `v0.4.2` remains the stable release.
 
 | Check | Result | Evidence |
 |---|---:|---|
@@ -187,7 +187,7 @@ The latest `main` source baseline was verified locally on **September 24, 2026**
 | Inline and standalone JavaScript syntax | **Passed** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
 | Latest published Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
 | DSH registry and final tarball integration | **2 / 2 passed** | [integration record](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| RC2 package validation | Isolated wheel, real PNG export, Windows portable startup, tagged Windows/Linux assets, SHA-256 files, and Docker verification | [test report](docs/TEST-REPORT-v0.5.0rc2.md) |
+| RC3 package validation | Isolated wheel, packaged CSS/JS assets, CLI/workbench startup, tagged Windows/Linux assets, SHA-256 files, and Docker verification | [test report](docs/TEST-REPORT-v0.5.0rc3.md) |
 
 The remaining product-engineering gaps are shared CLI/HTTP/DSH application use cases, durable multi-file Project commits, cross-process coordination, crash recovery, and Safari/WebView2 device validation.
 

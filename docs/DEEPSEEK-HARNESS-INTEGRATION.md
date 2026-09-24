@@ -101,9 +101,9 @@ CI 已加入插件测试步骤，与现有 Python / Chromium 验收一起运行�
 
 ## 反馈与下一步
 
-### 与应用 v0.5.0rc2 的版本边界
+### 与应用 v0.5.0rc3 的版本边界
 
-- 主应用现已进入 [`v0.5.0rc2`](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2) 预发布，提供 Windows、Linux 与 Python 安装包。
+- 主应用现已进入 [`v0.5.0rc3`](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) 预发布，提供 Windows、Linux 与 Python 安装包。
 - DSH 插件仍为独立的 `dsh-htmlninefox@0.1.0-preview.1`，插件 Release 只包含 `.tgz`、校验文件和实测截图。
 - 应用升级不会自动安装或升级 DSH 插件；插件通过宿主命令调用本机已安装的九尾狐 CLI。
 - npm 发布仍暂缓，GitHub tarball 是当前经过验证的插件安装渠道。

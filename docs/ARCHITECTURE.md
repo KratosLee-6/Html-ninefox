@@ -1,6 +1,6 @@
 # Architecture · 当前架构
 
-> 当前基线：`v0.5.0rc2`，更新于 2026-09-24。早期“5 agents · 3 sinks · 1 router”描述记录了项目起点，已经不足以说明当前 Project、Revision、Export、Memory、Job、Workspace 和插件能力。
+> 当前基线：`v0.5.0rc3`，更新于 2026-09-24。早期“5 agents · 3 sinks · 1 router”描述记录了项目起点，已经不足以说明当前 Project、Revision、Export、Memory、Job、Workspace 和插件能力。
 >
 > 工程审计：[mattpocock/skills 方法版审计](AUDIT-MATTPOCOCK-20260920.md) · 下一阶段：[RC3 架构加固计划](ITERATION-PLAN-POST-RC2-20260920.md)
 

@@ -1,14 +1,14 @@
 # Html九尾狐 · 产品长期迭代路线 v4（跨端可用版）
 
 > 制定日期：2026-08-31
-> 当前应用预发布：v0.5.0rc2（稳定版仍为 v0.4.2）
+> 当前应用预发布：v0.5.0rc3（稳定版仍为 v0.4.2）
 > 目标：先让真实用户稳定完成“提出需求 → 生成 HTML → 预览 → 反馈修改 → 导出/分享”，再扩展平台数量。
 
 > 2026-09-18：RC2 已接入版本差异、命名、恢复为新版本、键盘、原生动效与 100 节点验收，并进入 `v0.5.0rc2` 应用预发布。详见 [迭代记录](ITERATION-RC2-20260918.md)、[Release Notes](RELEASE-NOTES-v0.5.0rc2.md) 和 [发布测试报告](TEST-REPORT-v0.5.0rc2.md)。下方早期 Sprint 清单为历史规划。
 
 > 工程审计（2026-09-20）：已按 `mattpocock/skills` 的 research、domain-modeling、codebase-design 与 code-review 方法完成全仓审计。当前优先级从继续堆叠功能调整为 RC3 架构加固：先统一文档与真实门禁，再建立应用用例 seam、Project commit 和前端业务 Module。详见[审计报告](AUDIT-MATTPOCOCK-20260920.md)与[RC3 计划](ITERATION-PLAN-POST-RC2-20260920.md)。
 
-> `main` 快照（2026-09-24）：RC3-A、RC3-B1 与 Pixel Garden 视觉基础切片已经完成。工作台已具备收敛后的主操作层级、四档响应式布局、语义缩放、本地 SVG Icon、统一组件状态和 14 张真实状态截图；完整测试为 201 通过、1 跳过。应用安装包仍为 `v0.5.0rc2`，本段只描述源码主线。详见[视觉收敛记录](ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
+> `main` 快照（2026-09-24）：RC3-A、RC3-B1 与 Pixel Garden 视觉基础切片已经完成。工作台已具备收敛后的主操作层级、四档响应式布局、语义缩放、本地 SVG Icon、统一组件状态和 14 张真实状态截图；完整测试为 201 通过、1 跳过。该切片现已进入 `v0.5.0rc3` 应用预发布。详见[视觉收敛记录](ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
 
 > 动效继续沿用[动效执行方案 v0.5](MOTION-PLAN-v0.5.md)和现有原生 CSS/WAAPI 路线。Anime.js 仅在真实生成时间线出现明确编排收益，并同时通过离线打包、取消、减少动效与帧预算验证时再引入；Motion Sites、Showreel Design、React Bits、Aceternity UI 与 Uiverse 作为交互规律或局部源码参考。
 

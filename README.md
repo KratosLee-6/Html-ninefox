@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.5.0rc2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2)
+[![App Release](https://img.shields.io/badge/app-v0.5.0rc3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -46,13 +46,13 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 当前版本与 main 最新进展（2026-09-24）
 
-当前应用包版本为 `0.5.0rc2`，对应预发布标签 `v0.5.0rc2`；稳定版仍是 `v0.4.2`。在发布 RC2 之后，`main` 已完成工程审计、RC3-A 工程基线、RC3-B1 共享测试 server fixture，以及本轮 Pixel Garden 视觉与交互收敛。当前增量属于源码与产品文档迭代，尚未创建新的应用 Release，因此不会改变安装包版本号。
+当前应用包版本为 `0.5.0rc3`，对应预发布标签 `v0.5.0rc3`；稳定版仍是 `v0.4.2`。本次 RC3 预发布包含工程基线、共享测试 server fixture，以及 Pixel Garden 视觉与交互收敛；Windows、Linux 与 Python 安装包由同名标签工作流构建。
 
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
-| 应用 Release | `v0.5.0rc2` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2) |
+| 应用 Release | `v0.5.0rc3` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
 | `main` 最新增量 | RC3 视觉与交互收敛已完成：桌面三栏、平板双抽屉、移动任务视图、语义缩放、本地 SVG Icon 与经典模式统一为 Pixel Garden | [视觉收敛记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [UI 规范](docs/UI-GUIDE.md) |
-| RC3 当前完整复验 | `201 passed, 1 skipped`；命令、记忆、错误与恢复专项门禁 `20 passed`；JavaScript 语法检查全部通过 | [本轮记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
+| RC3 发布候选完整复验 | `201 passed, 1 skipped`；命令、记忆、错误与恢复专项门禁 `20 passed`；JavaScript 语法检查全部通过 | [本轮记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 ### RC3 视觉与交互收敛（2026-09-24）
@@ -209,15 +209,15 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 
 ## 下载与安装
 
-应用安装包请前往 [v0.5.0rc2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc2)。这是应用预发布版；稳定版本仍为 [v0.4.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
+应用安装包请前往 [v0.5.0rc3 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3)。这是应用预发布版；稳定版本仍为 [v0.4.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.5.0rc2.exe` | 安装到当前用户，创建开始菜单入口 |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0rc2.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
-| Linux | `HtmlNineFox-Linux-0.5.0rc2.run` | `chmod +x` 后运行，安装到当前用户目录 |
-| Linux/审计 | `HtmlNineFox-Linux-0.5.0rc2.tar.gz` | 可查看完整安装内容 |
-| Python 3.10+ | `htmlninefox-0.5.0rc2-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0rc2-py3-none-any.whl` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.5.0rc3.exe` | 安装到当前用户，创建开始菜单入口 |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0rc3.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
+| Linux | `HtmlNineFox-Linux-0.5.0rc3.run` | `chmod +x` 后运行，安装到当前用户目录 |
+| Linux/审计 | `HtmlNineFox-Linux-0.5.0rc3.tar.gz` | 可查看完整安装内容 |
+| Python 3.10+ | `htmlninefox-0.5.0rc3-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0rc3-py3-none-any.whl` |
 | Docker | 源码构建 | `docker compose up --build`；标签 CI 验证镜像但不上传镜像仓库 |
 
 ### 快速开始
@@ -307,7 +307,7 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 ## 测试与信任证据
 
-`main` 最新工程基线在 **2026-09-24** 完成 RC3 视觉与交互收敛及本地全量复验；`v0.5.0rc2` 在 **2026-09-18** 完成应用发布验收，历史包证据继续保留：
+`main` 最新工程基线在 **2026-09-24** 完成 RC3 视觉与交互收敛及本地全量复验；`v0.5.0rc3` 在 **2026-09-18** 完成应用发布验收，历史包证据继续保留：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
@@ -316,12 +316,12 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 | 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
 | 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
 | DSH 插件与最终 tarball 安装 | **2 / 2 通过** | [接入与发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| RC2 发布包 | wheel 隔离安装、真实 PNG 导出与 Windows 便携包启动在本地通过；标签工作流已重建 Windows / Linux 资产、发布 SHA-256 并验证 Docker | [构建 CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358991909) · [测试报告](docs/TEST-REPORT-v0.5.0rc2.md) |
+| RC3 发布包 | wheel 隔离安装、CSS/JS 静态资源、CLI 与工作台启动在本地验证；标签工作流重建 Windows / Linux 资产、SHA-256 并验证 Docker | [发布测试报告](docs/TEST-REPORT-v0.5.0rc3.md) |
 | LLM 接入 | MiniMax-M3 / Claude / GPT-4o 环境变量自动配置 | [配置文档](docs/INSTALL.md) |
 | Web 工作台 | Python 本地 HTTP 服务 + 实时预览 + 智能体日志 | [E2E 日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
 | Docker 镜像 | 多阶段构建定义 + 标签 CI 独立验证 | [构建工作流](.github/workflows/build-release-packages.yml) |
 
-发布命令、环境与限制见：[v0.5.0rc2 测试报告](docs/TEST-REPORT-v0.5.0rc2.md)。旧版环境记录见：[v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
+发布命令、环境与限制见：[v0.5.0rc3 测试报告](docs/TEST-REPORT-v0.5.0rc3.md)。旧版环境记录见：[v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
 
 ```bash
 python -m pytest tests -q -p no:cacheprovider
@@ -345,7 +345,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.5.0rc2` 是当前应用预发布版，`v0.4.2` 仍是稳定版；`main` 已完成 RC3-B1 共享测试 seam 与工作台视觉/交互收敛。下一步回到真实产品内核：先确定 CLI / HTTP / DSH 共用生成用例 Interface，再推进 durable Project commit、跨进程与断电恢复，以及按 Project / Generation / Revision / Export 生命周期拆分浏览器 Module；这些门禁稳定后再决定 `v0.5.0` 正式版和 v0.6 桌面壳范围。
+`v0.5.0rc3` 是当前应用预发布版，`v0.4.2` 仍是稳定版；`main` 已完成 RC3-B1 共享测试 seam 与工作台视觉/交互收敛。下一步回到真实产品内核：先确定 CLI / HTTP / DSH 共用生成用例 Interface，再推进 durable Project commit、跨进程与断电恢复，以及按 Project / Generation / Revision / Export 生命周期拆分浏览器 Module；这些门禁稳定后再决定 `v0.5.0` 正式版和 v0.6 桌面壳范围。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

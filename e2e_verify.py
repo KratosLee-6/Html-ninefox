@@ -140,7 +140,8 @@ async def main():
             color = await page.evaluate("nodes.find(node=>node.kind==='ws').data.color")
             check("工作区重命名与颜色", renamed == "品牌官网工作区" and color == "#E07A3F", f"{renamed} · {color}")
 
-            await page.click(".workspace-add")
+            await page.locator(".topbar-more > summary").click()
+            await page.get_by_role("menu").get_by_role("button", name="新建工作区").click()
             nav_count = await page.locator(".workspace-nav-item").count()
             status = await page.text_content("#tl-status")
             check("多工作区导航与独立进度", nav_count == 2 and "0 素材" in (status or ""), f"nav={nav_count} · {status}")

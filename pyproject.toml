@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "htmlninefox"
-version = "0.5.0rc2"
-description = "Html九尾狐 · 本地优先的可视化 HTML 创作工作台（v0.5.0 RC2）"
+version = "0.5.0rc3"
+description = "Html九尾狐 · 本地优先的可视化 HTML 创作工作台（v0.5.0 RC3）"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "KratosLee · Html九尾狐项目组" }]
@@ -34,7 +34,7 @@ include = ["htmlninefox*"]
 exclude = ["tests*", "examples*"]
 
 [tool.setuptools.package-data]
-htmlninefox = ["data/alliance/*.yaml", "example/*.yaml", "templates/*.html", "server/static/*.html", "server/static/*.js", "server/static/*.svg", "server/static/*.webmanifest", "templates/gallery/*.html", "templates/gallery/*.json"]
+htmlninefox = ["data/alliance/*.yaml", "example/*.yaml", "templates/*.html", "server/static/*.html", "server/static/*.js", "server/static/*.css", "server/static/*.svg", "server/static/*.webmanifest", "templates/gallery/*.html", "templates/gallery/*.json"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 norecursedirs = ["release", ".codex_tmp", ".git"]
