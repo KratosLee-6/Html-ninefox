@@ -40,6 +40,8 @@ STATIC_FILES = {
     "/motion-lab": ("motion-lab.html", "text/html; charset=utf-8", "no-cache"),
     "/canvas-productivity.js": ("canvas-productivity.js", "application/javascript; charset=utf-8", "no-cache"),
     "/workbench-features.js": ("workbench-features.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/workbench-ui.js": ("workbench-ui.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/workbench-system.css": ("workbench-system.css", "text/css; charset=utf-8", "no-cache"),
 }
 APP_CAPABILITIES = {
     "api_version": "v1",

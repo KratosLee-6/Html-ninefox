@@ -35,3 +35,6 @@ exclude = ["tests*", "examples*"]
 
 [tool.setuptools.package-data]
 htmlninefox = ["data/alliance/*.yaml", "example/*.yaml", "templates/*.html", "server/static/*.html", "server/static/*.js", "server/static/*.svg", "server/static/*.webmanifest", "templates/gallery/*.html", "templates/gallery/*.json"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["release", ".codex_tmp", ".git"]

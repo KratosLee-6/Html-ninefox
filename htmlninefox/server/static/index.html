@@ -585,26 +585,40 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .motion-preference { width:84px; height:28px; border:1px solid var(--border-default); border-radius:4px; background:var(--bg-panel); color:var(--text-primary); font:11px var(--sans); }
 .canvas-motion-preference { position:absolute; top:14px; right:14px; z-index:10; }
 </style>
+<link rel="stylesheet" href="/workbench-system.css">
 </head>
 <body>
 <div class="app">
   <header class="topbar">
     <div class="brand-lockup"><img src="/logo-mark.svg" alt=""><span class="brand-copy"><strong>Html九尾狐</strong><small>PIXEL GARDEN</small></span></div><span class="ver" id="ver"></span>
-    <div class="divider-v"></div>
-    <div class="mode-badge">工作区编排模式</div>
+    <div class="topbar-context"><div class="divider-v"></div><div class="mode-badge">工作区编排模式</div></div>
     <div class="sp"></div>
     <span class="status-dot" id="status"></span>
-    <button class="btn btn-ghost mobile-only mobile-library-toggle" onclick="toggleMobilePanel('sidebar')">素材</button>
-    <button class="btn btn-ghost mobile-only mobile-inspector-toggle" onclick="toggleMobilePanel('inspector')">检查</button>
-    <button class="btn btn-ghost theme-toggle" id="btn-theme" onclick="toggleTheme()" aria-label="切换工作台主题"><span class="theme-glyph" aria-hidden="true"></span><span class="theme-label" id="theme-label">夜蓝</span></button>
-    <button class="btn btn-ghost install-app" id="btn-install" hidden>安装</button>
-    <button class="btn btn-ghost" id="btn-ai-settings" onclick="openAISettings()"><span id="ai-status-glyph">◇</span><span class="ai-label">AI 模型</span></button>
-    <button class="btn btn-ghost" id="btn-memory" onclick="openProjectMemory()"><span id="memory-status-glyph">◇</span><span>项目记忆</span></button>
-    <button class="btn btn-secondary" id="btn-create" onclick="openCreatePanel()">＋ <span class="creation-label">输入需求</span></button>
-    <button class="btn btn-ghost diagnostic-button" id="btn-diagnostic" onclick="createDiagnostic()">诊断</button>
-    <button class="btn btn-ghost classic-link" onclick="window.open('/classic','_blank')">经典表单版</button>
-    <button class="btn btn-secondary workspace-add" onclick="addWorkspace()">＋ 工作区</button>
-    <button class="btn btn-primary" id="btn-go" onclick="advanceActive()">▶ 推进生成</button>
+    <div class="topbar-tools" aria-label="项目工具">
+      <button class="btn btn-ghost theme-toggle" id="btn-theme" onclick="toggleTheme()" aria-label="切换工作台主题"><span class="theme-glyph" aria-hidden="true"></span><span class="theme-label" id="theme-label">夜蓝</span></button>
+      <button class="btn btn-ghost" id="btn-ai-settings" onclick="openAISettings()"><span class="ui-icon" data-icon="ai" aria-hidden="true"></span><span class="ai-label">AI 模型</span><span class="status-glyph" id="ai-status-glyph">◇</span></button>
+      <button class="btn btn-ghost" id="btn-memory" onclick="openProjectMemory()"><span class="ui-icon" data-icon="memory" aria-hidden="true"></span><span class="memory-label">项目记忆</span><span class="status-glyph" id="memory-status-glyph">◇</span></button>
+      <details class="topbar-more">
+        <summary class="btn btn-ghost btn-icon" aria-label="更多项目操作" aria-haspopup="menu"><span class="ui-icon" data-icon="more" aria-hidden="true"></span></summary>
+        <div class="topbar-menu" role="menu">
+          <button class="menu-mobile-only" type="button" onclick="toggleTheme()"><span class="ui-icon" data-icon="theme" aria-hidden="true"></span>切换纸白 / 夜蓝</button>
+          <button class="menu-mobile-only" type="button" onclick="openAISettings()"><span class="ui-icon" data-icon="ai" aria-hidden="true"></span>AI 模型配置</button>
+          <button class="menu-mobile-only" type="button" onclick="openProjectMemory()"><span class="ui-icon" data-icon="memory" aria-hidden="true"></span>项目记忆</button>
+          <div class="menu-field menu-mobile-only"><span>动效偏好</span><select data-motion-preference aria-label="移动端动效偏好"><option value="system">跟随系统</option><option value="reduced">减少动效</option><option value="off">关闭动效</option></select></div>
+          <div class="menu-divider menu-mobile-only"></div>
+          <button type="button" onclick="addWorkspace()"><span class="ui-icon" data-icon="workspace" aria-hidden="true"></span>新建工作区</button>
+          <button class="install-app" id="btn-install" type="button" hidden><span class="ui-icon" data-icon="install" aria-hidden="true"></span>安装应用</button>
+          <button class="diagnostic-button" id="btn-diagnostic" type="button" onclick="createDiagnostic()"><span class="ui-icon" data-icon="diagnostic" aria-hidden="true"></span>生成诊断包</button>
+          <button class="classic-link" type="button" onclick="window.open('/classic','_blank')"><span class="ui-icon" data-icon="classic" aria-hidden="true"></span>经典表单模式</button>
+        </div>
+      </details>
+    </div>
+    <div class="topbar-actions" aria-label="当前工作区操作">
+      <button class="btn btn-ghost mobile-only mobile-library-toggle" onclick="toggleMobilePanel('sidebar')" aria-controls="sidebar" aria-expanded="false" aria-label="打开素材库"><span class="ui-icon" data-icon="library" aria-hidden="true"></span><span>素材</span></button>
+      <button class="btn btn-ghost mobile-only mobile-inspector-toggle" onclick="toggleMobilePanel('inspector')" aria-controls="inspector" aria-expanded="false" aria-label="打开检查器"><span class="ui-icon" data-icon="inspector" aria-hidden="true"></span><span>检查</span></button>
+      <button class="btn btn-secondary" id="btn-create" onclick="openCreatePanel()" aria-label="输入需求与素材"><span class="ui-icon" data-icon="plus" aria-hidden="true"></span><span class="creation-label">输入需求</span></button>
+      <button class="btn btn-primary" id="btn-go" onclick="advanceActive()" aria-label="推进当前工作区"><span class="ui-icon" data-icon="play" aria-hidden="true"></span><span class="btn-label-long">推进当前工作区</span><span class="btn-label-short">推进</span></button>
+    </div>
   </header>
 
   <aside class="sidebar" id="sidebar">
@@ -617,8 +631,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     </div>
     <div class="search-wrap"><input class="search" id="search" placeholder="搜索…（拖到工作区，或双击加入）"></div>
     <div class="template-import-bar" id="template-import-bar">
-      <button type="button" id="import-html-button">＋ 导入单 HTML</button>
-      <button type="button" id="import-folder-button">▣ 导入文件夹</button>
+      <button type="button" id="import-html-button"><span class="ui-icon" data-icon="plus" aria-hidden="true"></span>导入单 HTML</button>
+      <button type="button" id="import-folder-button"><span class="ui-icon" data-icon="library" aria-hidden="true"></span>导入文件夹</button>
       <input id="import-html-input" type="file" accept=".html,.htm" hidden>
       <input id="import-folder-input" type="file" webkitdirectory multiple hidden>
     </div>
@@ -628,10 +642,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   <main class="canvas-wrap">
     <section class="workspace-navigator" id="workspace-navigator" aria-label="工作区列表">
       <div class="workspace-nav-head"><strong>工作区</strong><span id="workspace-nav-total">0</span><span class="sp"></span>
-        <button onclick="addWorkspace()" title="新建工作区">＋</button>
-        <button onclick="toggleWorkspaceNavigator()" id="workspace-nav-toggle" title="收起工作区列表">⌃</button></div>
+        <button onclick="addWorkspace()" title="新建工作区" aria-label="新建工作区"><span class="ui-icon" data-icon="plus" aria-hidden="true"></span></button>
+        <button onclick="toggleWorkspaceNavigator()" id="workspace-nav-toggle" title="收起工作区列表" aria-label="收起工作区列表"><span class="ui-icon" data-icon="collapse" aria-hidden="true"></span></button></div>
       <div class="workspace-list" id="workspace-list"></div>
     </section>
+    <section class="mobile-task-view" id="mobile-task-view" aria-label="移动端任务视图"></section>
     <div id="viewport" role="region" aria-label="无限画布工作区">
       <div id="world">
         <div class="grid-bg"></div>
@@ -649,19 +664,19 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <div style="margin-top:8px"><kbd>拖空白</kbd> 平移　<kbd>Shift+拖</kbd> 框选　<kbd>Alt+拖</kbd> 暂停吸附　<kbd>Ctrl+K</kbd> 命令</div>
     </div>
     <div class="hud">
-      <button class="desktop-productivity" id="canvas-undo" onclick="FoxCanvasProductivity.undo()" title="撤销 Ctrl+Z" aria-label="撤销 Ctrl+Z" disabled>↶</button>
-      <button class="desktop-productivity" id="canvas-redo" onclick="FoxCanvasProductivity.redo()" title="重做 Ctrl+Y" aria-label="重做 Ctrl+Y" disabled>↷</button>
-      <button class="desktop-productivity" id="canvas-select-mode" onclick="FoxCanvasProductivity.toggleSelectionMode()" title="框选模式；也可按 Shift 拖动画布" aria-label="切换框选模式">▱</button>
-      <button class="desktop-productivity" id="canvas-group" onclick="FoxCanvasProductivity.groupSelection()" title="组合所选节点" aria-label="组合所选节点" disabled>组</button>
-      <button class="desktop-productivity" id="canvas-lock" onclick="FoxCanvasProductivity.toggleLockSelection()" title="锁定所选节点" aria-label="锁定所选节点" disabled>锁</button>
-      <button class="desktop-productivity" onclick="FoxCanvasProductivity.openSearch()" title="搜索并定位 Ctrl+K" aria-label="搜索并定位 Ctrl+K">⌕</button>
+      <button class="desktop-productivity" id="canvas-undo" onclick="FoxCanvasProductivity.undo()" title="撤销 Ctrl+Z" aria-label="撤销 Ctrl+Z" disabled><span class="ui-icon" data-icon="undo" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" id="canvas-redo" onclick="FoxCanvasProductivity.redo()" title="重做 Ctrl+Y" aria-label="重做 Ctrl+Y" disabled><span class="ui-icon" data-icon="redo" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" id="canvas-select-mode" onclick="FoxCanvasProductivity.toggleSelectionMode()" title="框选模式；也可按 Shift 拖动画布" aria-label="切换框选模式"><span class="ui-icon" data-icon="select" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" id="canvas-group" onclick="FoxCanvasProductivity.groupSelection()" title="组合所选节点" aria-label="组合所选节点" disabled><span class="ui-icon" data-icon="group" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" id="canvas-lock" onclick="FoxCanvasProductivity.toggleLockSelection()" title="锁定所选节点" aria-label="锁定所选节点" disabled><span class="ui-icon" data-icon="lock" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" onclick="FoxCanvasProductivity.openSearch()" title="搜索并定位 Ctrl+K" aria-label="搜索并定位 Ctrl+K"><span class="ui-icon" data-icon="search" aria-hidden="true"></span></button>
       <button class="desktop-productivity" id="snap-level" onclick="cycleSnapLevel()" title="网格吸附档位（Ctrl+G 循环，Alt 拖动临时关闭）" aria-label="网格吸附档位 16 像素">16</button>
       <div class="hud-separator desktop-productivity"></div>
-      <button onclick="zoomBy(1.2)" title="放大" aria-label="放大画布">＋</button>
+      <button onclick="zoomBy(1.2)" title="放大" aria-label="放大画布"><span class="ui-icon" data-icon="zoomIn" aria-hidden="true"></span></button>
       <div class="zl" id="zoom-label">100%</div>
-      <button onclick="zoomBy(1/1.2)" title="缩小" aria-label="缩小画布">－</button>
-      <button onclick="fitAll()" title="适配全部（自动缩放）" aria-label="适配全部内容">⤢</button>
-      <button onclick="addWorkspace()" title="新建工作区" aria-label="新建工作区">▣</button>
+      <button onclick="zoomBy(1/1.2)" title="缩小" aria-label="缩小画布"><span class="ui-icon" data-icon="zoomOut" aria-hidden="true"></span></button>
+      <button onclick="fitAll()" title="适配全部（自动缩放）" aria-label="适配全部内容"><span class="ui-icon" data-icon="fit" aria-hidden="true"></span></button>
+      <button onclick="addWorkspace()" title="新建工作区" aria-label="新建工作区"><span class="ui-icon" data-icon="workspace" aria-hidden="true"></span></button>
     </div>
     <select class="motion-preference canvas-motion-preference" id="motion-preference" data-motion-preference aria-label="动效偏好"><option value="system">动效：系统</option><option value="reduced">减少动效</option><option value="off">关闭动效</option></select>
     <div class="minimap" id="minimap"><svg id="minimap-svg" viewBox="0 0 184 116" role="button" tabindex="0" aria-label="画布小地图，按回车定位中心" onclick="FoxCanvasProductivity.navigateMinimap(event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();FoxCanvasProductivity.navigateMinimap(event)}"></svg></div>
@@ -898,13 +913,18 @@ let deferredInstallPrompt = null;
 function closeMobilePanels() {
   $('#sidebar').classList.remove('mobile-open');
   $('#inspector').classList.remove('mobile-open');
+  document.querySelectorAll('[aria-controls="sidebar"],[aria-controls="inspector"]').forEach(button => button.setAttribute('aria-expanded','false'));
   $('#mobile-scrim').classList.remove('on');
 }
 function toggleMobilePanel(id) {
   const panel = $('#' + id);
   const opening = !panel.classList.contains('mobile-open');
   closeMobilePanels();
-  if (opening) { panel.classList.add('mobile-open'); $('#mobile-scrim').classList.add('on'); }
+  if (opening) {
+    panel.classList.add('mobile-open');
+    document.querySelector(`[aria-controls="${id}"]`)?.setAttribute('aria-expanded','true');
+    $('#mobile-scrim').classList.add('on');
+  }
 }
 applyTheme(document.documentElement.dataset.theme);
 
@@ -1006,6 +1026,7 @@ function applyCamera(commit = true, animate = false) {
   } else if (worldEl.classList.contains('is-animating')) stopCameraAnimation();
   worldEl.style.transform = `translate3d(${camera.x}px,${camera.y}px,0) scale(${camera.z})`;
   $('#zoom-label').textContent = Math.round(camera.z * 100) + '%';
+  document.querySelector('.canvas-wrap')?.setAttribute('data-canvas-density', camera.z < .78 ? 'overview' : camera.z < 1 ? 'compact' : 'detail');
   window.FoxCanvasProductivity?.scheduleMinimap();
   if (commit) save();
 }
@@ -1181,33 +1202,33 @@ function renderNode(n) {
   if (n.h) el.style.height = n.h + 'px';
   el.dataset.id = n.id;
   const head = (icon, g, extra='') => `<div class="node-head" data-drag="${n.id}">
-    <span class="pal-ico" style="background:${g};width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;flex:none">${icon}</span>
+    <span class="pal-ico" style="background:${g};width:20px;height:20px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;color:#fff;flex:none"><span class="ui-icon" data-icon="${icon}" aria-hidden="true"></span></span>
     <span class="hd-title">${esc(n.title)}</span>${extra}<span class="kind">${kindLabel(n.kind)}</span></div>`;
 
   if (n.kind === 'ws') {
     applyWorkspaceAppearance(n, el);
     el.innerHTML = `<div class="ws-head" data-drag="${n.id}">
-        <span style="color:var(--workspace-color)">▣</span><span class="nm" ondblclick="event.stopPropagation();quickRenameWorkspace(${n.id})" title="双击重命名">${esc(n.title)}</span>
+        <span class="workspace-mark" style="color:var(--workspace-color)"><span class="ui-icon" data-icon="workspace" aria-hidden="true"></span></span><span class="nm" ondblclick="event.stopPropagation();quickRenameWorkspace(${n.id})" title="双击重命名">${esc(n.title)}</span>
         <span class="cnt" id="ws-cnt-${n.id}"></span>
-        <button onclick="event.stopPropagation();fitWs(${n.id})" title="自动缩放到此工作区">⤢ 适配</button>
-        <button class="go" onclick="event.stopPropagation();advanceWs(${n.id})" id="ws-go-${n.id}">▶ 推进</button>
+        <button onclick="event.stopPropagation();fitWs(${n.id})" title="自动缩放到此工作区"><span class="ui-icon" data-icon="fit" aria-hidden="true"></span>适配</button>
+        <button class="go" onclick="event.stopPropagation();advanceWs(${n.id})" id="ws-go-${n.id}"><span class="ui-icon" data-icon="play" aria-hidden="true"></span>推进</button>
       </div><div class="ws-handle" data-resize="${n.id}"></div>`;
   } else if (n.kind === 'requirement') {
-    el.innerHTML = head('◈', 'linear-gradient(135deg,#B45309,#F59E0B)', '<span class="rev-chip" id="an-st-${n.id}" style="display:none"></span>') +
+    el.innerHTML = head('prompt', 'linear-gradient(135deg,#B45309,#F59E0B)', '<span class="rev-chip" id="an-st-${n.id}" style="display:none"></span>') +
       `<div class="node-body"><textarea data-bind="text" placeholder="输入文字需求，或通过顶部“输入需求”添加文件/图片…">${esc(n.data.text)}</textarea>
        ${(n.data.attachments||[]).length ? `<div class="attachment-chips">${n.data.attachments.map(item=>`<span>${esc(item.name)}</span>`).join('')}</div>` : ''}
        <div class="an-chips" id="an-${n.id}"></div></div>${nodePorts(n)}`;
   } else if (n.kind === 'source') {
-    el.innerHTML = head(n.data.kind === 'image' ? '▧' : '↥', 'linear-gradient(135deg,var(--cyan),var(--green))') +
+    el.innerHTML = head(n.data.kind === 'image' ? 'image' : 'file', 'linear-gradient(135deg,var(--cyan),var(--green))') +
       `<div class="node-body" style="font-size:11px"><strong>${esc(n.data.name || n.title)}</strong>
        <div style="margin-top:5px;color:var(--text-tertiary)">${esc(n.data.mime || n.data.kind || '附件')} · ${Math.ceil((n.data.size || 0)/1024)}KB</div></div>${nodePorts(n)}`;
   } else if (n.kind === 'block') {
-    el.innerHTML = head('◫', 'linear-gradient(135deg,var(--accent),var(--green))') +
+    el.innerHTML = head('content', 'linear-gradient(135deg,var(--accent),var(--green))') +
       (n.data.preview_url ? `<div class="template-node-preview"><iframe src="${esc(n.data.preview_url)}" title="${esc(n.title)} HTML 预览" sandbox="allow-scripts allow-same-origin"></iframe></div>` : `<div class="thumb-mini">${miniOf('block', n.data.blockId)}</div>`) +
       `<div class="node-body" style="padding-top:2px"><textarea data-bind="text" style="min-height:34px;font-size:11px">${esc(n.data.text)}</textarea></div>
        ${nodePorts(n)}`;
   } else if (n.kind === 'template') {
-    el.innerHTML = head('▤', 'linear-gradient(135deg,var(--accent),var(--green))') +
+    el.innerHTML = head('layout', 'linear-gradient(135deg,var(--accent),var(--green))') +
       `<div class="template-node-preview"><iframe data-template-frame title="${esc(n.title)}版式预览" sandbox="allow-scripts allow-same-origin"></iframe></div>
        <div class="node-body" style="padding-top:7px">
        <select data-bind="intent">${LAYOUTS.map(l => `<option value="${l.intent}"${n.data.intent===l.intent?' selected':''}>${l.t}</option>`).join('')}</select>
@@ -1216,28 +1237,28 @@ function renderNode(n) {
     fillTemplateSelect(el.querySelector('[data-bind="template"]'), n.data.template);
     el.querySelector('[data-template-frame]').src=n.data.preview_url || previewUrl(n.data.intent,n.data.template);
   } else if (n.kind === 'style') {
-    el.innerHTML = head('◐', 'var(--accent)') +
+    el.innerHTML = head('palette', 'var(--accent)') +
       `<div class="template-node-preview"><iframe data-style-frame title="${esc(n.title)}风格预览" sandbox="allow-scripts allow-same-origin"></iframe></div>
        <div class="node-body" style="padding-top:7px;font-size:11px">${esc(n.data.title)}</div>
        ${nodePorts(n)}`;
     el.querySelector('[data-style-frame]').src=n.data.preview_url || previewUrl(n.data.intent||'landing',n.data.preset||'');
   } else if (n.kind === 'color') {
-    el.innerHTML = head('◉', `linear-gradient(135deg,${n.data.hex},#00000055)`) +
+    el.innerHTML = head('color', `linear-gradient(135deg,${n.data.hex},#00000055)`) +
       `<div class="thumb-mini"><div class="mini" style="display:flex">${(n.data.sw||[]).map(c=>`<i style="position:static;flex:1;border-radius:0;background:${c}"></i>`).join('')}</div></div>
        <div class="node-body" style="padding-top:0;font-size:11px">${esc(n.data.title)} <span style="color:var(--text-tertiary)">${esc(n.data.hex)}</span></div>
        ${nodePorts(n)}`;
   } else if (n.kind === 'font') {
-    el.innerHTML = head('F', 'linear-gradient(135deg,#1F1F2E,#3A3A48)') +
+    el.innerHTML = head('type', 'linear-gradient(135deg,#1F1F2E,#3A3A48)') +
       `<div class="thumb-mini font-card"><div class="mini"><span class="aa" style="font-family:${esc(n.data.css)}">Aa<small>${esc(n.data.en)}</small></span></div></div>
        <div class="node-body" style="padding-top:0;font-size:11px">${esc(n.data.t)}</div>
        ${nodePorts(n)}`;
   } else if (n.kind === 'skill') {
-    el.innerHTML = head('⬡', 'linear-gradient(135deg,#134E4A,#22D3EE)') +
+    el.innerHTML = head('skill', 'linear-gradient(135deg,#134E4A,#22D3EE)') +
       `<div class="node-body" style="font-size:11px">${esc(n.data.title)}
        <div style="margin-top:3px;color:${n.data.installed?'var(--success)':'var(--text-tertiary)'}">${n.data.installed?'● 已安装':'○ 未安装 → 本地兜底'}</div></div>
        ${nodePorts(n)}`;
   } else if (n.kind === 'file' || n.kind === 'output') {
-    el.innerHTML = head(n.kind === 'output' ? '◆' : '◫', 'linear-gradient(135deg,#065F46,#22D3EE)',
+    el.innerHTML = head(n.kind === 'output' ? 'output' : 'file', 'linear-gradient(135deg,#065F46,#22D3EE)',
       n.kind === 'output' ? `<span class="rev-chip" id="rev-${n.id}">rev${n.data.revision||0}</span>` : '') +
       `<div class="meta-row" id="meta-${n.id}"></div><iframe id="frame-${n.id}" title="${esc(n.data.project_name || n.title)}产物预览" sandbox="allow-same-origin"></iframe>${nodePorts(n)}`;
   }
@@ -1435,7 +1456,7 @@ function renderGroups(){
     const signature=record.title+'\u0000'+members.length;
     if(el.dataset.signature!==signature){
       el.dataset.signature=signature;
-      el.innerHTML=`<span class="group-label" title="拖动整组移动 · 双击重命名"><i>▤</i>${esc(record.title)}<b>${members.length}</b></span>`;
+      el.innerHTML=`<span class="group-label" title="拖动整组移动 · 双击重命名"><i><span class="ui-icon" data-icon="group" aria-hidden="true"></span></i>${esc(record.title)}<b>${members.length}</b></span>`;
     }
   }
   groupsEl.querySelectorAll('.group-box').forEach(el=>{if(!alive.has(el.dataset.group))el.remove();});
@@ -2548,5 +2569,6 @@ window.addEventListener('DOMContentLoaded', init);
 </script>
 <script src="/canvas-productivity.js"></script>
 <script src="/workbench-features.js"></script>
+<script src="/workbench-ui.js"></script>
 </body>
 </html>
