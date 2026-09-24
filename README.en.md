@@ -185,7 +185,7 @@ The `v0.5.0rc3` release candidate was verified locally on **September 24, 2026**
 | Full Python / API / storage / security / browser suite | **201 passed, 1 skipped** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
 | Focused command, memory, error, recovery, motion, interaction, revision, and export suite | **20 passed** | [reproducible Playwright gate](tests/test_rc3_visual_evidence_states.py) |
 | Inline and standalone JavaScript syntax | **Passed** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
-| Latest published Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35358695358) |
+| Latest published Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35989145761) |
 | DSH registry and final tarball integration | **2 / 2 passed** | [integration record](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
 | RC3 package validation | Isolated wheel, packaged CSS/JS assets, CLI/workbench startup, tagged Windows/Linux assets, SHA-256 files, and Docker verification | [test report](docs/TEST-REPORT-v0.5.0rc3.md) |
 
