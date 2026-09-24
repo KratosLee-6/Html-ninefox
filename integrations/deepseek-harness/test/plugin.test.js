@@ -26,6 +26,7 @@ test('real Harness registry discovers, loads, reloads and removes the skill', as
     const skill = await ctx.skills.get('htmlninefox');
     assert.match(skill.content, /htmlninefox expert/);
     assert.match(skill.content, /htmlninefox feedback/);
+    assert.match(skill.content, /htmlninefox restore/);
     assert.match(skill.content, /htmlninefox export/);
     assert.match(skill.content, /GenerationRequest mapping/);
     assert.match(skill.content, /--type/);
@@ -33,6 +34,10 @@ test('real Harness registry discovers, loads, reloads and removes the skill', as
     assert.match(skill.content, /--template/);
     assert.match(skill.content, /--quiet-llm/);
     assert.match(skill.content, /--output/);
+    assert.match(skill.content, /FeedbackRequest mapping/);
+    assert.match(skill.content, /RestoreRequest mapping/);
+    assert.match(skill.content, /ExportRequest mapping/);
+    assert.match(skill.content, /--expected-revision/);
     assert.equal(readFileSync(skill.path, 'utf8'), skill.content);
     await fiber.restart();
     assert.equal((await ctx.skills.list()).length, 1);

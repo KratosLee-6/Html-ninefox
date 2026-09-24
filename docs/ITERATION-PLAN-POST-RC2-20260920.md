@@ -4,7 +4,7 @@
 - 最近校验：2026-09-24
 - 输入：[mattpocock/skills 工程审计](AUDIT-MATTPOCOCK-20260920.md)
 - 当前应用发布基线：`v0.5.0rc3`
-- 当前分支：RC3-A、RC3-B1、视觉基础切片与 RC3-B2 已完成；完整测试 208 通过、1 跳过
+- 当前分支：RC3-A、RC3-B1、视觉基础切片、RC3-B2 与 RC3-C 已完成；完整测试 221 通过、1 跳过
 - 目标：在扩展桌面端和更多生态 Adapter 前，让应用用例、持久化和浏览器工作台拥有稳定、可测试的 seam。
 
 ## 成功标准
@@ -90,14 +90,14 @@ studio.generate(request) -> GenerationResult
 - 生成成功和一个失败路径有 seam 级测试。
 - 现有 HTTP 与 Chromium 测试不变或只改 fixture。
 
-## RC3-C：稳定 request/result 与剩余用例（当前下一步）
+## RC3-C：稳定 request/result 与剩余用例（已完成，2026-09-24）
 
 **目的**：逐步替换跨 Module 的松散字典协议。
 
 按使用频率引入：
 
 1. `GenerationRequest` / `GenerationResult`
-2. `FeedbackRequest` / `GenerationResult`
+2. `FeedbackRequest` / `FeedbackResult`
 3. `RestoreRequest` / `RevisionResult`
 4. `ExportRequest` / `ExportResult`
 
@@ -110,9 +110,11 @@ studio.generate(request) -> GenerationResult
 
 验收：
 
-- `server/app.py` 不再编排生成、反馈、恢复和导出步骤。
-- request/result 在 CLI 与 HTTP 至少两个 Adapter 中真实复用。
-- HTTP v1 响应兼容测试通过。
+- [x] `server/app.py` 不再编排生成、反馈、恢复和导出步骤。
+- [x] request/result 在 CLI 与 HTTP 至少两个 Adapter 中真实复用。
+- [x] HTTP v1 响应兼容测试通过。
+
+实现、错误契约与验证证据见 [RC3-C 迭代记录](ITERATION-RC3-C-20260924.md)。
 
 ## RC3-D：durable project commit
 

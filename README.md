@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-208%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-B2-20260924.md)
+[![Tests](https://img.shields.io/badge/pytest-221%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-C-20260924.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -51,8 +51,8 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
 | 应用 Release | `v0.5.0rc3` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
-| `main` 最新增量 | RC3 视觉与交互收敛已完成：桌面三栏、平板双抽屉、移动任务视图、语义缩放、本地 SVG Icon 与经典模式统一为 Pixel Garden | [视觉收敛记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [UI 规范](docs/UI-GUIDE.md) |
-| RC3-B2 共享生成用例复验 | `208 passed, 1 skipped`；Generation seam `7 passed`；JavaScript、Chromium `22/22`、DSH `2/2` 通过 | [本轮记录](docs/ITERATION-RC3-B2-20260924.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
+| `main` 最新增量 | RC3-C 已完成：Generation、Feedback、Restore 与 Export 经过共享 `StudioApplication`；CLI 新增 Restore 命令 | [RC3-C 记录](docs/ITERATION-RC3-C-20260924.md) · [架构](docs/ARCHITECTURE.md) |
+| RC3-C 应用用例复验 | `221 passed, 1 skipped`；四类应用 seam `20 passed`；JavaScript、Chromium `22/22`、DSH `2/2` 通过 | [本轮记录](docs/ITERATION-RC3-C-20260924.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 ### RC3 视觉与交互收敛（2026-09-24）
@@ -122,10 +122,10 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 
 | 验证 | 结果 | 证据 |
 |---|---:|---|
-| 当前分支本地全量 Python / HTTP / Chromium | **208 passed，1 skipped，116.80 秒** | [RC3-B2 迭代记录](docs/ITERATION-RC3-B2-20260924.md) |
-| Generation request/result、CLI / HTTP、附件 Job 与错误契约 | **7 passed** | [同一记录](docs/ITERATION-RC3-B2-20260924.md) |
+| 当前分支本地全量 Python / HTTP / Chromium | **221 passed，1 skipped，110.99 秒** | [RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md) |
+| Generation / Feedback / Restore / Export request-result 与 Adapter 契约 | **20 passed** | [同一记录](docs/ITERATION-RC3-C-20260924.md) |
 | `main` GitHub CI | **以最新 Actions 为准** | [查看 main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
-| Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [RC3-B2 迭代记录](docs/ITERATION-RC3-B2-20260924.md) |
+| Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md) |
 | DSH 插件注册、重载、卸载、tarball 独立安装 | **2 / 2 通过** | [插件测试](integrations/deepseek-harness/test/plugin.test.js) |
 | 本机动效与竞态专项 | **196 passed，1 skipped** | [动效测试日志](docs/test-evidence/motion-20260918/pytest.txt) |
 | 发布附件回读与 SHA-256 | **一致** | [发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md#正式执行插件预览发布2026-09-18) |
@@ -134,17 +134,17 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 
 ## RC3 架构加固：共享 Generation 用例已完成（2026-09-24）
 
-项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design 与 code-review 方法完成全仓审计，RC3-A 文档与工程基线、RC3-B1 共享测试 server fixture、工作台视觉收敛和 RC3-B2 共享 Generation use case 均已完成。CLI、HTTP 同步生成、异步 Job 与 DSH 现在经过同一应用 Interface；当前重点转向 Feedback、Restore、Export request/result 与 durable Project commit。
+项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design、TDD 与 code-review 方法推进。RC3-A、RC3-B1、视觉收敛、RC3-B2 Generation 及 RC3-C Feedback / Restore / Export 应用用例均已完成；当前重点转向 durable Project commit、跨进程锁和崩溃恢复。
 
 | 优先级 | 结论 | 当前状态 / 下一步 |
 |---|---|---|
 | P0 | 旧架构与贡献指南仍描述早期目录和门禁 | 已更新当前架构、领域词汇和真实测试命令 |
-| P1 | HTTP handler 同时承担 transport 与业务编排 | Generation 已迁入共享 `StudioApplication`；下一步迁移 Feedback、Restore 与 Export |
+| P1 | HTTP handler 同时承担 transport 与业务编排 | Generation、Feedback、Restore 与 Export 已迁入共享 `StudioApplication`；下一步统一 Project commit |
 | P1 | 多套文件写入规则并存，跨进程和断电事务未闭环 | 统一 durable write、Project commit、锁与崩溃恢复测试 |
 | P2 | 工作台状态仍集中在大页面 | 按 Project、Generation、Revision、Export 生命周期拆分 |
 | P2 | 多个浏览器测试重复启动本地 server | 共享 pytest fixture 已完成；本轮继续增加视觉、响应式和可访问性门禁 |
 
-完整证据与阶段门槛见 [工程审计报告](docs/AUDIT-MATTPOCOCK-20260920.md)、[上游技能研究](docs/research/MATTPocock-SKILLS-AUDIT-20260920.md)、[RC3-B2 迭代记录](docs/ITERATION-RC3-B2-20260924.md)、[v0.5.0 正式版计划](docs/PLAN-v0.5.0-STABLE-20260924.md)和 [RC3 架构加固计划](docs/ITERATION-PLAN-POST-RC2-20260920.md)。动效仍沿用[动效执行方案](docs/MOTION-PLAN-v0.5.md)，并作为生命周期反馈进入前端 Module 迭代。
+完整证据与阶段门槛见 [工程审计报告](docs/AUDIT-MATTPOCOCK-20260920.md)、[上游技能研究](docs/research/MATTPocock-SKILLS-AUDIT-20260920.md)、[RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md)、[v0.5.0 正式版计划](docs/PLAN-v0.5.0-STABLE-20260924.md)和 [RC3 架构加固计划](docs/ITERATION-PLAN-POST-RC2-20260920.md)。动效仍沿用[动效执行方案](docs/MOTION-PLAN-v0.5.md)，并作为生命周期反馈进入前端 Module 迭代。
 
 ## v0.5.0 RC 系列核心能力
 
@@ -262,6 +262,8 @@ htmlninefox app
 htmlninefox expert "做一个 AI 产品发布会 PPT"
 htmlninefox expert --type landing --template fox-pixel-garden "创作工具官网"
 htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，颜色更稳重"
+htmlninefox restore --project output/html9n-<时间戳> --revision 0 --expected-revision 2
+htmlninefox export output/html9n-<时间戳> --format png --scope long
 ```
 
 完整说明：[安装指南](docs/INSTALL.md) · [多种运行方式](docs/RUNNING-OPTIONS.md) · [UI 手册](docs/UI-GUIDE.md) · [VI 手册](docs/VI.md)
@@ -307,11 +309,11 @@ htmlninefox feedback --project output/html9n-<时间戳> --note "标题更大，
 
 ## 测试与信任证据
 
-`main` 最新工程基线在 **2026-09-24** 完成 RC3 视觉与交互收敛及本地全量复验；`v0.5.0rc3` 在 **2026-09-18** 完成应用发布验收，历史包证据继续保留：
+`main` 最新工程基线在 **2026-09-24** 完成 RC3-C 共享应用用例及本地全量复验；`v0.5.0rc3` 在 **2026-09-18** 完成应用发布验收，历史包证据继续保留：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **208 passed, 1 skipped** | [RC3-B2 迭代记录](docs/ITERATION-RC3-B2-20260924.md) |
+| Python / API / 存储 / 安全 / 浏览器测试 | **221 passed, 1 skipped** | [RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md) |
 | Chromium 真实生成与交互验收 | **22 / 22 passed** | [RC3-B1 验证记录](docs/ITERATION-RC3-B1-20260921.md) |
 | 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
 | 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
@@ -345,7 +347,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.5.0rc3` 是当前应用预发布版，`v0.4.2` 仍是稳定版；`main` 已完成 RC3-B1 共享测试 seam 与工作台视觉/交互收敛。下一步回到真实产品内核：先确定 CLI / HTTP / DSH 共用生成用例 Interface，再推进 durable Project commit、跨进程与断电恢复，以及按 Project / Generation / Revision / Export 生命周期拆分浏览器 Module；这些门禁稳定后再决定 `v0.5.0` 正式版和 v0.6 桌面壳范围。
+`v0.5.0rc3` 是当前应用预发布版，`v0.4.2` 仍是稳定版；`main` 已完成 RC3-B1、视觉收敛以及 Generation / Feedback / Restore / Export 共享应用 Interface。下一步推进 durable Project commit、跨进程锁、崩溃恢复，以及按 Project / Generation / Revision / Export 生命周期拆分浏览器 Module；这些门禁稳定后发布 `v0.5.0` 正式版。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

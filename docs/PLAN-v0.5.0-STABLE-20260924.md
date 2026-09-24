@@ -12,13 +12,15 @@
 
 | 阶段 | 时间窗口 | 交付 | GitHub |
 |---|---|---|---|
-| RC3-B2 | 2026-09-24 ～ 09-25 | CLI / HTTP / Job / DSH 共享 Generation use case | #1 |
-| RC3-C | 2026-09-26 ～ 10-02 | Feedback、Restore、Export request/result | #3 |
+| RC3-B2 | 完成：2026-09-24 | CLI / HTTP / Job / DSH 共享 Generation use case | #1 |
+| RC3-C | 完成：2026-09-24 | Feedback、Restore、Export request/result | #3 |
 | RC3-D | 2026-10-03 ～ 10-10 | durable Project commit、journal、跨进程锁、崩溃恢复 | #4 |
 | RC3-E | 2026-10-11 ～ 10-16 | Project、Generation、Revision、Export 浏览器生命周期 Module | #5 |
 | 正式版候选 | 2026-10-17 ～ 10-20 | 实机、安装包、截图、文档、附件回读 | #6 |
 | v0.5.0 发布 | 目标 2026-10-21 | Git tag、Release、SHA-256、发布后监控 | #6 |
 | 风险缓冲 | 2026-10-22 ～ 10-23 | Safari/WebView2 或打包环境问题 | #6 |
+
+RC3-C 比原计划提前完成，释放的时间作为 RC3-D 数据一致性和跨进程验证缓冲；正式版推荐目标日仍保持 2026-10-21。
 
 ## 每阶段完成条件
 

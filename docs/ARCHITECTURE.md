@@ -17,7 +17,7 @@ DSH plugin ───────┘         │
                             └──> Chromium export runtime
 ```
 
-Generation 已通过 `StudioApplication.generate()` 形成共享应用 Interface，CLI、HTTP 同步生成和异步 Job 复用同一实现；Feedback、Restore 与 Export 仍将在 RC3-C 逐项迁移。
+Generation、Feedback、Restore 与 Export 已通过 `StudioApplication` 形成共享应用 Interface。CLI、HTTP 同步入口和异步 Job 只负责 Adapter 转换、调度、序列化与错误状态映射；下一阶段转向 durable Project commit。
 
 ## 分层与 Module
 
@@ -27,8 +27,8 @@ Generation 已通过 `StudioApplication.generate()` 形成共享应用 Interface
 │ CLI · HTTP v1 · Web/PWA · desktop launcher · DSH plugin      │
 ├──────────────────────────────────────────────────────────────┤
 │ Application orchestration                                    │
-│ StudioApplication.generate · pipeline · feedback · restore  │
-│ RC3 target: explicit feedback/restore/export use cases       │
+│ StudioApplication: generate · feedback · restore · export    │
+│ RC3 target: durable Project commit and recovery              │
 ├──────────────────────────────────────────────────────────────┤
 │ Domain Modules                                               │
 │ brief · composition · experts · generators · project memory  │
@@ -52,7 +52,7 @@ Adapter 负责输入解析、认证或环境适配、响应序列化和错误映
 
 ### Domain 与应用 Module
 
-- `application.py::StudioApplication`：共享 Generation request/result、错误模型、依赖装配和 Adapter 一致性。
+- `application.py::StudioApplication`：共享 Generation、Feedback、Restore、Export request/result、错误模型、依赖装配和 Adapter 一致性。
 - `pipeline.py`：生成 Implementation，组合需求、Skill、模板、意图、页面结构、Project Memory 和运行证据。
 - `brief.py` / experts / generators：把用户输入转成可执行的创作规格和 HTML Artifact。
 - `revisions.py`：创建、列出、命名、比较和 Restore Revision。
@@ -60,7 +60,7 @@ Adapter 负责输入解析、认证或环境适配、响应序列化和错误映
 - `recipe_run.py`：记录分析、组合、生成、验证和交付阶段。
 - `exporting.py`：隐藏浏览器选择、兼容性预检、PDF/PNG 分页和输出提交。
 
-`exporting.py`、ProjectStore、ProjectMemoryStore 和 JobManager 已经具有较好的 Module depth。Generation 的 HTTP 编排已移入 `StudioApplication`；Feedback、Restore、Export 和浏览器生命周期仍是 RC3 的主要深化区域。
+`exporting.py`、ProjectStore、ProjectMemoryStore 和 JobManager 已经具有较好的 Module depth。Generation、Feedback、Restore 与 Export 的应用编排已移入 `StudioApplication`；durable Project commit、跨进程锁、崩溃恢复和浏览器生命周期是 RC3 的主要深化区域。
 
 ### Infrastructure Module
 

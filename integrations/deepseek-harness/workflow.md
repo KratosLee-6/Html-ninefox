@@ -7,13 +7,14 @@ It does not add its own shell executor, bypass host approvals, or collect teleme
 
 ## Check the environment
 
-Run `htmlninefox version`, `htmlninefox expert --help` and
+Run `htmlninefox version`, `htmlninefox expert --help`,
+`htmlninefox feedback --help`, `htmlninefox restore --help`, and
 `htmlninefox export --help` first. If unavailable or missing the export command,
 explain that this plugin does not include the Python application. The maintained
 source install is:
 
 ```sh
-python -m pip install "git+https://github.com/KratosLee-6/Html-ninefox.git@72e08732c9cfa964edba6ef4de99e6d2afaa17e5"
+python -m pip install "git+https://github.com/KratosLee-6/Html-ninefox.git@d8c1694e77156032116bef3830009597f5289afd"
 ```
 
 Use an existing suitable environment, or a project virtual environment. Respect
@@ -78,6 +79,32 @@ authorized revision. Explain unsupported feedback instead of promising a change.
 Revisions retain history. Do not delete history or silently write Project Memory;
 learning preferences requires explicit adoption in the workbench.
 
+### FeedbackRequest mapping
+
+| FeedbackRequest field | CLI mapping |
+| --- | --- |
+| `project` | `--project` with the exact Project directory |
+| `note` | `--note` with the user's requested change |
+| `dry_run` | `--dry-run` when the user wants interpretation without creating a Revision |
+
+## Restore a historical Revision
+
+Read the current Revision from the Project state before restoring and use it as
+`--expected-revision`. Never guess the current Revision. Restore creates a new
+current Revision and keeps all later history:
+
+```sh
+htmlninefox restore --project "./fox-output/ACTUAL-PROJECT" --revision 0 --expected-revision 2
+```
+
+### RestoreRequest mapping
+
+| RestoreRequest field | CLI mapping |
+| --- | --- |
+| `project` | `--project` with the exact Project directory |
+| `revision` | `--revision` for the historical Revision to restore |
+| `expected_revision` | `--expected-revision` with the current Revision for conflict protection |
+
 ## Export / open the workbench
 
 ```sh
@@ -85,6 +112,17 @@ htmlninefox export "./fox-output/ACTUAL-PROJECT" --format pdf --paper A4
 htmlninefox export "./fox-output/ACTUAL-PROJECT" --format png --scope long
 htmlninefox app --host 127.0.0.1 --output ./fox-output
 ```
+
+### ExportRequest mapping
+
+| ExportRequest field | CLI mapping |
+| --- | --- |
+| `project_name` / workspace root | positional Project path, or name plus `--output-root` |
+| `format` | `--format pdf|png` |
+| `scope` | `--scope auto|pages|long` |
+| `pages` | `--pages` with a verified page range |
+| `width`, `height`, `scale` | matching viewport options |
+| `paper`, `landscape` | `--paper` and `--landscape` for PDF |
 
 PDF/PNG needs local Edge/Chrome or Playwright Chromium. If the CLI reports a
 missing browser, explain the dependency; the supported installation command is

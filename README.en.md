@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-208%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-B2-20260924.md)
+[![Tests](https://img.shields.io/badge/pytest-221%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-C-20260924.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -49,8 +49,8 @@ The application version remains `0.5.0rc3`, published under the installable prer
 | Track | Current state | Evidence |
 |---|---|---|
 | Application release | `v0.5.0rc3` prerelease, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
-| RC3 application increment | Simplified header, responsive task layouts, semantic zoom, local SVG icons, unified component states, and Pixel Garden classic mode | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [UI guide](docs/UI-GUIDE.md) |
-| Current local verification | `208 passed, 1 skipped`; Generation seam `7 passed`; JavaScript, Chromium `22/22`, and DSH `2/2` pass | [RC3-B2 record](docs/ITERATION-RC3-B2-20260924.md) |
+| RC3 application increment | Generation, Feedback, Restore, and Export now share `StudioApplication`; the CLI also exposes Restore | [RC3-C record](docs/ITERATION-RC3-C-20260924.md) · [architecture](docs/ARCHITECTURE.md) |
+| Current local verification | `221 passed, 1 skipped`; four application seams `20 passed`; JavaScript, Chromium `22/22`, and DSH `2/2` pass | [RC3-C record](docs/ITERATION-RC3-C-20260924.md) |
 | DeepSeek Harness plugin | Separately versioned `0.1.0-preview.1` | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 ### RC3 visual and interaction convergence
@@ -171,9 +171,13 @@ htmlninefox workbench
 # 4. Or direct CLI generation
 htmlninefox expert "Build a SaaS landing page"
 
-# 5. Export an existing workbench project
-htmlninefox export PROJECT_NAME --format pdf
-htmlninefox export PROJECT_NAME --format png --scope pages --pages 1-3
+# 5. Revise or restore an existing Project
+htmlninefox feedback --project ./output/ACTUAL-PROJECT --note "Make the title larger"
+htmlninefox restore --project ./output/ACTUAL-PROJECT --revision 0 --expected-revision 2
+
+# 6. Export an existing workbench project
+htmlninefox export ./output/ACTUAL-PROJECT --format pdf
+htmlninefox export ./output/ACTUAL-PROJECT --format png --scope pages --pages 1-3
 ```
 
 ## Testing & Trust Evidence
@@ -182,14 +186,15 @@ The `v0.5.0rc3` release candidate was verified locally on **September 24, 2026**
 
 | Check | Result | Evidence |
 |---|---:|---|
-| Full Python / API / storage / security / browser suite | **208 passed, 1 skipped** | [RC3-B2 record](docs/ITERATION-RC3-B2-20260924.md) |
+| Full Python / API / storage / security / browser suite | **221 passed, 1 skipped** | [RC3-C record](docs/ITERATION-RC3-C-20260924.md) |
+| Generation, Feedback, Restore, and Export application seams | **20 passed** | [RC3-C record](docs/ITERATION-RC3-C-20260924.md) |
 | Focused command, memory, error, recovery, motion, interaction, revision, and export suite | **20 passed** | [reproducible Playwright gate](tests/test_rc3_visual_evidence_states.py) |
 | Inline and standalone JavaScript syntax | **Passed** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
-| Latest published Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35989145761) |
+| Chromium generation and workbench acceptance | **22 / 22 passed** | [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | DSH registry and final tarball integration | **2 / 2 passed** | [integration record](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
 | RC3 package validation | Isolated wheel, packaged CSS/JS assets, CLI/workbench startup, tagged Windows/Linux assets, SHA-256 files, and Docker verification | [test report](docs/TEST-REPORT-v0.5.0rc3.md) |
 
-The remaining product-engineering gaps are shared CLI/HTTP/DSH application use cases, durable multi-file Project commits, cross-process coordination, crash recovery, and Safari/WebView2 device validation.
+The remaining product-engineering gaps are durable multi-file Project commits, cross-process coordination, crash recovery, browser lifecycle Modules, and Safari/WebView2 device validation.
 
 ### Run from source
 
@@ -207,6 +212,7 @@ htmlninefox --help
 - [Pixel Garden UI guide](docs/UI-GUIDE.md)
 - [RC3 visual convergence record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)
 - [RC3-B2 shared Generation use case](docs/ITERATION-RC3-B2-20260924.md)
+- [RC3-C shared Feedback, Restore, and Export use cases](docs/ITERATION-RC3-C-20260924.md)
 - [v0.5.0 stable delivery plan](docs/PLAN-v0.5.0-STABLE-20260924.md)
 - [Examples](docs/EXAMPLES.md)
 - [Roadmap](docs/ROADMAP.md)

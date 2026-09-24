@@ -16,17 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shared `StudioApplication.generate()` request/result seam for CLI, HTTP, asynchronous Jobs, and DeepSeek Harness parameter mapping.
 - Stable `prompt_required` and `generation_failed` application errors, typed verification, Recipe Run, Memory, and composition values.
 - A tracked v0.5.0 delivery map with RC3-C, durable Project commits, browser lifecycle Modules, and final release gates.
+- Shared `FeedbackRequest / FeedbackResult`, `RestoreRequest / RevisionResult`, and `ExportRequest / ExportResult` application Interfaces.
+- A `htmlninefox restore` CLI command with expected-Revision conflict protection.
 
 ### Changed
 
 - CLI generation now reuses Project Memory and the same application orchestration as the workbench while preserving environment-variable AI discovery.
 - HTTP generation handlers now translate transport data and serialize results; attachment-only Jobs validate through the shared application seam.
-- DeepSeek Harness documents and tests prompt, type, skill, template, quiet-LLM, and output mappings.
+- DeepSeek Harness documents and tests Generation, Feedback, Restore, and Export mappings, including `--expected-revision`.
+- CLI and HTTP Feedback, Restore, and Export now delegate business orchestration to `StudioApplication` while preserving HTTP v1 and Revision behavior.
 
 ### Verified
 
-- Full local suite: `208 passed, 1 skipped`.
-- Generation seam: `7 passed`; Chromium acceptance: `22/22`; DeepSeek Harness: `2/2`.
+- Full local suite: `221 passed, 1 skipped`.
+- Generation, Feedback, Restore, and Export seams: `20 passed`; Chromium acceptance: `22/22`; DeepSeek Harness: `2/2`.
 
 ---
 
