@@ -27,9 +27,13 @@ import click
 from rich.console import Console
 from rich.table import Table
 
-from . import __version__, exporting
+from . import __version__
 from . import pipeline
-from .application import GenerationError, GenerationRequest, StudioApplication, StudioDependencies
+from .application import (
+    ExportError, ExportRequest, FeedbackError, FeedbackRequest,
+    GenerationError, GenerationRequest, RestoreError, RestoreRequest,
+    StudioApplication, StudioDependencies,
+)
 from .alliance.router import AllianceRouter
 from .libraries import brief_lib, feedback_lib
 
@@ -102,27 +106,64 @@ def expert(prompt: str, skill: str | None, template: str | None, intent: str | N
 @click.option("--dry-run", is_flag=True, help="只解析反馈不重渲染")
 def feedback(project: str, note: str, dry_run: bool):
     """反馈迭代：解析反馈 → 改设计 token → 重渲染 output.html。"""
-    result = pipeline.run_feedback(project, note, revise=not dry_run)
-    if not result.get("ok"):
-        if result.get("ask_user"):
-            console_err.print(f"[yellow]🦊 {result['ask_user']}[/yellow]")
-        else:
-            console_err.print(f"[red]✗ {result.get('error', '失败')}[/red]")
+    project_path = Path(project).expanduser().resolve()
+    studio = StudioApplication(StudioDependencies.for_workspace(
+        project_path.parent,
+        allow_environment_ai=True,
+    ))
+    try:
+        result = studio.feedback(FeedbackRequest(
+            project=project_path,
+            note=note,
+            dry_run=dry_run,
+        ))
+    except FeedbackError as error:
+        color = "yellow" if error.requires_clarification else "red"
+        icon = "🦊" if error.requires_clarification else "✗"
+        console_err.print(f"[{color}]{icon} {error.message}[/{color}]")
         sys.exit(2)
-    if result.get("dry_run"):
-        console.print(f"[bold green]✓ 反馈解析（dry-run）[/bold green] {result['suggestion']}")
-        console.print(f"  规则: [cyan]{', '.join(result['applied_rules']) or '—'}[/cyan]")
+    if result.dry_run:
+        console.print(f"[bold green]✓ 反馈解析（dry-run）[/bold green] {result.suggestion}")
+        console.print(f"  规则: [cyan]{', '.join(result.applied_rules) or '—'}[/cyan]")
         return
-    console.print(f"[bold green]✓ 迭代完成[/bold green]  rev{result['revision']}  "
-                  f"[cyan]{result['output']}[/cyan]")
-    console.print(f"  执行: {result['suggestion']}")
-    console.print(f"  规则: [cyan]{', '.join(result['applied_rules']) or '—'}[/cyan]"
-                  f"  模型: [dim]{result.get('model', 'rules')}[/dim]")
-    console.print(f"  历史: [dim]{Path(result['project']) / 'revisions'}[/dim]")
+    console.print(f"[bold green]✓ 迭代完成[/bold green]  rev{result.revision}  "
+                  f"[cyan]{result.output}[/cyan]")
+    console.print(f"  执行: {result.suggestion}")
+    console.print(f"  规则: [cyan]{', '.join(result.applied_rules) or '—'}[/cyan]"
+                  f"  模型: [dim]{result.model}[/dim]")
+    console.print(f"  历史: [dim]{result.project / 'revisions'}[/dim]")
 
 
 # ============================================================
-# 3. export
+# 3. restore
+# ============================================================
+@main.command("restore")
+@click.option("--project", required=True, help="项目目录")
+@click.option("--revision", required=True, type=click.IntRange(min=0), help="需要恢复的历史版本")
+@click.option("--expected-revision", required=True, type=click.IntRange(min=0),
+              help="当前版本号，用于避免覆盖并发修改")
+def restore_command(project: str, revision: int, expected_revision: int):
+    """从历史 Revision 创建一个新的当前 Revision。"""
+    project_path = Path(project).expanduser().resolve()
+    studio = StudioApplication(StudioDependencies.for_workspace(project_path.parent))
+    try:
+        result = studio.restore(RestoreRequest(
+            project=project_path,
+            revision=revision,
+            expected_revision=expected_revision,
+        ))
+    except RestoreError as error:
+        console_err.print(f"[red]✗ {error.message}[/red]")
+        sys.exit(2)
+    console.print(
+        f"[bold green]✓ 已恢复为新版本[/bold green]  rev{result.revision}  "
+        f"[dim]来源 rev{result.restored_from}[/dim]"
+    )
+    console.print(f"  项目: [cyan]{result.project}[/cyan]")
+
+
+# ============================================================
+# 4. export
 # ============================================================
 @main.command("export")
 @click.argument("project")
@@ -146,28 +187,29 @@ def export_command(project: str, export_format: str, scope: str, pages: str, wid
     else:
         root = Path(output_root).expanduser().resolve()
         project_name = project
+    studio = StudioApplication(StudioDependencies.for_workspace(root))
     try:
         with console.status("[bold cyan]正在分析 HTML 并调用本地 Chromium…[/bold cyan]"):
-            result = exporting.export_project(root, {
-                "project_name": project_name,
-                "format": export_format,
-                "scope": scope,
-                "pages": pages,
-                "width": width,
-                "height": height,
-                "scale": scale,
-                "paper": paper,
-                "landscape": landscape,
-            })
-    except Exception as error:  # noqa: BLE001
-        console_err.print(f"[red]✗ 导出失败：{error}[/red]")
+            result = studio.export(ExportRequest(
+                project_name=project_name,
+                format=export_format,
+                scope=scope,
+                pages=pages,
+                width=width,
+                height=height,
+                scale=scale,
+                paper=paper,
+                landscape=landscape,
+            ))
+    except ExportError as error:
+        console_err.print(f"[red]✗ 导出失败：{error.message}[/red]")
         console_err.print("[dim]请确认已安装 Edge、Chrome，或执行 playwright install chromium。[/dim]")
-        raise click.ClickException(str(error)) from error
-    console.print(f"[bold green]✓ 导出完成[/bold green]  {result['format'].upper()} · "
-                  f"兼容性 {result['compatibility_score']} 分")
-    for item in result["files"]:
-        console.print(f"  [cyan]{root / project_name / 'exports' / result['export_id'] / item['name']}[/cyan]")
-    console.print(f"  报告: [dim]{root / project_name / 'exports' / result['export_id'] / 'export-report.json'}[/dim]")
+        raise click.ClickException(error.message) from error
+    console.print(f"[bold green]✓ 导出完成[/bold green]  {result.format.upper()} · "
+                  f"兼容性 {result.compatibility_score} 分")
+    for item in result.files:
+        console.print(f"  [cyan]{root / project_name / 'exports' / result.export_id / item.name}[/cyan]")
+    console.print(f"  报告: [dim]{root / project_name / 'exports' / result.export_id / 'export-report.json'}[/dim]")
 
 
 # ============================================================

@@ -55,6 +55,10 @@ class ProjectStore:
     def get_project(self, name: str) -> dict[str, Any]:
         return self._project_meta(self._existing_project(name))
 
+    def resolve_project(self, name: str) -> Path:
+        """Resolve a validated existing Project without reading its state."""
+        return self._existing_project(name)
+
     def compare_revisions(self, name: str, from_revision: int | None = None,
                           to_revision: int | None = None) -> dict[str, Any]:
         """Return a bounded, metadata-rich diff between two HTML revisions."""

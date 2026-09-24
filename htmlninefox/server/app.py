@@ -16,8 +16,10 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 from .. import __version__, exporting, llm, pipeline, project_memory, revisions, template_gallery
 from ..application import (
+    ExportError, ExportRequest, ExportResult,
+    FeedbackError, FeedbackRequest, FeedbackResult,
     GenerationBlock, GenerationError, GenerationRequest, GenerationResult,
-    StudioApplication, StudioDependencies,
+    RestoreError, RestoreRequest, StudioApplication, StudioDependencies,
 )
 from ..user_gallery import UserGalleryError, UserGalleryStore
 from .diagnostics import create_diagnostic_bundle
@@ -76,6 +78,18 @@ APP_CAPABILITIES = {
 
 _OUTPUT_ROOT = Path.home() / "htmlninefox-output"
 MAX_REQUEST_BYTES = 36 * 1024 * 1024
+
+_REVISION_ERROR_STATUSES = {
+    "revision_forbidden": 403,
+    "revision_invalid": 400,
+    "revision_not_found": 404,
+    "revision_too_large": 413,
+    "revision_encoding_invalid": 422,
+    "project_state_invalid": 409,
+    "revision_conflict": 409,
+    "revision_already_current": 409,
+    "revision_state_missing": 409,
+}
 
 
 def serve(host: str = "127.0.0.1", port: int = 8620, output: str | None = None) -> None:
@@ -408,10 +422,13 @@ class _Handler(BaseHTTPRequestHandler):
                 raise StoreError("export_project_required", "请选择需要导出的项目", 400)
             return self._json({"ok": True, "manifest": exporting.analyze_project(_OUTPUT_ROOT, project_name)})
         if path == "/api/exports":
-            request = exporting.normalize_export_request(body)
-            exporting.analyze_project(_OUTPUT_ROOT, request["project_name"])
+            request = self._export_request(body)
+            try:
+                self._studio().validate_export(request)
+            except ExportError as error:
+                raise self._export_store_error(error) from error
             job = self._jobs().submit(
-                "export", lambda: exporting.export_project(_OUTPUT_ROOT, request)
+                "export", lambda: self._export_payload(self._studio().export(request))
             )
             return self._json({"ok": True, "job": job}, 202)
         if path == "/api/diagnostics":
@@ -419,8 +436,20 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json({"ok": True, "bundle": bundle}, 201)
         if path.startswith("/api/projects/") and path.endswith("/restore-revision"):
             name = path[len("/api/projects/"):-len("/restore-revision")]
-            return self._json(self._store().restore_revision(
-                name, body.get("revision"), body.get("expected_revision")))
+            store = self._store()
+            project = store.resolve_project(name)
+            try:
+                result = self._studio().restore(RestoreRequest(
+                    project=project,
+                    revision=body.get("revision"),
+                    expected_revision=body.get("expected_revision"),
+                ))
+            except RestoreError as error:
+                raise self._restore_store_error(error) from error
+            return self._json({
+                "ok": True,
+                "project": store.get_project(result.project.name),
+            })
         if path.startswith("/api/projects/") and path.endswith("/recipe-rerun"):
             name = path[len("/api/projects/"):-len("/recipe-rerun")]
             stage = str(body.get("stage") or "generate")
@@ -627,14 +656,118 @@ class _Handler(BaseHTTPRequestHandler):
             "memory_applied": memory_applied,
         })
 
+    @staticmethod
+    def _export_request(body: dict) -> ExportRequest:
+        pages_value = body.get("pages")
+        if pages_value is None:
+            pages = ""
+        elif isinstance(pages_value, str):
+            pages = pages_value
+        elif isinstance(pages_value, list):
+            pages = tuple(pages_value)
+        else:
+            raise StoreError("export_pages_invalid", "pages 必须是数组或页码字符串", 400)
+        return ExportRequest(
+            project_name=str(body.get("project_name") or ""),
+            format=str(body.get("format") or "pdf"),
+            scope=str(body.get("scope") or "auto"),
+            pages=pages,
+            width=body.get("width"),
+            height=body.get("height"),
+            scale=body.get("scale"),
+            paper=str(body.get("paper") or "A4"),
+            landscape=bool(body.get("landscape", False)),
+        )
+
+    @staticmethod
+    def _export_payload(result: ExportResult) -> dict:
+        return result.to_mapping()
+
+    @staticmethod
+    def _export_store_error(error: ExportError) -> StoreError:
+        statuses = {
+            "export_project_required": 400,
+            "export_format_unsupported": 400,
+            "export_scope_invalid": 400,
+            "export_paper_invalid": 400,
+            "export_pages_invalid": 400,
+            "export_width_invalid": 400,
+            "export_height_invalid": 400,
+            "export_scale_invalid": 400,
+            "export_page_out_of_range": 400,
+            "export_page_limit": 413,
+            "export_analysis_failed": 409,
+            "export_source_missing": 409,
+            "export_source_invalid": 409,
+            "export_runtime_missing": 503,
+            "export_browser_unavailable": 503,
+            "project_name_invalid": 400,
+            "project_not_found": 404,
+            "project_state_invalid": 409,
+        }
+        return StoreError(
+            error.code,
+            error.message,
+            statuses.get(error.code, 500),
+            error.details,
+        )
+
     def _api_feedback(self, body: dict):
-        project = (body.get("project") or "").strip()
-        note = (body.get("note") or "").strip()
-        if not project or not note:
-            raise StoreError("feedback_fields_required", "project 与 note 必填", 400)
-        result = pipeline.run_feedback(project, note, revise=True, allow_llm=self._activate_ai())
-        if not result.get("ok"):
-            message = result.get("ask_user") or result.get("error") or "反馈无法执行"
-            raise StoreError("feedback_not_actionable", message, 422, result)
-        result["preview_url"] = f"/output/{Path(project).name}/output.html"
-        return self._json(result)
+        try:
+            result = self._studio().feedback(self._feedback_request(body))
+        except FeedbackError as error:
+            raise self._feedback_store_error(error) from error
+        return self._json(self._feedback_payload(result))
+
+    @staticmethod
+    def _feedback_request(body: dict) -> FeedbackRequest:
+        project = str(body.get("project") or "").strip()
+        return FeedbackRequest(
+            project=Path(project) if project else None,
+            note=str(body.get("note") or ""),
+            dry_run=False,
+            quiet_llm=False,
+        )
+
+    @staticmethod
+    def _feedback_payload(result: FeedbackResult) -> dict:
+        payload = {
+            "ok": True,
+            "project": str(result.project),
+            "suggestion": result.suggestion,
+            "applied_rules": list(result.applied_rules),
+            "tokens": result.tokens.to_mapping(),
+            "model": result.model,
+            "preview_url": f"/output/{result.project.name}/output.html",
+        }
+        if result.revision is not None:
+            payload["revision"] = result.revision
+        if result.output is not None:
+            payload["output"] = str(result.output)
+        if result.dry_run:
+            payload["dry_run"] = True
+        return payload
+
+    @staticmethod
+    def _restore_store_error(error: RestoreError) -> StoreError:
+        statuses = {"project_required": 400, **_REVISION_ERROR_STATUSES}
+        return StoreError(
+            error.code,
+            error.message,
+            statuses.get(error.code, 500),
+            error.details,
+        )
+
+    @staticmethod
+    def _feedback_store_error(error: FeedbackError) -> StoreError:
+        statuses = {
+            "feedback_fields_required": 400,
+            "feedback_not_actionable": 422,
+            **_REVISION_ERROR_STATUSES,
+        }
+        return StoreError(
+            error.code,
+            error.message,
+            statuses.get(error.code, 500),
+            error.details,
+        )
