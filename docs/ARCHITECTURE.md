@@ -17,7 +17,7 @@ DSH plugin ───────┘         │
                             └──> Chromium export runtime
 ```
 
-当前 HTTP 和 CLI 都调用核心能力，但部分应用编排仍留在 HTTP handler 中。RC3 会建立明确的应用用例 Module，让所有 Adapter 复用相同 Interface。
+Generation 已通过 `StudioApplication.generate()` 形成共享应用 Interface，CLI、HTTP 同步生成和异步 Job 复用同一实现；Feedback、Restore 与 Export 仍将在 RC3-C 逐项迁移。
 
 ## 分层与 Module
 
@@ -27,8 +27,8 @@ DSH plugin ───────┘         │
 │ CLI · HTTP v1 · Web/PWA · desktop launcher · DSH plugin      │
 ├──────────────────────────────────────────────────────────────┤
 │ Application orchestration                                    │
-│ pipeline · feedback/rerun · revision/restore · export calls  │
-│ RC3 target: explicit generate/feedback/restore/export use cases│
+│ StudioApplication.generate · pipeline · feedback · restore  │
+│ RC3 target: explicit feedback/restore/export use cases       │
 ├──────────────────────────────────────────────────────────────┤
 │ Domain Modules                                               │
 │ brief · composition · experts · generators · project memory  │
@@ -52,14 +52,15 @@ Adapter 负责输入解析、认证或环境适配、响应序列化和错误映
 
 ### Domain 与应用 Module
 
-- `pipeline.py`：当前生成主链，组合需求、Skill、模板、意图、页面结构、Project Memory 和运行证据。
+- `application.py::StudioApplication`：共享 Generation request/result、错误模型、依赖装配和 Adapter 一致性。
+- `pipeline.py`：生成 Implementation，组合需求、Skill、模板、意图、页面结构、Project Memory 和运行证据。
 - `brief.py` / experts / generators：把用户输入转成可执行的创作规格和 HTML Artifact。
 - `revisions.py`：创建、列出、命名、比较和 Restore Revision。
 - `project_memory.py`：保存 Adoption Signal、匹配 Memory Recommendation，并服从 Explicit Requirement 优先级。
 - `recipe_run.py`：记录分析、组合、生成、验证和交付阶段。
 - `exporting.py`：隐藏浏览器选择、兼容性预检、PDF/PNG 分页和输出提交。
 
-`exporting.py`、ProjectStore、ProjectMemoryStore 和 JobManager 已经具有较好的 Module depth。`pipeline.py` 和 HTTP handler 的 Interface 仍偏宽，是 RC3 的主要深化区域。
+`exporting.py`、ProjectStore、ProjectMemoryStore 和 JobManager 已经具有较好的 Module depth。Generation 的 HTTP 编排已移入 `StudioApplication`；Feedback、Restore、Export 和浏览器生命周期仍是 RC3 的主要深化区域。
 
 ### Infrastructure Module
 

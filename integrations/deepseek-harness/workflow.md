@@ -46,6 +46,24 @@ Use the actual output directory printed by the CLI; do not guess timestamp names
 Inspect `output.html`, report where it lives, and explain any verification limits.
 Do not claim the result is deployed or that PPTX/Word was produced.
 
+## GenerationRequest mapping
+
+The Harness workflow maps user intent to the same application request used by the
+CLI and HTTP adapters:
+
+| GenerationRequest field | CLI mapping |
+| --- | --- |
+| `prompt` | positional prompt text |
+| `intent` | `--type` |
+| `skill` | `--skill` when the user explicitly selects an installed alliance skill |
+| `template` | `--template` after verifying the ID with `htmlninefox template` |
+| `quiet_llm` | `--quiet-llm` |
+| generation workspace | `--output` |
+
+Do not invent flags for attachments, private-gallery IDs, color tokens, or fonts.
+Those fields currently require the HTTP workbench adapter. Report that limitation
+instead of silently dropping an explicit requirement.
+
 ## Revise an existing project
 
 Use the exact generated project directory, replacing the illustrative path below:

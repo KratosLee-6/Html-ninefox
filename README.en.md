@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-201%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)
+[![Tests](https://img.shields.io/badge/pytest-208%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-B2-20260924.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -50,7 +50,7 @@ The application version remains `0.5.0rc3`, published under the installable prer
 |---|---|---|
 | Application release | `v0.5.0rc3` prerelease, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
 | RC3 application increment | Simplified header, responsive task layouts, semantic zoom, local SVG icons, unified component states, and Pixel Garden classic mode | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) · [UI guide](docs/UI-GUIDE.md) |
-| Current local verification | `201 passed, 1 skipped`; focused visual and interaction suite `20 passed`; JavaScript syntax gates pass | [validation record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| Current local verification | `208 passed, 1 skipped`; Generation seam `7 passed`; JavaScript, Chromium `22/22`, and DSH `2/2` pass | [RC3-B2 record](docs/ITERATION-RC3-B2-20260924.md) |
 | DeepSeek Harness plugin | Separately versioned `0.1.0-preview.1` | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 ### RC3 visual and interaction convergence
@@ -78,7 +78,7 @@ The workbench keeps the existing Pixel Garden brand and native HTML/CSS/JavaScri
 
 The RC3 evidence set contains 14 real screenshots, including Project Memory, controlled export errors, generated output, Export Center readiness, tablet drawers, and both themes.
 
-## v0.5.0 RC2 Capabilities
+## v0.5.0 RC Series Capabilities
 
 ![Project Memory and adoption signals](assets/screenshots/v0.5.0rc1/project-memory-dialog.png)
 
@@ -182,7 +182,7 @@ The `v0.5.0rc3` release candidate was verified locally on **September 24, 2026**
 
 | Check | Result | Evidence |
 |---|---:|---|
-| Full Python / API / storage / security / browser suite | **201 passed, 1 skipped** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| Full Python / API / storage / security / browser suite | **208 passed, 1 skipped** | [RC3-B2 record](docs/ITERATION-RC3-B2-20260924.md) |
 | Focused command, memory, error, recovery, motion, interaction, revision, and export suite | **20 passed** | [reproducible Playwright gate](tests/test_rc3_visual_evidence_states.py) |
 | Inline and standalone JavaScript syntax | **Passed** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
 | Latest published Chromium generation and workbench acceptance | **22 / 22 passed** | [GitHub CI](https://github.com/KratosLee-6/Html-ninefox/actions/runs/35989145761) |
@@ -206,6 +206,8 @@ htmlninefox --help
 - [Design philosophy](docs/DESIGN.md)
 - [Pixel Garden UI guide](docs/UI-GUIDE.md)
 - [RC3 visual convergence record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)
+- [RC3-B2 shared Generation use case](docs/ITERATION-RC3-B2-20260924.md)
+- [v0.5.0 stable delivery plan](docs/PLAN-v0.5.0-STABLE-20260924.md)
 - [Examples](docs/EXAMPLES.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Private template import](docs/PRIVATE-TEMPLATE-IMPORT.md)

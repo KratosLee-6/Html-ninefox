@@ -4,7 +4,7 @@
 - 最近校验：2026-09-24
 - 输入：[mattpocock/skills 工程审计](AUDIT-MATTPOCOCK-20260920.md)
 - 当前应用发布基线：`v0.5.0rc3`
-- 当前 `main`：RC3-A、RC3-B1 与视觉基础切片已完成；完整测试 201 通过、1 跳过
+- 当前分支：RC3-A、RC3-B1、视觉基础切片与 RC3-B2 已完成；完整测试 208 通过、1 跳过
 - 目标：在扩展桌面端和更多生态 Adapter 前，让应用用例、持久化和浏览器工作台拥有稳定、可测试的 seam。
 
 ## 成功标准
@@ -61,7 +61,7 @@ RC3 完成时应满足：
 
 并行完成的视觉基础（2026-09-24）：工作台主操作层级、四档响应式布局、语义缩放、本地 SVG Icon、组件状态、Paper / Pixel Night 主题与 14 张真实状态截图已经落地。该切片为后续浏览器业务 Module 提供稳定呈现层，不改变应用发布版本。详见 [RC3 视觉收敛记录](ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
 
-第二步（当前下一步）：Design It Twice 比较生成用例方案。
+第二步：Design It Twice 比较生成用例方案。状态：**已完成（2026-09-24）**。选择 `StudioApplication(deps).generate(request)`，CLI、HTTP、Job 与 DSH 映射共用同一 Generation Interface；详见 [RC3-B2 迭代记录](ITERATION-RC3-B2-20260924.md)。
 
 候选 A：函数式应用服务。
 
@@ -76,7 +76,7 @@ studio = StudioApplication(deps)
 studio.generate(request) -> GenerationResult
 ```
 
-选择标准：Interface 表面积、依赖注入难度、CLI/HTTP/DSH 复用、错误模型和测试成本。完成比较前不提前锁定方案。
+选择结果：候选 B。workspace 依赖只装配一次，调用方只学习 request/result；内部保留可注入 runner，因此选择可逆，不新增 ADR。
 
 首个纵向切片：
 
@@ -90,7 +90,7 @@ studio.generate(request) -> GenerationResult
 - 生成成功和一个失败路径有 seam 级测试。
 - 现有 HTTP 与 Chromium 测试不变或只改 fixture。
 
-## RC3-C：稳定 request/result 与剩余用例
+## RC3-C：稳定 request/result 与剩余用例（当前下一步）
 
 **目的**：逐步替换跨 Module 的松散字典协议。
 

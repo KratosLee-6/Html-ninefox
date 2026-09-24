@@ -15,6 +15,10 @@ from typing import Callable
 from urllib.parse import parse_qs, unquote, urlparse
 
 from .. import __version__, exporting, llm, pipeline, project_memory, revisions, template_gallery
+from ..application import (
+    GenerationBlock, GenerationError, GenerationRequest, GenerationResult,
+    StudioApplication, StudioDependencies,
+)
 from ..user_gallery import UserGalleryError, UserGalleryStore
 from .diagnostics import create_diagnostic_bundle
 from .inputs import InputError, InputStore
@@ -133,29 +137,11 @@ class _Handler(BaseHTTPRequestHandler):
         return project_memory.ProjectMemoryStore(_OUTPUT_ROOT)
 
     def _memory_recommendation(self, prompt: str, body: dict) -> dict:
-        recommendation = self._memory().recommend(prompt, body)
-        overrides = dict(recommendation.get("overrides", {}))
-        remembered_template = overrides.get("template")
-        if remembered_template and remembered_template not in {
-                item["id"] for item in pipeline.list_templates()}:
-            overrides.pop("template", None)
-            recommendation["overrides"] = overrides
-            recommendation.setdefault("covered", []).append({
-                "field": "template", "reason": "记忆模板已不可用，已安全忽略"})
-            recommendation["applied"] = [
-                item for item in recommendation.get("applied", [])
-                if item.get("field") != "template"
-            ]
-        return recommendation
+        return self._studio().recommend_memory(prompt, self._generation_request(body))
 
     def _activate_ai(self) -> bool:
-        settings = self._ai_settings().activate()
-        enabled = bool(settings.get("enabled") and settings.get("model") and settings.get("base_url"))
-        if enabled:
-            llm.router.configure(llm.runtime_config_from_settings(settings))
-        else:
-            llm.router.configure(llm.get_default_config())
-        return enabled
+        return self._studio().activate_ai()
+
 
     def _prompt_and_inputs(self, body: dict) -> tuple[str, list[dict]]:
         prompt = (body.get("prompt") or "").strip()
@@ -508,22 +494,28 @@ class _Handler(BaseHTTPRequestHandler):
         return self._json(self._generation_result(body))
 
     def _api_submit_job(self, body: dict):
-        prompt = (body.get("prompt") or "").strip()
-        if not prompt:
-            raise StoreError("prompt_required", "prompt 不能为空", 400)
+        request = self._generation_request(body)
+        try:
+            self._studio().validate_generation(request)
+        except GenerationError as error:
+            raise self._generation_store_error(error) from error
         staging_root = _OUTPUT_ROOT / ".jobs-work" / uuid.uuid4().hex
         job = self._jobs().submit(
             "generate",
-            lambda report: self._staged_generation(dict(body), staging_root, report),
+            lambda report: self._staged_generation(request, staging_root, report),
             with_reporter=True,
         )
         return self._json({"ok": True, "job": job}, 202)
 
-    def _staged_generation(self, body: dict, staging_root: Path,
+    def _staged_generation(self, request: GenerationRequest, staging_root: Path,
                            progress_callback=None) -> dict:
         staging_root.mkdir(parents=True, exist_ok=True)
         try:
-            result = self._generation_result(body, staging_root, progress_callback)
+            try:
+                generated = self._studio(staging_root).generate(request, progress_callback)
+            except GenerationError as error:
+                raise self._generation_store_error(error) from error
+            result = self._generation_payload(generated)
             source = Path(result["project"])
             target = _OUTPUT_ROOT / source.name
             suffix = 2
@@ -538,71 +530,64 @@ class _Handler(BaseHTTPRequestHandler):
         finally:
             shutil.rmtree(staging_root, ignore_errors=True)
 
-    def _generation_result(self, body: dict, output_root: Path | None = None,
-                           progress_callback=None) -> dict:
-        prompt, input_items = self._prompt_and_inputs(body)
-        if not prompt:
-            raise StoreError("prompt_required", "prompt 或附件至少需要一个", 400)
-        ai_enabled = self._activate_ai()
-        memory_store = self._memory()
-        memory_applied = self._memory_recommendation(prompt, body)
-        memory_overrides = memory_applied.get("overrides", {})
+    def _studio(self, generation_root: Path | None = None) -> StudioApplication:
+        return StudioApplication(StudioDependencies.for_workspace(
+            _OUTPUT_ROOT, generation_root=generation_root or _OUTPUT_ROOT,
+        ))
+
+    @staticmethod
+    def _generation_request(body: dict) -> GenerationRequest:
+        input_ids = body.get("inputs") if isinstance(body.get("inputs"), list) else []
         blocks = body.get("blocks") if isinstance(body.get("blocks"), list) else []
-        gallery_id = str(body.get("gallery_id") or "")
-        gallery_item = None
-        style_overrides = {
-            key: body.get(key) or memory_overrides.get(key)
-            for key in ("primary", "font") if body.get(key) or memory_overrides.get(key)
-        }
-        if gallery_id:
-            try:
-                gallery_item = self._user_gallery().get(gallery_id)
-            except UserGalleryError:
-                gallery_item = None
-        if gallery_item:
-            for key, value in gallery_item.get("style_overrides", {}).items():
-                style_overrides.setdefault(key, value)
-        result = pipeline.run_expert(
-            prompt,
+        return GenerationRequest(
+            prompt=str(body.get("prompt") or ""),
+            input_ids=tuple(str(item) for item in input_ids),
             skill=body.get("skill") or None,
-            template=body.get("template") or memory_overrides.get("template") or None,
-            output=str(output_root or _OUTPUT_ROOT),
-            intent_override=body.get("intent") or None,
-            quiet_llm=bool(body.get("quiet_llm", False)) or not ai_enabled,
-            style_overrides=style_overrides or None,
-            composition={
-                "gallery_id": gallery_id or None,
-                "gallery_source": gallery_item.get("source") if gallery_item else "builtin",
-                "template_design_tokens": gallery_item.get("design_tokens", {}) if gallery_item else {},
-                "blocks": blocks,
-                "inputs": input_items,
-                "selection_mode": body.get("selection_mode") or "custom",
-            },
-            memory_context=memory_applied,
-            progress_callback=progress_callback,
+            template=body.get("template") or None,
+            intent=body.get("intent") or None,
+            quiet_llm=bool(body.get("quiet_llm", False)),
+            primary=body.get("primary") or None,
+            font=body.get("font") or None,
+            gallery_id=body.get("gallery_id") or None,
+            blocks=tuple(
+                GenerationBlock.from_value(item)
+                for item in blocks
+            ),
+            selection_mode=body.get("selection_mode") or "custom",
         )
-        work = result["work"]
-        memory_store.record_generation(memory_applied)
-        if gallery_item:
-            try:
-                self._user_gallery().record_use(gallery_id)
-            except (UserGalleryError, OSError, json.JSONDecodeError):
-                pass
+
+    @staticmethod
+    def _generation_payload(result: GenerationResult) -> dict:
         return {
             "ok": True,
-            "project": str(work),
-            "project_name": work.name,
-            "preview_url": f"/output/{work.name}/output.html",
-            "intent": result["intent"],
-            "preset_id": result["preset_id"],
-            "preset_name": result["preset_name"],
-            "route_decision": result["route_decision"],
-            "skill": result["skill"],
-            "brief_confidence": result["brief_confidence"],
-            "verification": result.get("verification", {}),
-            "recipe_run": result.get("recipe_run", {}),
-            "memory_applied": result.get("memory_applied", memory_applied),
+            "project": str(result.work),
+            "project_name": result.work.name,
+            "preview_url": f"/output/{result.work.name}/output.html",
+            "intent": result.intent,
+            "preset_id": result.preset_id,
+            "preset_name": result.preset_name,
+            "route_decision": result.route_decision,
+            "skill": result.skill,
+            "brief_confidence": result.brief_confidence,
+            "verification": result.verification.to_mapping(),
+            "recipe_run": result.recipe_run.to_mapping(),
+            "memory_applied": result.memory_applied.to_mapping(),
         }
+
+    @staticmethod
+    def _generation_store_error(error: GenerationError) -> StoreError:
+        status = 400 if error.code == "prompt_required" else 500
+        return StoreError(error.code, error.message, status, error.details)
+
+    def _generation_result(self, body: dict, output_root: Path | None = None,
+                           progress_callback=None) -> dict:
+        try:
+            result = self._studio(output_root).generate(
+                self._generation_request(body), progress_callback,
+            )
+        except GenerationError as error:
+            raise self._generation_store_error(error) from error
+        return self._generation_payload(result)
 
     def _api_analyze(self, body: dict):
         prompt, input_items = self._prompt_and_inputs(body)

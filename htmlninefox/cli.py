@@ -29,6 +29,7 @@ from rich.table import Table
 
 from . import __version__, exporting
 from . import pipeline
+from .application import GenerationError, GenerationRequest, StudioApplication, StudioDependencies
 from .alliance.router import AllianceRouter
 from .libraries import brief_lib, feedback_lib
 
@@ -56,32 +57,37 @@ def main():
 def expert(prompt: str, skill: str | None, template: str | None, intent: str | None,
            output: str, quiet_llm: bool):
     """一句话生成可发布的单文件 HTML（offline 也能跑）。"""
-    if not prompt.strip():
-        console_err.print("[red]✗ prompt 不能为空[/red]")
+    studio = StudioApplication(StudioDependencies.for_workspace(output, allow_environment_ai=True))
+    try:
+        with console.status("[bold cyan]🦊 Html九尾狐 流水线执行中…[/bold cyan]"):
+            result = studio.generate(GenerationRequest(
+                prompt=prompt,
+                skill=skill,
+                template=template,
+                intent=intent,
+                quiet_llm=quiet_llm,
+            ))
+    except GenerationError as error:
+        console_err.print(f"[red]✗ {error.message}[/red]")
         sys.exit(2)
 
-    with console.status("[bold cyan]🦊 Html九尾狐 流水线执行中…[/bold cyan]"):
-        result = pipeline.run_expert(prompt, skill=skill, template=template,
-                                     output=output, intent_override=intent,
-                                     quiet_llm=quiet_llm)
-
-    work = result["work"]
+    work = result.work
     console.print(f"\n[bold cyan]🦊 Html九尾狐 v{__version__}[/bold cyan]  生成完成")
     table = Table(show_header=True, header_style="bold cyan", title="生成结果")
     table.add_column("项", style="green")
     table.add_column("值", style="white")
-    table.add_row("内容类型", result["intent"])
-    table.add_row("风格预设", f"{result['preset_id']}（{result['preset_name']}）")
-    table.add_row("联盟路由", f"{result['route_decision']}"
-                             f"{(' · ' + result['skill']) if result['skill'] else ''}")
-    table.add_row("Brief 置信度", str(result["brief_confidence"])
-                  + ("（离线规则）" if result["fallback_used"] else ""))
+    table.add_row("内容类型", result.intent)
+    table.add_row("风格预设", f"{result.preset_id}（{result.preset_name}）")
+    table.add_row("联盟路由", f"{result.route_decision}"
+                             f"{(' · ' + result.skill) if result.skill else ''}")
+    table.add_row("Brief 置信度", str(result.brief_confidence)
+                  + ("（离线规则）" if result.fallback_used else ""))
     console.print(table)
 
     ftable = Table(show_header=True, header_style="bold cyan", title="产物文件")
     ftable.add_column("文件", style="green")
     ftable.add_column("路径", style="dim")
-    for name in result["files"]:
+    for name in result.files:
         ftable.add_row(name, str(work / name))
     console.print(ftable)
     console.print(f"\n[bold green]✓ 已生成[/bold green]  [cyan]{work / 'output.html'}[/cyan]")
