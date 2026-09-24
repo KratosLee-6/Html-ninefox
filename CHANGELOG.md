@@ -11,7 +11,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- No unreleased changes yet.
+### Added
+
+- RC3 Pixel Garden visual convergence with a simplified primary-action header, local SVG icons, semantic node zoom, and responsive desktop, tablet, and mobile task layouts.
+- Reproducible Playwright evidence for the command palette, saved Project Memory, controlled Export Center errors, and restore-as-new-version completion.
+- Fourteen real RC3 screenshots covering themes, dialogs, inspectors, generated output, export readiness, responsive layouts, error feedback, and recovery lineage.
+
+### Changed
+
+- Unified the workbench and classic form mode around the existing Pixel Garden paper, cobalt, mint, and terracotta design tokens.
+- Standardized desktop and mobile control sizes, focus-visible rings, selected, disabled, busy, success, and error states without adding React or Anime.js.
+- Added live status semantics to Project Memory and Export Center feedback regions.
+- Limited pytest discovery to the project test suite so root-level runs do not enter protected caches inside historical Windows release bundles.
+- Updated the README, UI guide, and RC3 iteration record with current pages, state evidence, screenshots, validation results, and the next product-engineering milestones.
+
+### Verified
+
+- Inline JavaScript syntax and standalone workbench JavaScript checks pass.
+- 20 focused Playwright and product tests pass across visual convergence, commands, memory, motion, interaction, revisions, and export states.
+- The complete local suite passes with `201 passed, 1 skipped`.
 
 ---
 
