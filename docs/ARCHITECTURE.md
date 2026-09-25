@@ -149,17 +149,17 @@ RC3 将按 Project lifecycle、Generation lifecycle、Revision history、Export 
 
 ## 存储与一致性
 
-Project 包含 Workspace 状态、Artifact、Revision、Recipe Run、Memory 和任务证据。当前实现已经具备单文件临时替换、部分 fsync、失败回滚和过期 Restore 冲突，但不同 Module 的写入策略仍不统一。
+Project 包含 Workspace 状态、Artifact、Revision、Recipe Run、Memory 和任务证据。RC3-D 起全部 Project-rooted 写入统一走 `htmlninefox/durable.py` 的 `atomic_write`（同目录 mkstemp、fsync、原子 replace、POSIX 目录 fsync、Windows 并发替换重试）；Project 多文件提交带 journal 恢复；跨进程并发由文件锁协调。
 
-目标一致性规则：
+一致性规则（RC3-D 已实现）：
 
 1. 单文件写入使用同目录临时文件、flush、fsync 和原子 replace。
-2. 一次 Project 操作涉及的文件集合以 Project commit 统一提交。
-3. commit 中断后可以识别 prepare 状态并恢复到旧的完整状态或完成提交。
-4. 同一 Project 的跨进程写入协调；不同 Project 可以并行。
-5. 每次成功写入留下可诊断的 revision / job / request 信息。
+2. `revisions.commit()` 三段化：先写 `.commit-journal.json`（prepare），再按 snapshot → output → state 顺序提交（`.foxstate.json` 写入即提交点），成功后清理 journal。
+3. commit 中断（异常、kill、断电）后，下一次 `load_state()` 在 Project 锁内确定性回滚：output 从 `rev{current}.html` 快照恢复，大于 current 的孤儿版本文件删除，journal 清理；state 已到 target 时仅清理 journal。
+4. 同一 Project 的跨进程写入通过 `<输出根>/.locks/<项目名>.lock` 文件锁互斥（msvcrt/flock 双平台，默认 15s 超时），冲突返回稳定 `project_busy`（HTTP 409）；锁文件放在 Project 目录外，避免 Windows 上持锁 rename 目录失败。不同 Project 可并行。
+5. 每次成功写入留下可诊断的 revision / job / request 信息；生成在 `.gen-` 临时目录完成后以 rename 原子发布。
 
-这些是 RC3 计划，不能把当前 RC2 描述为已经完全支持多文件断电事务。
+仍未覆盖：Workspace 快照走主/备双文件恢复而非 journal；`feedback.md` 追加与导出报告为单文件写；这些场景的最坏结果是丢失一次追加记录，不破坏 revision 一致性。
 
 ## 安全边界
 

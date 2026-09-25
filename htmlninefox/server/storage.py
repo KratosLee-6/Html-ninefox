@@ -137,7 +137,8 @@ class ProjectStore:
         target = self._project_path(new_name)
         if target.exists():
             raise StoreError("project_exists", f"项目已存在：{target.name}", 409)
-        source.rename(target)
+        with revisions.project_lock(source):
+            source.rename(target)
         return self._project_meta(target)
 
     def duplicate_project(self, name: str, new_name: str | None = None) -> dict[str, Any]:
@@ -146,7 +147,8 @@ class ProjectStore:
         target = self._project_path(target_name)
         if target.exists():
             raise StoreError("project_exists", f"项目已存在：{target.name}", 409)
-        shutil.copytree(source, target)
+        with revisions.project_lock(source):
+            shutil.copytree(source, target)
         state_path = target / pipeline.STATE_FILE
         try:
             state = json.loads(state_path.read_text(encoding="utf-8"))
@@ -163,7 +165,8 @@ class ProjectStore:
         trash.mkdir(parents=True, exist_ok=True)
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
         target = trash / f"{stamp}-{source.name}"
-        source.rename(target)
+        with revisions.project_lock(source):
+            source.rename(target)
         return {"name": source.name, "deleted": True, "recoverable": True}
 
     def save_workspace(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -289,10 +292,4 @@ class ProjectStore:
 
     @staticmethod
     def _atomic_json(path: Path, data: dict[str, Any]) -> None:
-        temp = path.with_name(path.name + ".tmp")
-        body = json.dumps(data, ensure_ascii=False, indent=2)
-        with temp.open("w", encoding="utf-8", newline="\n") as handle:
-            handle.write(body)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temp, path)
+        revisions.atomic_write(path, json.dumps(data, ensure_ascii=False, indent=2))

@@ -11,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from . import rules
+from . import revisions, rules
 
 MEMORY_VERSION = 1
 MEMORY_FILE = "project-memory.json"
@@ -257,10 +257,8 @@ class ProjectMemoryStore:
         return memory
 
     def _write(self, memory: dict[str, Any]) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        temp = self.path.with_suffix(".tmp")
-        temp.write_text(json.dumps(memory, ensure_ascii=False, indent=2), encoding="utf-8")
-        temp.replace(self.path)
+        revisions.atomic_write(
+            self.path, json.dumps(memory, ensure_ascii=False, indent=2))
 
     @staticmethod
     def _explicit_requirements(prompt: str, request: dict[str, Any]) -> dict[str, bool]:

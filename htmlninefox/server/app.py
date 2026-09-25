@@ -89,6 +89,7 @@ _REVISION_ERROR_STATUSES = {
     "revision_conflict": 409,
     "revision_already_current": 409,
     "revision_state_missing": 409,
+    "project_busy": 409,
 }
 
 

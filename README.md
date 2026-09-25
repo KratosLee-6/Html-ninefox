@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-221%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-C-20260924.md)
+[![Tests](https://img.shields.io/badge/pytest-234%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-D-20260925.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -51,8 +51,8 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
 | 应用 Release | `v0.5.0rc3` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
-| `main` 最新增量 | RC3-C 已完成：Generation、Feedback、Restore 与 Export 经过共享 `StudioApplication`；CLI 新增 Restore 命令 | [RC3-C 记录](docs/ITERATION-RC3-C-20260924.md) · [架构](docs/ARCHITECTURE.md) |
-| RC3-C 应用用例复验 | `221 passed, 1 skipped`；四类应用 seam `20 passed`；JavaScript、Chromium `22/22`、DSH `2/2` 通过 | [本轮记录](docs/ITERATION-RC3-C-20260924.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
+| `main` 最新增量 | RC3-D 已完成：统一 durable write、Project commit journal、跨进程文件锁与崩溃恢复；生成改为临时目录 + rename 原子发布 | [RC3-D 记录](docs/ITERATION-RC3-D-20260925.md) · [架构](docs/ARCHITECTURE.md) |
+| RC3-D 存储一致性复验 | `234 passed, 1 skipped`（含 12 个 durability 测试）；restore/交互 Chromium 验收通过；跨进程锁与崩溃回滚有真实子进程与黑盒 HTTP 证据 | [本轮记录](docs/ITERATION-RC3-D-20260925.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 ### RC3 视觉与交互收敛（2026-09-24）
@@ -122,7 +122,7 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 
 | 验证 | 结果 | 证据 |
 |---|---:|---|
-| 当前分支本地全量 Python / HTTP / Chromium | **221 passed，1 skipped，110.99 秒** | [RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md) |
+| 当前分支本地全量 Python / HTTP / Chromium | **234 passed，1 skipped，118.07 秒** | [RC3-D 迭代记录](docs/ITERATION-RC3-D-20260925.md) |
 | Generation / Feedback / Restore / Export request-result 与 Adapter 契约 | **20 passed** | [同一记录](docs/ITERATION-RC3-C-20260924.md) |
 | `main` GitHub CI | **以最新 Actions 为准** | [查看 main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md) |
@@ -130,17 +130,17 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 | 本机动效与竞态专项 | **196 passed，1 skipped** | [动效测试日志](docs/test-evidence/motion-20260918/pytest.txt) |
 | 发布附件回读与 SHA-256 | **一致** | [发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md#正式执行插件预览发布2026-09-18) |
 
-当前限制：没有完成 Safari / WebView2 实机、跨进程并发写入与断电事务恢复，也没有用真实模型验收 DSH 对话自动选用技能。DSH 首版是技能工作流，尚未提供专用工具卡片或聊天内 HTML 预览。
+当前限制：没有完成 Safari / WebView2 实机验收，也没有用真实模型验收 DSH 对话自动选用技能；跨进程并发写入与断电事务恢复已在 RC3-D 落地（journal 回滚 + `.locks/` 文件锁 + 原子发布）。DSH 首版是技能工作流，尚未提供专用工具卡片或聊天内 HTML 预览。
 
 ## RC3 架构加固：共享 Generation 用例已完成（2026-09-24）
 
-项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design、TDD 与 code-review 方法推进。RC3-A、RC3-B1、视觉收敛、RC3-B2 Generation 及 RC3-C Feedback / Restore / Export 应用用例均已完成；当前重点转向 durable Project commit、跨进程锁和崩溃恢复。
+项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design、TDD 与 code-review 方法推进。RC3-A、RC3-B1、视觉收敛、RC3-B2 Generation、RC3-C Feedback / Restore / Export 应用用例与 RC3-D 存储一致性均已完成；当前重点转向 RC3-E 浏览器生命周期 Module。
 
 | 优先级 | 结论 | 当前状态 / 下一步 |
 |---|---|---|
 | P0 | 旧架构与贡献指南仍描述早期目录和门禁 | 已更新当前架构、领域词汇和真实测试命令 |
 | P1 | HTTP handler 同时承担 transport 与业务编排 | Generation、Feedback、Restore 与 Export 已迁入共享 `StudioApplication`；下一步统一 Project commit |
-| P1 | 多套文件写入规则并存，跨进程和断电事务未闭环 | 统一 durable write、Project commit、锁与崩溃恢复测试 |
+| ~~P1~~ | ~~多套文件写入规则并存，跨进程和断电事务未闭环~~（RC3-D 已解决） | 见 [RC3-D 迭代记录](docs/ITERATION-RC3-D-20260925.md) |
 | P2 | 工作台状态仍集中在大页面 | 按 Project、Generation、Revision、Export 生命周期拆分 |
 | P2 | 多个浏览器测试重复启动本地 server | 共享 pytest fixture 已完成；本轮继续增加视觉、响应式和可访问性门禁 |
 

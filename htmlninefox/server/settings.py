@@ -7,6 +7,8 @@ import os
 from pathlib import Path
 from typing import Any
 
+from .. import revisions
+
 SETTINGS_DIR = ".settings"
 AI_SETTINGS_FILE = "ai.json"
 DEFAULTS = {
@@ -59,8 +61,7 @@ class AISettingsStore:
             current["enabled"] = bool(payload.get("enabled"))
         if current["enabled"] and (not current["model"] or not current["base_url"]):
             raise ValueError("启用 AI 前需要填写模型名称和 API Base URL")
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(current, ensure_ascii=False, indent=2), encoding="utf-8")
+        revisions.atomic_write(self.path, json.dumps(current, ensure_ascii=False, indent=2))
         try:
             os.chmod(self.path, 0o600)
         except OSError:

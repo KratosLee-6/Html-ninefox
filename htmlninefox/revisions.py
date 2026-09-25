@@ -4,17 +4,23 @@ from __future__ import annotations
 
 import copy
 import json
-import os
 import re
-import tempfile
 import threading
+from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
 
+from .durable import LockBusyError, acquire_file_lock, atomic_write, release_file_lock
+
 STATE_FILE = ".foxstate.json"
+JOURNAL_FILE = ".commit-journal.json"
+LOCK_DIR = ".locks"
+LOCK_TIMEOUT_SECONDS = 15.0
 MAX_HTML_BYTES = 2 * 1024 * 1024
 _locks = [threading.RLock() for _ in range(64)]
+_lock_depth = threading.local()
+_lock_handles: dict[str, object] = {}
 
 
 class RevisionError(ValueError):
@@ -23,8 +29,48 @@ class RevisionError(ValueError):
         self.code, self.status = code, status
 
 
+def lock_file(project: Path) -> Path:
+    """Cross-process lock file, kept outside the Project directory.
+
+    Windows refuses to rename a directory that contains an open handle, so
+    rename and delete hold this sibling lock instead of an in-project file.
+    """
+    resolved = Path(project).resolve()
+    return resolved.parent / LOCK_DIR / f"{resolved.name}.lock"
+
+
+@contextmanager
 def project_lock(project):
-    return _locks[hash(str(Path(project).resolve()).casefold()) % len(_locks)]
+    """Serialize Project access in-process and across processes.
+
+    The striped RLock orders threads inside one process; the outermost holder
+    of a given project also takes the cross-process file lock so CLI and
+    server processes cannot interleave a multi-file commit.
+    """
+    resolved = Path(project).resolve()
+    key = str(resolved).casefold()
+    with _locks[hash(key) % len(_locks)]:
+        depths = getattr(_lock_depth, "depths", None)
+        if depths is None:
+            depths = {}
+            _lock_depth.depths = depths
+        if depths.get(key, 0) == 0:
+            try:
+                _lock_handles[key] = acquire_file_lock(
+                    lock_file(resolved), timeout=LOCK_TIMEOUT_SECONDS)
+            except LockBusyError as error:
+                raise RevisionError(
+                    "project_busy", "项目正被另一个进程修改，请稍后重试") from error
+        depths[key] = depths.get(key, 0) + 1
+        try:
+            yield
+        finally:
+            depths[key] -= 1
+            if depths[key] <= 0:
+                depths.pop(key, None)
+                handle = _lock_handles.pop(key, None)
+                if handle is not None:
+                    release_file_lock(handle)
 
 
 def locked_project(function):
@@ -57,20 +103,10 @@ def load_state(project: Path) -> dict:
     value = state.get("revision", 0)
     if type(value) is not int or value < 0:
         raise RevisionError("project_state_invalid", "项目版本号无效")
+    if safe_path(project, JOURNAL_FILE).is_file():
+        with project_lock(project):
+            _recover_interrupted_commit(project, state)
     return state
-
-
-def atomic_write(path: Path, body: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fd, temporary = tempfile.mkstemp(prefix=".revision-", dir=path.parent)
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8", newline="") as handle:
-            handle.write(body)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
-    finally:
-        Path(temporary).unlink(missing_ok=True)
 
 
 def _write_json(path: Path, value: dict) -> None:
@@ -143,6 +179,53 @@ def snapshot(project: Path, state: dict, html: str, *, kind="generate",
     })
 
 
+def _write_journal(project: Path, target: int, kind: str, parent: int) -> None:
+    _write_json(safe_path(project, JOURNAL_FILE), {
+        "schema_version": 1,
+        "target_revision": target,
+        "parent_revision": parent,
+        "kind": kind,
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+    })
+
+
+def _clear_journal(project: Path) -> None:
+    safe_path(project, JOURNAL_FILE).unlink(missing_ok=True)
+
+
+def _recover_interrupted_commit(project: Path, state: dict) -> None:
+    """Resolve a commit that was interrupted by a crash or kill.
+
+    The state file is the commit point: when it already names the journal's
+    target the commit finished and only the journal needs cleanup. Otherwise
+    roll back to the recorded current revision — restore ``output.html`` from
+    its snapshot and drop revision files numbered beyond current.
+    """
+    current = state.get("revision", 0)
+    journal_path = safe_path(project, JOURNAL_FILE)
+    journal = None
+    if journal_path.is_file():
+        try:
+            journal = _read_json(journal_path)
+        except RevisionError:
+            journal = None
+    if journal and journal.get("target_revision") == current:
+        _clear_journal(project)
+        return
+    snapshot_path = safe_path(project, f"revisions/rev{current}.html")
+    if snapshot_path.is_file():
+        # Read the committed bytes, never output.html: it may hold the
+        # interrupted attempt's content.
+        with snapshot_path.open(encoding="utf-8", newline="") as handle:
+            html = handle.read()
+        atomic_write(safe_path(project, "output.html"), html)
+    for number in available(project, state):
+        if number > current:
+            for extension in ("html", "json"):
+                safe_path(project, f"revisions/rev{number}.{extension}").unlink(missing_ok=True)
+    _clear_journal(project)
+
+
 def commit(project: Path, before: dict, after: dict, html: str, *, kind: str,
            restored_from=None) -> dict:
     """Append history; compensate an interrupted write without losing the old output."""
@@ -159,6 +242,7 @@ def commit(project: Path, before: dict, after: dict, html: str, *, kind: str,
     after["revision"] = max(available(project, before), default=current) + 1
     after["updated_at"] = datetime.now().isoformat(timespec="seconds")
     new_number = after["revision"]
+    _write_journal(project, new_number, kind, current)
     try:
         snapshot(project, after, html, kind=kind, parent_revision=current, restored_from=restored_from)
         atomic_write(safe_path(project, "output.html"), html)
@@ -168,7 +252,9 @@ def commit(project: Path, before: dict, after: dict, html: str, *, kind: str,
         _write_json(safe_path(project, STATE_FILE), before)
         for extension in ("html", "json"):
             safe_path(project, f"revisions/rev{new_number}.{extension}").unlink(missing_ok=True)
+        _clear_journal(project)
         raise
+    _clear_journal(project)
     return after
 
 

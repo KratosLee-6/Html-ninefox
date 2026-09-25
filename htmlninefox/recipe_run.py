@@ -10,6 +10,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
 
+from . import revisions
+
 RECIPE_RUN_FILE = "recipe-run.json"
 SCHEMA_VERSION = 1
 STAGE_DEFINITIONS = (
@@ -170,5 +172,5 @@ def verify_html(html: str) -> dict[str, Any]:
 
 def write_recipe_run(project: str | Path, run: dict[str, Any]) -> Path:
     target = Path(project) / RECIPE_RUN_FILE
-    target.write_text(json.dumps(run, ensure_ascii=False, indent=2), encoding="utf-8")
+    revisions.atomic_write(target, json.dumps(run, ensure_ascii=False, indent=2))
     return target

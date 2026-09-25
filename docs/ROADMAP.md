@@ -8,7 +8,9 @@
 
 > 工程审计（2026-09-20）：已按 `mattpocock/skills` 的 research、domain-modeling、codebase-design 与 code-review 方法完成全仓审计。当前优先级从继续堆叠功能调整为 RC3 架构加固：先统一文档与真实门禁，再建立应用用例 seam、Project commit 和前端业务 Module。详见[审计报告](AUDIT-MATTPOCOCK-20260920.md)与[RC3 计划](ITERATION-PLAN-POST-RC2-20260920.md)。
 
-> `main` 后续增量（2026-09-24）：RC3-C 已完成 Generation、Feedback、Restore 与 Export 共享应用用例。CLI 新增 Restore，HTTP Handler 不再直接编排对应业务步骤；完整本地门禁为 221 通过、1 跳过，Chromium 22/22，DSH 2/2。详见 [RC3-C 记录](ITERATION-RC3-C-20260924.md) 和 [v0.5.0 正式版计划](PLAN-v0.5.0-STABLE-20260924.md)。
+> `main` 后续增量（2026-09-24）：RC3-C 已完成 Generation、Feedback、Restore 与 Export 共享应用用例。CLI 新增 Restore，HTTP Handler 不再直接编排对应业务步骤。详见 [RC3-C 记录](ITERATION-RC3-C-20260924.md) 和 [v0.5.0 正式版计划](PLAN-v0.5.0-STABLE-20260924.md)。
+>
+> 2026-09-25：RC3-D 已完成统一 durable write、Project commit journal、跨进程文件锁与崩溃恢复；生成改为临时目录 + rename 原子发布，跨进程冲突返回稳定 `project_busy`。本地门禁 234 通过、1 跳过（含 12 个 durability 测试）。详见 [RC3-D 记录](ITERATION-RC3-D-20260925.md)。
 
 > 动效继续沿用[动效执行方案 v0.5](MOTION-PLAN-v0.5.md)和现有原生 CSS/WAAPI 路线。Anime.js 仅在真实生成时间线出现明确编排收益，并同时通过离线打包、取消、减少动效与帧预算验证时再引入；Motion Sites、Showreel Design、React Bits、Aceternity UI 与 Uiverse 作为交互规律或局部源码参考。
 
@@ -167,7 +169,7 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 - [x] RC3 视觉基础切片：收敛工作台层级、响应式任务视图、语义缩放、组件状态、本地 SVG Icon 与截图证据。详见 [视觉收敛记录](ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
 - [x] RC3-B2：选择 `StudioApplication`，完成 CLI / HTTP / Job / DSH 共用 Generation use case。详见 [迭代记录](ITERATION-RC3-B2-20260924.md)。
 - [x] RC3-C：完成 Feedback / Restore / Export request-result，新增 CLI Restore，并收窄 HTTP Adapter。详见 [迭代记录](ITERATION-RC3-C-20260924.md)。
-- [ ] RC3-D：统一 durable write、Project commit、跨进程锁和崩溃恢复。
+- [x] RC3-D：统一 durable write、Project commit、跨进程锁和崩溃恢复。详见 [迭代记录](ITERATION-RC3-D-20260925.md)。
 - [ ] RC3-E：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module。
 - 动效继续作为生命周期反馈迭代，保持可取消、三档偏好和帧性能门禁。
 
@@ -278,7 +280,7 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 ## 9. 当前主要风险
 
 - **HTTP Adapter 继续膨胀**：`server/app.py` 同时承担 transport、错误映射和业务编排，新增能力容易产生 Divergent Change。
-- **项目多文件写入没有统一事务边界**：跨进程并发和断电时仍可能出现状态文件不一致。
+- ~~**项目多文件写入没有统一事务边界**~~（RC3-D 已解决：journal 回滚 + 跨进程锁 + 原子发布）。
 - **领域状态依赖松散字典**：生成、反馈、恢复和导出跨 Module 传递大量字典，字段组合难以验证。
 - **浏览器状态仍集中在大页面**：项目、生成、Revision、Export 与动效生命周期相互交叉。
 - **本地 HTTP 服务不是云产品**：iOS/小程序必须通过 HTTPS 云端或局域网安全网关访问。
@@ -286,8 +288,7 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 
 ## 10. 下一步执行顺序
 
-1. **RC3-D**：统一 durable write、Project commit、跨进程锁与崩溃恢复测试。
-2. **RC3-E**：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module，并在已完成的视觉基础上继续执行真实状态截图、减少动效和帧预算门禁。
+1. **RC3-E**：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module，并在已完成的视觉基础上继续执行真实状态截图、减少动效和帧预算门禁。
 3. 达成 RC3 退出条件后，再进入 v0.6 Tauri sidecar、可编辑 PPTX / DOCX 和桌面系统集成。
 
 工程任务使用 GitHub Issues 跟踪，配置见 [`docs/agents/`](agents/)。完整验收和阶段边界见 [RC3 架构加固计划](ITERATION-PLAN-POST-RC2-20260920.md)。

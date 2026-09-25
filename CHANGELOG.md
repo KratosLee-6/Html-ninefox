@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A tracked v0.5.0 delivery map with RC3-C, durable Project commits, browser lifecycle Modules, and final release gates.
 - Shared `FeedbackRequest / FeedbackResult`, `RestoreRequest / RevisionResult`, and `ExportRequest / ExportResult` application Interfaces.
 - A `htmlninefox restore` CLI command with expected-Revision conflict protection.
+- A `durable` module with the single atomic-write primitive (fsync, retry-on-Windows-replace) and a cross-process file lock (msvcrt/flock, bounded timeout).
+- A prepare/commit/recover journal for Project commits: interrupted writes roll back deterministically on the next `load_state`, and phantom revisions never enter history.
+- A stable `project_busy` 409 error when another process holds a Project lock.
+- Crash-safe generation publication: `run_expert` stages in a dot-prefixed `.gen-` directory and publishes by rename.
 
 ### Changed
 
@@ -25,11 +29,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - HTTP generation handlers now translate transport data and serialize results; attachment-only Jobs validate through the shared application seam.
 - DeepSeek Harness documents and tests Generation, Feedback, Restore, and Export mappings, including `--expected-revision`.
 - CLI and HTTP Feedback, Restore, and Export now delegate business orchestration to `StudioApplication` while preserving HTTP v1 and Revision behavior.
+- Every Project-rooted writer (ProjectStore JSON, Project Memory, AI settings, Recipe Run, generation artifacts, `.foxstate.json`) now goes through the shared fsync-backed atomic write.
+- Project rename, duplicate, and delete now run under the source Project lock, turning cross-process collisions into stable `project_busy` responses.
+
+### Fixed
+
+- `StudioApplication.restore()` now holds the per-project lock again; the RC3-C HTTP migration had bypassed `ProjectStore.restore_revision()`, letting concurrent restores of one project pass the revision-conflict check together on the threaded server. Regression-covered by a concurrent-restore test.
 
 ### Verified
 
-- Full local suite: `221 passed, 1 skipped`.
-- Generation, Feedback, Restore, and Export seams: `20 passed`; Chromium acceptance: `22/22`; DeepSeek Harness: `2/2`.
+- Full local suite: `234 passed, 1 skipped` (12 new durability tests).
+- Generation, Feedback, Restore, and Export seams: `20 passed`; Chromium acceptance: restore/interaction suites pass; DeepSeek Harness: `2/2`.
 
 ---
 

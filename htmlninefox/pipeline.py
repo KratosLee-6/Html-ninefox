@@ -10,10 +10,12 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import time
+import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 from . import recipe_run, revisions
 from .alliance.router import AllianceRouter
@@ -117,13 +119,51 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
     out_dir = Path(output).expanduser().resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y-%m-%d-%H%M%S")
-    work = out_dir / f"html9n-{ts}"
-    suffix = 1
-    while work.exists():
-        suffix += 1
-        work = out_dir / f"html9n-{ts}-{suffix}"
-    work.mkdir(parents=True)
+    # Generate inside a dot-prefixed staging dir and publish by rename, so a
+    # crash never leaves a half-written project visible in the workbench.
+    project_name = _next_project_name(out_dir, ts)
+    staging = out_dir / f".gen-{uuid.uuid4().hex}"
+    staging.mkdir(parents=True)
+    published = False
+    try:
+        result = _run_expert_into(staging, project_name, ts, prompt, skill, template, intent_override,
+                                  quiet_llm, style_overrides, composition, memory_context,
+                                  progress_callback,
+                                  lambda final: _publish_project(out_dir, project_name, final))
+        published = True
+        return result
+    finally:
+        if not published:
+            shutil.rmtree(staging, ignore_errors=True)
 
+
+def _next_project_name(out_dir: Path, ts: str) -> str:
+    name = f"html9n-{ts}"
+    suffix = 1
+    while (out_dir / name).exists():
+        suffix += 1
+        name = f"html9n-{ts}-{suffix}"
+    return name
+
+
+def _publish_project(out_dir: Path, name: str, staging: Path) -> Path:
+    target = out_dir / name
+    if target.exists():
+        target = out_dir / _next_project_name(out_dir, name)
+    staging.rename(target)
+    return target
+
+
+def _run_expert_into(work: Path, project_name: str, ts: str, prompt: str, skill: Optional[str] = None,
+                     template: Optional[str] = None,
+                     intent_override: Optional[str] = None,
+                     quiet_llm: bool = False,
+                     style_overrides: Optional[Dict[str, Any]] = None,
+                     composition: Optional[Dict[str, Any]] = None,
+                     memory_context: Optional[Dict[str, Any]] = None,
+                     progress_callback: recipe_run.ProgressCallback | None = None,
+                     publish: Optional[Callable[[Path], Path]] = None) -> Dict[str, Any]:
+    """Run the observable five-stage generation pipeline."""
     tracker = recipe_run.RecipeRunTracker(prompt, progress_callback)
     active_stage = "analyze"
     router = AllianceRouter()
@@ -222,14 +262,14 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
         tracker.complete("verify", verification, model="html-quality-gate", fallback_used=False)
 
         active_stage = "deliver"
-        tracker.start("deliver", {"output_root": str(out_dir), "project_name": work.name})
+        tracker.start("deliver", {"output_root": str(work.parent), "project_name": project_name})
         revisions.atomic_write(work / "output.html", html)
-        (work / "brief.json").write_text(
-            json.dumps(brief_result, ensure_ascii=False, indent=2), encoding="utf-8")
-        (work / "brief.md").write_text(_brief_to_md(brief_result.get("brief", {})), encoding="utf-8")
-        (work / "style.md").write_text(style_result.get("style_md", ""), encoding="utf-8")
-        (work / "assets.json").write_text(
-            json.dumps(assets_result, ensure_ascii=False, indent=2), encoding="utf-8")
+        revisions.atomic_write(work / "brief.json",
+                               json.dumps(brief_result, ensure_ascii=False, indent=2))
+        revisions.atomic_write(work / "brief.md", _brief_to_md(brief_result.get("brief", {})))
+        revisions.atomic_write(work / "style.md", style_result.get("style_md", ""))
+        revisions.atomic_write(work / "assets.json",
+                               json.dumps(assets_result, ensure_ascii=False, indent=2))
 
         state = {
             "version": "v0.3",
@@ -248,17 +288,19 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
             "recipe_run": tracker.snapshot(),
             "memory_applied": memory_context or {"enabled": False, "applied": [], "covered": []},
         }
-        (work / STATE_FILE).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+        revisions.atomic_write(work / STATE_FILE, json.dumps(state, ensure_ascii=False, indent=2))
         tracker.complete("deliver", {
-            "project_name": work.name,
+            "project_name": project_name,
             "files": 9,
             "preview": "output.html",
         }, model="local-filesystem", fallback_used=False)
         run = tracker.succeed()
         state["recipe_run"] = run
-        (work / STATE_FILE).write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+        revisions.atomic_write(work / STATE_FILE, json.dumps(state, ensure_ascii=False, indent=2))
         revisions.snapshot(work, state, html)
         recipe_run.write_recipe_run(work, run)
+        if publish is not None:
+            work = publish(work)
     except Exception as error:
         if tracker.run.get("status") != "failed":
             tracker.fail(active_stage, error)
