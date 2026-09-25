@@ -14,7 +14,7 @@ explain that this plugin does not include the Python application. The maintained
 source install is:
 
 ```sh
-python -m pip install "git+https://github.com/KratosLee-6/Html-ninefox.git@d8c1694e77156032116bef3830009597f5289afd"
+python -m pip install "git+https://github.com/KratosLee-6/Html-ninefox.git@v0.5.0"
 ```
 
 Use an existing suitable environment, or a project virtual environment. Respect

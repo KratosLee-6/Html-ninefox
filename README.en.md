@@ -182,7 +182,7 @@ htmlninefox export ./output/ACTUAL-PROJECT --format png --scope pages --pages 1-
 
 ## Testing & Trust Evidence
 
-The `v0.5.0rc3` release candidate was verified locally on **September 24, 2026**; `v0.4.2` remains the stable release.
+The stable `v0.5.0` was verified locally on **September 25, 2026** (full gates plus a real system Edge run) and released with installable packages for Windows, Linux, and Python.
 
 | Check | Result | Evidence |
 |---|---:|---|
