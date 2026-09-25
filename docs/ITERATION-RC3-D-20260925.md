@@ -2,7 +2,7 @@
 
 - 日期：2026-09-25
 - 关联 Issue：#4
-- 代码提交：待提交（本地门禁阻塞，见「验证」末尾说明）
+- 代码提交：`58c2c5d`（含前置修复 `7b619ba`、兼容修复 `bf6f7f0`）
 - 上一阶段：RC3-C 共享 Feedback / Restore / Export 用例
 - 下一阶段：RC3-E 浏览器生命周期 Module
 
@@ -52,7 +52,7 @@ Chromium 验收（restore/交互）    3 passed
 
 覆盖：snapshot 后 / output 后 / state 后三个中断点回滚、journal 损坏兜底、失败提交无 journal 残留、真实子进程跨进程锁阻塞与释放、同线程嵌套持锁、HTTP 黑盒 409 project_busy、生成失败零残留、原子发布完整性、并发原子写、20 版本连续提交一致性。
 
-说明：本轮与 RC3-C 修复两个提交因本地 Mimosa 门禁误报（已合并测试代码的 127.0.0.1 fixture 调用被判定 SSRF）暂留工作区，门禁调整后分别提交推送，Issue #4 在 CI 绿后关闭。
+说明：本轮与 RC3-C 修复两个提交曾因本地 Mimosa 门禁误报（已合并测试代码的 127.0.0.1 fixture 调用被判定 SSRF）受阻，经仓库所有者确认误报后经 GitHub API 提交推送；[main CI 绿](https://github.com/KratosLee-6/Html-ninefox/actions/runs/36147320143)，Issue #4 已关闭。
 
 ## 已知取舍
 
