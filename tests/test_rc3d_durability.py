@@ -22,8 +22,15 @@ def revisioned_project(tmp_path: Path) -> tuple[Path, str]:
     work = pipeline.run_expert(
         "做一个产品介绍落地页", output=str(tmp_path), quiet_llm=True)["work"]
     pipeline.run_feedback(str(work), "颜色再深一点", allow_llm=False)
-    committed = (work / "revisions" / "rev1.html").read_bytes()
-    return work, committed.decode("utf-8")
+    committed = _read_exact(work / "revisions" / "rev1.html")
+    return work, committed
+
+
+def _read_exact(path: Path) -> str:
+    """Read text without newline translation; Path.read_text gained
+    newline= only in Python 3.13 and CI runs 3.12."""
+    with path.open(encoding="utf-8", newline="") as handle:
+        return handle.read()
 
 
 def _simulate_interrupted_commit(work: Path, *, replace_output: bool) -> str:
@@ -52,7 +59,7 @@ def test_interrupted_after_snapshot_rolls_back_on_next_load(tmp_path: Path) -> N
     assert not (work / "revisions" / "rev2.html").exists()
     assert not (work / "revisions" / "rev2.json").exists()
     assert not (work / revisions.JOURNAL_FILE).exists()
-    assert (work / "output.html").read_text(encoding="utf-8", newline="") == committed
+    assert _read_exact(work / "output.html") == committed
     assert [item["revision"] for item in revisions.history(work)] == [0, 1]
 
 
@@ -64,7 +71,7 @@ def test_interrupted_after_output_rolls_back_on_next_load(tmp_path: Path) -> Non
     state = revisions.load_state(work)
 
     assert state["revision"] == 1
-    assert (work / "output.html").read_text(encoding="utf-8", newline="") == committed
+    assert _read_exact(work / "output.html") == committed
     assert not (work / revisions.JOURNAL_FILE).exists()
     assert [item["revision"] for item in revisions.history(work)] == [0, 1]
 
@@ -97,7 +104,7 @@ def test_corrupt_journal_still_rolls_back_by_revision_number(tmp_path: Path) -> 
     state = revisions.load_state(work)
 
     assert state["revision"] == 1
-    assert (work / "output.html").read_text(encoding="utf-8", newline="") == committed
+    assert _read_exact(work / "output.html") == committed
     assert not (work / revisions.JOURNAL_FILE).exists()
 
 
