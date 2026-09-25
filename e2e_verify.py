@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import shutil
 import sys
 import threading
@@ -70,8 +71,11 @@ async def main():
 
     # ---------- 3. Playwright 截图 ----------
     from playwright.async_api import async_playwright
+    # HTMLNINEFOX_E2E_CHANNEL=msedge validates the real system Edge engine
+    # (WebView2-equivalent) instead of the bundled Chromium.
+    channel = os.environ.get("HTMLNINEFOX_E2E_CHANNEL") or None
     async with async_playwright() as p:
-        browser = await p.chromium.launch()
+        browser = await p.chromium.launch(channel=channel)
 
         for intent, _ in PROMPTS:
             page = await browser.new_page(viewport={"width": 1440, "height": 900})
