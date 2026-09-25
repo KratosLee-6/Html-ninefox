@@ -529,11 +529,12 @@ class StudioApplication:
             raise RestoreError("project_required", "请选择需要恢复的项目")
         project = request.project.expanduser().resolve()
         try:
-            state = self.dependencies.restore_revision(
-                project,
-                request.revision,
-                request.expected_revision,
-            )
+            with revisions.project_lock(project):
+                state = self.dependencies.restore_revision(
+                    project,
+                    request.revision,
+                    request.expected_revision,
+                )
             revision = state.get("revision")
             if type(revision) is not int or type(request.revision) is not int:
                 raise RestoreError("restore_failed", "版本恢复失败")
