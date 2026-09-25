@@ -109,6 +109,10 @@ node --check htmlninefox/server/static/workbench-features.js
 node --check htmlninefox/server/static/workbench-ui.js
 node --check htmlninefox/server/static/motion-system.js
 node --check htmlninefox/server/static/interaction-system.js
+node --check htmlninefox/server/static/lifecycle-projects.js
+node --check htmlninefox/server/static/lifecycle-generation.js
+node --check htmlninefox/server/static/lifecycle-revisions.js
+node --check htmlninefox/server/static/lifecycle-exports.js
 node --check htmlninefox/server/static/sw.js
 ```
 

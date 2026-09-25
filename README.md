@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-234%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-D-20260925.md)
+[![Tests](https://img.shields.io/badge/pytest-238%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-E-20260925.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -51,8 +51,8 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
 | 应用 Release | `v0.5.0rc3` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
-| `main` 最新增量 | RC3-D 已完成：统一 durable write、Project commit journal、跨进程文件锁与崩溃恢复；生成改为临时目录 + rename 原子发布 | [RC3-D 记录](docs/ITERATION-RC3-D-20260925.md) · [架构](docs/ARCHITECTURE.md) |
-| RC3-D 存储一致性复验 | `234 passed, 1 skipped`（含 12 个 durability 测试）；restore/交互 Chromium 验收通过；跨进程锁与崩溃回滚有真实子进程与黑盒 HTTP 证据 | [本轮记录](docs/ITERATION-RC3-D-20260925.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
+| `main` 最新增量 | RC3-E 已完成：Project / Generation / Revision / Export 四个浏览器生命周期 Module（私有状态 + 命名空间 API），生成取消与导出竞态守卫 | [RC3-E 记录](docs/ITERATION-RC3-E-20260925.md) · [架构](docs/ARCHITECTURE.md) |
+| RC3-E 生命周期复验 | `238 passed, 1 skipped`（含 4 个 lifecycle 测试）；Chromium e2e `22/22`；取消流有确定性路由注入证据与真实截图 | [本轮记录](docs/ITERATION-RC3-E-20260925.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 ### RC3 视觉与交互收敛（2026-09-24）
@@ -122,7 +122,7 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 
 | 验证 | 结果 | 证据 |
 |---|---:|---|
-| 当前分支本地全量 Python / HTTP / Chromium | **234 passed，1 skipped，118.07 秒** | [RC3-D 迭代记录](docs/ITERATION-RC3-D-20260925.md) |
+| 当前分支本地全量 Python / HTTP / Chromium | **238 passed，1 skipped，139.96 秒** | [RC3-E 迭代记录](docs/ITERATION-RC3-E-20260925.md) |
 | Generation / Feedback / Restore / Export request-result 与 Adapter 契约 | **20 passed** | [同一记录](docs/ITERATION-RC3-C-20260924.md) |
 | `main` GitHub CI | **以最新 Actions 为准** | [查看 main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md) |

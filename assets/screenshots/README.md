@@ -12,7 +12,7 @@
 | 0.5.0rc3/ | Chromium 发布验收生成的纸白、夜蓝与 Export Center 截图 |
 | `v0.5.0rc3-visual/` | `v0.5.0rc3` 的响应式、组件状态与恢复/错误证据 |
 
-## RC3 视觉证据（14 张）
+## RC3 视觉证据（15 张）
 
 ### 布局、主题与响应式
 
@@ -33,8 +33,9 @@
 - `export-center-ready.png`
 - `export-analysis-error.png`
 - `revision-restore-complete.png`
+- `generation-cancel.png`
 
-这些截图覆盖默认、选中、搜索、保存成功、生成完成、导出就绪、受控错误和恢复完成等可观察状态。完整说明见 [RC3 视觉收敛记录](../../docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
+这些截图覆盖默认、选中、搜索、保存成功、生成完成、导出就绪、受控错误、恢复完成和取消等待等可观察状态。完整说明见 [RC3 视觉收敛记录](../../docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
 
 ## 命名与拍摄要求
 
@@ -47,7 +48,7 @@
 
 ## 可复现采集
 
-`tests/test_rc3_visual_evidence_states.py` 通过真实工作台路径生成命令搜索、Project Memory 保存、Export 分析错误和 Revision Restore 完成状态。默认测试使用临时目录；需要重新生成仓库证据时，可将 `HTMLNINEFOX_RC3_EVIDENCE_DIR` 指向：
+`tests/test_rc3_visual_evidence_states.py` 通过真实工作台路径生成命令搜索、Project Memory 保存、Export 分析错误和 Revision Restore 完成状态。`tests/test_rc3e_lifecycle_modules.py` 追加生成取消等待状态（`generation-cancel.png`）。默认测试使用临时目录；需要重新生成仓库证据时，可将 `HTMLNINEFOX_RC3_EVIDENCE_DIR` 指向：
 
 ```text
 assets/screenshots/v0.5.0rc3-visual

@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-234%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-D-20260925.md)
+[![Tests](https://img.shields.io/badge/pytest-238%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-E-20260925.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -49,8 +49,8 @@ The application version remains `0.5.0rc3`, published under the installable prer
 | Track | Current state | Evidence |
 |---|---|---|
 | Application release | `v0.5.0rc3` prerelease, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
-| RC3 application increment | RC3-D storage consistency is complete: one durable write primitive, commit journal with crash rollback, cross-process `.locks/` file locking, and atomic generation publication | [RC3-D record](docs/ITERATION-RC3-D-20260925.md) · [architecture](docs/ARCHITECTURE.md) |
-| Current local verification | `234 passed, 1 skipped` including 12 durability tests; restore and interaction Chromium suites pass with real subprocess lock evidence | [RC3-D record](docs/ITERATION-RC3-D-20260925.md) |
+| RC3 application increment | RC3-E isolates Project, Generation, Revision, and Export into browser lifecycle modules with private state and namespace APIs, plus generation cancel and export race guards | [RC3-E record](docs/ITERATION-RC3-E-20260925.md) · [architecture](docs/ARCHITECTURE.md) |
+| Current local verification | `238 passed, 1 skipped` including 4 lifecycle tests; Chromium e2e `22/22`; cancel flow covered by deterministic route injection and a real screenshot | [RC3-E record](docs/ITERATION-RC3-E-20260925.md) |
 | DeepSeek Harness plugin | Separately versioned `0.1.0-preview.1` | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 ### RC3 visual and interaction convergence
@@ -186,7 +186,7 @@ The `v0.5.0rc3` release candidate was verified locally on **September 24, 2026**
 
 | Check | Result | Evidence |
 |---|---:|---|
-| Full Python / API / storage / security / browser suite | **234 passed, 1 skipped** | [RC3-D record](docs/ITERATION-RC3-D-20260925.md) |
+| Full Python / API / storage / security / browser suite | **238 passed, 1 skipped** | [RC3-E record](docs/ITERATION-RC3-E-20260925.md) |
 | Generation, Feedback, Restore, and Export application seams | **20 passed** | [RC3-C record](docs/ITERATION-RC3-C-20260924.md) |
 | Focused command, memory, error, recovery, motion, interaction, revision, and export suite | **20 passed** | [reproducible Playwright gate](tests/test_rc3_visual_evidence_states.py) |
 | Inline and standalone JavaScript syntax | **Passed** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
@@ -214,6 +214,7 @@ htmlninefox --help
 - [RC3-B2 shared Generation use case](docs/ITERATION-RC3-B2-20260924.md)
 - [RC3-C shared Feedback, Restore, and Export use cases](docs/ITERATION-RC3-C-20260924.md)
 - [RC3-D crash-recoverable commits and process locking](docs/ITERATION-RC3-D-20260925.md)
+- [RC3-E isolated workbench lifecycle modules](docs/ITERATION-RC3-E-20260925.md)
 - [v0.5.0 stable delivery plan](docs/PLAN-v0.5.0-STABLE-20260924.md)
 - [Examples](docs/EXAMPLES.md)
 - [Roadmap](docs/ROADMAP.md)

@@ -618,6 +618,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <button class="btn btn-ghost mobile-only mobile-inspector-toggle" onclick="toggleMobilePanel('inspector')" aria-controls="inspector" aria-expanded="false" aria-label="打开检查器"><span class="ui-icon" data-icon="inspector" aria-hidden="true"></span><span>检查</span></button>
       <button class="btn btn-secondary" id="btn-create" onclick="openCreatePanel()" aria-label="输入需求与素材"><span class="ui-icon" data-icon="plus" aria-hidden="true"></span><span class="creation-label">输入需求</span></button>
       <button class="btn btn-primary" id="btn-go" onclick="advanceActive()" aria-label="推进当前工作区"><span class="ui-icon" data-icon="play" aria-hidden="true"></span><span class="btn-label-long">推进当前工作区</span><span class="btn-label-short">推进</span></button>
+      <button class="btn btn-danger-ghost" id="btn-cancel-gen" onclick="cancelGeneration()" hidden aria-label="取消当前生成">✕ 取消生成</button>
     </div>
   </header>
 
@@ -801,6 +802,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <script src="/canvas-engine.js"></script>
 <script src="/motion-system.js"></script>
 <script src="/interaction-system.js"></script>
+<script src="/lifecycle-projects.js"></script>
+<script src="/lifecycle-generation.js"></script>
+<script src="/lifecycle-revisions.js"></script>
+<script src="/lifecycle-exports.js"></script>
 <script>
 /* ============================================================
    迷你线框预览（全可视化素材的核心：图形优先，文字最少）
@@ -1264,7 +1269,7 @@ function renderNode(n) {
   }
   nodesEl.appendChild(el);
   if (allowNodeEnter) animateNode(el, 'node-enter', 'fox-node-enter');
-  applyGenBadge(el, n);   /* G5：生成中的节点重渲染后要恢复进度环 */
+  window.FoxGeneration?.renderBadge(el, n);   /* G5：生成中的节点重渲染后要恢复进度环（经模块 API） */
   scheduleGroupRender();  /* G7：节点重建后容器包围盒要跟上 */
   if (n.kind === 'file' || n.kind === 'output') {
     const f = el.querySelector('iframe');
@@ -1599,220 +1604,44 @@ function membersOf(ws, options = {}) {
   });
 }
 
-/* ================= G5 · 生成中进度环 ================= */
-/* 真实进度来自 waitForJob 的 job.progress，不做假进度；完成 200ms 收敛，失败走陶土橙 #E57A3F。 */
-const generatingNodes = new Map();   /* nodeId -> { pct:number|null, status:'running'|'failed' } */
-const generationCleanups = new Map();
-function cancelGenerationCleanup(nodeId) {
-  generationCleanups.get(nodeId)?.();
-  generationCleanups.delete(nodeId);
-}
-function applyGenBadge(el, n) {
-  const state = generatingNodes.get(n.id);
-  if (!state) return;
-  el.classList.toggle('is-generating', state.status === 'running');
-  el.classList.toggle('is-gen-failed', state.status === 'failed');
-  const headEl = el.querySelector('.node-head');
-  if (!headEl) return;
-  let ring = headEl.querySelector('[data-gen-ring]');
-  if (!ring) {
-    ring = document.createElement('span');
-    ring.className = 'gen-ring';
-    ring.setAttribute('data-gen-ring', '');
-    ring.innerHTML = '<svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">'
-      + '<circle class="gen-ring-track" cx="10" cy="10" r="8" pathLength="1"></circle>'
-      + '<circle class="gen-ring-bar" cx="10" cy="10" r="8" pathLength="1"></circle></svg>'
-      + '<b class="gen-ring-pct"></b>';
-    headEl.appendChild(ring);
-  }
-  const bar = ring.querySelector('.gen-ring-bar');
-  const label = ring.querySelector('.gen-ring-pct');
-  if (state.status === 'failed') {
-    ring.dataset.mode = 'failed';
-    bar.style.strokeDasharray = '1';
-    bar.style.strokeDashoffset = '0';
-    label.textContent = '失败';
-    return;
-  }
-  if (state.pct == null) {
-    ring.dataset.mode = 'spin';
-    bar.style.strokeDasharray = '.25 1';
-    bar.style.strokeDashoffset = '0';
-    label.textContent = '…';
-    return;
-  }
-  ring.dataset.mode = 'progress';
-  const pct = Math.max(0, Math.min(100, Math.round(Number(state.pct) || 0)));
-  bar.style.strokeDasharray = '1';
-  bar.style.strokeDashoffset = String(1 - pct / 100);
-  label.textContent = pct + '%';
-}
-function markNodeGenerating(nodeId, pct = null) {
-  cancelGenerationCleanup(nodeId);
-  const el = document.getElementById('node-' + nodeId);
-  const node = nodes.find(item => item.id === nodeId);
-  if (!el || !node || !el.querySelector('.node-head')) return;   /* 没有标题栏的节点（工作区）不挂进度环 */
-  generatingNodes.set(nodeId, { pct, status:'running' });
-  el.classList.remove('is-gen-failed', 'is-gen-done');
-  el.classList.add('is-generating');
-  applyGenBadge(el, node);
-}
-function finishNodeGenerating(nodeId, failed = false) {
-  cancelGenerationCleanup(nodeId);
-  const el = document.getElementById('node-' + nodeId);
-  const node = nodes.find(item => item.id === nodeId);
-  if (!el || !node) { generatingNodes.delete(nodeId); return; }
-  if (failed) {
-    const failedState = { pct:null, status:'failed' };
-    generatingNodes.set(nodeId, failedState);
-    applyGenBadge(el, node);
-    el.classList.remove('is-generating');
-    el.classList.add('is-gen-failed');
-    const timer = setTimeout(() => {
-      generationCleanups.delete(nodeId);
-      if (generatingNodes.get(nodeId) !== failedState) return;
-      generatingNodes.delete(nodeId);
-      const current = document.getElementById('node-' + nodeId);
-      current?.querySelector('[data-gen-ring]')?.remove();
-      current?.classList.remove('is-gen-failed');
-    }, 2600);
-    generationCleanups.set(nodeId, () => clearTimeout(timer));
-    return;
-  }
-  const ring = el.querySelector('[data-gen-ring]');
-  generatingNodes.delete(nodeId);
-  el.classList.remove('is-generating');
-  el.classList.add('is-gen-done');
-  let timer;
-  const dispose = () => { clearTimeout(timer); ring?.removeEventListener('animationend', onEnd); };
-  const cleanup = () => {
-    dispose(); generationCleanups.delete(nodeId);
-    if (generatingNodes.has(nodeId)) return;
-    document.getElementById('node-' + nodeId)?.querySelector('[data-gen-ring]')?.remove();
-    document.getElementById('node-' + nodeId)?.classList.remove('is-gen-done');
-  };
-  const onEnd = event => { if (event.target === ring && event.animationName === 'fox-gen-done') cleanup(); };
-  if (ring && window.FoxMotion?.enabled()) {
-    ring.addEventListener('animationend', onEnd);
-    timer = setTimeout(cleanup, 400);
-    generationCleanups.set(nodeId, dispose);
-  } else cleanup();
-}
+/* ================= 生命周期全局入口（委托到 Fox* Module） =================
+ * onclick 与浏览器测试锚点依赖这些全局名；实现与内部状态都在 lifecycle-*.js。
+ * 画布/检查器与各生命周期域之间只通过 window.Fox* API 协作。 */
+function loadProjects() { return window.FoxProjects.load(); }
+function openOutput(id) { return window.FoxProjects.open(id); }
+function renameProject(id) { return window.FoxProjects.rename(id); }
+function duplicateProject(id) { return window.FoxProjects.duplicate(id); }
+function deleteProject(id) { return window.FoxProjects.trash(id); }
+function updateProjectNodes(oldName, project) { return window.FoxProjects.updateNodes(oldName, project); }
+function advanceActive() { return window.FoxGeneration.advanceActive(); }
+function advanceWs(wsId, options) { return window.FoxGeneration.advance(wsId, options); }
+function rerunRecipeStage(nodeId, stage) { return window.FoxGeneration.rerun(nodeId, stage); }
+function markNodeGenerating(nodeId, pct) { return window.FoxGeneration.mark(nodeId, pct); }
+function createJobProgressReporter(label) { return window.FoxGeneration.progressReporter(label); }
+function finishNodeGenerating(nodeId, failed) { return window.FoxGeneration.finish(nodeId, failed); }
+function cancelGeneration() { return window.FoxGeneration.cancelActive(); }
+function openRevisionDiff(nodeId) { return window.FoxRevisions.open(nodeId); }
+function closeRevisionDiff() { return window.FoxRevisions.close(); }
+function loadRevisionDiff(initial) { return window.FoxRevisions.load(initial); }
+function selectRevision(revision) { return window.FoxRevisions.select(revision); }
+function updateRevisionSelection() { return window.FoxRevisions.updateSelection(); }
+function saveRevisionLabel() { return window.FoxRevisions.saveLabel(); }
+function restoreSelectedRevision() { return window.FoxRevisions.restore(); }
+function sendFeedback(n) { return window.FoxRevisions.sendFeedback(n); }
+function openExportCenter(nodeId) { return window.FoxExports.open(nodeId); }
+function closeExportCenter() { return window.FoxExports.close(); }
+function syncExportOptions() { return window.FoxExports.syncOptions(); }
+function startExport() { return window.FoxExports.start(); }
+function createDiagnostic() { return window.FoxExports.diagnostic(); }
 
+/* 画布孤儿节点清理：经生成模块 API 清进度态，不读模块内部变量。 */
 new MutationObserver(() => {
-  for (const id of new Set([...generatingNodes.keys(), ...generationCleanups.keys()])) {
-    if (!nodes.some(node => node.id === id)) { cancelGenerationCleanup(id); generatingNodes.delete(id); }
+  const gen = window.FoxGeneration;
+  if (!gen) return;
+  for (const id of new Set([...gen.generatingNodes.keys(), ...gen.generationCleanups.keys()])) {
+    if (!nodes.some(node => node.id === id)) { gen.cancelCleanup(id); gen.generatingNodes.delete(id); }
   }
 }).observe(nodesEl, {childList:true});
-
-/* ================= 推进流水线（拆解 → 组合 → 生成） ================= */
-async function advanceActive() {
-  const ws = activeWorkspace();
-  if (!ws) return flash('画布上还没有工作区 — 点 HUD 的 ▣ 新建', false);
-  return advanceWs(ws.id);
-}
-async function advanceWs(wsId, options = {}) {
-  const ws = nodes.find(n => n.id === wsId);
-  if (!ws) return;
-  activeWorkspaceId = ws.id; renderWorkspaceNavigator(); timeline();
-  const members = membersOf(ws);
-  const req = members.find(n => n.kind === 'requirement') || members.find(n => n.kind === 'note');
-  const btn = document.getElementById('ws-go-' + wsId);
-  const inputIds = Array.isArray(req?.data?.input_ids) ? req.data.input_ids : [];
-  if (!req || (!(req.data.text || '').trim() && !inputIds.length)) {
-    return flash('请先点顶部“输入需求”，填写文字或添加文件/图片', false);
-  }
-  const primaryButton = document.getElementById('btn-go');
-  window.FoxInteraction?.setBusy(btn, true, '推进中…');
-  window.FoxInteraction?.setBusy(primaryButton, true, '推进中…');
-  try {
-    /* 阶段 1 · 需求拆解 */
-    setAn(req, `<span class="spin">拆解中…</span>`);
-    markNodeGenerating(req.id, null);   /* G5：拆解阶段没有真实百分比 → 不定进度环 */
-    const analyzePayload = { prompt:req.data.text || '', inputs:inputIds };
-    const an = options.analysis || await post('/api/analyze', analyzePayload);
-    req.data.analysis = an;
-    setAn(req, anChips(an));
-    flash(`拆解 ✓ ${INTENT_LABEL[an.intent]} · 风格 ${an.preset_id} · ${an.engine === 'llm' ? 'AI' : '规则'} · 置信度 ${an.confidence}`, true);
-
-    /* 阶段 2 · 读取用户实际组合 */
-    const tplNode = members.find(n => n.kind === 'template');
-    let intent = (tplNode && tplNode.data.intent) || an.intent;
-    if (tplNode && tplNode.data.intent !== an.intent && (an.intent_confidence || 0) >= 0.55) {
-      intent = an.intent;
-      flash(`需求指向${INTENT_LABEL[an.intent]}，已按需求类型生成（所选页面配方继续生效）`, true);
-    }
-    const styleNode = members.find(n => n.kind === 'style');
-    const colorNode = members.find(n => n.kind === 'color');
-    const fontNode = members.find(n => n.kind === 'font');
-    const skillNode = members.find(n => n.kind === 'skill');
-    const blockNodes = members.filter(n => n.kind === 'block');
-    const blockTexts = blockNodes.map(n => (n.data.text || '').trim()).filter(Boolean);
-    const blocks = [...new Set(blockNodes.map(n => n.data.blockId).filter(Boolean))];
-    const galleryId = tplNode?.data?.gallery_id || blockNodes.find(n => n.data.gallery_id)?.data.gallery_id || null;
-    const body = {
-      prompt: [String(req.data.text || '').trim() || '请根据上传附件生成合适的 HTML 作品', ...blockTexts].join('\n'),
-      inputs: inputIds,
-      intent,
-      template: (styleNode && styleNode.data.preset) || (tplNode && (tplNode.data.template || tplNode.data.preset)) || null,
-      gallery_id: galleryId,
-      blocks,
-      skill: skillNode && skillNode.data.title,
-      primary: colorNode && colorNode.data.hex,
-      font: fontNode && fontNode.data.font,
-      selection_mode: options.selectionMode || (galleryId || blocks.length ? 'custom' : 'automatic'),
-      quiet_llm: false,
-    };
-
-    /* 阶段 3 · 异步生成 */
-    const submitted = await api('/api/jobs', 'POST', body);
-    const reportProgress = createJobProgressReporter('生成');
-    const d = await waitForJob(submitted.job.id, job => {
-      const pct = Number(job.progress || 0);
-      window.FoxInteraction?.setBusy(btn, true, '生成 ' + pct + '%');
-      window.FoxInteraction?.setBusy(primaryButton, true, '生成 ' + pct + '%');
-      if (job.recipe_run) { ws.data.recipeRun = job.recipe_run; timeline(); }
-      markNodeGenerating(req.id, pct);   /* G5：真实 job.progress 喂进度环 */
-      reportProgress(job);
-    });
-    finishNodeGenerating(req.id, false);
-    const out = addNode('output', ws.x + ws.w + 80, ws.y + 30,
-      { workspaceId:ws.id, title: INTENT_LABEL[d.intent] + ' · 产物', preview_url: d.preview_url, project: d.project,
-        project_name: d.project_name, intent: d.intent, preset_id: d.preset_id, revision: 0, feedback: [],
-        gallery_id:galleryId, blocks, selection_mode:body.selection_mode,
-        recipe_run:d.recipe_run, verification:d.verification, memory_applied:d.memory_applied });
-    if (!edges.some(e => e.from === req.id && e.to === out.id)) edges.push({ from: req.id, to: out.id });
-    ws.data.recipeRun = d.recipe_run || ws.data.recipeRun;
-    drawEdges(); select(out.id);
-    const outputFrame = document.getElementById('frame-' + out.id);
-    outputFrame?.addEventListener('load', () => window.FoxMotion?.play('reveal', outputFrame, 'output:' + out.id), {once:true});
-    flash(`✓ ${INTENT_LABEL[d.intent]} · ${d.preset_id} · ${d.route_decision} · rev0`, true);
-    loadProjects();
-    loadProjectMemory();
-    if (d.memory_applied?.applied?.length) flash('项目记忆已复用 ' + d.memory_applied.applied.length + ' 项；本次明确要求优先', true);
-    fitRect(Math.min(ws.x, out.x) - 30, ws.y - 10,
-            ws.w + (out.x - ws.x) + out.w + 60, ws.h + 40);
-    await persistWorkspaceNow();
-  } catch (e) {
-    flash('✗ ' + e.message, false); setAn(req, '');
-    finishNodeGenerating(req.id, true);   /* G5：失败 → 陶土橙 #E57A3F */
-  } finally {
-    window.FoxInteraction?.setBusy(btn, false);
-    window.FoxInteraction?.setBusy(primaryButton, false);
-  }
-}
-function setAn(req, html) {
-  const el = document.getElementById('an-' + req.id);
-  if (el) el.innerHTML = html;
-}
-function anChips(an) {
-  if (!an) return '';
-  return `<span>${INTENT_LABEL[an.intent]}</span><span>${an.preset_id}</span>` +
-    (an.memory_applied?.applied?.length ? `<span class="dim">记忆 ${an.memory_applied.applied.length} 项</span>` : '') +
-    (an.tone ? `<span class="dim">${esc(an.tone)}</span>` : '') +
-    (an.brand && an.brand !== 'Your Product' ? `<span class="dim">${esc(an.brand)}</span>` : '') +
-    `<span class="dim">${Math.round((an.confidence || 0) * 100)}%</span>`;
-}
 function apiErrorMessage(data, status) {
   if (typeof data?.error === 'string') return data.error;
   return data?.error?.message || data?.message || ('请求失败（HTTP ' + status + '）');
@@ -1835,231 +1664,11 @@ async function api(url, method='GET', data=null) {
 }
 const post = (url, data) => api(url, 'POST', data);
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-async function waitForJob(jobId, onUpdate) {
-  while (true) {
-    const job = await api('/api/jobs/' + encodeURIComponent(jobId));
-    onUpdate && onUpdate(job);
-    if (job.status === 'succeeded') return job.result;
-    if (job.status === 'failed') throw new Error(job.error?.message || '生成任务失败');
-    if (job.status === 'cancelled') throw new Error('生成任务已取消');
-    await delay(450);
-  }
-}
-
-let exportDraft = { nodeId:null, manifest:null };
-let revisionDraft = { projectName:null, request:0, revisions:[], busy:false };
-function closeRevisionDiff() {
-  const nodeId = revisionDraft.nodeId;
-  revisionDraft = { projectName:null, request:revisionDraft.request + 1, revisions:[], busy:false };
-  window.FoxInteraction?.closeDialog('#revision-modal');
-  if (selected === nodeId) requestAnimationFrame(() => $('#btn-revision-diff')?.focus());
-}
-async function openRevisionDiff(nodeId) {
-  const node = nodes.find(item => item.id === nodeId);
-  if (!node?.data?.project_name) return flash('该产物缺少项目信息', false);
-  revisionDraft = { projectName:node.data.project_name, nodeId, request:revisionDraft.request + 1, revisions:[], busy:false };
-  $('#revision-title').textContent = '版本差异 · ' + node.data.project_name;
-  $('#revision-from').innerHTML = '';
-  $('#revision-to').innerHTML = '';
-  $('#revision-history').innerHTML = '';
-  $('#revision-label').value = '';
-  window.FoxInteraction?.openDialog('#revision-modal', {initialFocus:'#revision-close'});
-  await loadRevisionDiff(true);
-}
-async function loadRevisionDiff(initial = false) {
-  const projectName = revisionDraft.projectName;
-  if (!projectName || revisionDraft.busy) return;
-  const request = ++revisionDraft.request;
-  $('#revision-summary').textContent = '正在读取版本…';
-  $('#revision-code').textContent = '';
-  window.FoxInteraction?.setBusy('#revision-compare', true, '比较中…');
-  revisionDraft.loading = true;
-  updateRevisionSelection();
-  try {
-    const query = initial ? '' : '?from=' + encodeURIComponent($('#revision-from').value) + '&to=' + encodeURIComponent($('#revision-to').value);
-    const result = await api('/api/projects/' + encodeURIComponent(projectName) + '/diff' + query);
-    if (request !== revisionDraft.request) return;
-    revisionDraft.revisions = result.revisions;
-    revisionDraft.currentRevision = result.current_revision;
-    const options = result.revisions.map(item => `<option value="${item.revision}">rev${item.revision}${item.label?' · '+esc(item.label):''}${item.is_current?' · 当前':''}</option>`).join('');
-    $('#revision-from').innerHTML = options;
-    $('#revision-to').innerHTML = options;
-    $('#revision-from').value = result.from_revision;
-    $('#revision-to').value = result.to_revision;
-    renderRevisionHistory();
-    const summary = result.summary;
-    $('#revision-summary').textContent = summary.same ? '两个版本内容相同' : `新增 ${summary.added_lines} 行 · 删除 ${summary.removed_lines} 行 · 修改 ${summary.changed_blocks} 处 · ${exportBytes(summary.before_bytes)} → ${exportBytes(summary.after_bytes)}${result.truncated?' · 差异过长，已截断':''}`;
-    $('#revision-code').textContent = result.diff || '无源码变化';
-  } catch (error) {
-    if (request === revisionDraft.request) $('#revision-summary').textContent = '无法比较：' + error.message;
-  } finally {
-    if (request === revisionDraft.request) {
-      revisionDraft.loading = false;
-      window.FoxInteraction?.setBusy('#revision-compare', false);
-      updateRevisionSelection();
-    }
-  }
-}
-function renderRevisionHistory() {
-  const kinds = {generate:'首次生成', feedback:'反馈修改', rerun:'重跑生成', restore:'恢复', checkpoint:'历史检查点', legacy:'早期版本'};
-  $('#revision-history').innerHTML = revisionDraft.revisions.map(item => `<li><button class="btn btn-secondary" onclick="selectRevision(${item.revision})" ${item.is_current?'aria-current="true"':''}>rev${item.revision}${item.label?' · '+esc(item.label):''}${item.is_current?' · 当前':''}<small>${kinds[item.kind] || '版本'}${item.parent_revision != null?' · 基于 rev'+item.parent_revision:''}${item.restored_from != null?' · 恢复自 rev'+item.restored_from:''}</small></button></li>`).join('');
-}
-function selectRevision(revision) {
-  if (revisionDraft.busy || revisionDraft.loading) return;
-  $('#revision-to').value = revision;
-  loadRevisionDiff();
-}
-function updateRevisionSelection() {
-  const item = revisionDraft.revisions.find(item => String(item.revision) === $('#revision-to').value);
-  const disabled = Boolean(revisionDraft.busy || revisionDraft.loading);
-  $('#revision-label').value = item?.label || '';
-  for (const id of ['revision-from','revision-to','revision-label','revision-save-label']) $("#"+id).disabled = disabled || !item;
-  $('#revision-restore').disabled = disabled || !item?.can_restore;
-  $('#revision-hint').textContent = item && !item.is_current && !item.can_restore
-    ? '这个早期版本没有保存生成配置，可以查看差异和命名，无法完整恢复。'
-    : '恢复会保留现有版本，同时恢复所选版本的内容与生成配置。';
-}
-async function mutateRevision(action) {
-  const draft = revisionDraft;
-  if (!draft.projectName || draft.busy || draft.loading) return;
-  const revision = Number($('#revision-to').value);
-  const label = $('#revision-label').value;
-  draft.busy = true;
-  updateRevisionSelection();
-  window.FoxInteraction?.setBusy('#revision-compare', true);
-  try {
-    const base = '/api/projects/' + encodeURIComponent(draft.projectName);
-    if (action === 'label') {
-      await api(base + '/revision-label', 'PATCH', {revision, label});
-      flash('版本名称已保存', true);
-    } else {
-      const result = await post(base + '/restore-revision', {revision, expected_revision:draft.currentRevision});
-      updateProjectNodes(draft.projectName, result.project);
-      await persistWorkspaceNow();
-      await loadProjects();
-      flash(`已从 rev${revision} 恢复为 rev${result.project.revision}，原有版本已保留`, true);
-    }
-    if (revisionDraft === draft) {
-      draft.busy = false;
-      await loadRevisionDiff(action === 'restore');
-    }
-  } catch (error) {
-    if (revisionDraft === draft) $('#revision-summary').textContent = '操作失败：' + error.message;
-    flash('版本操作失败：' + error.message, false);
-    if (error.code === 'revision_conflict' && revisionDraft === draft) {
-      draft.busy = false;
-      await loadRevisionDiff(true);
-    }
-  } finally {
-    draft.busy = false;
-    if (revisionDraft === draft) {
-      window.FoxInteraction?.setBusy('#revision-compare', false);
-      updateRevisionSelection();
-    }
-  }
-}
-function saveRevisionLabel() { return mutateRevision('label'); }
-function restoreSelectedRevision() { return mutateRevision('restore'); }
-function closeExportCenter() {
-  window.FoxInteraction?.closeDialog('#export-modal');
-  exportDraft = { nodeId:null, manifest:null };
-}
 function exportBytes(bytes) {
   const value = Number(bytes || 0);
   if (value >= 1024 * 1024) return (value / 1024 / 1024).toFixed(1) + ' MB';
   if (value >= 1024) return Math.ceil(value / 1024) + ' KB';
   return value + ' B';
-}
-async function openExportCenter(nodeId) {
-  const node = nodes.find(item => item.id === nodeId);
-  if (!node?.data?.project_name) return flash('该产物缺少项目信息，无法导出', false);
-  exportDraft = { nodeId, manifest:null };
-  window.FoxInteraction?.openDialog('#export-modal', { initialFocus:'#export-format' });
-  $('#export-title').textContent = '导出中心 · ' + node.data.project_name;
-  $('#export-analysis').innerHTML = '<div class="analysis-empty"><span class="spin">分析 HTML 结构、分页和动态内容…</span></div>';
-  $('#export-status').textContent = '正在分析';
-  $('#export-result').innerHTML = '';
-  window.FoxInteraction?.setBusy('#export-start', true, '分析中…');
-  try {
-    const data = await post('/api/exports/analyze', { project_name:node.data.project_name });
-    exportDraft.manifest = data.manifest;
-    renderExportAnalysis(data.manifest);
-    window.FoxInteraction?.setBusy('#export-start', false);
-    $('#export-status').textContent = '分析完成，可以导出';
-  } catch (error) {
-    window.FoxInteraction?.setBusy('#export-start', false);
-    $('#export-start').disabled = true;
-    $('#export-analysis').innerHTML = `<div class="export-warning error">${esc(error.message)}</div>`;
-    $('#export-status').textContent = '分析失败';
-    flash('导出分析失败：' + error.message, false);
-  }
-}
-function renderExportAnalysis(manifest) {
-  const paged = manifest.page_model?.paginated;
-  const count = manifest.page_model?.count || 1;
-  const warnings = manifest.warnings || [];
-  $('#export-analysis').innerHTML = `<div class="export-score"><strong>${manifest.compatibility_score}</strong><p><b>${esc(manifest.title)}</b><br>${paged ? `检测到 ${count} 个独立页面，可逐页导出。` : '连续 HTML 页面，默认按长图或自然 PDF 分页导出。'}</p></div>
-    <div class="export-meta"><div>内容类型<b>${esc(INTENT_LABEL[manifest.intent] || manifest.intent)}</b></div><div>分页模型<b>${paged ? esc(manifest.page_model.selector) : '连续页面'}</b></div><div>源文件<b>${exportBytes(manifest.source_size)}</b></div><div>动态特性<b>${manifest.features?.length ? esc(manifest.features.join(' / ')) : '静态内容'}</b></div></div>
-    <div class="export-warning-list">${warnings.length ? warnings.map(item => `<div class="export-warning ${esc(item.level)}">${esc(item.message)}</div>`).join('') : '<div class="export-warning">未发现阻塞性兼容问题。</div>'}</div>`;
-  $('#export-width').value = manifest.viewport?.width || 1440;
-  $('#export-height').value = manifest.viewport?.height || 900;
-  $('#export-format').value = manifest.recommended?.format || 'pdf';
-  $('#export-scope').value = manifest.recommended?.scope || 'auto';
-  const runtime = manifest.runtime || {};
-  $('#export-runtime').textContent = `本地导出 · ${runtime.engine || 'Chromium'} · ${runtime.package_ready ? '引擎已安装' : '引擎缺失'}。${runtime.install_hint || ''}`;
-  syncExportOptions();
-}
-function syncExportOptions() {
-  const image = $('#export-format').value === 'png';
-  $('#export-scale-field').hidden = !image;
-  $('#export-paper-field').hidden = image;
-  $('#export-landscape-field').hidden = image;
-}
-async function startExport() {
-  const node = nodes.find(item => item.id === exportDraft.nodeId);
-  if (!node?.data?.project_name || !exportDraft.manifest) return;
-  const button = $('#export-start');
-  window.FoxInteraction?.setBusy(button, true, '导出中…');
-  $('#export-result').innerHTML = '';
-  try {
-    const submitted = await post('/api/exports', {
-      project_name: node.data.project_name,
-      format: $('#export-format').value,
-      scope: $('#export-scope').value,
-      pages: $('#export-pages').value,
-      width: Number($('#export-width').value),
-      height: Number($('#export-height').value),
-      scale: Number($('#export-scale').value),
-      paper: $('#export-paper').value,
-      landscape: $('#export-landscape').checked,
-    });
-    const result = await waitForJob(submitted.job.id, job => {
-      $('#export-status').textContent = `任务 ${job.id.slice(0,8)} · ${job.stage} · ${job.progress}%`;
-    });
-    $('#export-status').textContent = `导出完成 · 兼容性 ${result.compatibility_score} 分 · ${result.browser?.source || 'Chromium'}`;
-    $('#export-result').innerHTML = [...result.files, result.report].map(file => `<div class="export-file"><span><b>${esc(file.name)}</b><small>${exportBytes(file.bytes)}</small></span><a class="btn btn-secondary" href="${esc(file.download_url)}">下载</a></div>`).join('');
-    flash(`✓ ${node.data.project_name} 已导出 ${result.files.length} 个文件`, true);
-  } catch (error) {
-    $('#export-status').textContent = '导出失败：' + error.message;
-    $('#export-result').innerHTML = `<div class="export-warning error">${esc(error.message)}<br><small>请确认本机已安装 Edge、Chrome 或 Playwright Chromium。</small></div>`;
-  } finally {
-    window.FoxInteraction?.setBusy(button, false);
-  }
-}
-
-async function createDiagnostic() {
-  const button = $('#btn-diagnostic');
-  window.FoxInteraction?.setBusy(button, true, '生成中…');
-  try {
-    flash('正在生成脱敏诊断包…', true, 'info');
-    const data = await api('/api/diagnostics', 'POST', {});
-    flash('诊断包已生成：' + data.bundle.name, true);
-    window.open(data.bundle.download_url, '_blank');
-  } catch(e) {
-    flash('诊断包生成失败：' + e.message, false);
-  } finally {
-    window.FoxInteraction?.setBusy(button, false);
-  }
 }
 function flash(msg, ok, type = '') {
   const el = $('#tl-status');
@@ -2067,21 +1676,6 @@ function flash(msg, ok, type = '') {
   el.className = 'tl-status' + (ok ? ' ok' : '');
   const inferred = type || (ok ? (/正在|任务 .+%|处理中|上传/.test(msg) ? 'info' : 'success') : 'error');
   window.FoxInteraction?.notify(msg, inferred);
-}
-function createJobProgressReporter(label) {
-  let lastStage = null;
-  const names = {queued:'排队', analyze:'分析需求', compose:'组合输入', generate:'生成产物', verify:'质量验证', deliver:'保存产物', completed:'完成'};
-  return job => {
-    const stage = job.stage || job.status || 'queued';
-    const progress = job.progress == null ? '' : ' · ' + Math.max(0, Math.min(100, Number(job.progress) || 0)) + '%';
-    const message = label + ' · ' + (names[stage] || stage) + progress;
-    const status = $('#tl-status');
-    status.textContent = message; status.className = 'tl-status';
-    if (stage !== lastStage) {
-      window.FoxInteraction?.notify(label + ' · ' + (names[stage] || stage), 'info');
-      lastStage = stage;
-    }
-  };
 }
 
 /* ================= 检查器 ================= */
@@ -2118,44 +1712,6 @@ function updateRecipeRunView(run) {
   const wrapper = document.createElement('div');
   wrapper.innerHTML = recipeRunMarkup(run, selected);
   current.replaceWith(wrapper.firstElementChild);
-}
-async function rerunRecipeStage(nodeId, stage) {
-  const node = nodes.find(item => item.id === nodeId);
-  if (!node?.data?.project_name) return flash('产物缺少项目信息，无法局部重跑', false);
-  try {
-    markNodeGenerating(node.id, null);   /* G5：局部重跑同样走进度环 */
-    const submitted = await api('/api/projects/' + encodeURIComponent(node.data.project_name) + '/recipe-rerun', 'POST', { stage });
-    const reportProgress = createJobProgressReporter('局部重跑');
-    const result = await waitForJob(submitted.job.id, job => {
-      markNodeGenerating(node.id, Number(job.progress || 0));
-      if (job.recipe_run) {
-        node.data.recipe_run = job.recipe_run;
-        const ws = workspaceForNode(node);
-        if (ws) ws.data.recipeRun = job.recipe_run;
-        updateRecipeRunView(job.recipe_run);
-        timeline();
-      }
-      reportProgress(job);
-    });
-    finishNodeGenerating(node.id, false);
-    node.data.recipe_run = result.recipe_run;
-    node.data.verification = result.verification;
-    node.data.revision = result.revision;
-    const revisionBadge = document.querySelector(`#rev-${node.id}`);
-    if (revisionBadge) revisionBadge.textContent = 'rev' + result.revision;
-    const preview = document.querySelector(`#frame-${node.id}`);
-    if (preview && stage === 'generate') preview.src = node.data.preview_url + '?t=' + Date.now();
-    const ws = workspaceForNode(node);
-    if (ws) ws.data.recipeRun = result.recipe_run;
-    renderInspector();
-    timeline();
-    await persistWorkspaceNow();
-    flash(`✓ ${stage === 'verify' ? '质量验证' : '产物生成'} 已局部重跑`, true);
-  } catch (error) {
-    flash('局部重跑失败：' + error.message, false);
-    finishNodeGenerating(node.id, true);
-    renderInspector();
-  }
 }
 function renderInspector() {
   const box = $('#inspector');
@@ -2254,92 +1810,6 @@ function deleteNodeIds(ids) {
   drawEdges(); save(); timeline(); updateWsCount(); renderWorkspaceNavigator(); renderInspector();
 }
 function delNode(id) { deleteNodeIds([id]); }
-async function sendFeedback(n) {
-  const note = document.querySelector('#fb-note').value.trim();
-  if (!note) return;
-  const btn = document.querySelector('#fb-send'); btn.disabled = true;
-  try {
-    const d = await post('/api/feedback', { project: n.data.project, note });
-    n.data.revision = d.revision;
-    n.data.feedback = n.data.feedback || [];
-    n.data.feedback.unshift({ rev: d.revision, note, sug: d.suggestion || '' });
-    document.querySelector(`#rev-${n.id}`).textContent = 'rev' + d.revision;
-    document.querySelector(`#frame-${n.id}`).src = n.data.preview_url + '?t=' + Date.now();
-    renderInspector(); flash(`✓ rev${d.revision}：${d.suggestion || '已迭代'}`, true); loadProjects();
-  } catch (e) { flash('🦊 ' + e.message, false); }
-  finally { btn.disabled = false; }
-}
-function openOutput(id) {
-  const n = nodes.find(x => x.id === id);
-  if (n && n.data.preview_url) window.open(n.data.preview_url, '_blank');
-}
-function updateProjectNodes(oldName, project) {
-  nodes.filter(n => ['file','output'].includes(n.kind) && n.data.project_name === oldName).forEach(n => {
-    n.data.project_name = project.name; n.data.project = project.project; n.data.preview_url = project.preview_url;
-    n.data.intent = project.intent; n.data.preset_id = project.preset_id; n.data.revision = project.revision;
-    n.data.recipe_run = project.recipe_run; n.data.verification = project.verification;
-    n.data.memory_applied = project.memory_applied;
-    const ws = workspaceForNode(n);
-    if (ws) ws.data.recipeRun = project.recipe_run;
-    n.data.title = project.name; n.title = project.name;
-  });
-  nodesEl.innerHTML = ''; nodes.forEach(renderNode); drawEdges(); renderInspector(); save();
-}
-async function renameProject(id) {
-  const n = nodes.find(x => x.id === id); if (!n) return;
-  const oldName = n.data.project_name; const newName = prompt('新的项目名称', oldName);
-  if (!newName || newName.trim() === oldName) return;
-  try {
-    const data = await api('/api/projects/' + encodeURIComponent(oldName), 'PATCH', { new_name:newName.trim() });
-    updateProjectNodes(oldName, data.project); await loadProjects(); flash('项目已重命名为 ' + data.project.name, true);
-  } catch(e) { flash('重命名失败：' + e.message, false); }
-}
-async function duplicateProject(id) {
-  const n = nodes.find(x => x.id === id); if (!n) return;
-  const suggested = (n.data.project_name || 'project') + '-copy';
-  const newName = prompt('副本名称（留空自动命名）', suggested);
-  if (newName === null) return;
-  try {
-    const data = await api('/api/projects/' + encodeURIComponent(n.data.project_name) + '/duplicate', 'POST',
-      { new_name:newName.trim() || null });
-    const p = data.project; const copy = addNode('file', n.x + 36, n.y + 36, { title:p.name, project_name:p.name,
-      project:p.project, preview_url:p.preview_url, intent:p.intent, preset_id:p.preset_id, revision:p.revision });
-    await loadProjects(); select(copy.id); flash('已创建副本 ' + p.name, true);
-  } catch(e) { flash('复制失败：' + e.message, false); }
-}
-function removeProjectNodes(name) {
-  const removed = new Set(nodes.filter(x => ['file','output'].includes(x.kind) && x.data.project_name === name).map(x => x.id));
-  nodes = nodes.filter(x => !removed.has(x.id));
-  edges = edges.filter(e => !removed.has(e.from) && !removed.has(e.to));
-  nodesEl.innerHTML = '';
-  nodes.forEach(renderNode);
-  select(null);
-  drawEdges();
-  save();
-  timeline();
-  updateWsCount();
-  renderWorkspaceNavigator();
-  return removed.size;
-}
-async function deleteProject(id) {
-  const n = nodes.find(x => x.id === id); if (!n) return;
-  const name = n.data.project_name;
-  if (!confirm('将项目“' + name + '”移入回收站？产物不会立即永久删除。')) return;
-  try {
-    await api('/api/projects/' + encodeURIComponent(name), 'DELETE');
-    removeProjectNodes(name);
-    await loadProjects();
-    flash('项目已移入回收站，可从输出目录 .trash 恢复', true);
-  } catch(e) {
-    if (e.status === 404 || e.code === 'project_not_found') {
-      removeProjectNodes(name);
-      await loadProjects();
-      flash('项目文件已不存在，已从画布移除', true);
-      return;
-    }
-    flash('删除失败：' + e.message, false);
-  }
-}
 /* ================= 可视化素材库 ================= */
 const PALETTE = {
   blocks: () => [{ group:'内容区块 · 拖进工作区' }].concat(BLOCKS.map(b => ({
@@ -2498,10 +1968,6 @@ function timeline() {
       <div class="tl-dot">${completed ? '✓' : index + 1}</div><div class="tl-label">${STAGES[index]}</div></div>`).join('');
 }
 /* ================= 数据加载 & 初始化 ================= */
-async function loadProjects() {
-  try { state.projects = (await api('/api/projects')).items; } catch(e) { flash('项目列表加载失败：' + e.message, false); }
-  if (activeTab === 'files') renderPalette();
-}
 async function loadAlliance() {
   try { state.alliance = (await api('/api/alliance')).items; } catch(e) {}
   if (activeTab === 'skills') renderPalette();

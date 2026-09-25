@@ -32,13 +32,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Every Project-rooted writer (ProjectStore JSON, Project Memory, AI settings, Recipe Run, generation artifacts, `.foxstate.json`) now goes through the shared fsync-backed atomic write.
 - Project rename, duplicate, and delete now run under the source Project lock, turning cross-process collisions into stable `project_busy` responses.
 
+- Four browser lifecycle modules (`FoxProjects`, `FoxGeneration`, `FoxRevisions`, `FoxExports`) extracted from the workbench monolith with private draft state, namespace APIs, and race guards; one in-flight generation per workspace with a cancel control, and an export busy guard with stale-result tokens.
+- A `[hidden]` CSS fallback so `.btn` display rules can no longer un-hide hidden controls.
+
 ### Fixed
 
 - `StudioApplication.restore()` now holds the per-project lock again; the RC3-C HTTP migration had bypassed `ProjectStore.restore_revision()`, letting concurrent restores of one project pass the revision-conflict check together on the threaded server. Regression-covered by a concurrent-restore test.
 
 ### Verified
 
-- Full local suite: `234 passed, 1 skipped` (12 new durability tests).
+- Full local suite: `238 passed, 1 skipped` (12 durability + 4 lifecycle tests); Chromium e2e `22/22`.
 - Generation, Feedback, Restore, and Export seams: `20 passed`; Chromium acceptance: restore/interaction suites pass; DeepSeek Harness: `2/2`.
 
 ---

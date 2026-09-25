@@ -37,6 +37,7 @@
 .brand-copy strong { font-size:13px; }
 .brand-copy small { font-size:8px; letter-spacing:.12em; }
 
+[hidden] { display:none !important; }  /* .btn 的 display 会覆盖 UA 的 [hidden]，统一兜底 */
 .btn {
   min-height:var(--control-default);
   height:var(--control-default);

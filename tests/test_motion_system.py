@@ -70,19 +70,19 @@ def test_retry_survives_old_failure_and_success_cleanup(workbench):
     }""")
     page.wait_for_timeout(2750)
     assert page.locator(f"#node-{node_id} .gen-ring-pct").inner_text() == "61%"
-    assert page.evaluate("generatingNodes.get(%d).status" % node_id) == "running"
+    assert page.evaluate("FoxGeneration.generatingNodes.get(%d).status" % node_id) == "running"
     page.evaluate("""id => {
         finishNodeGenerating(id, false); markNodeGenerating(id, 72);
     }""", node_id)
     page.wait_for_timeout(450)
     assert page.locator(f"#node-{node_id} .gen-ring-pct").inner_text() == "72%"
-    assert page.evaluate("generationCleanups.size") == 0
+    assert page.evaluate("FoxGeneration.generationCleanups.size") == 0
     page.evaluate("""id => {
         finishNodeGenerating(id, true);
         nodes = nodes.filter(node => node.id !== id);
         document.getElementById('node-' + id).remove();
     }""", node_id)
-    page.wait_for_function("generatingNodes.size === 0 && generationCleanups.size === 0")
+    page.wait_for_function("FoxGeneration.generatingNodes.size === 0 && FoxGeneration.generationCleanups.size === 0")
 
 
 def test_motion_interruptions_budget_and_dialog_focus(workbench):

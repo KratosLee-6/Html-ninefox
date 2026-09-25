@@ -11,6 +11,8 @@
 > `main` 后续增量（2026-09-24）：RC3-C 已完成 Generation、Feedback、Restore 与 Export 共享应用用例。CLI 新增 Restore，HTTP Handler 不再直接编排对应业务步骤。详见 [RC3-C 记录](ITERATION-RC3-C-20260924.md) 和 [v0.5.0 正式版计划](PLAN-v0.5.0-STABLE-20260924.md)。
 >
 > 2026-09-25：RC3-D 已完成统一 durable write、Project commit journal、跨进程文件锁与崩溃恢复；生成改为临时目录 + rename 原子发布，跨进程冲突返回稳定 `project_busy`。本地门禁 234 通过、1 跳过（含 12 个 durability 测试）。详见 [RC3-D 记录](ITERATION-RC3-D-20260925.md)。
+>
+> 2026-09-25：RC3-E 已完成浏览器生命周期 Module 拆分（FoxProjects / FoxGeneration / FoxRevisions / FoxExports）、生成取消与导出竞态守卫。本地门禁 238 通过、1 跳过，Chromium e2e 22/22。详见 [RC3-E 记录](ITERATION-RC3-E-20260925.md)。
 
 > 动效继续沿用[动效执行方案 v0.5](MOTION-PLAN-v0.5.md)和现有原生 CSS/WAAPI 路线。Anime.js 仅在真实生成时间线出现明确编排收益，并同时通过离线打包、取消、减少动效与帧预算验证时再引入；Motion Sites、Showreel Design、React Bits、Aceternity UI 与 Uiverse 作为交互规律或局部源码参考。
 
@@ -170,7 +172,7 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 - [x] RC3-B2：选择 `StudioApplication`，完成 CLI / HTTP / Job / DSH 共用 Generation use case。详见 [迭代记录](ITERATION-RC3-B2-20260924.md)。
 - [x] RC3-C：完成 Feedback / Restore / Export request-result，新增 CLI Restore，并收窄 HTTP Adapter。详见 [迭代记录](ITERATION-RC3-C-20260924.md)。
 - [x] RC3-D：统一 durable write、Project commit、跨进程锁和崩溃恢复。详见 [迭代记录](ITERATION-RC3-D-20260925.md)。
-- [ ] RC3-E：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module。
+- [x] RC3-E：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module，含生成取消与竞态守卫。详见 [迭代记录](ITERATION-RC3-E-20260925.md)。
 - 动效继续作为生命周期反馈迭代，保持可取消、三档偏好和帧性能门禁。
 
 **发布门槛**：HTTP v1 与 Project schema 兼容；多文件写入失败不留下半成品；同一用例由至少两个真实 Adapter 复用；100 节点和完整 Chromium 验收不退化。

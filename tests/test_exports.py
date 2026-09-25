@@ -164,7 +164,7 @@ def test_workbench_export_center_shows_real_manifest(tmp_path, workbench_server)
             assert page.locator("#export-paper-field").is_hidden()
             assert page.locator("#export-landscape-field").is_hidden()
             assert page.locator("#export-start").is_enabled()
-            assert page.evaluate("exportDraft.nodeId") == node_id
+            assert page.evaluate("FoxExports.draft().nodeId") == node_id
             assert not errors
             browser.close()
 

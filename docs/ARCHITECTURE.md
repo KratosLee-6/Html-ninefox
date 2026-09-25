@@ -147,6 +147,17 @@ HTTP v1 是 Web/PWA 和未来轻客户端的兼容 seam。约束：
 
 RC3 将按 Project lifecycle、Generation lifecycle、Revision history、Export Center 四个业务 seam 继续拆分，避免只按文件长度拆分。
 
+### 生命周期 Module（RC3-E）
+
+`index.html` 主内联脚本只保留共享平台层（画布模型 `nodes/edges/camera`、DOM 引用、`api/flash/esc` 工具、检查器/时间线渲染与初始化）。四个业务域拆为独立经典脚本，沿用 IIFE + `window.Fox*` 出口：
+
+- `lifecycle-projects.js` → `FoxProjects`（列表/重命名/复制/回收/画布同步）
+- `lifecycle-generation.js` → `FoxGeneration`（推进、轮询、进度环、局部重跑、取消）
+- `lifecycle-revisions.js` → `FoxRevisions`（差异、命名、恢复、反馈迭代）
+- `lifecycle-exports.js` → `FoxExports`（导出中心、分析、任务、诊断）
+
+draft 状态模块私有；域间只经命名空间 API 协作；约 27 个全局入口名保留为委托垫片，兼容 onclick 与浏览器测试锚点。生成按工作区单飞（epoch 守卫）并支持取消/停止等待；导出带 busy 守卫与过期结果丢弃。
+
 ## 存储与一致性
 
 Project 包含 Workspace 状态、Artifact、Revision、Recipe Run、Memory 和任务证据。RC3-D 起全部 Project-rooted 写入统一走 `htmlninefox/durable.py` 的 `atomic_write`（同目录 mkstemp、fsync、原子 replace、POSIX 目录 fsync、Windows 并发替换重试）；Project 多文件提交带 journal 恢复；跨进程并发由文件锁协调。
