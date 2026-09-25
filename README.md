@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.5.0rc3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3)
+[![App Release](https://img.shields.io/badge/app-v0.5.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -46,11 +46,11 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 当前版本与 main 最新进展（2026-09-24）
 
-当前应用包版本为 `0.5.0rc3`，对应预发布标签 `v0.5.0rc3`；稳定版仍是 `v0.4.2`。本次 RC3 预发布包含工程基线、共享测试 server fixture，以及 Pixel Garden 视觉与交互收敛；Windows、Linux 与 Python 安装包由同名标签工作流构建。
+当前应用包版本为 `0.5.0`，对应稳定标签 `v0.5.0`。v0.5.0 在 RC3 工程基线之上完成共享应用用例、崩溃可恢复 Project 提交与跨进程锁、浏览器生命周期 Module 拆分；Windows、Linux 与 Python 安装包由同名标签工作流构建。
 
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
-| 应用 Release | `v0.5.0rc3` 预发布版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
+| 应用 Release | `v0.5.0` 稳定版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
 | `main` 最新增量 | RC3-E 已完成：Project / Generation / Revision / Export 四个浏览器生命周期 Module（私有状态 + 命名空间 API），生成取消与导出竞态守卫 | [RC3-E 记录](docs/ITERATION-RC3-E-20260925.md) · [架构](docs/ARCHITECTURE.md) |
 | RC3-E 生命周期复验 | `238 passed, 1 skipped`（含 4 个 lifecycle 测试）；Chromium e2e `22/22`；取消流有确定性路由注入证据与真实截图 | [本轮记录](docs/ITERATION-RC3-E-20260925.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
@@ -209,15 +209,15 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 
 ## 下载与安装
 
-应用安装包请前往 [v0.5.0rc3 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3)。这是应用预发布版；稳定版本仍为 [v0.4.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2)。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
+应用安装包请前往 [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)。这是当前稳定版；DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.5.0rc3.exe` | 安装到当前用户，创建开始菜单入口 |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0rc3.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
-| Linux | `HtmlNineFox-Linux-0.5.0rc3.run` | `chmod +x` 后运行，安装到当前用户目录 |
-| Linux/审计 | `HtmlNineFox-Linux-0.5.0rc3.tar.gz` | 可查看完整安装内容 |
-| Python 3.10+ | `htmlninefox-0.5.0rc3-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0rc3-py3-none-any.whl` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.5.0.exe` | 安装到当前用户，创建开始菜单入口 |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
+| Linux | `HtmlNineFox-Linux-0.5.0.run` | `chmod +x` 后运行，安装到当前用户目录 |
+| Linux/审计 | `HtmlNineFox-Linux-0.5.0.tar.gz` | 可查看完整安装内容 |
+| Python 3.10+ | `htmlninefox-0.5.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0-py3-none-any.whl` |
 | Docker | 源码构建 | `docker compose up --build`；标签 CI 验证镜像但不上传镜像仓库 |
 
 ### 快速开始

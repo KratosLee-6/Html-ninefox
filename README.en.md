@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.5.0rc3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3)
+[![App Release](https://img.shields.io/badge/app-v0.5.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -44,11 +44,11 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
 
 ## Current release and `main` development snapshot (September 24, 2026)
 
-The application version remains `0.5.0rc3`, published under the installable prerelease tag `v0.5.0rc3`, while `v0.4.2` remains the stable release. This RC3 prerelease packages the repository engineering baseline, shared workbench test-server fixture, and Pixel Garden visual and interaction convergence for Windows, Linux, and Python users.
+The application version is `0.5.0`, published under the stable tag `v0.5.0`. v0.5.0 builds on the RC3 engineering baseline with shared application use cases, crash-recoverable Project commits with cross-process locking, and isolated browser lifecycle modules for Windows, Linux, and Python users.
 
 | Track | Current state | Evidence |
 |---|---|---|
-| Application release | `v0.5.0rc3` prerelease, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3) |
+| Application release | `v0.5.0` stable, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
 | RC3 application increment | RC3-E isolates Project, Generation, Revision, and Export into browser lifecycle modules with private state and namespace APIs, plus generation cancel and export race guards | [RC3-E record](docs/ITERATION-RC3-E-20260925.md) · [architecture](docs/ARCHITECTURE.md) |
 | Current local verification | `238 passed, 1 skipped` including 4 lifecycle tests; Chromium e2e `22/22`; cancel flow covered by deterministic route injection and a real screenshot | [RC3-E record](docs/ITERATION-RC3-E-20260925.md) |
 | DeepSeek Harness plugin | Separately versioned `0.1.0-preview.1` | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
@@ -140,15 +140,15 @@ Output nodes can export PDF, paginated PNG, or a full-page image. Preflight show
 
 ## Download & Install
 
-Download application packages from the [v0.5.0rc3 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0rc3). It is an application prerelease; [v0.4.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.4.2) remains stable. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
+Download application packages from the [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0). This is the current stable release. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
 
 | Platform | Recommended file | Usage |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.5.0rc3.exe` | Per-user installer with a Start menu entry |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0rc3.zip` | Extract and run `HtmlNineFox.exe` |
-| Linux | `HtmlNineFox-Linux-0.5.0rc3.run` | `chmod +x` and run; installs to user directory |
-| Linux / audit | `HtmlNineFox-Linux-0.5.0rc3.tar.gz` | Inspectable full installation contents |
-| Python 3.10+ | `htmlninefox-0.5.0rc3-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0rc3-py3-none-any.whl` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.5.0.exe` | Per-user installer with a Start menu entry |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0.zip` | Extract and run `HtmlNineFox.exe` |
+| Linux | `HtmlNineFox-Linux-0.5.0.run` | `chmod +x` and run; installs to user directory |
+| Linux / audit | `HtmlNineFox-Linux-0.5.0.tar.gz` | Inspectable full installation contents |
+| Python 3.10+ | `htmlninefox-0.5.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0-py3-none-any.whl` |
 | Docker | Build from source | `docker compose up --build`; tag CI verifies but does not publish the image |
 
 ### Quick start

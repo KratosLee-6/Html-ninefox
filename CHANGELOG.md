@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.5.0] — 2026-09-25 · 🎉 First Stable Release of the 0.5 Line
+
+> Stable release consolidating RC3-B2/C/D/E: shared application use cases,
+> crash-recoverable Project commits with cross-process locking, and isolated
+> browser lifecycle modules. Verified with 238 Python tests, 22/22 Chromium
+> acceptance on both bundled Chromium and the real system Edge engine, and a
+> real generation + PNG export smoke on the packaged Windows executable.
 
 ### Added
 
@@ -41,8 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Verified
 
-- Full local suite: `238 passed, 1 skipped` (12 durability + 4 lifecycle tests); Chromium e2e `22/22`.
-- Generation, Feedback, Restore, and Export seams: `20 passed`; Chromium acceptance: restore/interaction suites pass; DeepSeek Harness: `2/2`.
+- Full local suite: `238 passed, 1 skipped` (12 durability + 4 lifecycle tests); Chromium e2e `22/22`; DeepSeek Harness: `2/2`.
 
 ---
 
@@ -558,6 +563,7 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the full plan (v0.3 → v2.0).
 
 ---
 
+[0.5.0]: https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0
 [0.2.0]: https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.2.0
 [0.1.0]: https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.1.0
 [0.0.1]: https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.0.1

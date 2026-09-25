@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "htmlninefox"
-version = "0.5.0rc3"
+version = "0.5.0"
 description = "Html九尾狐 · 本地优先的可视化 HTML 创作工作台（v0.5.0 RC3）"
 readme = "README.md"
 license = { text = "MIT" }
