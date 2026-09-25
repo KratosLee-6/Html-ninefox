@@ -32,3 +32,4 @@ packaging/linux/wheels/greenlet-*.whl
 packaging/linux/wheels/pyee-*.whl
 packaging/linux/wheels/typing_extensions-*.whl
 .codex_tmp/
+.mimosa/
