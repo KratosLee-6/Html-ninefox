@@ -12,6 +12,16 @@
 | 0.5.0rc3/ | Chromium 发布验收生成的纸白、夜蓝与 Export Center 截图 |
 | `v0.5.0rc3-visual/` | `v0.5.0rc3` 的响应式、组件状态与恢复/错误证据 |
 
+## v0.5.0 稳定版截图（18 张）
+
+发布于 `v0.5.0`（2026-09-25）后的完整实拍集，顶栏版本徽标为 `v0.5.0`：
+
+- 布局与主题：`workbench-paper-1440.png`、`workbench-night-1440.png`、`workbench-night.png`、`workbench-overview.png`、`workbench-tablet-768.png`、`workbench-mobile-390.png`、`workbench-mobile-library.png`、`classic-pixel-garden.png`
+- 对话框与检查器：`input-dialog-paper.png`、`selected-node-inspector.png`、`generated-output-inspector.png`、`export-center-ready.png`、`export-center.png`
+- 业务状态：`command-palette-search.png`、`project-memory-saved.png`、`export-analysis-error.png`、`revision-restore-complete.png`、`generation-cancel.png`
+
+`export-center.png` 由 `e2e_verify.py` 采集，展示真实导出产物（page-01.png + export-report.json）。
+
 ## RC3 视觉证据（15 张）
 
 ### 布局、主题与响应式
