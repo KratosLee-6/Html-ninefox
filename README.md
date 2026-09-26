@@ -19,7 +19,7 @@
 
 </div>
 
-![Html九尾狐 RC3 Pixel Garden 工作台](assets/screenshots/v0.5.0rc3-visual/workbench-paper-1440.png)
+![Html九尾狐 v0.5.0 Pixel Garden 工作台](assets/screenshots/v0.5.0/workbench-paper-1440.png)
 
 ## 它解决什么问题
 
@@ -67,31 +67,74 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 | 组件系统 | 主按钮、焦点环、选中/忙碌/成功/错误状态统一；主要 Unicode 图标替换为本地 SVG，Logo 继续使用项目原有像素狐狸 |
 | 经典模式 | 黑紫/青色旧视觉迁回 Pixel Garden Token，并统一 Logo、标题、表单和键盘焦点反馈 |
 
-<table>
-<tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>桌面工作台</b><br>清晰的三栏层级、双主动作和画布状态反馈。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题</b><br>保留同一组件层级与品牌语义色。</td>
-</tr>
-<tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/workbench-mobile-390.png" alt="390 像素移动任务视图"><br><b>移动任务视图</b><br>以工作区动作和节点列表替代不可读的缩小画布。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/classic-pixel-garden.png" alt="Pixel Garden 经典表单模式"><br><b>经典表单模式</b><br>快速生成入口与工作台使用同一品牌系统。</td>
-</tr>
-</table>
+### 功能 ↔ 截图对照（v0.5.0 实拍集）
 
-### 四项状态证据补齐
+以下 18 张全部拍摄自 `v0.5.0` 发布版（顶栏版本徽标为 `v0.5.0`），每张对应一项真实功能：
+
+**工作台与画布**
+
+**工作台与画布**
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/command-palette-search.png" alt="命令面板搜索生成操作"><br><b>命令面板</b><br>键盘打开、输入搜索、活动项和快捷键提示。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/project-memory-saved.png" alt="项目记忆保存完成"><br><b>项目记忆</b><br>真实保存品牌、受众、语气、禁忌、模板与长期说明，并显示成功状态。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台</b><br>三栏层级：素材库 · 无限画布工作区 · 检查器。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题桌面工作台</b><br>同一组件层级与品牌语义色的完整暗色主题。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/export-analysis-error.png" alt="导出分析失败状态"><br><b>可控错误</b><br>服务端返回项目不存在，导出按钮禁用，错误面板与 Toast 同步反馈。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/revision-restore-complete.png" alt="版本恢复完成状态"><br><b>版本恢复</b><br>真实把 rev0 恢复为新的 rev2，原版本保留并显示恢复来源与成功 Toast。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>工作区导航、识别色、独立推进与整组移动。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动任务视图</b><br>以工作区动作和节点卡片替代不可读的缩小画布。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-mobile-library.png" alt="移动端素材库"><br><b>移动端素材库</b><br>REAL HTML 模板卡片在移动端可直接浏览与拖入。</td>
 </tr>
 </table>
 
-RC3 截图集现包含 14 张真实页面和状态证据，完整清单见[本轮迭代记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
+**输入与检查器**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/input-dialog-paper.png" alt="输入需求引导"><br><b>输入需求引导</b><br>文字、文件与图片统一入口，AI 分析后推荐组合。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/classic-pixel-garden.png" alt="经典表单模式"><br><b>经典表单模式</b><br>一句话 Brief 快速生成，与工作台同一品牌系统。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/selected-node-inspector.png" alt="需求节点检查器"><br><b>需求节点检查器</b><br>选中即编辑文字与附件，一键向所属工作区推进。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/generated-output-inspector.png" alt="产物节点检查器"><br><b>产物节点检查器</b><br>版本徽标、运行轨迹、采用学习、口语反馈与导出入口。</td>
+</tr>
+</table>
+
+**Project Memory 与命令面板**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/project-memory-saved.png" alt="项目记忆"><br><b>项目记忆</b><br>品牌、受众、语气、禁忌、模板与长期说明本地保存，成功状态可见。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/command-palette-search.png" alt="命令面板"><br><b>命令面板</b><br>Ctrl+K 键盘打开、输入搜索、活动项与快捷键提示。</td>
+</tr>
+</table>
+
+**导出中心（真实导出全流程）**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/export-center-ready.png" alt="导出分析就绪"><br><b>导出分析就绪</b><br>兼容性评分、分页模型、动态特性与本地引擎状态。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/export-center.png" alt="真实导出结果"><br><b>真实导出结果</b><br>deck 检测 7 页，实际产出 page-01.png 与 export-report.json 并可下载。</td>
+</tr>
+</table>
+
+**版本、错误与取消**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/revision-restore-complete.png" alt="版本恢复"><br><b>版本恢复</b><br>真实把 rev0 恢复为新的 rev2，显示恢复来源、行级差异与成功 Toast。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/export-analysis-error.png" alt="受控错误"><br><b>受控错误</b><br>服务端返回项目不存在：按钮禁用、错误面板与 Toast 同步反馈。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/generation-cancel.png" alt="取消生成"><br><b>取消生成</b><br>等待期可取消：排队任务真取消，执行中诚实转为“停止等待”。</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-paper-1440.png" alt="生成进度环"><br><b>生成进度环</b><br>真实 job.progress 驱动节点进度环，完成收敛、失败陶土橙。</td>
+</tr>
+</table>
+
+完整 24 张（含 6 张真实产物输出图）见 [assets/screenshots/v0.5.0/](assets/screenshots/v0.5.0/)，清单与复现命令见[截图说明](assets/screenshots/README.md)。
 
 ### v0.5.0 RC2 已发布基线（2026-09-18）
 
@@ -122,33 +165,37 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 
 | 验证 | 结果 | 证据 |
 |---|---:|---|
-| 当前分支本地全量 Python / HTTP / Chromium | **238 passed，1 skipped，139.96 秒** | [RC3-E 迭代记录](docs/ITERATION-RC3-E-20260925.md) |
-| Generation / Feedback / Restore / Export request-result 与 Adapter 契约 | **20 passed** | [同一记录](docs/ITERATION-RC3-C-20260924.md) |
-| `main` GitHub CI | **以最新 Actions 为准** | [查看 main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
-| Chromium 生成、反馈、画布与导出验收 | **22 / 22 通过** | [RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md) |
+| v0.5.0 发布版全量 Python / HTTP / Chromium | **238 passed，1 skipped** | [v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md) |
+| Chromium e2e（bundled Chromium / 系统 Edge 引擎） | **22 / 22 · 双通道通过** | [同一报告](docs/TEST-REPORT-v0.5.0.md) |
 | DSH 插件注册、重载、卸载、tarball 独立安装 | **2 / 2 通过** | [插件测试](integrations/deepseek-harness/test/plugin.test.js) |
-| 本机动效与竞态专项 | **196 passed，1 skipped** | [动效测试日志](docs/test-evidence/motion-20260918/pytest.txt) |
-| 发布附件回读与 SHA-256 | **一致** | [发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md#正式执行插件预览发布2026-09-18) |
+| 发布附件回读与 SHA-256 | **wheel 与 Windows zip 实测一致** | [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
+| Windows 便携包真机烟测 | 启动 → 生成 → 真实 PNG 导出 | [同一报告](docs/TEST-REPORT-v0.5.0.md) |
+| `main` GitHub CI | **以最新 Actions 为准** | [查看 main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
 
-当前限制：没有完成 Safari / WebView2 实机验收，也没有用真实模型验收 DSH 对话自动选用技能；跨进程并发写入与断电事务恢复已在 RC3-D 落地（journal 回滚 + `.locks/` 文件锁 + 原子发布）。DSH 首版是技能工作流，尚未提供专用工具卡片或聊天内 HTML 预览。
+当前限制：Safari 实机验收需要 macOS 环境（WebView2/Edge 实机已完成 22/22）；未用真实模型验收 DSH 对话自动选用技能。DSH 首版是技能工作流，尚未提供专用工具卡片或聊天内 HTML 预览。
 
-## RC3 架构加固：共享 Generation 用例已完成（2026-09-24）
+## RC3 架构加固：全部完成，v0.5.0 已发布
 
-项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design、TDD 与 code-review 方法推进。RC3-A、RC3-B1、视觉收敛、RC3-B2 Generation、RC3-C Feedback / Restore / Export 应用用例与 RC3-D 存储一致性均已完成；当前重点转向 RC3-E 浏览器生命周期 Module。
+项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design、TDD 与 code-review 方法推进。RC3-A、RC3-B1、视觉收敛、RC3-B2 Generation、RC3-C Feedback / Restore / Export 应用用例、RC3-D 存储一致性与 RC3-E 浏览器生命周期 Module 全部完成，并以 `v0.5.0` 稳定版发布。
 
 | 优先级 | 结论 | 当前状态 / 下一步 |
 |---|---|---|
 | P0 | 旧架构与贡献指南仍描述早期目录和门禁 | 已更新当前架构、领域词汇和真实测试命令 |
-| P1 | HTTP handler 同时承担 transport 与业务编排 | Generation、Feedback、Restore 与 Export 已迁入共享 `StudioApplication`；下一步统一 Project commit |
+| ~~P1~~ | ~~HTTP handler 同时承担 transport 与业务编排~~（RC3-B2/C 已解决） | 共享 `StudioApplication` 用例，Handler 只做输入解析与序列化 |
 | ~~P1~~ | ~~多套文件写入规则并存，跨进程和断电事务未闭环~~（RC3-D 已解决） | 见 [RC3-D 迭代记录](docs/ITERATION-RC3-D-20260925.md) |
-| P2 | 工作台状态仍集中在大页面 | 按 Project、Generation、Revision、Export 生命周期拆分 |
+| ~~P2~~ | ~~工作台状态仍集中在大页面~~（RC3-E 已解决） | 四个生命周期 Module：FoxProjects / FoxGeneration / FoxRevisions / FoxExports |
 | P2 | 多个浏览器测试重复启动本地 server | 共享 pytest fixture 已完成；本轮继续增加视觉、响应式和可访问性门禁 |
 
 完整证据与阶段门槛见 [工程审计报告](docs/AUDIT-MATTPOCOCK-20260920.md)、[上游技能研究](docs/research/MATTPocock-SKILLS-AUDIT-20260920.md)、[RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md)、[v0.5.0 正式版计划](docs/PLAN-v0.5.0-STABLE-20260924.md)和 [RC3 架构加固计划](docs/ITERATION-PLAN-POST-RC2-20260920.md)。动效仍沿用[动效执行方案](docs/MOTION-PLAN-v0.5.md)，并作为生命周期反馈进入前端 Module 迭代。
 
-## v0.5.0 RC 系列核心能力
+## v0.5.0 稳定版核心能力
 
-![项目记忆与采用信号](assets/screenshots/v0.5.0rc1/project-memory-dialog.png)
+![崩溃可恢复提交与生命周期 Module](assets/screenshots/v0.5.0/generation-cancel.png)
+
+- **🧠 Project Memory**：品牌、受众、语气、禁忌、模板、主色和字体保存在本地，可查看、编辑、关闭或清空。
+- **♡ 明确采用后学习**：只有在产物检查器点击“采用此版本并学习”才会进入长期记忆，测试稿和失败稿不会污染偏好。
+- **🛡 崩溃可恢复的 Project 提交（RC3-D）**：统一 durable 原语 + 提交 journal，进程被 kill / 断电后自动回滚到上一个一致版本；跨进程文件锁让 CLI 与服务并发操作同一项目返回稳定 `project_busy`。
+- **🧩 浏览器生命周期 Module + 取消生成（RC3-E）**：Project / Generation / Revision / Export 拆分为独立 Module；每工作区单飞生成，等待期可取消——排队任务真取消，执行中诚实转为“停止等待”。
 
 - **🧠 Project Memory**：品牌、受众、语气、禁忌、模板、主色和字体保存在本地，可查看、编辑、关闭或清空。
 - **♡ 明确采用后学习**：只有在产物检查器点击“采用此版本并学习”才会进入长期记忆，测试稿和失败稿不会污染偏好。
@@ -164,7 +211,7 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 - **✅ 可信发布链路**：版本、CLI、API、安装包、Docker 标签、测试证据和 Git 标签保持一致。
 - **🎨 Pixel Garden 设计系统**：深钴蓝 `#173C8F` + 薄荷绿 `#49B894` + 暖纸白 `#F4F0E7` 统一设计令牌，5 大视觉产物一致体验。
 - **🤖 真实 LLM 接入**：MiniMax-M3 / Claude / GPT-4o 三家 API，环境变量自动配置，离线规则引擎兜底。
-- **🖥️ Web 工作台**：`htmlninefox workbench` 一键启动本地 Web UI，实时预览 + 智能体日志 + 模板选择。
+- **🖥️ Web 工作台**：`htmlninefox app` 一键启动本地 Web UI，实时预览 + 智能体日志 + 模板选择。
 - **🐳 Docker 镜像**：`docker run htmlninefox` 跨平台部署，多阶段构建，compose.yaml 注入环境变量。
 - **真实 HTML 模板库**：6 套完整模板、34 个可单独预览和抽取的页面，不再只展示线框。
 - **统一需求入口**：支持文字、TXT、Markdown、JSON、CSV、HTML 和常见图片。
@@ -183,10 +230,10 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 <table>
 <tr>
 <td width="50%"><img src="assets/screenshots/v0.4.0/pixel-garden-unified.png" alt="Pixel Garden 统一设计"><br><b>Pixel Garden 统一设计</b><br>5 大视觉产物统一为深钴蓝 + 薄荷绿 + 暖纸白，杂志感与像素识别并存。</td>
-<td width="50%"><img src="assets/screenshots/v0.4.0/web-workbench.png" alt="Web 工作台"><br><b>Web 工作台</b><br>htmlninefox workbench 一键启动，实时预览 + 智能体日志 + 模板选择。</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/web-workbench.png" alt="模板预览对话框"><br><b>模板预览对话框</b><br>真实 HTML 模板逐页预览，整套加入工作区或抽取当前页。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.4.0/llm-integration.png" alt="真实 LLM 接入"><br><b>真实 LLM 接入</b><br>MiniMax-M3 / Claude / GPT-4o 三家 API，环境变量自动配置，离线兜底保留。</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/llm-integration.png" alt="AI 模型配置对话框"><br><b>AI 模型配置</b><br>OpenAI-compatible 接口 + API Key 本地保存、可测连接；无 Key 时离线规则兜底。</td>
 <td width="50%"><img src="assets/screenshots/v0.4.0/docker-deploy.png" alt="Docker 部署"><br><b>Docker 一键部署</b><br>docker run htmlninefox 跨平台运行，多阶段构建，环境变量注入。</td>
 </tr>
 </table>
@@ -199,13 +246,15 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 
 ### 六类真实产物
 
+以下产物图由 `v0.5.0` 发布版的 e2e 验收流程真实生成：
+
 | 落地页 | 数据看板 | 发布会 PPT |
 |---|---|---|
-| ![Landing](assets/screenshots/v0.3.0b2/output-landing.png) | ![Dashboard](assets/screenshots/v0.3.0b2/output-dashboard.png) | ![Deck](assets/screenshots/v0.3.0b2/output-deck.png) |
+| ![Landing](assets/screenshots/v0.5.0/output-landing.png) | ![Dashboard](assets/screenshots/v0.5.0/output-dashboard.png) | ![Deck](assets/screenshots/v0.5.0/output-deck.png) |
 
-| 海报 | 架构文档 |
-|---|---|
-| ![Poster](assets/screenshots/v0.3.0b2/output-poster.png) | ![Architecture document](assets/screenshots/v0.3.0b2/output-archdoc.png) |
+| 翻页交互 | 海报 | 架构文档 |
+|---|---|---|
+| ![Deck page 2](assets/screenshots/v0.5.0/output-deck-page2.png) | ![Poster](assets/screenshots/v0.5.0/output-poster.png) | ![Architecture document](assets/screenshots/v0.5.0/output-archdoc.png) |
 
 ## 下载与安装
 
@@ -309,21 +358,21 @@ htmlninefox export output/html9n-<时间戳> --format png --scope long
 
 ## 测试与信任证据
 
-`main` 最新工程基线在 **2026-09-24** 完成 RC3-C 共享应用用例及本地全量复验；`v0.5.0rc3` 在 **2026-09-18** 完成应用发布验收，历史包证据继续保留：
+`v0.5.0` 稳定版已于 **2026-09-25** 发布，全部门禁在发布提交上复验通过：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **221 passed, 1 skipped** | [RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md) |
-| Chromium 真实生成与交互验收 | **22 / 22 passed** | [RC3-B1 验证记录](docs/ITERATION-RC3-B1-20260921.md) |
+| Python / API / 存储 / 安全 / 浏览器测试 | **238 passed, 1 skipped** | [v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md) |
+| Chromium e2e（bundled Chromium + 系统 Edge/WebView2 引擎双通道） | **22 / 22 · 22 / 22** | [同一报告](docs/TEST-REPORT-v0.5.0.md) |
 | 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
 | 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
 | DSH 插件与最终 tarball 安装 | **2 / 2 通过** | [接入与发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| RC3 发布包 | wheel 隔离安装、CSS/JS 静态资源、CLI 与工作台启动在本地验证；标签工作流重建 Windows / Linux 资产、SHA-256 并验证 Docker | [发布测试报告](docs/TEST-REPORT-v0.5.0rc3.md) |
+| 发布附件 | 5 个包体 + SHA-256；wheel 与 Windows zip 回读校验一致；wheel 干净 venv 安装烟测通过 | [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
+| Windows 便携包真机烟测 | 打包 exe 启动 → 生成 → 真实 PNG 导出 | [同一报告](docs/TEST-REPORT-v0.5.0.md) |
+| Docker 镜像 | 标签 CI 独立 job 构建并验证 | [构建工作流](.github/workflows/build-release-packages.yml) |
 | LLM 接入 | MiniMax-M3 / Claude / GPT-4o 环境变量自动配置 | [配置文档](docs/INSTALL.md) |
-| Web 工作台 | Python 本地 HTTP 服务 + 实时预览 + 智能体日志 | [E2E 日志](docs/test-evidence/v0.4.2-chromium-e2e.txt) |
-| Docker 镜像 | 多阶段构建定义 + 标签 CI 独立验证 | [构建工作流](.github/workflows/build-release-packages.yml) |
 
-发布命令、环境与限制见：[v0.5.0rc3 测试报告](docs/TEST-REPORT-v0.5.0rc3.md)。旧版环境记录见：[v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
+发布命令、环境与限制见：[v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md)。历史版本证据保留在 [v0.5.0rc3 测试报告](docs/TEST-REPORT-v0.5.0rc3.md)与 [v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
 
 ```bash
 python -m pytest tests -q -p no:cacheprovider
@@ -347,7 +396,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.5.0rc3` 是当前应用预发布版，`v0.4.2` 仍是稳定版；`main` 已完成 RC3-B1、视觉收敛以及 Generation / Feedback / Restore / Export 共享应用 Interface。下一步推进 durable Project commit、跨进程锁、崩溃恢复，以及按 Project / Generation / Revision / Export 生命周期拆分浏览器 Module；这些门禁稳定后发布 `v0.5.0` 正式版。
+`v0.5.0` 是当前稳定版（2026-09-25 发布）：共享应用用例、崩溃可恢复 Project 提交与跨进程锁、浏览器生命周期 Module 全部收口，Windows / Linux / wheel / Docker 附件与 SHA-256 齐备。下一阶段按 ROADMAP 进入 v0.6：可编辑 PPTX / DOCX 导出与 Tauri 桌面 sidecar。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

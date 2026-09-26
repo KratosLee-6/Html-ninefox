@@ -12,7 +12,7 @@
 | 0.5.0rc3/ | Chromium 发布验收生成的纸白、夜蓝与 Export Center 截图 |
 | `v0.5.0rc3-visual/` | `v0.5.0rc3` 的响应式、组件状态与恢复/错误证据 |
 
-## v0.5.0 稳定版截图（18 张）
+## v0.5.0 稳定版截图（24 张）
 
 发布于 `v0.5.0`（2026-09-25）后的完整实拍集，顶栏版本徽标为 `v0.5.0`：
 
@@ -21,6 +21,8 @@
 - 业务状态：`command-palette-search.png`、`project-memory-saved.png`、`export-analysis-error.png`、`revision-restore-complete.png`、`generation-cancel.png`
 
 `export-center.png` 由 `e2e_verify.py` 采集，展示真实导出产物（page-01.png + export-report.json）。
+
+**真实产物输出（6 张，e2e 验收流程生成）**：`output-landing.png`、`output-dashboard.png`、`output-deck.png`、`output-deck-page2.png`、`output-poster.png`、`output-archdoc.png`。中英文 README 的功能 ↔ 截图对照画廊与「六类真实产物」表均引用本目录。
 
 ## RC3 视觉证据（15 张）
 

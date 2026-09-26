@@ -14,9 +14,9 @@
 | **WebView2 / Edge 实机** | **22 / 22 通过** | `HTMLNINEFOX_E2E_CHANNEL=msedge python e2e_verify.py`，真实 Windows 10 主机 + 系统 Edge 引擎，覆盖生成、反馈、画布、主题切换、导出中心真实分页分析、真实 PNG 导出、JS 零错误 |
 | JavaScript 语法 | 11 个独立脚本 + 内联块全部通过 | `node --check` + `check_inline_js.py` |
 | DeepSeek Harness | **2 / 2 通过** | `npm test`（integrations/deepseek-harness） |
-| 版本一致性 | `release metadata consistent: v0.5.0rc3` | `check_release_version.py` |
-| wheel 构建 | `htmlninefox-0.5.0rc3-py3-none-any.whl`；资源审计确认 4 个 `lifecycle-*.js`、`sw.js`、`index.html` 已入包 | `pip wheel` |
-| Windows 便携包 | `HtmlNineFox-Windows-x64-0.5.0rc3.zip` + SHA-256（`B5633E9F…AFA38`，certutil 复核一致） | `build_portable.py`（PyInstaller onedir） |
+| 版本一致性 | `release metadata consistent: v0.5.0`（`--tag v0.5.0`） | `check_release_version.py` |
+| wheel 构建 | `htmlninefox-0.5.0-py3-none-any.whl`；资源审计确认 4 个 `lifecycle-*.js`、`sw.js`、`index.html` 已入包，并在干净 venv 安装烟测通过（CLI `--version` = 0.5.0） | `pip wheel` + venv 烟测 |
+| Windows 便携包 | `HtmlNineFox-Windows-x64-0.5.0.zip`（发布附件）；SHA-256 回读校验一致 | 标签 CI 构建 + 下载回读 |
 | Windows 便携包真机烟测 | 打包 exe 启动 → `/api/health` 报 `windows-portable` → 真实生成（verify ok）→ 真实 PNG 导出（`full-page.png`）→ 版本历史可读 | 本机实跑 |
 | Docker | 本机 Docker Desktop 未运行；按发布流程由 tag 触发的 CI 专 job 构建并验证（`build-release-packages.yml`） | CI |
 | Linux 安装包 / 归档 | 由 tag 触发的 CI 构建（x86_64 + aarch64 wheelhouse） | CI |

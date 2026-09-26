@@ -19,7 +19,7 @@
 
 </div>
 
-![HtmlNineFox RC3 Pixel Garden workbench](assets/screenshots/v0.5.0rc3-visual/workbench-paper-1440.png)
+![HtmlNineFox v0.5.0 Pixel Garden workbench](assets/screenshots/v0.5.0/workbench-paper-1440.png)
 
 ## What it solves
 
@@ -65,18 +65,71 @@ The workbench keeps the existing Pixel Garden brand and native HTML/CSS/JavaScri
 | Component system | Consistent focus, selected, disabled, busy, success, error, and reduced-motion behavior with local SVG icons |
 | Classic mode | Rejoined the same paper, cobalt, mint, terracotta, logo, typography, and form-state system |
 
+### Feature-to-screenshot map (real captures from v0.5.0)
+
+All 18 shots below were taken on the released `v0.5.0` build (topbar badge reads `v0.5.0`), each mapping to a real feature:
+
+**Workbench & canvas**
+
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/workbench-paper-1440.png" alt="RC3 Pixel Paper desktop workbench"><br><b>Desktop workbench</b><br>Three-column hierarchy and focused primary actions.</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/workbench-mobile-390.png" alt="RC3 mobile task view"><br><b>Mobile task view</b><br>Workspace actions and node cards replace an unreadable scaled canvas.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-paper-1440.png" alt="Desktop workbench (Pixel Paper)"><br><b>Desktop workbench (Pixel Paper)</b><br>Three-column hierarchy: library · infinite-canvas workspaces · inspector.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-night-1440.png" alt="Desktop workbench (Pixel Night)"><br><b>Desktop workbench (Pixel Night)</b><br>Full dark theme on the same component hierarchy and brand colors.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/command-palette-search.png" alt="Command palette search"><br><b>Command palette</b><br>Keyboard search, active result, and shortcut feedback.</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0rc3-visual/revision-restore-complete.png" alt="Revision restore complete"><br><b>Restore complete</b><br>Real rev0 → rev2 restore with lineage and success feedback.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-overview.png" alt="Workspace management"><br><b>Workspace management</b><br>Workspace navigator, identity colors, per-workspace advance, group moves.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-tablet-768.png" alt="Tablet 768 layout"><br><b>Tablet 768 layout</b><br>Sidebar folds into topbar drawers; canvas keeps semantic zoom.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-mobile-390.png" alt="Mobile task view (390px)"><br><b>Mobile task view (390px)</b><br>Workspace actions and node cards replace an unreadable scaled canvas.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-mobile-library.png" alt="Mobile library drawer"><br><b>Mobile library drawer</b><br>REAL HTML template cards browse and drag on mobile.</td>
 </tr>
 </table>
 
-The RC3 evidence set contains 14 real screenshots, including Project Memory, controlled export errors, generated output, Export Center readiness, tablet drawers, and both themes.
+**Input & inspectors**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/input-dialog-paper.png" alt="Guided requirement input"><br><b>Guided requirement input</b><br>One entry for text, files, and images; AI analysis recommends a composition.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/classic-pixel-garden.png" alt="Classic form mode"><br><b>Classic form mode</b><br>One-line Brief quick generation on the same brand system.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/selected-node-inspector.png" alt="Requirement node inspector"><br><b>Requirement node inspector</b><br>Edit text and attachments on selection; advance to the workspace.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/generated-output-inspector.png" alt="Output node inspector"><br><b>Output node inspector</b><br>Revision badge, recipe run, adoption, conversational feedback, export entry.</td>
+</tr>
+</table>
+
+**Project Memory & command palette**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/project-memory-saved.png" alt="Project Memory"><br><b>Project Memory</b><br>Brand, audience, tone, forbidden patterns, templates saved locally with visible success.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/command-palette-search.png" alt="Command palette"><br><b>Command palette</b><br>Ctrl+K keyboard open, search, active result, shortcut hints.</td>
+</tr>
+</table>
+
+**Export Center (real export flow)**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/export-center-ready.png" alt="Export analysis ready"><br><b>Export analysis ready</b><br>Compatibility score, page model, dynamic features, local engine status.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/export-center.png" alt="Real export result"><br><b>Real export result</b><br>Deck detects 7 pages; page-01.png and export-report.json produced and downloadable.</td>
+</tr>
+</table>
+
+**Revisions, errors & cancel**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/revision-restore-complete.png" alt="Revision restore"><br><b>Revision restore</b><br>Real rev0 → rev2 restore with lineage, line diff, and success toast.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/export-analysis-error.png" alt="Controlled error"><br><b>Controlled error</b><br>Missing project: button disabled with panel and toast feedback.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.5.0/generation-cancel.png" alt="Cancel generation"><br><b>Cancel generation</b><br>Queued jobs cancel for real; running jobs honestly switch to stop-waiting.</td>
+<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-paper-1440.png" alt="Generation progress rings"><br><b>Generation progress rings</b><br>Real job.progress drives node rings; success collapses, failure turns terracotta.</td>
+</tr>
+</table>
+Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots/v0.5.0/](assets/screenshots/v0.5.0/); the list and reproduction commands are in [the screenshots README](assets/screenshots/README.md).
 
 ## v0.5.0 RC Series Capabilities
 
@@ -130,13 +183,15 @@ Output nodes can export PDF, paginated PNG, or a full-page image. Preflight show
 
 ### Six real output types
 
+Generated by the e2e acceptance flow of the released `v0.5.0`:
+
 | Landing | Dashboard | Deck |
 |---|---|---|
-| ![Landing](assets/screenshots/v0.3.0b2/output-landing.png) | ![Dashboard](assets/screenshots/v0.3.0b2/output-dashboard.png) | ![Deck](assets/screenshots/v0.3.0b2/output-deck.png) |
+| ![Landing](assets/screenshots/v0.5.0/output-landing.png) | ![Dashboard](assets/screenshots/v0.5.0/output-dashboard.png) | ![Deck](assets/screenshots/v0.5.0/output-deck.png) |
 
-| Poster | Architecture document |
-|---|---|
-| ![Poster](assets/screenshots/v0.3.0b2/output-poster.png) | ![Architecture document](assets/screenshots/v0.3.0b2/output-archdoc.png) |
+| Deck page 2 | Poster | Architecture document |
+|---|---|---|
+| ![Deck page 2](assets/screenshots/v0.5.0/output-deck-page2.png) | ![Poster](assets/screenshots/v0.5.0/output-poster.png) | ![Architecture document](assets/screenshots/v0.5.0/output-archdoc.png) |
 
 ## Download & Install
 
@@ -186,15 +241,14 @@ The stable `v0.5.0` was verified locally on **September 25, 2026** (full gates p
 
 | Check | Result | Evidence |
 |---|---:|---|
-| Full Python / API / storage / security / browser suite | **238 passed, 1 skipped** | [RC3-E record](docs/ITERATION-RC3-E-20260925.md) |
-| Generation, Feedback, Restore, and Export application seams | **20 passed** | [RC3-C record](docs/ITERATION-RC3-C-20260924.md) |
-| Focused command, memory, error, recovery, motion, interaction, revision, and export suite | **20 passed** | [reproducible Playwright gate](tests/test_rc3_visual_evidence_states.py) |
-| Inline and standalone JavaScript syntax | **Passed** | [RC3 visual record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
-| Chromium generation and workbench acceptance | **22 / 22 passed** | [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
+| Full Python / API / storage / security / browser suite (release build) | **238 passed, 1 skipped** | [v0.5.0 test report](docs/TEST-REPORT-v0.5.0.md) |
+| Chromium e2e on bundled Chromium and the real system Edge engine | **22 / 22 · 22 / 22** | [same report](docs/TEST-REPORT-v0.5.0.md) |
 | DSH registry and final tarball integration | **2 / 2 passed** | [integration record](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| RC3 package validation | Isolated wheel, packaged CSS/JS assets, CLI/workbench startup, tagged Windows/Linux assets, SHA-256 files, and Docker verification | [test report](docs/TEST-REPORT-v0.5.0rc3.md) |
+| Release attachments | 5 packages + SHA-256; wheel and Windows zip checksums verified by download; wheel clean-venv install smoke passed | [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
+| Windows portable real-machine smoke | Packaged exe: launch → generate → real PNG export | [same report](docs/TEST-REPORT-v0.5.0.md) |
+| Docker image | Dedicated tag-CI job builds and verifies | [build workflow](.github/workflows/build-release-packages.yml) |
 
-The remaining product-engineering gaps are durable multi-file Project commits, cross-process coordination, crash recovery, browser lifecycle Modules, and Safari/WebView2 device validation.
+Remaining known gap: Safari real-machine validation needs macOS; WebView2/Edge device-level validation is complete (22/22).
 
 ### Run from source
 
