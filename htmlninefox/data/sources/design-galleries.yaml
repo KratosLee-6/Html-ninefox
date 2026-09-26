@@ -1,0 +1,27 @@
+# 内置设计源清单 · v0.6 Phase 1
+# license_class 三档：
+#   open            — MIT/CC0 等可再分发，可整条入库
+#   reference       — 可参考结构与风格，只提取令牌/骨架，产出必须原创重渲染
+#   inspiration-only — 仅截图进灵感板，不提取代码
+sources:
+  - id: land-book
+    name: Land-book 网页画廊
+    kind: gallery
+    license_class: reference
+    entry_url: https://land-book.com/websites
+    rate_limit: { requests_per_minute: 8 }
+    notes: 精选落地页画廊；只参考结构/配色/字体，截图可作灵感板
+  - id: godly
+    name: Godly Website
+    kind: gallery
+    license_class: inspiration-only
+    entry_url: https://godly.website
+    rate_limit: { requests_per_minute: 6 }
+    notes: 高质量站点灵感集；仅灵感板用途
+  - id: codrops
+    name: Codrops 动效与交互
+    kind: motion
+    license_class: reference
+    entry_url: https://tympanus.net/codrops/
+    rate_limit: { requests_per_minute: 6 }
+    notes: 动效模式参考；提取时长/缓动/触发方式，实现必须原创
