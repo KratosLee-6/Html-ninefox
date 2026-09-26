@@ -362,6 +362,7 @@ def extract_candidate(evidence: dict, *, source: dict | None = None,
         "url": evidence["url"],
         "final_url": evidence["final_url"],
         "source": source["id"] if source else "",
+        "kind": (source.get("kind") if source else "gallery") or "gallery",
         "license_class": source["license_class"] if source else "reference",
         "title": parser.title.strip()[:120] or evidence["final_url"],
         "intent_guess": _guess_intent(parser.title, parser.headings),
@@ -377,6 +378,9 @@ def extract_candidate(evidence: dict, *, source: dict | None = None,
         "fetched_at": evidence["fetched_at"],
         "body_sha256": evidence["body_sha256"],
     }
+    extractor = KIND_EXTRACTORS.get(candidate["kind"])
+    if extractor is not None:
+        candidate.update(extractor(evidence, html_text, style_blob))
     return candidate
 
 
@@ -433,6 +437,55 @@ class CandidateStore:
         (self._dir(candidate_id) / "candidate.json").write_text(
             json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8")
         return candidate
+
+
+# ---------------------------------------------------------------- kind extractors (S06)
+
+MOTION_TRANSITION = re.compile(r"transition\s*:[^;}]+", re.I)
+MOTION_ANIMATION = re.compile(r"animation\s*:[^;}]+", re.I)
+KEYFRAMES_NAME = re.compile(r"@keyframes\s+([\w-]+)", re.I)
+FONT_SIZE = re.compile(r"font-size\s*:\s*([^;}]+)", re.I)
+LINE_HEIGHT = re.compile(r"line-height\s*:\s*([^;}]+)", re.I)
+
+
+def extract_components(evidence: dict, html_text: str, style_blob: str = "") -> dict:
+    """Section-level component candidates: each semantic section as a bounded snippet."""
+    sections: list[dict] = []
+    closing = chr(60) + chr(47) + "\\1" + chr(62)
+    pattern = re.compile(
+        r"<(" + "|".join(SECTION_TAGS) + r")([^>]*)>(.*?)" + closing, re.S | re.I)
+    for match in pattern.finditer(html_text):
+        tag, attrs, inner = match.group(1).lower(), match.group(2), match.group(3)
+        class_match = re.search(r'class="([^"]*)"', attrs)
+        text_head = " ".join(re.sub(r"<[^>]+>", " ", inner).split())[:160]
+        sections.append({
+            "tag": tag,
+            "class": class_match.group(1)[:120] if class_match else "",
+            "text_head": text_head,
+            "snippet": match.group(0)[:4000],
+        })
+        if len(sections) >= 12:
+            break
+    return {"components": sections}
+
+
+def extract_motion(evidence: dict, html_text: str, style_blob: str) -> dict:
+    """Motion patterns: transitions, animation shorthands, keyframes names."""
+    transitions = list(dict.fromkeys(line.strip() for line in MOTION_TRANSITION.findall(style_blob)))[:16]
+    animations = list(dict.fromkeys(line.strip() for line in MOTION_ANIMATION.findall(style_blob)))[:16]
+    keyframes = list(dict.fromkeys(KEYFRAMES_NAME.findall(html_text + " " + style_blob)))[:16]
+    return {"motion": {"transitions": transitions, "animations": animations, "keyframes": keyframes}}
+
+
+def extract_typography(evidence: dict, style_blob: str) -> dict:
+    """Typography scale: font stacks, size steps, line heights."""
+    sizes = list(dict.fromkeys(value.strip() for value in FONT_SIZE.findall(style_blob)))[:16]
+    heights = list(dict.fromkeys(value.strip() for value in LINE_HEIGHT.findall(style_blob)))[:12]
+    return {"typography": {"sizes": sizes, "line_heights": heights}}
+
+
+KIND_EXTRACTORS = {"components": extract_components, "motion": extract_motion,
+                   "typography": extract_typography}
 
 
 # ---------------------------------------------------------------- manual import (S04)

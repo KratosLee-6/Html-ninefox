@@ -296,3 +296,41 @@ def test_candidate_store_survives_corrupt_entry(tmp_path: Path) -> None:
     with pytest.raises(IntakeError) as excinfo:
         store.list()
     assert excinfo.value.code == "intake_candidate_corrupt"
+
+
+# ---------------------------------------------------------------- S06 kind extractors
+
+MOTION_SAMPLE = (b"<html><head><title>Motion Lab Inspo</title><style>"
+                 b"h1{animation:fade 2s ease-in;transition:all .3s ease}"
+                 b"@keyframes fade{from{opacity:0}}</style></head>"
+                 b"<body><main><h1>T</h1></main></body></html>")
+COMPONENT_SAMPLE = (b"<html><head><title>Component Inspo</title></head><body>"
+                    b'<nav class="topnav">links</nav>'
+                    b'<section class="hero"><h1>Hero</h1><p>big</p></section>'
+                    b'<section class="pricing"><h2>Plans</h2></section></body></html>')
+
+
+def test_motion_extractor_pulls_patterns(tmp_path: Path) -> None:
+    store = CandidateStore(tmp_path)
+    source = {"id": "codrops", "kind": "motion", "license_class": "reference"}
+    evidence = html_evidence(MOTION_SAMPLE, url="https://example.com/motion")
+    candidate = extract_candidate(evidence, source=source)
+    assert candidate["kind"] == "motion"
+    assert "fade 2s ease-in" in candidate["motion"]["animations"][0]
+    assert candidate["motion"]["keyframes"] == ["fade"]
+    store.save(candidate, evidence)
+    assert store.get(candidate["candidate_id"])["motion"]["animations"]
+
+
+def test_components_extractor_pulls_sections(tmp_path: Path) -> None:
+    store = CandidateStore(tmp_path)
+    source = {"id": "comp-src", "kind": "components", "license_class": "reference"}
+    candidate = extract_candidate(html_evidence(COMPONENT_SAMPLE, url="https://example.com/comp"),
+                                  source=source)
+    assert candidate["kind"] == "components"
+    tags = [item["tag"] for item in candidate["components"]]
+    assert tags == ["nav", "section", "section"]
+    hero = candidate["components"][1]
+    assert hero["class"] == "hero"
+    assert "Hero" in hero["text_head"]
+    assert "<h1>" in hero["snippet"]
