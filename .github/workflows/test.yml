@@ -47,6 +47,7 @@ jobs:
           node --check htmlninefox/server/static/lifecycle-generation.js
           node --check htmlninefox/server/static/lifecycle-revisions.js
           node --check htmlninefox/server/static/lifecycle-exports.js
+          node --check htmlninefox/server/static/lifecycle-intake.js
           node --check htmlninefox/server/static/sw.js
           python scripts/check_inline_js.py
       - name: Chromium acceptance

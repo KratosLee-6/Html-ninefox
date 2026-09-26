@@ -610,6 +610,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
           <button class="install-app" id="btn-install" type="button" hidden><span class="ui-icon" data-icon="install" aria-hidden="true"></span>安装应用</button>
           <button class="diagnostic-button" id="btn-diagnostic" type="button" onclick="createDiagnostic()"><span class="ui-icon" data-icon="diagnostic" aria-hidden="true"></span>生成诊断包</button>
           <button class="classic-link" type="button" onclick="window.open('/classic','_blank')"><span class="ui-icon" data-icon="classic" aria-hidden="true"></span>经典表单模式</button>
+          <button type="button" onclick="openIntake()"><span class="ui-icon" data-icon="library" aria-hidden="true"></span>设计吸收</button>
         </div>
       </details>
     </div>
@@ -782,6 +783,29 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   </div>
 </div>
 
+<div class="preview-modal" id="intake-modal" hidden role="dialog" aria-modal="true" aria-labelledby="intake-title">
+  <div class="flow-dialog intake-dialog"><div class="preview-bar"><strong id="intake-title">设计吸收</strong><span>全球优秀设计 · 安全抓取 · 审核后入库</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeIntake()">关闭</button></div>
+    <div class="flow-body">
+      <section class="flow-card">
+        <div class="intake-fetch-row">
+          <input id="intake-fetch-url" placeholder="https:// 参考网页地址（仅公网）" aria-label="参考网页地址">
+          <select id="intake-source" aria-label="设计来源"></select>
+          <button class="btn btn-primary" id="intake-fetch-btn" onclick="intakeFetch()">抓取为候选</button>
+        </div>
+        <div class="intake-status" id="intake-status" role="status">手动粘贴地址即可抓取；每来源限速，仅访问公网地址。</div>
+      </section>
+      <section class="flow-card">
+        <div class="intake-toolbar" role="tablist" aria-label="候选筛选">
+          <button class="btn btn-secondary" onclick="intakeRefresh('pending')">待审核</button>
+          <button class="btn btn-secondary" onclick="intakeRefresh('approved')">已采纳</button>
+          <button class="btn btn-secondary" onclick="intakeRefresh('rejected')">已拒绝</button>
+          <button class="btn btn-secondary" onclick="intakeRefresh('all')">全部</button>
+        </div>
+        <div id="intake-list" class="intake-list" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+</div>
 <div class="preview-modal" id="memory-modal" hidden role="dialog" aria-modal="true" aria-labelledby="memory-title">
   <div class="flow-dialog memory-dialog"><div class="preview-bar"><strong id="memory-title">项目记忆</strong><span>明确采用后学习 · 本地保存 · 随时关闭</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeProjectMemory()">关闭</button></div>
     <div class="flow-body"><section class="flow-card">
@@ -806,6 +830,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <script src="/lifecycle-generation.js"></script>
 <script src="/lifecycle-revisions.js"></script>
 <script src="/lifecycle-exports.js"></script>
+<script src="/lifecycle-intake.js"></script>
 <script>
 /* ============================================================
    迷你线框预览（全可视化素材的核心：图形优先，文字最少）
@@ -1633,6 +1658,12 @@ function closeExportCenter() { return window.FoxExports.close(); }
 function syncExportOptions() { return window.FoxExports.syncOptions(); }
 function startExport() { return window.FoxExports.start(); }
 function createDiagnostic() { return window.FoxExports.diagnostic(); }
+function openIntake() { return window.FoxIntake.open(); }
+function closeIntake() { return window.FoxIntake.close(); }
+function intakeRefresh(filter) { return window.FoxIntake.refresh(filter); }
+function intakeFetch() { return window.FoxIntake.fetchCandidate(); }
+function intakeApprove(id) { return window.FoxIntake.approve(id); }
+function intakeReject(id) { return window.FoxIntake.reject(id); }
 
 /* 画布孤儿节点清理：经生成模块 API 清进度态，不读模块内部变量。 */
 new MutationObserver(() => {
@@ -1983,6 +2014,7 @@ async function init() {
   window.FoxInteraction?.registerDialog('#create-modal', { onRequestClose:closeCreatePanel, initialFocus:'#creation-prompt' });
   window.FoxInteraction?.registerDialog('#ai-modal', { onRequestClose:closeAISettings, initialFocus:'#ai-enabled' });
   window.FoxInteraction?.registerDialog('#memory-modal', { onRequestClose:closeProjectMemory, initialFocus:'#memory-enabled' });
+  window.FoxInteraction?.registerDialog('#intake-modal', { onRequestClose:closeIntake, initialFocus:'#intake-fetch-url' });
   window.FoxInteraction?.registerDialog('#revision-modal', { onRequestClose:closeRevisionDiff, initialFocus:'#revision-close' });
   updateConnectionStatus();
   const installBtn = $('#btn-install');

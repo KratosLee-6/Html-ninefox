@@ -276,3 +276,20 @@
 :root[data-fox-motion="off"] .sidebar,
 :root[data-fox-motion="reduced"] .inspector,
 :root[data-fox-motion="off"] .inspector { transition-duration:0s !important; }
+
+/* ── Intake review workbench (v0.6) ── */
+.intake-fetch-row { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:8px; }
+.intake-fetch-row input { width:100%; }
+.intake-status { margin-top:8px; font-size:12px; color:var(--text-secondary); }
+.intake-toolbar { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.intake-list { display:grid; gap:10px; }
+.intake-card { border:1px solid var(--border-default); background:var(--bg-panel); padding:12px; display:grid; gap:6px; }
+.intake-card-head { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.intake-badge { font-size:11px; padding:2px 8px; border:1px solid var(--border-default); border-radius:999px; background:var(--bg-elevated); }
+.intake-badge.dim { color:var(--text-tertiary); }
+.intake-card-url { font-size:11px; color:var(--text-tertiary); word-break:break-all; }
+.intake-swatches { display:flex; gap:4px; }
+.intake-swatch { width:22px; height:22px; border-radius:4px; border:1px solid var(--border-default); display:inline-block; }
+.intake-outline { font-size:12px; color:var(--text-secondary); }
+.intake-card-actions { display:flex; gap:8px; }
+.intake-dialog .flow-body { display:grid; gap:12px; }

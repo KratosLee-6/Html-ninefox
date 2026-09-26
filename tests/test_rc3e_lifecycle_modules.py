@@ -1,4 +1,4 @@
-"""RC3-E: isolated workbench lifecycle modules, race guards, and cancel."""
+"""v0.6 / RC3-E: isolated workbench lifecycle modules, race guards, and cancel."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-from htmlninefox import pipeline
+from htmlninefox import intake, pipeline
 
 READY = ("window.FoxInteraction && window.FoxCanvasProductivity && window.FoxWorkbenchUI"
          " && window.FoxProjects && window.FoxGeneration && window.FoxRevisions"
@@ -182,3 +182,36 @@ def test_export_start_is_guarded_while_a_job_is_running(tmp_path, workbench_serv
         assert not page.locator("#export-start").is_disabled()
         assert errors == []
         browser.close()
+
+
+def test_intake_workbench_dialog_lists_candidates(tmp_path: Path, workbench_server) -> None:
+    sample = (b"<!doctype html><html><head><title>UI Inspo Board</title>"
+              b"<style>body{color:#173C8F}</style></head><body><main><h1>Board</h1></main></body></html>")
+    evidence = {
+        "url": "https://example.com/board", "final_url": "https://example.com/board",
+        "followed": ["https://example.com/board"], "status": 200,
+        "content_type": "text/html", "body": sample, "body_sha256": "1" * 64,
+        "body_bytes": len(sample), "fetched_at": "2026-09-26T09:00:00",
+    }
+    candidate = intake.extract_candidate(
+        evidence, source={"id": "land-book", "license_class": "reference"})
+    with workbench_server as server:
+        intake.CandidateStore(server.output_root).save(candidate, evidence)
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch()
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            errors: list[str] = []
+            page.on("pageerror", lambda error: errors.append(str(error)))
+            page.add_init_script("localStorage.clear()")
+            page.goto(server.base_url + "/")
+            page.wait_for_function(
+                "window.FoxInteraction && window.FoxIntake && nodes.length >= 5")
+            page.evaluate("openIntake()")
+            page.wait_for_selector("#intake-modal:not([hidden])")
+            page.wait_for_function(
+                "document.querySelector('#intake-list').textContent.includes('UI Inspo Board')")
+            assert page.locator(".intake-card").count() == 1
+            assert page.locator("#intake-source option").count() >= 3
+            _capture(page, "intake-review.png")
+            assert errors == []
+            browser.close()

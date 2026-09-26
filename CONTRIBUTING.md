@@ -113,6 +113,7 @@ node --check htmlninefox/server/static/lifecycle-projects.js
 node --check htmlninefox/server/static/lifecycle-generation.js
 node --check htmlninefox/server/static/lifecycle-revisions.js
 node --check htmlninefox/server/static/lifecycle-exports.js
+node --check htmlninefox/server/static/lifecycle-intake.js
 node --check htmlninefox/server/static/sw.js
 ```
 

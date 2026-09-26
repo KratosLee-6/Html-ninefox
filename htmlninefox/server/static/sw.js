@@ -1,5 +1,5 @@
 const CACHE_NAME = 'htmlninefox-shell-rc3e-lifecycle-20260925';
-const APP_SHELL = ['/', '/classic', '/motion-lab', '/motion-system.js', '/canvas-engine.js', '/interaction-system.js', '/lifecycle-projects.js', '/lifecycle-generation.js', '/lifecycle-revisions.js', '/lifecycle-exports.js', '/canvas-productivity.js', '/workbench-features.js', '/manifest.webmanifest', '/icon.svg', '/logo-mark.svg', '/logo-horizontal.svg'];
+const APP_SHELL = ['/', '/classic', '/motion-lab', '/motion-system.js', '/canvas-engine.js', '/interaction-system.js', '/lifecycle-projects.js', '/lifecycle-generation.js', '/lifecycle-revisions.js', '/lifecycle-exports.js', '/lifecycle-intake.js', '/canvas-productivity.js', '/workbench-features.js', '/manifest.webmanifest', '/icon.svg', '/logo-mark.svg', '/logo-horizontal.svg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));

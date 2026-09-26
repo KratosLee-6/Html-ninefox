@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import mimetypes
 import os
+import re
 import shutil
 import sys
 import traceback
@@ -14,7 +16,7 @@ from pathlib import Path
 from typing import Callable
 from urllib.parse import parse_qs, unquote, urlparse
 
-from .. import __version__, exporting, llm, pipeline, project_memory, revisions, template_gallery
+from .. import __version__, exporting, intake, llm, pipeline, project_memory, revisions, template_gallery
 from ..application import (
     ExportError, ExportRequest, ExportResult,
     FeedbackError, FeedbackRequest, FeedbackResult,
@@ -46,6 +48,7 @@ STATIC_FILES = {
     "/lifecycle-generation.js": ("lifecycle-generation.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-revisions.js": ("lifecycle-revisions.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-exports.js": ("lifecycle-exports.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/lifecycle-intake.js": ("lifecycle-intake.js", "application/javascript; charset=utf-8", "no-cache"),
     "/motion-system.js": ("motion-system.js", "application/javascript; charset=utf-8", "no-cache"),
     "/motion-lab": ("motion-lab.html", "text/html; charset=utf-8", "no-cache"),
     "/canvas-productivity.js": ("canvas-productivity.js", "application/javascript; charset=utf-8", "no-cache"),
@@ -95,6 +98,8 @@ _REVISION_ERROR_STATUSES = {
     "revision_state_missing": 409,
     "project_busy": 409,
 }
+
+_INTAKE_RATE_LIMITER = intake.RateLimiter(default_interval=6.0)
 
 
 def serve(host: str = "127.0.0.1", port: int = 8620, output: str | None = None) -> None:
@@ -148,6 +153,44 @@ class _Handler(BaseHTTPRequestHandler):
 
     def _user_gallery(self) -> UserGalleryStore:
         return UserGalleryStore(_OUTPUT_ROOT / ".library" / "gallery")
+
+    def _intake_candidates(self) -> intake.CandidateStore:
+        return intake.CandidateStore(_OUTPUT_ROOT)
+
+    def _api_intake_fetch(self, body: dict) -> dict:
+        url = str(body.get("url") or "").strip()
+        if not url:
+            raise StoreError("intake_url_invalid", "url 不能为空", 400)
+        intake.validate_url(url)   # defense in depth: gate before any transport work
+        source = None
+        source_id = str(body.get("source_id") or "").strip()
+        if source_id:
+            source = intake.find_source(source_id, extra_dir=Path.home() / ".htmlninefox" / "sources")
+            if source is None:
+                raise StoreError("intake_source_missing", f"来源不存在：{source_id}", 404)
+        _INTAKE_RATE_LIMITER.wait(source_id or urlparse(url).hostname or "adhoc")
+        evidence = intake.fetch_reference(url, headers={"Accept": "text/html"})
+        candidate = intake.extract_candidate(evidence, source=source)
+        candidate = self._intake_candidates().save(candidate, evidence)
+        return {"ok": True, "candidate": candidate}
+
+    def _api_intake_decide(self, candidate_id: str, action: str) -> dict:
+        store = self._intake_candidates()
+        candidate = store.set_status(candidate_id, "approved" if action == "approve" else "rejected")
+        gallery_item = None
+        if action == "approve":
+            safe_name = re.sub(r"[^\w.-]+", "-", candidate["title"]).strip("-")[:60] or "intake-candidate"
+            tags = ["intake"]
+            if candidate.get("source"):
+                tags.append(candidate["source"])
+            try:
+                gallery_item = self._user_gallery().import_files(
+                    [{"name": f"{safe_name}.html",
+                      "data_base64": base64.b64encode(store.body(candidate_id)).decode("ascii")}],
+                    name=candidate["title"], tags=tags)
+            except UserGalleryError as exc:
+                raise StoreError("intake_import_failed", str(exc), 409) from exc
+        return {"ok": True, "candidate": candidate, "gallery_item": gallery_item}
 
     def _ai_settings(self) -> AISettingsStore:
         return AISettingsStore(_OUTPUT_ROOT)
@@ -240,6 +283,8 @@ class _Handler(BaseHTTPRequestHandler):
             return action()
         except StoreError as error:
             return self._error(error)
+        except intake.IntakeError as error:
+            return self._error(StoreError(error.code, error.message, error.status))
         except revisions.RevisionError as error:
             return self._error(StoreError(error.code, str(error), error.status))
         except Exception:  # noqa: BLE001
@@ -291,6 +336,15 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json({"items": pipeline.list_templates()})
         if path == "/api/gallery":
             return self._json({"items": template_gallery.list_gallery(self._user_gallery().root)})
+        if path == "/api/intake/sources":
+            return self._json({"ok": True, "sources": intake.load_sources(
+                extra_dir=Path.home() / ".htmlninefox" / "sources")})
+        if path == "/api/intake/candidates":
+            status = (query.get("status") or ["pending"])[0]
+            candidates = self._intake_candidates().list(status if status != "all" else None)
+            return self._json({"ok": True, "candidates": candidates,
+                               "sources": intake.load_sources(
+                                   extra_dir=Path.home() / ".htmlninefox" / "sources")})
         if path == "/api/gallery-preview":
             item_id = (query.get("id") or [""])[0]
             page_id = (query.get("page") or [None])[0]
@@ -439,6 +493,14 @@ class _Handler(BaseHTTPRequestHandler):
         if path == "/api/diagnostics":
             bundle = create_diagnostic_bundle(_OUTPUT_ROOT, APP_CAPABILITIES)
             return self._json({"ok": True, "bundle": bundle}, 201)
+        if path == "/api/intake/fetch":
+            return self._json(self._api_intake_fetch(body))
+        if path.startswith("/api/intake/candidates/") and path.endswith("/approve"):
+            return self._json(self._api_intake_decide(
+                path[len("/api/intake/candidates/"):-len("/approve")], "approve"))
+        if path.startswith("/api/intake/candidates/") and path.endswith("/reject"):
+            return self._json(self._api_intake_decide(
+                path[len("/api/intake/candidates/"):-len("/reject")], "reject"))
         if path.startswith("/api/projects/") and path.endswith("/restore-revision"):
             name = path[len("/api/projects/"):-len("/restore-revision")]
             store = self._store()
