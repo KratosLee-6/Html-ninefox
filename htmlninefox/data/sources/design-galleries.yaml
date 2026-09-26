@@ -1,9 +1,10 @@
-# 内置设计源清单 · v0.6 Phase 1
+# 内置设计源清单 · v0.6 Phase 1（第一批 12 源）
 # license_class 三档：
-#   open            — MIT/CC0 等可再分发，可整条入库
+#   open            — MIT/CC0/OFL 等可再分发，可整条入库
 #   reference       — 可参考结构与风格，只提取令牌/骨架，产出必须原创重渲染
 #   inspiration-only — 仅截图进灵感板，不提取代码
 sources:
+  # ---- 画廊（gallery）----
   - id: land-book
     name: Land-book 网页画廊
     kind: gallery
@@ -11,6 +12,34 @@ sources:
     entry_url: https://land-book.com/websites
     rate_limit: { requests_per_minute: 8 }
     notes: 精选落地页画廊；只参考结构/配色/字体，截图可作灵感板
+  - id: lapa-ninja
+    name: lapa.ninja 落地页画廊
+    kind: gallery
+    license_class: reference
+    entry_url: https://www.lapa.ninja/
+    rate_limit: { requests_per_minute: 8 }
+    notes: 落地页分类画廊；参考布局结构与配色
+  - id: landingfolio
+    name: Landingfolio
+    kind: gallery
+    license_class: reference
+    entry_url: https://www.landingfolio.com/
+    rate_limit: { requests_per_minute: 8 }
+    notes: 落地页组件与整页参考；区块级参考提取
+  - id: one-page-love
+    name: One Page Love
+    kind: gallery
+    license_class: reference
+    entry_url: https://onepagelove.com/gallery
+    rate_limit: { requests_per_minute: 6 }
+    notes: 单页站点画廊；单页结构参考
+  - id: saas-landing-page
+    name: SaaS Landing Page
+    kind: gallery
+    license_class: reference
+    entry_url: https://saaslandingpage.com/
+    rate_limit: { requests_per_minute: 6 }
+    notes: SaaS 落地页专题画廊；dashboard/landing 意图参考
   - id: godly
     name: Godly Website
     kind: gallery
@@ -18,6 +47,22 @@ sources:
     entry_url: https://godly.website
     rate_limit: { requests_per_minute: 6 }
     notes: 高质量站点灵感集；仅灵感板用途
+  - id: awwwards
+    name: Awwwards
+    kind: gallery
+    license_class: inspiration-only
+    entry_url: https://www.awwwards.com/websites/
+    rate_limit: { requests_per_minute: 6 }
+    notes: 获奖站点集；仅灵感板用途，不提取代码
+  - id: siteinspire
+    name: SiteInspire
+    kind: gallery
+    license_class: inspiration-only
+    entry_url: https://www.siteinspire.com/
+    rate_limit: { requests_per_minute: 6 }
+    notes: 网页设计索引；仅灵感板用途
+
+  # ---- 组件（components）----
   - id: codrops
     name: Codrops 动效与交互
     kind: motion
@@ -25,3 +70,35 @@ sources:
     entry_url: https://tympanus.net/codrops/
     rate_limit: { requests_per_minute: 6 }
     notes: 动效模式参考；提取时长/缓动/触发方式，实现必须原创
+  - id: codepen-picks
+    name: CodePen Picks
+    kind: components
+    license_class: reference
+    entry_url: https://codepen.io/picks/
+    rate_limit: { requests_per_minute: 6 }
+    notes: 组件模式参考；各 Pen 许可归作者，仅参考交互模式
+
+  # ---- 动效（motion）----
+  - id: animista
+    name: Animista 动效库
+    kind: motion
+    license_class: reference
+    entry_url: https://animista.net/
+    rate_limit: { requests_per_minute: 6 }
+    notes: CSS 动效预设参考；提取时长/缓动模式，生成物为原创实现
+
+  # ---- 字体（typography）----
+  - id: google-fonts
+    name: Google Fonts
+    kind: typography
+    license_class: open
+    entry_url: https://fonts.google.com/
+    rate_limit: { requests_per_minute: 8 }
+    notes: 开源字体（OFL/Apache）；字体栈可直接入库
+  - id: fontshare
+    name: Fontshare
+    kind: typography
+    license_class: open
+    entry_url: https://www.fontshare.com/
+    rate_limit: { requests_per_minute: 8 }
+    notes: ITF 免费字体（ITF FFL）；字体栈可直接入库

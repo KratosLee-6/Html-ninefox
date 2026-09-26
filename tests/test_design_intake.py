@@ -173,6 +173,17 @@ def test_load_sources_reads_builtin_registry() -> None:
         assert source["entry_url"].startswith("https://")
 
 
+def test_builtin_registry_first_batch_covers_kinds() -> None:
+    sources = load_sources()
+    assert len(sources) >= 12, "第一批应不少于 12 个源"
+    kinds = {source["kind"] for source in sources}
+    assert {"gallery", "components", "motion", "typography"} <= kinds
+    classes = {source["license_class"] for source in sources}
+    assert classes == set(intake.LICENSE_CLASSES)
+    ids = [source["id"] for source in sources]
+    assert len(ids) == len(set(ids))
+
+
 def test_user_source_overrides_builtin_by_id(tmp_path: Path) -> None:
     override = tmp_path / "design-galleries.yaml"
     override.write_text(
