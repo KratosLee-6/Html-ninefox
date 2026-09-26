@@ -184,6 +184,7 @@ Download application packages from the [v0.5.0 Release](https://github.com/Krato
 | Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0.zip` | Extract and run `HtmlNineFox.exe` |
 | Linux | `HtmlNineFox-Linux-0.5.0.run` | `chmod +x` and run; installs to user directory |
 | Linux / audit | `HtmlNineFox-Linux-0.5.0.tar.gz` | Inspectable full installation contents |
+| macOS 14+ (Apple Silicon) | `HtmlNineFox-macOS-arm64-0.5.0.zip` | Extract, then right-click HtmlNineFox.app → Open to bypass Gatekeeper (unsigned) |
 | Python 3.10+ | `htmlninefox-0.5.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0-py3-none-any.whl` |
 | Docker | Build from source | `docker compose up --build`; tag CI verifies but does not publish the image |
 

@@ -28,7 +28,9 @@ def main() -> None:
         open_browser=not args.no_browser,
         fallback_port=not args.strict_port,
         portable_root=portable_root,
-        distribution="windows-portable" if portable_root else "python-app",
+        distribution=("windows-portable" if sys.platform == "win32" else "macos-portable")
+        if portable_root
+        else "python-app",
     )
 
 

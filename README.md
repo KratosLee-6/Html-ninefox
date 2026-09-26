@@ -214,6 +214,7 @@ RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 re
 | Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
 | Linux | `HtmlNineFox-Linux-0.5.0.run` | `chmod +x` 后运行，安装到当前用户目录 |
 | Linux/审计 | `HtmlNineFox-Linux-0.5.0.tar.gz` | 可查看完整安装内容 |
+| macOS 14+（Apple Silicon） | `HtmlNineFox-macOS-arm64-0.5.0.zip` | 解压后右键 HtmlNineFox.app →「打开」绕过 Gatekeeper（未做公证） |
 | Python 3.10+ | `htmlninefox-0.5.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0-py3-none-any.whl` |
 | Docker | 源码构建 | `docker compose up --build`；标签 CI 验证镜像但不上传镜像仓库 |
 

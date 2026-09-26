@@ -63,6 +63,27 @@ jobs:
           name: htmlninefox-linux
           path: release/*
           if-no-files-found: error
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Release metadata consistency
+        run: python scripts/check_release_version.py
+      - name: Tag matches package version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: python scripts/check_release_version.py --tag "${{ github.ref_name }}"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[packaging]"
+      - run: python -m pip install pillow
+      - run: python packaging/macos/build_macos.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: htmlninefox-macos
+          path: release/*
+          if-no-files-found: error
   docker:
     runs-on: ubuntu-latest
     steps:
@@ -83,7 +104,7 @@ jobs:
           python -c "import os, playwright; assert os.path.isfile('/usr/bin/chromium'); print('export runtime ready')"
   publish-release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [windows, linux, docker]
+    needs: [windows, linux, macos, docker]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

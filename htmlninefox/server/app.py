@@ -60,7 +60,7 @@ APP_CAPABILITIES = {
         "pwa": "ready",
         "windows": "beta",
         "linux": "beta",
-        "macos": "planned",
+        "macos": "beta",
         "ios": "planned",
         "android": "later",
         "wechat_mini_program": "later",
