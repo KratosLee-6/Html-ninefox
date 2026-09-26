@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - The v0.6 design-intake foundation: a source registry (`data/sources/*.yaml` with user overrides), a safe reference fetcher (http/https only, resolved-host validation rejecting loopback/private/reserved addresses, hop-by-hop redirect validation, post-fetch DNS-rebinding check, size caps, per-source rate limiting), an evidence store under `.library/intake/`, and three built-in gallery/motion sources with license classes.
+- Intake candidate extraction and a review store: fetched pages become pending candidates with title, intent guess, color/font tokens, and a section-level skeleton; `CandidateStore` persists them under `.library/intake/candidates/` with pending/approved/rejected status.
 - A macOS (Apple Silicon) portable package: PyInstaller `.app` bundle with an icns icon, `ditto` zip, SHA-256, and a dedicated `macos` job in the release workflow; the desktop channel reports `macos-portable` and capabilities advertise macOS as `beta`.
 
 ## [0.5.0] — 2026-09-25 · 🎉 First Stable Release of the 0.5 Line
