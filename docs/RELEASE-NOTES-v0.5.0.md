@@ -46,10 +46,11 @@
 | Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0.zip` | 免安装，解压运行 `HtmlNineFox.exe` |
 | Linux | `HtmlNineFox-Linux-0.5.0.run` | `chmod +x` 后运行，安装到当前用户目录 |
 | Linux/审计 | `HtmlNineFox-Linux-0.5.0.tar.gz` | 可查看完整安装内容 |
+| macOS 14+（Apple Silicon） | `HtmlNineFox-macOS-arm64-0.5.0.zip` | 解压后右键 HtmlNineFox.app →「打开」绕过 Gatekeeper（未做公证） |
 | Python 3.10+ | `htmlninefox-0.5.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0-py3-none-any.whl` |
 | Docker | `compose.yaml` / Dockerfile | 含 Chromium 的服务端导出镜像 |
 
-全部附件均附带同名 `.sha256.txt` 校验文件。
+全部附件均附带同名 `.sha256.txt` 校验文件。macOS 包于 2026-09-26 由 macOS runner 构建并补传，发布页附件共 12 个。
 
 ## 已知限制
 
