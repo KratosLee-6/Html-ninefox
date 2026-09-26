@@ -94,6 +94,57 @@
     }
   }
 
+  async function fetchBatch() {
+    const box = document.querySelector('#intake-batch-urls');
+    const status = document.querySelector('#intake-status');
+    const urls = (box.value || '').split('\n').map(line => line.trim()).filter(Boolean);
+    if (!urls.length) return flash('请先在文本框中粘贴 URL（每行一个）', false);
+    const sourceId = document.querySelector('#intake-source')?.value || '';
+    window.FoxInteraction?.setBusy('#intake-batch-btn', true, '批量抓取中…');
+    status.textContent = `正在批量抓取 ${urls.length} 个地址（每来源限速，请稍候）…`;
+    try {
+      const result = await post('/api/intake/fetch-batch', { urls, source_id: sourceId || null });
+      box.value = '';
+      const okCount = (result.created || []).length;
+      const failCount = (result.failed || []).length;
+      status.textContent = `批量完成：成功 ${okCount} 个，失败 ${failCount} 个` +
+        (failCount ? '（失败项多为私网地址或不可达）' : '');
+      flash(`✓ 批量抓取完成：成功 ${okCount}，失败 ${failCount}`, failCount === 0);
+      await refresh(filter === 'all' ? 'all' : 'pending');
+    } catch (error) {
+      status.textContent = '批量抓取失败：' + error.message;
+      flash('批量抓取失败：' + error.message, false);
+    } finally {
+      window.FoxInteraction?.setBusy('#intake-batch-btn', false);
+    }
+  }
+
+  async function importZip(file) {
+    const status = document.querySelector('#intake-status');
+    if (!file) return;
+    window.FoxInteraction?.setBusy('#intake-zip-btn', true, '导入中…');
+    status.textContent = `正在解析 ${file.name}…`;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const zipBase64 = String(reader.result).split(',')[1] || '';
+        const result = await post('/api/intake/zip', {
+          zip_base64: zipBase64, name: file.name.replace(/\.zip$/i, ''),
+        });
+        const count = (result.created || []).length;
+        status.textContent = `ZIP 导入完成：${count} 个候选等待审核`;
+        flash(`✓ ZIP 导入 ${count} 个候选`, true);
+        await refresh(filter === 'all' ? 'all' : 'pending');
+      } catch (error) {
+        status.textContent = 'ZIP 导入失败：' + error.message;
+        flash('ZIP 导入失败：' + error.message, false);
+      } finally {
+        window.FoxInteraction?.setBusy('#intake-zip-btn', false);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
   async function approve(candidateId) {
     try {
       const result = await post('/api/intake/candidates/' + encodeURIComponent(candidateId) + '/approve', {});
@@ -114,5 +165,5 @@
     }
   }
 
-  window.FoxIntake = { open, close, refresh, fetchCandidate, approve, reject };
+  window.FoxIntake = { open, close, refresh, fetchCandidate, fetchBatch, importZip, approve, reject };
 })();

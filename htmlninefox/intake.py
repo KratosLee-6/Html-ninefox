@@ -433,3 +433,59 @@ class CandidateStore:
         (self._dir(candidate_id) / "candidate.json").write_text(
             json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8")
         return candidate
+
+
+# ---------------------------------------------------------------- manual import (S04)
+
+ZIP_MAX_ENTRIES = 24
+ZIP_MAX_TOTAL_BYTES = 24 * 1024 * 1024
+BATCH_MAX_URLS = 10
+
+
+def zip_html_entries(data: bytes) -> list[dict]:
+    """Extract HTML members from an uploaded ZIP (in memory, bounded).
+
+    Path traversal is impossible by construction: only the basename of
+    each member is used and nothing is written to disk here.
+    """
+    import io
+    import zipfile
+
+    if len(data) > ZIP_MAX_TOTAL_BYTES:
+        raise IntakeError("intake_too_large", f"ZIP 超过 {ZIP_MAX_TOTAL_BYTES} 字节上限", 413)
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(data))
+    except zipfile.BadZipFile as exc:
+        raise IntakeError("intake_zip_invalid", "不是有效的 ZIP 文件", 400) from exc
+    members: list[dict] = []
+    total = 0
+    for info in archive.infolist():
+        if info.is_dir():
+            continue
+        if not info.filename.lower().endswith((".html", ".htm")):
+            continue
+        if total + info.file_size > ZIP_MAX_TOTAL_BYTES:
+            raise IntakeError("intake_too_large", "ZIP 解压后超过大小上限", 413)
+        body = archive.read(info)
+        total += len(body)
+        name = Path(info.filename).stem or "page"
+        members.append({"name": name[:80], "body": body})
+        if len(members) >= ZIP_MAX_ENTRIES:
+            break
+    if not members:
+        raise IntakeError("intake_zip_empty", "ZIP 中没有 HTML 文件", 400)
+    return members
+
+
+def batch_urls(raw_urls: list[str]) -> list[str]:
+    """Normalize and bound a user-supplied URL list (dedup, cap count)."""
+    urls: list[str] = []
+    for raw in raw_urls or []:
+        url = str(raw).strip()
+        if url and url not in urls:
+            urls.append(url)
+    if not urls:
+        raise IntakeError("intake_url_invalid", "至少需要一个 URL", 400)
+    if len(urls) > BATCH_MAX_URLS:
+        raise IntakeError("intake_batch_too_many", f"单批最多 {BATCH_MAX_URLS} 个 URL", 400)
+    return urls

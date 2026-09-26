@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import mimetypes
 import os
@@ -11,6 +12,7 @@ import shutil
 import sys
 import traceback
 import uuid
+from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Callable
@@ -173,6 +175,51 @@ class _Handler(BaseHTTPRequestHandler):
         candidate = intake.extract_candidate(evidence, source=source)
         candidate = self._intake_candidates().save(candidate, evidence)
         return {"ok": True, "candidate": candidate}
+
+    def _api_intake_fetch_batch(self, body: dict) -> dict:
+        urls = intake.batch_urls(body.get("urls") if isinstance(body.get("urls"), list) else [])
+        source = None
+        source_id = str(body.get("source_id") or "").strip()
+        if source_id:
+            source = intake.find_source(source_id, extra_dir=Path.home() / ".htmlninefox" / "sources")
+            if source is None:
+                raise StoreError("intake_source_missing", f"来源不存在：{source_id}", 404)
+        created: list[dict] = []
+        failed: list[dict] = []
+        for url in urls:
+            key = source_id or urlparse(url).hostname or "adhoc"
+            try:
+                intake.validate_url(url)
+                _INTAKE_RATE_LIMITER.wait(key)
+                evidence = intake.fetch_reference(url, headers={"Accept": "text/html"})
+                candidate = intake.extract_candidate(evidence, source=source)
+                created.append(self._intake_candidates().save(candidate, evidence))
+            except intake.IntakeError as error:
+                failed.append({"url": url, "code": error.code, "message": error.message})
+        return {"ok": True, "created": created, "failed": failed}
+
+    def _api_intake_zip(self, body: dict) -> dict:
+        import base64 as _base64
+        try:
+            data = _base64.b64decode(str(body.get("zip_base64") or ""), validate=True)
+        except (ValueError, TypeError) as exc:
+            raise StoreError("intake_zip_invalid", "ZIP 数据不是合法 Base64", 400) from exc
+        members = intake.zip_html_entries(data)
+        created: list[dict] = []
+        for member in members:
+            evidence = {
+                "url": f"zip://{body.get('name') or 'upload'}/{member['name']}",
+                "final_url": f"zip://{body.get('name') or 'upload'}/{member['name']}",
+                "followed": [], "status": 200,
+                "content_type": "text/html", "body": member["body"],
+                "body_sha256": hashlib.sha256(member["body"]).hexdigest(),
+                "body_bytes": len(member["body"]),
+                "fetched_at": datetime.now().isoformat(timespec="seconds"),
+            }
+            candidate = intake.extract_candidate(evidence, source=None,
+                                                 notes=f"ZIP 手动导入：{body.get('name') or 'upload'}")
+            created.append(self._intake_candidates().save(candidate, evidence))
+        return {"ok": True, "created": created}
 
     def _api_intake_decide(self, candidate_id: str, action: str) -> dict:
         store = self._intake_candidates()
@@ -495,6 +542,10 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json({"ok": True, "bundle": bundle}, 201)
         if path == "/api/intake/fetch":
             return self._json(self._api_intake_fetch(body))
+        if path == "/api/intake/fetch-batch":
+            return self._json(self._api_intake_fetch_batch(body))
+        if path == "/api/intake/zip":
+            return self._json(self._api_intake_zip(body))
         if path.startswith("/api/intake/candidates/") and path.endswith("/approve"):
             return self._json(self._api_intake_decide(
                 path[len("/api/intake/candidates/"):-len("/approve")], "approve"))
