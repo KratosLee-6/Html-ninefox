@@ -222,3 +222,48 @@ def test_intake_candidates_filter_by_source(tmp_path: Path, monkeypatch) -> None
 
         manual, _ = api_request(server.base_url, "/api/intake/candidates?status=pending&source=")
         assert len(manual["candidates"]) == 2
+
+
+# ---------------------------------------------------------------- S08 style presets
+
+
+def test_approved_candidate_becomes_applicable_style_preset(tmp_path: Path, monkeypatch) -> None:
+    stub_fetch(monkeypatch, {"https://example.com/inspo": (200, {"content-type": "text/html"}, SAMPLE)})
+    with WorkbenchServer(tmp_path) as server:
+        submitted, _ = api_request(server.base_url, "/api/intake/fetch", "POST",
+                                   {"url": "https://example.com/inspo", "source_id": "land-book"})
+        candidate_id = submitted["candidate"]["candidate_id"]
+
+        # 未采纳的候选不能生成预设
+        denied, _ = api_request(server.base_url, "/api/intake/style-presets/create", "POST",
+                                {"candidate_id": candidate_id}, expected=409)
+        assert denied["error"]["code"] == "intake_candidate_not_approved"
+
+        api_request(server.base_url, f"/api/intake/candidates/{candidate_id}/approve", "POST", {})
+        preset_result, _ = api_request(server.base_url, "/api/intake/style-presets/create", "POST",
+                                       {"candidate_id": candidate_id})
+        preset = preset_result["preset"]
+        assert preset["colors"]["primary"] == "#173C8F"
+        assert preset["license_class"] == "reference"
+
+        # 应用 → 写入用户模板目录 → list_templates 可见
+        real_home = Path.home()
+        templates_dir = tmp_path / "user-templates"
+        templates_dir.mkdir()
+        import htmlninefox.pipeline as pipeline_mod
+        original_home = pipeline_mod.Path.home
+        monkeypatch.setattr(type(real_home), "home", classmethod(lambda cls: tmp_path))
+        try:
+            applied, _ = api_request(server.base_url,
+                                     f"/api/intake/style-presets/{preset['preset_id']}/apply", "POST", {})
+            style_json = templates_dir / applied["applied"].split("user-templates")[-1].lstrip("/\\") / "style.json"
+            assert style_json.is_file()
+        finally:
+            monkeypatch.setattr(type(real_home), "home", classmethod(lambda cls: real_home))
+
+
+def test_style_preset_missing_reports_404(tmp_path: Path) -> None:
+    with WorkbenchServer(tmp_path) as server:
+        missing, _ = api_request(server.base_url,
+                                 "/api/intake/style-presets/nope/apply", "POST", {}, expected=404)
+        assert missing["error"]["code"] == "intake_preset_missing"

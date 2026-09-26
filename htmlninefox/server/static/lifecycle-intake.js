@@ -86,7 +86,9 @@
             ? `<button class="btn btn-primary" onclick="intakeApprove('${esc(item.candidate_id)}')">✔ 采纳为模板</button>
                <button class="btn btn-danger-ghost" onclick="intakeReject('${esc(item.candidate_id)}')">✕ 拒绝</button>
                <button class="btn btn-secondary" onclick="intakeTogglePreview('${esc(item.candidate_id)}')">👁 预览</button>`
-            : `<span class="intake-status">${item.status === 'approved' ? '已采纳' : '已拒绝'}</span>`}
+            : `${item.status === 'approved'
+                ? `<button class="btn btn-secondary" onclick="intakeMakeStylePreset('${esc(item.candidate_id)}')">🎨 生成风格预设</button>`
+                : `<span class="intake-status">已拒绝</span>`}`}
         </div>
         <iframe class="intake-preview" id="intake-preview-${esc(item.candidate_id)}" hidden
           sandbox title="${esc(item.title)} 预览"
@@ -231,8 +233,18 @@
     }
   }
 
+  async function makeStylePreset(candidateId) {
+    try {
+      const result = await post('/api/intake/style-presets/create', { candidate_id: candidateId });
+      flash('✓ 风格预设已生成：' + result.preset.name + '（可在风格面板应用）', true);
+      await refresh(filter);
+    } catch (error) {
+      flash('风格预设生成失败：' + error.message, false);
+    }
+  }
+
   window.FoxIntake = {
     open, close, refresh, fetchCandidate, fetchBatch, importZip,
-    approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply,
+    approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply, makeStylePreset,
   };
 })();

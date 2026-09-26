@@ -542,3 +542,84 @@ def batch_urls(raw_urls: list[str]) -> list[str]:
     if len(urls) > BATCH_MAX_URLS:
         raise IntakeError("intake_batch_too_many", f"单批最多 {BATCH_MAX_URLS} 个 URL", 400)
     return urls
+
+
+# ---------------------------------------------------------------- style presets (S08)
+
+STYLE_PRESET_SCHEMA = 1
+
+
+def _hex_solid(color: str) -> str:
+    """Pick a solid hex from a css color string; fallback cobalt."""
+    if color.startswith("#"):
+        value = color[1:]
+        if len(value) in (3, 6):
+            return "#" + value
+    digits = re.findall(r"\d+", color)
+    if len(digits) >= 3:
+        r, g, b = (max(0, min(255, int(part))) for part in digits[:3])
+        return f"#{r:02X}{g:02X}{b:02X}"
+    return "#173C8F"
+
+
+def build_style_preset(candidate: dict) -> dict:
+    """Turn an approved candidate's tokens into a user style preset."""
+    colors = [color for color in (candidate.get("tokens") or {}).get("colors", [])
+              if color.startswith("#")]
+    fonts = (candidate.get("tokens") or {}).get("fonts", [])
+    primary = _hex_solid(colors[0]) if colors else "#173C8F"
+    accent = _hex_solid(colors[1]) if len(colors) > 1 else "#49B894"
+    font_stack = fonts[0] if fonts else "Inter"
+    name = (candidate.get("title") or "Intake Style")[:60]
+    return {
+        "schema": STYLE_PRESET_SCHEMA,
+        "preset_id": candidate["candidate_id"],
+        "name": name,
+        "dark": False,
+        "visual_system": "intake",
+        "origin": f"设计吸收 · {candidate.get('source') or '手动导入'}",
+        "fonts": {"heading": font_stack, "body": font_stack},
+        "colors": {"primary": primary, "accent": accent, "bg": "#FFFDF6"},
+        "candidate": candidate["candidate_id"],
+        "license_class": candidate.get("license_class", "reference"),
+    }
+
+
+class StylePresetStore:
+    """Style preset candidates under <root>/.library/intake/style-presets/."""
+
+    def __init__(self, root: str | Path):
+        self.root = Path(root) / ".library" / "intake" / "style-presets"
+
+    def _path(self, preset_id: str) -> Path:
+        if not re.fullmatch(r"[a-z0-9][a-z0-9.-]{0,120}", preset_id or ""):
+            raise IntakeError("intake_candidate_invalid", f"预设 id 非法：{preset_id!r}")
+        return self.root / f"{preset_id}.json"
+
+    def save(self, preset: dict) -> dict:
+        self.root.mkdir(parents=True, exist_ok=True)
+        self._path(preset["preset_id"]).write_text(
+            json.dumps(preset, ensure_ascii=False, indent=2), encoding="utf-8")
+        return preset
+
+    def get(self, preset_id: str) -> dict:
+        path = self._path(preset_id)
+        if not path.is_file():
+            raise IntakeError("intake_preset_missing", "风格预设不存在", 404)
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def list(self) -> list[dict]:
+        if not self.root.is_dir():
+            return []
+        return sorted((json.loads(path.read_text(encoding="utf-8"))
+                       for path in self.root.glob("*.json")),
+                      key=lambda item: item.get("name", ""))
+
+    def apply(self, preset_id: str, templates_dir: Path) -> Path:
+        """Write the preset as a user template (pipeline.list_templates reads it)."""
+        preset = self.get(preset_id)
+        target = Path(templates_dir) / re.sub(r"[^\w.-]+", "-", preset["name"]).strip("-").lower()[:48]
+        target.mkdir(parents=True, exist_ok=True)
+        (target / "style.json").write_text(
+            json.dumps(preset, ensure_ascii=False, indent=2), encoding="utf-8")
+        return target

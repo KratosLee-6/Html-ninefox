@@ -239,6 +239,17 @@ class _Handler(BaseHTTPRequestHandler):
                 raise StoreError("intake_import_failed", str(exc), 409) from exc
         return {"ok": True, "candidate": candidate, "gallery_item": gallery_item}
 
+    def _intake_style_presets(self) -> intake.StylePresetStore:
+        return intake.StylePresetStore(_OUTPUT_ROOT)
+
+    def _api_intake_style_preset_create(self, body: dict) -> dict:
+        candidate_id = str(body.get("candidate_id") or "")
+        candidate = self._intake_candidates().get(candidate_id)
+        if candidate.get("status") != "approved":
+            raise StoreError("intake_candidate_not_approved", "只有已采纳的候选才能生成风格预设", 409)
+        preset = intake.build_style_preset(candidate)
+        return {"ok": True, "preset": self._intake_style_presets().save(preset)}
+
     def _api_intake_batch(self, body: dict) -> dict:
         action = str(body.get("action") or "")
         ids = body.get("ids") if isinstance(body.get("ids"), list) else []
@@ -583,6 +594,16 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json(self._api_intake_zip(body))
         if path == "/api/intake/candidates/batch":
             return self._json(self._api_intake_batch(body))
+        if path == "/api/intake/style-presets":
+            return self._json({"ok": True, "presets": self._intake_style_presets().list()})
+        if path == "/api/intake/style-presets/create":
+            return self._json(self._api_intake_style_preset_create(body))
+        if path.startswith("/api/intake/style-presets/") and path.endswith("/apply"):
+            preset_id = path[len("/api/intake/style-presets/"):-len("/apply")]
+            applied = self._intake_style_presets().apply(
+                preset_id, Path.home() / ".htmlninefox" / "templates")
+            return self._json({"ok": True, "applied": str(applied),
+                               "templates": pipeline.list_templates()})
         if path.startswith("/api/intake/candidates/") and path.endswith("/approve"):
             return self._json(self._api_intake_decide(
                 path[len("/api/intake/candidates/"):-len("/approve")], "approve"))
