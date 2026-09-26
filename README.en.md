@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-238%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-E-20260925.md)
+[![Tests](https://img.shields.io/badge/pytest-238%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.5.0.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -42,28 +42,15 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
   Revise with natural language feedback, keeping rev history
 ```
 
-## Current release and `main` development snapshot (September 24, 2026)
+## Current release and latest progress (September 25, 2026)
 
 The application version is `0.5.0`, published under the stable tag `v0.5.0`. v0.5.0 builds on the RC3 engineering baseline with shared application use cases, crash-recoverable Project commits with cross-process locking, and isolated browser lifecycle modules for Windows, Linux, and Python users.
 
 | Track | Current state | Evidence |
 |---|---|---|
 | Application release | `v0.5.0` stable, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
-| RC3 application increment | RC3-E isolates Project, Generation, Revision, and Export into browser lifecycle modules with private state and namespace APIs, plus generation cancel and export race guards | [RC3-E record](docs/ITERATION-RC3-E-20260925.md) · [architecture](docs/ARCHITECTURE.md) |
-| Current local verification | `238 passed, 1 skipped` including 4 lifecycle tests; Chromium e2e `22/22`; cancel flow covered by deterministic route injection and a real screenshot | [RC3-E record](docs/ITERATION-RC3-E-20260925.md) |
+| Release verification | Full suite `238 passed, 1 skipped`; Chromium e2e `22/22` on bundled Chromium and the real system Edge engine; attachment checksums verified by download | [v0.5.0 test report](docs/TEST-REPORT-v0.5.0.md) |
 | DeepSeek Harness plugin | Separately versioned `0.1.0-preview.1` | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
-
-### RC3 visual and interaction convergence
-
-The workbench keeps the existing Pixel Garden brand and native HTML/CSS/JavaScript architecture. No React migration, Anime.js dependency, external icon service, or unrelated example palette was introduced.
-
-| Area | Delivered behavior |
-|---|---|
-| Information hierarchy | “Input requirements” and “Advance workspace” are the two primary actions; secondary tools move into the More menu |
-| Responsive product flow | Full three-column desktop, inspector drawer, dual tablet drawers, and a readable mobile task view at `≤620px` |
-| Semantic zoom | Overview below `0.78`, compact from `0.78` to `1`, and full editing detail at `≥1` |
-| Component system | Consistent focus, selected, disabled, busy, success, error, and reduced-motion behavior with local SVG icons |
-| Classic mode | Rejoined the same paper, cobalt, mint, terracotta, logo, typography, and form-state system |
 
 ### Feature-to-screenshot map (real captures from v0.5.0)
 
@@ -131,24 +118,25 @@ All 18 shots below were taken on the released `v0.5.0` build (topbar badge reads
 </table>
 Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots/v0.5.0/](assets/screenshots/v0.5.0/); the list and reproduction commands are in [the screenshots README](assets/screenshots/README.md).
 
-## v0.5.0 RC Series Capabilities
+## v0.5.0 Stable Capabilities
 
-![Project Memory and adoption signals](assets/screenshots/v0.5.0rc1/project-memory-dialog.png)
+![Crash-recoverable commits and lifecycle modules](assets/screenshots/v0.5.0/generation-cancel.png)
 
 - **🧠 Project Memory**: Brand, audience, tone, forbidden patterns, template, primary color, and font stay local and remain editable, disableable, and clearable.
-- **♡ Learn only after adoption**: Long-term memory changes only when the user explicitly selects “Adopt this version and learn.”
-- **🔎 Explainable reuse**: Analysis, Recipe Run, and the artifact inspector show what was reused and what the current explicit request overrode.
-- **🔒 Privacy boundary**: API keys, attachment bodies, and full private feedback text are excluded from long-term memory.
-- **✅ RC1 verification**: 179/179 Python, API, storage, security, and Chromium browser tests pass.
-
-> RC1 established the local project memory loop. RC2 adds revision history and restore, the 100-node gate, keyboard operation, and user-controlled motion.
+- **♡ Learn only after adoption**: Long-term memory changes only when the user explicitly selects "Adopt this version and learn"; analysis, Recipe Run, and the inspector explain what was reused (explainable reuse).
+- **🛡 Crash-recoverable Project commits**: One durable write primitive plus a commit journal — a killed process or power loss rolls back deterministically to the last consistent revision; a cross-process file lock turns concurrent CLI/server access into a stable `project_busy` conflict.
+- **🧩 Browser lifecycle modules + generation cancel**: Project / Generation / Revision / Export are isolated modules; one in-flight generation per workspace, cancellable while waiting — queued jobs cancel for real, running jobs honestly switch to stop-waiting.
+- **⏳ Revision history and restore**: Feedback, reruns, and restores keep HTML + generation-state snapshots; restoring creates a new revision and never overwrites history.
+- **📤 Export Center**: Export PDF, paginated PNG, or a full-page image with a compatibility score and `export-report.json`.
+- **🔒 Privacy boundary**: API keys, attachment bodies, and full private feedback text stay out of long-term memory and diagnostics.
 
 ## Complete Workbench Features
 
 - **✅ Trustworthy release metadata**: Version, CLI, API, packages, Docker tag, test evidence, and Git tag stay aligned.
 - **🎨 Pixel Garden Design System**: Unified design tokens (cobalt `#173C8F` + mint `#49B894` + warm paper `#F4F0E7`) across 5 visual artifacts.
 - **🤖 Real LLM Integration**: MiniMax-M3 / Claude / GPT-4o with env auto-config; offline rules engine as fallback.
-- **🖥️ Web Workbench**: `htmlninefox workbench` launches local Web UI with live preview, agent logs, and template selection.
+- **🤝 Skill Alliance**: baoyu-slide-deck (image-based PPT) · frontend-slides (no AI gradient) · beautiful-html-templates (28 stable presets).
+- **🖥️ Web Workbench**: `htmlninefox app` launches local Web UI with live preview, agent logs, and template selection.
 - **🐳 Docker Image**: `docker run htmlninefox` for cross-platform deployment; multi-stage build with env injection.
 - **Real HTML template library**: 6 complete templates with 34 individually previewable pages — no more wireframe guessing.
 - **Unified input**: Text, TXT, Markdown, JSON, CSV, HTML, and common image formats.
@@ -160,26 +148,19 @@ Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots
 - **Cross-platform**: Windows installer/portable, Linux `.run/.tar.gz`, Python CLI, Web/PWA, Docker.
 
 > The first [Export Center](docs/EXPORT-CENTER.md) milestone now ships PDF and PNG. High-fidelity PPTX comes next, followed by constrained editable PPTX/DOCX.
-- 🎨 **Multiple PPT styles via Skill Alliance** (v0.3): baoyu-slide-deck (image) · frontend-slides (HTML, no AI gradient) · beautiful-html-templates (28 stable presets)
 
 ## See it in action
 
 <table>
 <tr>
 <td width="50%"><img src="assets/screenshots/v0.4.0/pixel-garden-unified.png" alt="Pixel Garden unified design"><br><b>Pixel Garden Unified Design</b><br>5 visual artifacts unified with cobalt + mint + warm paper.</td>
-<td width="50%"><img src="assets/screenshots/v0.4.0/web-workbench.png" alt="Web workbench"><br><b>Web Workbench</b><br>htmlninefox workbench: live preview, agent logs, template selection.</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/web-workbench.png" alt="Template preview dialog"><br><b>Template preview dialog</b><br>Preview real HTML templates page by page; add the whole set or extract one page.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.4.0/llm-integration.png" alt="Real LLM integration"><br><b>Real LLM Integration</b><br>MiniMax-M3 / Claude / GPT-4o with env auto-config; offline fallback preserved.</td>
+<td width="50%"><img src="assets/screenshots/v0.4.0/llm-integration.png" alt="AI model configuration dialog"><br><b>AI model configuration</b><br>OpenAI-compatible endpoint, locally stored API key, connection test; offline rules without a key.</td>
 <td width="50%"><img src="assets/screenshots/v0.4.0/docker-deploy.png" alt="Docker deployment"><br><b>Docker One-Click Deploy</b><br>docker run htmlninefox with multi-stage build and env injection.</td>
 </tr>
 </table>
-
-### Export Center
-
-![v0.4.2 Export Center](assets/screenshots/v0.4.2/export-center.png)
-
-Output nodes can export PDF, paginated PNG, or a full-page image. Preflight shows pagination, compatibility, dynamic-content, and remote-resource risks; delivery includes the files and `export-report.json`.
 
 ### Six real output types
 
@@ -220,7 +201,7 @@ export MINIMAX_API_KEY="***"
 # or export ANTHROPIC_API_KEY="***"
 
 # 3. Launch Web workbench
-htmlninefox workbench
+htmlninefox app
 # Open http://127.0.0.1:8620
 
 # 4. Or direct CLI generation
@@ -234,6 +215,34 @@ htmlninefox restore --project ./output/ACTUAL-PROJECT --revision 0 --expected-re
 htmlninefox export ./output/ACTUAL-PROJECT --format pdf
 htmlninefox export ./output/ACTUAL-PROJECT --format png --scope pages --pages 1-3
 ```
+
+## Version history
+
+RC3-A through E completed the architecture hardening following the [`mattpocock/skills`](https://github.com/mattpocock/skills) research, domain-modeling, codebase-design, TDD, and code-review methods, and shipped as the stable `v0.5.0`.
+
+| Version | Date | Delivered | Record |
+|---|---|---|---|
+| **v0.5.0 stable** | 2026-09-25 | RC3 wrap-up; Windows / Linux / wheel / Docker attachments with SHA-256 | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) · [test report](docs/TEST-REPORT-v0.5.0.md) |
+| RC3-E | 2026-09-25 | Browser lifecycle modules, generation cancel, export race guards | [iteration record](docs/ITERATION-RC3-E-20260925.md) |
+| RC3-D | 2026-09-25 | Crash-recoverable Project commits (journal rollback), cross-process file locking, atomic generation publication | [iteration record](docs/ITERATION-RC3-D-20260925.md) |
+| RC3-B2 / C | 2026-09-24 | Shared Generation / Feedback / Restore / Export use cases, CLI Restore | [RC3-C record](docs/ITERATION-RC3-C-20260924.md) |
+| RC3 visual convergence | 2026-09-24 | Dual primary actions, four responsive tiers, semantic zoom, unified component states, classic mode back on Pixel Garden | [convergence record](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| v0.5.0rc2 | 2026-09-18 | Revision history and restore, three-tier native motion, 100-node gate, accessibility, DSH plugin preview | [RC2 report](docs/TEST-REPORT-RC2-20260918.md) |
+| v0.5.0rc1 | 2026-09-14 | Project Memory, command palette, Recipe Run, interaction system | [RC1 notes](docs/RELEASE-NOTES-v0.5.0rc1.md) |
+| v0.4.2 stable | 2026-09-08 | Export Center (PDF / PNG with compatibility report) | [release notes](docs/RELEASE-NOTES-v0.4.2.md) |
+
+Real evidence screenshots from historical releases:
+
+<table>
+<tr>
+<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/harness-plugin-enabled.png" alt="htmlninefox plugin enabled in DeepSeek Harness"><br><b>DSH plugin enabled (rc2)</b><br>The final tarball installed into a fresh web profile; the plugin list shows htmlninefox as an enabled global plugin.</td>
+<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/generated-poster.png" alt="Chinese poster generated and exported through the plugin"><br><b>Generate, revise, export chain (rc2)</b><br>Offline Chinese poster with dry-run and real feedback, then PDF and full-page PNG export; compatibility 100.</td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/test-evidence/motion-20260918/revision-history-desktop.png" alt="Revision history, diff and restore"><br><b>Revision history and restore (rc2)</b><br>Parent revision, restore source, labels, and line diffs; restoring creates a new revision.</td>
+<td width="50%"><img src="docs/test-evidence/motion-20260918/motion-lab-desktop.png" alt="Native motion samples"><br><b>Motion lab (rc2)</b><br>Six sample interactions: feedback, selection, linking, stage changes, output ready, restore complete.</td>
+</tr>
+</table>
 
 ## Testing & Trust Evidence
 

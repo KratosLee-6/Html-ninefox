@@ -12,8 +12,8 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-238%20passed%20%7C%201%20skipped-1F8A70)](docs/ITERATION-RC3-E-20260925.md)
-[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
+[![Tests](https://img.shields.io/badge/pytest-238%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.5.0.md)
+[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/TEST-REPORT-v0.5.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
@@ -44,34 +44,19 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
   用自然语言反馈，按版本继续迭代
 ```
 
-## 当前版本与 main 最新进展（2026-09-24）
+## 当前版本与最新进展（2026-09-25）
 
-当前应用包版本为 `0.5.0`，对应稳定标签 `v0.5.0`。v0.5.0 在 RC3 工程基线之上完成共享应用用例、崩溃可恢复 Project 提交与跨进程锁、浏览器生命周期 Module 拆分；Windows、Linux 与 Python 安装包由同名标签工作流构建。
+当前应用包版本为 `0.5.0`，对应稳定标签 `v0.5.0`（2026-09-25 发布）。v0.5.0 在 RC3 工程基线之上完成共享应用用例、崩溃可恢复 Project 提交与跨进程锁、浏览器生命周期 Module 拆分；Windows、Linux 与 Python 安装包由同名标签工作流构建并附带 SHA-256。
 
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
 | 应用 Release | `v0.5.0` 稳定版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
-| `main` 最新增量 | RC3-E 已完成：Project / Generation / Revision / Export 四个浏览器生命周期 Module（私有状态 + 命名空间 API），生成取消与导出竞态守卫 | [RC3-E 记录](docs/ITERATION-RC3-E-20260925.md) · [架构](docs/ARCHITECTURE.md) |
-| RC3-E 生命周期复验 | `238 passed, 1 skipped`（含 4 个 lifecycle 测试）；Chromium e2e `22/22`；取消流有确定性路由注入证据与真实截图 | [本轮记录](docs/ITERATION-RC3-E-20260925.md) · [main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
+| 发布验证 | 全量测试 `238 passed, 1 skipped`；Chromium e2e 双通道 `22/22`；附件回读校验一致 | [v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
-
-### RC3 视觉与交互收敛（2026-09-24）
-
-本轮使用 RealDesign `design-to-product` 对现有品牌、页面、组件和动效进行产品化收敛，没有引入另一套示例品牌。工作台继续使用原生 HTML / CSS / JavaScript，保留 Pixel Garden 的纸张底色、钴蓝、薄荷绿和陶土橙；动效继续使用 CSS 与 Web Animations API。
-
-| 收敛方向 | 已落地内容 |
-|---|---|
-| 信息架构 | 顶栏只保留“输入需求”和“推进当前工作区”两项主动作；诊断、经典模式、安装和新建工作区收入“更多”菜单 |
-| 响应式 | `>1180px` 完整三栏，`901–1180px` 检查器抽屉，`621–900px` 素材与检查器双抽屉，`≤620px` 切换为可读的移动任务视图 |
-| 画布层级 | 缩放低于 `0.78` 时显示节点摘要，`0.78–1` 为紧凑层级，`≥1` 展示完整表单、预览与编辑内容 |
-| 组件系统 | 主按钮、焦点环、选中/忙碌/成功/错误状态统一；主要 Unicode 图标替换为本地 SVG，Logo 继续使用项目原有像素狐狸 |
-| 经典模式 | 黑紫/青色旧视觉迁回 Pixel Garden Token，并统一 Logo、标题、表单和键盘焦点反馈 |
 
 ### 功能 ↔ 截图对照（v0.5.0 实拍集）
 
 以下 18 张全部拍摄自 `v0.5.0` 发布版（顶栏版本徽标为 `v0.5.0`），每张对应一项真实功能：
-
-**工作台与画布**
 
 **工作台与画布**
 
@@ -136,83 +121,23 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 完整 24 张（含 6 张真实产物输出图）见 [assets/screenshots/v0.5.0/](assets/screenshots/v0.5.0/)，清单与复现命令见[截图说明](assets/screenshots/README.md)。
 
-### v0.5.0 RC2 已发布基线（2026-09-18）
-
-RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验收和无障碍增量合并为可安装的应用预发布版。
-
-| 增量 | 已完成内容 | 入口与记录 |
-|---|---|---|
-| 版本历史与恢复 | 每次反馈、重跑和恢复保留 HTML + 生成状态快照；支持命名、源码差异、父版本与恢复来源；恢复会生成新版本，不覆盖历史 | [RC2 迭代记录](docs/ITERATION-RC2-20260918.md) · [测试报告](docs/TEST-REPORT-RC2-20260918.md) |
-| 并发、兼容与无障碍 | 过期恢复返回版本冲突；原子文件替换与失败回滚；兼容旧 HTML-only 历史；弹窗 Tab 循环、Escape 焦点恢复、390px 手机布局 | [版本 API 与边界](docs/ITERATION-RC2-20260918.md#http-v1-增量) |
-| 100 节点画布验收 | 100 个节点 / 99 条连线覆盖渲染、框选、整体移动、保存和数量一致性；这是操作耗时门禁，不宣称 60fps | [实测 JSON](docs/test-evidence/motion-20260918/canvas-100-nodes.json) |
-| 原生动效系统 | 系统 / 减少 / 关闭三档偏好；可取消动画、并发预算、离屏跳过、重试竞态清理、阶段提示合并；`/motion-lab` 提供六类样例 | [动效交付记录](docs/ITERATION-MOTION-20260918.md) · [动效计划](docs/MOTION-PLAN-v0.5.md) |
-| DeepSeek Harness | 原生 Cordis `dsh.bundle` 注册 `htmlninefox` 技能，复用 CLI 完成生成 → 反馈 → PDF / PNG；发布 tarball、SHA-256 和 `dsh-plugin` topic | [下载插件](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) · [安装说明](integrations/deepseek-harness/README.md) |
-
-### 本轮真实截图
-
-<table>
-<tr>
-<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/harness-plugin-enabled.png" alt="DeepSeek Harness 中 htmlninefox 插件已启用"><br><b>DSH 插件已启用</b><br>最终 tarball 安装进新的 Web profile；插件列表显示 htmlninefox 为全局插件并处于启用状态。</td>
-<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/generated-poster.png" alt="Harness 插件链路生成并导出的中文海报"><br><b>生成、修改与导出链路</b><br>离线生成中文海报，执行 dry-run 与真实反馈，再导出 PDF 和完整 PNG；兼容性报告 100 分。</td>
-</tr>
-<tr>
-<td width="50%"><img src="docs/test-evidence/motion-20260918/revision-history-desktop.png" alt="版本历史、差异与恢复"><br><b>版本历史与恢复</b><br>查看父版本、恢复来源、命名与源码差异，历史版本恢复为新版本。</td>
-<td width="50%"><img src="docs/test-evidence/motion-20260918/motion-lab-desktop.png" alt="原生动效样页"><br><b>动效实验室</b><br>操作反馈、选中素材、建立连接、阶段切换、产物就绪与版本恢复六类动效。</td>
-</tr>
-</table>
-
-### 最新验证结果
-
-| 验证 | 结果 | 证据 |
-|---|---:|---|
-| v0.5.0 发布版全量 Python / HTTP / Chromium | **238 passed，1 skipped** | [v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md) |
-| Chromium e2e（bundled Chromium / 系统 Edge 引擎） | **22 / 22 · 双通道通过** | [同一报告](docs/TEST-REPORT-v0.5.0.md) |
-| DSH 插件注册、重载、卸载、tarball 独立安装 | **2 / 2 通过** | [插件测试](integrations/deepseek-harness/test/plugin.test.js) |
-| 发布附件回读与 SHA-256 | **wheel 与 Windows zip 实测一致** | [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
-| Windows 便携包真机烟测 | 启动 → 生成 → 真实 PNG 导出 | [同一报告](docs/TEST-REPORT-v0.5.0.md) |
-| `main` GitHub CI | **以最新 Actions 为准** | [查看 main Actions](https://github.com/KratosLee-6/Html-ninefox/actions?query=branch%3Amain) |
-
-当前限制：Safari 实机验收需要 macOS 环境（WebView2/Edge 实机已完成 22/22）；未用真实模型验收 DSH 对话自动选用技能。DSH 首版是技能工作流，尚未提供专用工具卡片或聊天内 HTML 预览。
-
-## RC3 架构加固：全部完成，v0.5.0 已发布
-
-项目已按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design、TDD 与 code-review 方法推进。RC3-A、RC3-B1、视觉收敛、RC3-B2 Generation、RC3-C Feedback / Restore / Export 应用用例、RC3-D 存储一致性与 RC3-E 浏览器生命周期 Module 全部完成，并以 `v0.5.0` 稳定版发布。
-
-| 优先级 | 结论 | 当前状态 / 下一步 |
-|---|---|---|
-| P0 | 旧架构与贡献指南仍描述早期目录和门禁 | 已更新当前架构、领域词汇和真实测试命令 |
-| ~~P1~~ | ~~HTTP handler 同时承担 transport 与业务编排~~（RC3-B2/C 已解决） | 共享 `StudioApplication` 用例，Handler 只做输入解析与序列化 |
-| ~~P1~~ | ~~多套文件写入规则并存，跨进程和断电事务未闭环~~（RC3-D 已解决） | 见 [RC3-D 迭代记录](docs/ITERATION-RC3-D-20260925.md) |
-| ~~P2~~ | ~~工作台状态仍集中在大页面~~（RC3-E 已解决） | 四个生命周期 Module：FoxProjects / FoxGeneration / FoxRevisions / FoxExports |
-| P2 | 多个浏览器测试重复启动本地 server | 共享 pytest fixture 已完成；本轮继续增加视觉、响应式和可访问性门禁 |
-
-完整证据与阶段门槛见 [工程审计报告](docs/AUDIT-MATTPOCOCK-20260920.md)、[上游技能研究](docs/research/MATTPocock-SKILLS-AUDIT-20260920.md)、[RC3-C 迭代记录](docs/ITERATION-RC3-C-20260924.md)、[v0.5.0 正式版计划](docs/PLAN-v0.5.0-STABLE-20260924.md)和 [RC3 架构加固计划](docs/ITERATION-PLAN-POST-RC2-20260920.md)。动效仍沿用[动效执行方案](docs/MOTION-PLAN-v0.5.md)，并作为生命周期反馈进入前端 Module 迭代。
-
 ## v0.5.0 稳定版核心能力
 
 ![崩溃可恢复提交与生命周期 Module](assets/screenshots/v0.5.0/generation-cancel.png)
 
 - **🧠 Project Memory**：品牌、受众、语气、禁忌、模板、主色和字体保存在本地，可查看、编辑、关闭或清空。
-- **♡ 明确采用后学习**：只有在产物检查器点击“采用此版本并学习”才会进入长期记忆，测试稿和失败稿不会污染偏好。
-- **🛡 崩溃可恢复的 Project 提交（RC3-D）**：统一 durable 原语 + 提交 journal，进程被 kill / 断电后自动回滚到上一个一致版本；跨进程文件锁让 CLI 与服务并发操作同一项目返回稳定 `project_busy`。
-- **🧩 浏览器生命周期 Module + 取消生成（RC3-E）**：Project / Generation / Revision / Export 拆分为独立 Module；每工作区单飞生成，等待期可取消——排队任务真取消，执行中诚实转为“停止等待”。
-
-- **🧠 Project Memory**：品牌、受众、语气、禁忌、模板、主色和字体保存在本地，可查看、编辑、关闭或清空。
-- **♡ 明确采用后学习**：只有在产物检查器点击“采用此版本并学习”才会进入长期记忆，测试稿和失败稿不会污染偏好。
-- **🔎 可解释复用**：分析、Recipe Run 和产物检查器会显示本次复用了什么，以及哪些记忆被本次明确要求覆盖。
-- **🔒 隐私边界**：不把 API Key、附件正文或完整反馈原文写入长期记忆。
-- **✅ RC1 验收**：179/179 Python、API、存储、安全与 Chromium 浏览器测试通过。
-
-> RC1 建立本地项目记忆闭环；RC2 在其上加入版本历史、恢复、100 节点门禁、键盘操作和用户可控动效。
+- **♡ 明确采用后学习**：只有在产物检查器点击“采用此版本并学习”才会进入长期记忆，测试稿和失败稿不会污染偏好；分析、Recipe Run 和检查器会显示本次复用了什么（可解释复用）。
+- **🛡 崩溃可恢复的 Project 提交**：统一 durable 原语 + 提交 journal，进程被 kill / 断电后自动回滚到上一个一致版本；跨进程文件锁让 CLI 与服务并发操作同一项目返回稳定 `project_busy`。
+- **🧩 浏览器生命周期 Module + 取消生成**：Project / Generation / Revision / Export 拆分为独立 Module；每工作区单飞生成，等待期可取消——排队任务真取消，执行中诚实转为“停止等待”。
+- **⏳ 版本历史与恢复**：反馈、重跑和恢复都保留 HTML + 生成状态快照；恢复生成新版本、不覆盖历史，支持命名与行级差异。
+- **📤 Export Center**：产物节点直接导出 PDF、逐页 PNG 或完整长图，含兼容性评分与 `export-report.json`。
+- **🔒 隐私边界**：API Key、附件正文与完整反馈原文不写入长期记忆或诊断包。
 
 ## 工作台完整能力
 
-- **📤 Export Center**：产物节点直接导出 PDF、逐页 PNG 或完整长图，支持页码范围、画布尺寸、1x/2x/3x 和兼容性报告。
-- **✅ 可信发布链路**：版本、CLI、API、安装包、Docker 标签、测试证据和 Git 标签保持一致。
-- **🎨 Pixel Garden 设计系统**：深钴蓝 `#173C8F` + 薄荷绿 `#49B894` + 暖纸白 `#F4F0E7` 统一设计令牌，5 大视觉产物一致体验。
-- **🤖 真实 LLM 接入**：MiniMax-M3 / Claude / GPT-4o 三家 API，环境变量自动配置，离线规则引擎兜底。
 - **🖥️ Web 工作台**：`htmlninefox app` 一键启动本地 Web UI，实时预览 + 智能体日志 + 模板选择。
-- **🐳 Docker 镜像**：`docker run htmlninefox` 跨平台部署，多阶段构建，compose.yaml 注入环境变量。
+- **🤖 真实 LLM 接入**：MiniMax-M3 / Claude / GPT-4o 三家 API，环境变量自动配置，离线规则引擎兜底。
+- **🤝 Skill 联盟**：baoyu-slide-deck（AI 画图 PPT）· frontend-slides（无 AI 紫渐变）· beautiful-html-templates（28 套稳定模板）。
 - **真实 HTML 模板库**：6 套完整模板、34 个可单独预览和抽取的页面，不再只展示线框。
 - **统一需求入口**：支持文字、TXT、Markdown、JSON、CSV、HTML 和常见图片。
 - **推荐与自由组合双路径**：可以直接接受推荐，也可以在工作区拖入版式、页面、风格、文件和 Skill。
@@ -220,10 +145,11 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 - **AI 模型自主配置**：支持 OpenAI-compatible、Ollama 和自定义兼容接口；API Key 只保存在本地。
 - **离线可用**：没有 API Key 时继续使用确定性的规则引擎，不阻塞生成。
 - **反馈迭代**：自然语言反馈转成设计 Token 修改并重渲染，保留 `rev1 / rev2 / ...` 历史。
+- **🎨 Pixel Garden 设计系统**：深钴蓝 `#173C8F` + 薄荷绿 `#49B894` + 暖纸白 `#F4F0E7` 统一设计令牌，5 大视觉产物一致体验。
+- **🐳 Docker 镜像**：`docker run htmlninefox` 跨平台部署，多阶段构建，compose.yaml 注入环境变量。
 - **跨平台使用**：Windows 便携包/安装器、Linux `.run/.tar.gz`、Python CLI、Web/PWA、Docker。
 
 > [Export Center](docs/EXPORT-CENTER.md) 已完成 PDF / PNG 第一阶段。下一阶段提供高保真 PPTX，再推进受控范围内的可编辑 PPTX / DOCX。
-- 🎨 **Multiple PPT styles via Skill Alliance** (v0.3): baoyu-slide-deck (image) · frontend-slides (HTML, no AI gradient) · beautiful-html-templates (28 stable presets)
 
 ## 看得见的真实效果
 
@@ -238,12 +164,6 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 </tr>
 </table>
 
-### 导出中心
-
-![v0.4.2 导出中心](assets/screenshots/v0.4.2/export-center.png)
-
-产物节点可直接选择 PDF、逐页 PNG 或完整长图；导出前显示分页识别、兼容性评分、动态内容与网络资源风险，导出后提供文件和 `export-report.json`。
-
 ### 六类真实产物
 
 以下产物图由 `v0.5.0` 发布版的 e2e 验收流程真实生成：
@@ -255,6 +175,34 @@ RC2 已将 Project Memory、版本历史与恢复、原生动效、100 节点验
 | 翻页交互 | 海报 | 架构文档 |
 |---|---|---|
 | ![Deck page 2](assets/screenshots/v0.5.0/output-deck-page2.png) | ![Poster](assets/screenshots/v0.5.0/output-poster.png) | ![Architecture document](assets/screenshots/v0.5.0/output-archdoc.png) |
+
+## 版本历史
+
+RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design、TDD 与 code-review 方法完成架构加固，并以 `v0.5.0` 稳定版收口。
+
+| 版本 | 日期 | 交付 | 记录 |
+|---|---|---|---|
+| **v0.5.0 稳定版** | 2026-09-25 | RC3 收口，发布 Windows / Linux / wheel / Docker 附件与 SHA-256 | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) · [测试报告](docs/TEST-REPORT-v0.5.0.md) |
+| RC3-E | 2026-09-25 | 浏览器生命周期 Module 拆分、生成取消、导出竞态守卫 | [迭代记录](docs/ITERATION-RC3-E-20260925.md) |
+| RC3-D | 2026-09-25 | 崩溃可恢复 Project 提交（journal 回滚）、跨进程文件锁、生成原子发布 | [迭代记录](docs/ITERATION-RC3-D-20260925.md) |
+| RC3-B2 / C | 2026-09-24 | 共享 Generation / Feedback / Restore / Export 应用用例，CLI Restore | [RC3-C 记录](docs/ITERATION-RC3-C-20260924.md) |
+| RC3 视觉收敛 | 2026-09-24 | 顶栏双主动作、四档响应式、语义缩放、组件状态统一、经典模式回归 Pixel Garden | [视觉收敛记录](docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md) |
+| v0.5.0rc2 | 2026-09-18 | 版本历史与恢复、原生动效三档偏好、100 节点验收、无障碍、DSH 插件预览 | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
+| v0.5.0rc1 | 2026-09-14 | Project Memory、命令面板、Recipe Run、交互系统 | [RC1 说明](docs/RELEASE-NOTES-v0.5.0rc1.md) |
+| v0.4.2 稳定版 | 2026-09-08 | Export Center（PDF / PNG + 兼容性报告） | [发布说明](docs/RELEASE-NOTES-v0.4.2.md) |
+
+历史版本的真实证据截图：
+
+<table>
+<tr>
+<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/harness-plugin-enabled.png" alt="DeepSeek Harness 中 htmlninefox 插件已启用"><br><b>DSH 插件已启用（rc2）</b><br>最终 tarball 安装进新的 Web profile；插件列表显示 htmlninefox 为全局插件并处于启用状态。</td>
+<td width="50%"><img src="docs/test-evidence/harness-plugin-20260918/generated-poster.png" alt="Harness 插件链路生成并导出的中文海报"><br><b>生成、修改与导出链路（rc2）</b><br>离线生成中文海报，执行 dry-run 与真实反馈，再导出 PDF 和完整 PNG；兼容性报告 100 分。</td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/test-evidence/motion-20260918/revision-history-desktop.png" alt="版本历史、差异与恢复"><br><b>版本历史与恢复（rc2）</b><br>查看父版本、恢复来源、命名与源码差异，历史版本恢复为新版本。</td>
+<td width="50%"><img src="docs/test-evidence/motion-20260918/motion-lab-desktop.png" alt="原生动效样页"><br><b>动效实验室（rc2）</b><br>操作反馈、选中素材、建立连接、阶段切换、产物就绪与版本恢复六类动效。</td>
+</tr>
+</table>
 
 ## 下载与安装
 
@@ -283,7 +231,7 @@ export MINIMAX_API_KEY="***"
 # 或 export ANTHROPIC_API_KEY="***"
 
 # 3. 启动 Web 工作台
-htmlninefox workbench
+htmlninefox app
 # 打开 http://127.0.0.1:8620
 
 # 4. 或 CLI 直接生成
