@@ -239,6 +239,24 @@ class _Handler(BaseHTTPRequestHandler):
                 raise StoreError("intake_import_failed", str(exc), 409) from exc
         return {"ok": True, "candidate": candidate, "gallery_item": gallery_item}
 
+    def _api_intake_batch(self, body: dict) -> dict:
+        action = str(body.get("action") or "")
+        ids = body.get("ids") if isinstance(body.get("ids"), list) else []
+        if action not in {"approve", "reject"}:
+            raise StoreError("intake_status_invalid", "action 只允许 approve/reject", 400)
+        if not ids:
+            raise StoreError("intake_candidate_invalid", "ids 不能为空", 400)
+        results: list[dict] = []
+        for candidate_id in ids[:24]:
+            try:
+                outcome = self._api_intake_decide(str(candidate_id), action)
+                results.append({"id": str(candidate_id), "ok": True,
+                                "gallery_item": outcome.get("gallery_item")})
+            except (StoreError, intake.IntakeError) as error:
+                results.append({"id": str(candidate_id), "ok": False,
+                                "error": getattr(error, "message", str(error))})
+        return {"ok": True, "action": action, "results": results}
+
     def _ai_settings(self) -> AISettingsStore:
         return AISettingsStore(_OUTPUT_ROOT)
 
@@ -388,10 +406,27 @@ class _Handler(BaseHTTPRequestHandler):
                 extra_dir=Path.home() / ".htmlninefox" / "sources")})
         if path == "/api/intake/candidates":
             status = (query.get("status") or ["pending"])[0]
+            source = (query.get("source") or [""])[0]
             candidates = self._intake_candidates().list(status if status != "all" else None)
+            if source:
+                candidates = [item for item in candidates if item.get("source") == source]
             return self._json({"ok": True, "candidates": candidates,
                                "sources": intake.load_sources(
                                    extra_dir=Path.home() / ".htmlninefox" / "sources")})
+        if path.startswith("/api/intake/candidates/") and path.endswith("/preview"):
+            candidate_id = path[len("/api/intake/candidates/"):-len("/preview")]
+            body_bytes = self._intake_candidates().body(candidate_id)
+            content = body_bytes.decode("utf-8", errors="replace")
+            # The iframe is embedded with sandbox="" (no allow-scripts) and this
+            # CSP keeps candidate scripts from ever running in the workbench.
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Security-Policy",
+                             "default-src 'none'; style-src 'unsafe-inline'; img-src data:")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            self.wfile.write(content.encode("utf-8"))
+            return
         if path == "/api/gallery-preview":
             item_id = (query.get("id") or [""])[0]
             page_id = (query.get("page") or [None])[0]
@@ -546,6 +581,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json(self._api_intake_fetch_batch(body))
         if path == "/api/intake/zip":
             return self._json(self._api_intake_zip(body))
+        if path == "/api/intake/candidates/batch":
+            return self._json(self._api_intake_batch(body))
         if path.startswith("/api/intake/candidates/") and path.endswith("/approve"):
             return self._json(self._api_intake_decide(
                 path[len("/api/intake/candidates/"):-len("/approve")], "approve"))

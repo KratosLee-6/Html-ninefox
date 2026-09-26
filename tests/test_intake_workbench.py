@@ -156,3 +156,69 @@ def test_intake_fetch_batch_requires_urls(tmp_path: Path) -> None:
         bad, _ = api_request(server.base_url, "/api/intake/fetch-batch", "POST",
                              {"urls": []}, expected=400)
         assert bad["error"]["code"] == "intake_url_invalid"
+
+
+# ---------------------------------------------------------------- S05 review workbench
+
+import urllib.request as _urlrequest
+
+
+def test_intake_preview_is_served_without_scripts(tmp_path: Path, monkeypatch) -> None:
+    stub_fetch(monkeypatch, {"https://example.com/inspo": (200, {"content-type": "text/html"}, SAMPLE)})
+    with WorkbenchServer(tmp_path) as server:
+        submitted, _ = api_request(server.base_url, "/api/intake/fetch", "POST",
+                                   {"url": "https://example.com/inspo"})
+        candidate_id = submitted["candidate"]["candidate_id"]
+        raw = _urlrequest.urlopen(
+            f"{server.base_url}/api/intake/candidates/{candidate_id}/preview", timeout=10)
+        content = raw.read().decode("utf-8")
+        headers = raw.headers
+        assert "Inspo Landing" in content
+        assert headers["Content-Security-Policy"] == "default-src 'none'; style-src 'unsafe-inline'; img-src data:"
+        assert headers["X-Content-Type-Options"] == "nosniff"
+
+
+def test_intake_batch_operations(tmp_path: Path, monkeypatch) -> None:
+    stub_fetch(monkeypatch, {
+        "https://example.com/one": (200, {"content-type": "text/html"}, SAMPLE),
+        "https://example.com/two": (200, {"content-type": "text/html"},
+                                    b"<html><head><title>Page Two</title></head><body>x</body></html>"),
+    })
+    from htmlninefox.server import app as server_app
+    monkeypatch.setattr(server_app._INTAKE_RATE_LIMITER, "default_interval", 0.0)
+    with WorkbenchServer(tmp_path) as server:
+        ids = []
+        for url in ("https://example.com/one", "https://example.com/two"):
+            result, _ = api_request(server.base_url, "/api/intake/fetch", "POST", {"url": url})
+            ids.append(result["candidate"]["candidate_id"])
+
+        bad, _ = api_request(server.base_url, "/api/intake/candidates/batch", "POST",
+                             {"action": "maybe", "ids": ids}, expected=400)
+        assert bad["error"]["code"] == "intake_status_invalid"
+
+        batch, _ = api_request(server.base_url, "/api/intake/candidates/batch", "POST",
+                               {"action": "approve", "ids": ids})
+        assert all(item["ok"] for item in batch["results"])
+        approved, _ = api_request(server.base_url, "/api/intake/candidates?status=approved")
+        assert {item["candidate_id"] for item in approved["candidates"]} == set(ids)
+
+
+def test_intake_candidates_filter_by_source(tmp_path: Path, monkeypatch) -> None:
+    stub_fetch(monkeypatch, {
+        "https://example.com/sourced": (200, {"content-type": "text/html"},
+                                        b"<html><head><title>Sourced</title></head><body>x</body></html>"),
+        "https://example.com/manual": (200, {"content-type": "text/html"},
+                                       b"<html><head><title>Manual</title></head><body>y</body></html>"),
+    })
+    with WorkbenchServer(tmp_path) as server:
+        api_request(server.base_url, "/api/intake/fetch", "POST",
+                    {"url": "https://example.com/sourced", "source_id": "land-book"})
+        api_request(server.base_url, "/api/intake/fetch", "POST",
+                    {"url": "https://example.com/manual"})  # manual, no source
+
+        by_source, _ = api_request(server.base_url, "/api/intake/candidates?status=pending&source=land-book")
+        assert len(by_source["candidates"]) == 1
+        assert by_source["candidates"][0]["source"] == "land-book"
+
+        manual, _ = api_request(server.base_url, "/api/intake/candidates?status=pending&source=")
+        assert len(manual["candidates"]) == 2

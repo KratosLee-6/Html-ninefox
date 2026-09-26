@@ -6,6 +6,8 @@
   'use strict';
 
   let filter = 'pending';
+  let sourceFilter = '';
+  const selected = new Set();
 
   async function open() {
     window.FoxInteraction?.openDialog('#intake-modal', { initialFocus: '#intake-fetch-url' });
@@ -29,17 +31,31 @@
     } catch (error) { /* 源清单加载失败不阻塞审核 */ }
   }
 
-  async function refresh(nextFilter) {
+  async function refresh(nextFilter, nextSource) {
     if (nextFilter) filter = nextFilter;
+    if (nextSource !== undefined) sourceFilter = nextSource;
+    selected.clear();
     const list = document.querySelector('#intake-list');
     if (!list) return;
     list.innerHTML = '<div class="analysis-empty"><span class="spin">读取候选素材…</span></div>';
     try {
-      const data = await api('/api/intake/candidates?status=' + encodeURIComponent(filter));
+      const query = new URLSearchParams({ status: filter });
+      if (sourceFilter) query.set('source', sourceFilter);
+      const data = await api('/api/intake/candidates?' + query.toString());
       renderList(data.candidates || []);
+      renderSourceFilter(data.sources || []);
     } catch (error) {
       list.innerHTML = `<div class="export-warning error">${esc(error.message)}</div>`;
     }
+  }
+
+  function renderSourceFilter(sources) {
+    const select = document.querySelector('#intake-source-filter');
+    if (!select) return;
+    const current = sourceFilter;
+    select.innerHTML = '<option value="">全部来源</option>' + sources.map(
+      source => `<option value="${esc(source.id)}">${esc(source.name)}</option>`).join('');
+    select.value = current;
   }
 
   function renderList(candidates) {
@@ -56,7 +72,9 @@
         `<span class="intake-swatch" style="background:${esc(color)}" title="${esc(color)}"></span>`).join('');
       const headings = (item.skeleton?.headings || []).slice(0, 4).map(h => esc(h.text)).join(' · ');
       return `<div class="intake-card">
-        <div class="intake-card-head"><b>${esc(item.title)}</b>
+        <div class="intake-card-head">
+          ${item.status === 'pending' ? `<input type="checkbox" class="intake-check" data-id="${esc(item.candidate_id)}" style="width:auto;height:auto" aria-label="选中 ${esc(item.title)}">` : ''}
+          <b>${esc(item.title)}</b>
           <span class="intake-badge">${esc(licenseLabel)}</span>
           ${item.source ? `<span class="intake-badge dim">${esc(sourceNames[item.source] || item.source)}</span>` : ''}
           <span class="intake-badge dim">${esc(item.intent_guess)}</span></div>
@@ -66,9 +84,14 @@
         <div class="intake-card-actions">
           ${item.status === 'pending'
             ? `<button class="btn btn-primary" onclick="intakeApprove('${esc(item.candidate_id)}')">✔ 采纳为模板</button>
-               <button class="btn btn-danger-ghost" onclick="intakeReject('${esc(item.candidate_id)}')">✕ 拒绝</button>`
+               <button class="btn btn-danger-ghost" onclick="intakeReject('${esc(item.candidate_id)}')">✕ 拒绝</button>
+               <button class="btn btn-secondary" onclick="intakeTogglePreview('${esc(item.candidate_id)}')">👁 预览</button>`
             : `<span class="intake-status">${item.status === 'approved' ? '已采纳' : '已拒绝'}</span>`}
-        </div></div>`;
+        </div>
+        <iframe class="intake-preview" id="intake-preview-${esc(item.candidate_id)}" hidden
+          sandbox title="${esc(item.title)} 预览"
+          src="/api/intake/candidates/${esc(item.candidate_id)}/preview"></iframe>
+      </div>`;
     }).join('');
   }
 
@@ -165,5 +188,51 @@
     }
   }
 
-  window.FoxIntake = { open, close, refresh, fetchCandidate, fetchBatch, importZip, approve, reject };
+  function togglePreview(candidateId) {
+    const frame = document.getElementById('intake-preview-' + candidateId);
+    if (frame) frame.hidden = !frame.hidden;
+  }
+
+  function toggleSelect(candidateId, checked) {
+    if (checked) selected.add(candidateId);
+    else selected.delete(candidateId);
+    const bar = document.querySelector('#intake-batch-bar');
+    if (bar) {
+      bar.hidden = selected.size === 0;
+      const label = document.querySelector('#intake-batch-count');
+      if (label) label.textContent = `已选 ${selected.size} 项`;
+    }
+  }
+
+  function selectAllPending() {
+    document.querySelectorAll('.intake-check').forEach(box => {
+      box.checked = true;
+      selected.add(box.dataset.id);
+    });
+    const bar = document.querySelector('#intake-batch-bar');
+    if (bar) {
+      bar.hidden = selected.size === 0;
+      const label = document.querySelector('#intake-batch-count');
+      if (label) label.textContent = `已选 ${selected.size} 项`;
+    }
+  }
+
+  async function batchApply(action) {
+    if (!selected.size) return;
+    const ids = [...selected];
+    try {
+      const result = await post('/api/intake/candidates/batch', { action, ids });
+      const okCount = (result.results || []).filter(item => item.ok).length;
+      flash(`✓ 批量${action === 'approve' ? '采纳' : '拒绝'}完成：${okCount}/${ids.length}`, okCount === ids.length);
+      if (action === 'approve') await loadGallery();
+      await refresh(filter);
+    } catch (error) {
+      flash('批量操作失败：' + error.message, false);
+    }
+  }
+
+  window.FoxIntake = {
+    open, close, refresh, fetchCandidate, fetchBatch, importZip,
+    approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply,
+  };
 })();

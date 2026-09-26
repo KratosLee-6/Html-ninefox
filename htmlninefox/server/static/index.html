@@ -810,6 +810,13 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
           <button class="btn btn-secondary" onclick="intakeRefresh('approved')">已采纳</button>
           <button class="btn btn-secondary" onclick="intakeRefresh('rejected')">已拒绝</button>
           <button class="btn btn-secondary" onclick="intakeRefresh('all')">全部</button>
+          <select id="intake-source-filter" onchange="intakeSourceFilter(this.value)" aria-label="按来源筛选"></select>
+          <button class="btn btn-secondary" onclick="intakeSelectAll()">全选待审核</button>
+        </div>
+        <div class="intake-toolbar" id="intake-batch-bar" hidden>
+          <span id="intake-batch-count" class="intake-badge">已选 0 项</span>
+          <button class="btn btn-primary" onclick="intakeBatch('approve')">批量采纳</button>
+          <button class="btn btn-danger-ghost" onclick="intakeBatch('reject')">批量拒绝</button>
         </div>
         <div id="intake-list" class="intake-list" aria-live="polite"></div>
       </section>
@@ -1674,10 +1681,17 @@ function intakeRefresh(filter) { return window.FoxIntake.refresh(filter); }
 function intakeFetch() { return window.FoxIntake.fetchCandidate(); }
 function intakeApprove(id) { return window.FoxIntake.approve(id); }
 function intakeReject(id) { return window.FoxIntake.reject(id); }
+function intakeTogglePreview(id) { return window.FoxIntake.togglePreview(id); }
+function intakeSelectAll() { return window.FoxIntake.selectAllPending(); }
+function intakeBatch(action) { return window.FoxIntake.batchApply(action); }
+function intakeSourceFilter(source) { return window.FoxIntake.refresh(source || 'pending', source); }
 document.addEventListener('change', event => {
   if (event.target?.id === 'intake-zip-file' && event.target.files?.[0]) {
     window.FoxIntake.importZip(event.target.files[0]);
     event.target.value = '';
+  }
+  if (event.target?.classList?.contains('intake-check')) {
+    window.FoxIntake.toggleSelect(event.target.dataset.id, event.target.checked);
   }
 });
 

@@ -202,7 +202,8 @@ def test_intake_workbench_dialog_lists_candidates(tmp_path: Path, workbench_serv
             page = browser.new_page(viewport={"width": 1440, "height": 900})
             errors: list[str] = []
             page.on("pageerror", lambda error: errors.append(str(error)))
-            page.add_init_script("localStorage.clear()")
+            # 沙箱预览 iframe 是不透明源，localStorage 不可用——init 脚本需容错
+            page.add_init_script("try{localStorage.clear()}catch(e){}")
             page.goto(server.base_url + "/")
             page.wait_for_function(
                 "window.FoxInteraction && window.FoxIntake && nodes.length >= 5")
