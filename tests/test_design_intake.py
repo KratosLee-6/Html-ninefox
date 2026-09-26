@@ -214,3 +214,85 @@ def test_rate_limiter_enforces_interval_per_key() -> None:
     assert now["t"] == 105.0
     assert limiter.wait("b") == 0.0  # 不同 key 不互相影响
     assert now["t"] == 105.0
+
+
+# ---------------------------------------------------------------- candidate extraction
+
+from htmlninefox.intake import CandidateStore, extract_candidate  # noqa: E402
+
+SAMPLE_HTML = b"""<!doctype html><html><head><title>Acme Pricing Page</title>
+<style>body{color:#173C8F;font-family:'Inter',sans-serif}
+.badge{background:rgba(73,184,148,.2)}</style></head>
+<body><nav></nav><header><h1>Simple pricing</h1></header>
+<main><section><h2>Plans</h2><a href="#">buy</a><img src="a.png"></section>
+<section><h2>FAQ</h2></section></main><footer></footer></body></html>"""
+
+
+def html_evidence(body: bytes = SAMPLE_HTML, url: str = "https://example.com/pricing") -> dict:
+    return {
+        "url": url, "final_url": url, "followed": [url], "status": 200,
+        "content_type": "text/html; charset=utf-8", "body": body,
+        "body_sha256": "0" * 64, "body_bytes": len(body),
+        "fetched_at": "2026-09-26T10:00:00",
+    }
+
+
+def test_extract_candidate_builds_skeleton_and_tokens() -> None:
+    source = {"id": "land-book", "license_class": "reference"}
+    candidate = extract_candidate(html_evidence(), source=source)
+    assert candidate["candidate_id"].startswith("example.com")
+    assert candidate["title"] == "Acme Pricing Page"
+    assert candidate["status"] == "pending"
+    assert candidate["license_class"] == "reference"
+    assert candidate["tokens"]["colors"][:2] == ["#173C8F", "rgba(73,184,148,.2)"]
+    assert "Inter" in candidate["tokens"]["fonts"]
+    assert candidate["skeleton"]["semantic"]["nav"] == 1
+    assert candidate["skeleton"]["semantic"]["section"] == 2
+    assert [h["text"] for h in candidate["skeleton"]["headings"]] == ["Simple pricing", "Plans", "FAQ"]
+
+
+def test_extract_candidate_guesses_intent() -> None:
+    candidate = extract_candidate(html_evidence())
+    assert candidate["intent_guess"] == "landing"
+    deck = extract_candidate(html_evidence(b"<html><title>Product deck slides</title><body>go</body></html>"))
+    assert deck["intent_guess"] == "deck"
+
+
+def test_extract_candidate_rejects_non_html() -> None:
+    evidence = html_evidence()
+    evidence["content_type"] = "image/png"
+    with pytest.raises(IntakeError) as excinfo:
+        extract_candidate(evidence)
+    assert excinfo.value.code == "intake_not_html"
+
+
+def test_candidate_store_roundtrip_and_status(tmp_path: Path) -> None:
+    store = CandidateStore(tmp_path)
+    candidate = extract_candidate(html_evidence(), source={"id": "land-book", "license_class": "reference"})
+    store.save(candidate, html_evidence())
+
+    assert [item["candidate_id"] for item in store.list("pending")] == [candidate["candidate_id"]]
+    assert store.get(candidate["candidate_id"])["title"] == "Acme Pricing Page"
+    assert store.body(candidate["candidate_id"]) == SAMPLE_HTML
+
+    approved = store.set_status(candidate["candidate_id"], "approved")
+    assert approved["status"] == "approved"
+    assert store.list("pending") == []
+    assert len(store.list("approved")) == 1
+
+    with pytest.raises(IntakeError):
+        store.set_status(candidate["candidate_id"], "maybe")
+    with pytest.raises(IntakeError):
+        store.body("../escape")
+
+
+def test_candidate_store_survives_corrupt_entry(tmp_path: Path) -> None:
+    store = CandidateStore(tmp_path)
+    candidate = extract_candidate(html_evidence())
+    store.save(candidate, html_evidence())
+    bad_dir = tmp_path / "intake" / "candidates" / "broken-id"
+    bad_dir.mkdir(parents=True)
+    (bad_dir / "candidate.json").write_text("{broken", encoding="utf-8")
+    with pytest.raises(IntakeError) as excinfo:
+        store.list()
+    assert excinfo.value.code == "intake_candidate_corrupt"

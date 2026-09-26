@@ -11,6 +11,7 @@ a private target mid-flight.
 from __future__ import annotations
 
 import hashlib
+import html.parser
 import ipaddress
 import json
 import re
@@ -265,3 +266,170 @@ class RateLimiter:
         if delay > 0:
             self._sleep(delay)
         return delay
+
+
+# ---------------------------------------------------------------- candidate extraction
+
+INTENT_KEYWORDS = {
+    "deck": ("slide", "deck", "ppt", "演示", "发布会", "幻灯"),
+    "dashboard": ("dashboard", "metric", "analytics", "看板", "数据"),
+    "poster": ("poster", "海报"),
+    "archdoc": ("architecture", "archdoc", "架构"),
+    "doc": ("documentation", "whitepaper", "文档", "白皮书"),
+}
+
+COLOR_PATTERN = re.compile(r"#[0-9a-fA-F]{3,8}\b|rgba?\([^)]+\)|hsla?\([^)]+\)")
+FONT_PATTERN = re.compile(r"font-family\s*:\s*([^;}]+)", re.IGNORECASE)
+SECTION_TAGS = ("nav", "header", "main", "section", "article", "aside", "footer")
+
+
+class _SkeletonParser(html.parser.HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.title = ""
+        self._in_title = False
+        self.headings: list[dict[str, str]] = []
+        self._heading_level: int | None = None
+        self._heading_text: list[str] = []
+        self.semantic: dict[str, int] = {}
+        self.links = 0
+        self.images = 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "title":
+            self._in_title = True
+        elif tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+            self._heading_level = int(tag[1])
+            self._heading_text = []
+        elif tag in SECTION_TAGS:
+            self.semantic[tag] = self.semantic.get(tag, 0) + 1
+        elif tag == "a":
+            self.links += 1
+        elif tag == "img":
+            self.images += 1
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self._in_title = False
+        elif tag in {"h1", "h2", "h3", "h4", "h5", "h6"} and self._heading_level is not None:
+            text = " ".join("".join(self._heading_text).split())[:120]
+            if text:
+                self.headings.append({"level": self._heading_level, "text": text})
+            self._heading_level = None
+            self._heading_text = []
+
+    def handle_data(self, data):
+        if self._in_title:
+            self.title += data
+        elif self._heading_level is not None:
+            self._heading_text.append(data)
+
+
+def _guess_intent(title: str, headings: list[dict[str, str]]) -> str:
+    corpus = (title + " " + " ".join(item["text"] for item in headings)).lower()
+    for intent, keywords in INTENT_KEYWORDS.items():
+        if any(keyword in corpus for keyword in keywords):
+            return intent
+    return "landing"
+
+
+def extract_candidate(evidence: dict, *, source: dict | None = None,
+                      notes: str = "") -> dict:
+    """Turn fetch evidence into a pending review candidate (skeleton + tokens)."""
+    content_type = evidence.get("content_type", "")
+    if "html" not in content_type:
+        raise IntakeError("intake_not_html", "抓取内容不是 HTML 页面", 415)
+    html_text = evidence["body"].decode("utf-8", errors="replace")
+    parser = _SkeletonParser()
+    try:
+        parser.feed(html_text)
+    except Exception:  # noqa: BLE001 - 畸形页面也要能出候选
+        pass
+    style_blob = " ".join(re.findall(r"<style[^>]*>(.*?)</style>", html_text, re.S | re.I))
+    style_blob += " " + " ".join(re.findall(r'style="([^"]+)"', html_text))
+    colors: list[str] = []
+    for match in COLOR_PATTERN.findall(style_blob):
+        value = match.strip()
+        if value not in colors:
+            colors.append(value)
+    fonts: list[str] = []
+    for match in FONT_PATTERN.findall(style_blob):
+        name = match.split(",")[0].strip().strip("'\"")
+        if name and name not in fonts and not name.startswith("-"):
+            fonts.append(name)
+    candidate = {
+        "candidate_id": _slugify_url(evidence["final_url"]),
+        "url": evidence["url"],
+        "final_url": evidence["final_url"],
+        "source": source["id"] if source else "",
+        "license_class": source["license_class"] if source else "reference",
+        "title": parser.title.strip()[:120] or evidence["final_url"],
+        "intent_guess": _guess_intent(parser.title, parser.headings),
+        "tokens": {"colors": colors[:24], "fonts": fonts[:8]},
+        "skeleton": {
+            "headings": parser.headings[:24],
+            "semantic": parser.semantic,
+            "links": parser.links,
+            "images": parser.images,
+        },
+        "notes": notes,
+        "status": "pending",
+        "fetched_at": evidence["fetched_at"],
+        "body_sha256": evidence["body_sha256"],
+    }
+    return candidate
+
+
+class CandidateStore:
+    """Pending review candidates under <root>/intake/candidates/<id>/."""
+
+    def __init__(self, root: str | Path):
+        self.root = Path(root) / "intake"
+
+    def _dir(self, candidate_id: str) -> Path:
+        if not re.fullmatch(r"[a-z0-9][a-z0-9.-]{0,120}", candidate_id or ""):
+            raise IntakeError("intake_candidate_invalid", f"候选 id 非法：{candidate_id!r}")
+        return self.root / "candidates" / candidate_id
+
+    def save(self, candidate: dict, evidence: dict) -> dict:
+        target = self._dir(candidate["candidate_id"])
+        target.mkdir(parents=True, exist_ok=True)
+        (target / "candidate.json").write_text(
+            json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8")
+        (target / "body.html").write_bytes(evidence["body"])
+        return candidate
+
+    def _read(self, path: Path) -> dict:
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise IntakeError("intake_candidate_corrupt", "候选素材数据损坏", 409) from exc
+
+    def list(self, status: str | None = None) -> list[dict]:
+        items: list[dict] = []
+        directory = self.root / "candidates"
+        if not directory.is_dir():
+            return items
+        for path in directory.glob("*/candidate.json"):
+            candidate = self._read(path)
+            if status is None or candidate.get("status") == status:
+                items.append(candidate)
+        return sorted(items, key=lambda item: item.get("fetched_at", ""), reverse=True)
+
+    def get(self, candidate_id: str) -> dict:
+        return self._read(self._dir(candidate_id) / "candidate.json")
+
+    def body(self, candidate_id: str) -> bytes:
+        path = self._dir(candidate_id) / "body.html"
+        if not path.is_file():
+            raise IntakeError("intake_candidate_missing", "候选缺少抓取正文", 404)
+        return path.read_bytes()
+
+    def set_status(self, candidate_id: str, status: str) -> dict:
+        if status not in {"pending", "approved", "rejected"}:
+            raise IntakeError("intake_status_invalid", "状态只允许 pending/approved/rejected")
+        candidate = self.get(candidate_id)
+        candidate["status"] = status
+        (self._dir(candidate_id) / "candidate.json").write_text(
+            json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8")
+        return candidate
