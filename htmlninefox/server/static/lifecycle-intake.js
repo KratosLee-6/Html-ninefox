@@ -243,8 +243,15 @@
     }
   }
 
+  async function preload() {
+    try {
+      const data = await api('/api/intake/components');
+      state.intakeComponents = data.components || [];
+    } catch (error) { state.intakeComponents = []; }
+  }
+
   window.FoxIntake = {
-    open, close, refresh, fetchCandidate, fetchBatch, importZip,
+    open, close, refresh, preload, fetchCandidate, fetchBatch, importZip,
     approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply, makeStylePreset,
   };
 })();

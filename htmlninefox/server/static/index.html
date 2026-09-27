@@ -1876,7 +1876,11 @@ function delNode(id) { deleteNodeIds([id]); }
 const PALETTE = {
   blocks: () => [{ group:'内容区块 · 拖进工作区' }].concat(BLOCKS.map(b => ({
     id: b.id, t: b.t, mini: miniOf('block', b.id), name: b.t,
-    drag: { kind:'block', data:{ title:b.t, blockId:b.id } } }))),
+    drag: { kind:'block', data:{ title:b.t, blockId:b.id } } })))
+    .concat((state.intakeComponents || []).length ? [{ group:'设计吸收 · 组件（审核通过）' }].concat(
+      state.intakeComponents.map(c => ({
+        id: 'intake-' + c.component_id, t: c.name, name: c.name, en: c.text.slice(0, 60),
+        drag: { kind:'block', data:{ title:c.name, text:c.text } } }))) : []),
   layouts: () => [{ group:'版式 · 决定页面骨架' }].concat(LAYOUTS.map(l => ({
     id:l.intent,t:l.t,previewUrl:previewUrl(l.intent,''),previewIntent:l.intent,name:l.t,en:l.intent,
     drag: { kind:'template', data:{ title:l.t, intent:l.intent } } }))),
@@ -2063,6 +2067,7 @@ async function init() {
   });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   try { const h = await (await fetch('/api/health')).json(); $('#ver').textContent = 'v' + h.version; } catch(e) {}
+  window.FoxIntake?.preload();
   await Promise.all([loadTemplates(), loadGallery(), loadProjects(), loadAlliance(), loadAISettings(), loadProjectMemory()]);
   let restored = loadSaved();
   if (!restored) restored = await loadRemoteWorkspace();

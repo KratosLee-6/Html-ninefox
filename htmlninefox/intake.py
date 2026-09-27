@@ -381,6 +381,11 @@ def extract_candidate(evidence: dict, *, source: dict | None = None,
     extractor = KIND_EXTRACTORS.get(candidate["kind"])
     if extractor is not None:
         candidate.update(extractor(evidence, html_text, style_blob))
+    if candidate["license_class"] == "open":
+        gradients = list(dict.fromkeys(
+            gradient.strip() for gradient in
+            re.findall(r"(?:linear|radial)-gradient\([^;{}]+\)", style_blob, re.I)))[:8]
+        candidate["decorations"] = gradients
     return candidate
 
 
@@ -486,6 +491,51 @@ def extract_typography(evidence: dict, style_blob: str) -> dict:
 
 KIND_EXTRACTORS = {"components": extract_components, "motion": extract_motion,
                    "typography": extract_typography}
+
+
+# ---------------------------------------------------------------- component library (S09)
+
+class ComponentStore:
+    """Approved section components under <root>/.library/intake/components/."""
+
+    def __init__(self, root: str | Path):
+        self.root = Path(root) / ".library" / "intake" / "components"
+
+    def import_from_candidate(self, candidate: dict) -> list[dict]:
+        """Register each extracted section of an approved components-kind candidate."""
+        if candidate.get("status") != "approved":
+            raise IntakeError("intake_candidate_not_approved", "只有已采纳的候选才能导入组件", 409)
+        if candidate.get("kind") != "components":
+            raise IntakeError("intake_kind_invalid", "该候选不是组件类来源", 409)
+        self.root.mkdir(parents=True, exist_ok=True)
+        registered: list[dict] = []
+        for index, section in enumerate(candidate.get("components") or []):
+            component = {
+                "component_id": f"{candidate['candidate_id']}-{index}",
+                "candidate_id": candidate["candidate_id"],
+                "name": (section.get("class") or f"{section['tag']} 组件")[:60],
+                "tag": section.get("tag", "section"),
+                "text": section.get("text_head", ""),
+                "snippet": section.get("snippet", ""),
+                "license_class": candidate.get("license_class", "reference"),
+                "source": candidate.get("source", ""),
+            }
+            path = self.root / f"{component['component_id']}.json"
+            path.write_text(json.dumps(component, ensure_ascii=False, indent=2),
+                            encoding="utf-8")
+            registered.append(component)
+        return registered
+
+    def list(self) -> list[dict]:
+        if not self.root.is_dir():
+            return []
+        items = []
+        for path in sorted(self.root.glob("*.json")):
+            try:
+                items.append(json.loads(path.read_text(encoding="utf-8")))
+            except (OSError, json.JSONDecodeError):
+                continue
+        return items
 
 
 # ---------------------------------------------------------------- manual import (S04)

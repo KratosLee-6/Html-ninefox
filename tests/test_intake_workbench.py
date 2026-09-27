@@ -267,3 +267,47 @@ def test_style_preset_missing_reports_404(tmp_path: Path) -> None:
         missing, _ = api_request(server.base_url,
                                  "/api/intake/style-presets/nope/apply", "POST", {}, expected=404)
         assert missing["error"]["code"] == "intake_preset_missing"
+
+
+# ---------------------------------------------------------------- S09 component library
+
+COMPONENT_PAGE = (b"<!doctype html><html><head><title>Comp Source</title></head><body>"
+                  b'<nav class="topnav">links</nav>'
+                  b'<section class="hero"><h1>Hero</h1><p>big</p></section></body></html>')
+
+
+def test_components_import_requires_approved_components_kind(tmp_path: Path, monkeypatch) -> None:
+    stub_fetch(monkeypatch, {"https://example.com/comp": (200, {"content-type": "text/html"}, COMPONENT_PAGE)})
+    with WorkbenchServer(tmp_path) as server:
+        submitted, _ = api_request(server.base_url, "/api/intake/fetch", "POST",
+                                   {"url": "https://example.com/comp", "source_id": "codepen-picks"})
+        candidate_id = submitted["candidate"]["candidate_id"]
+
+        # 未采纳 → 409
+        denied, _ = api_request(server.base_url, "/api/intake/components/import", "POST",
+                                {"candidate_id": candidate_id}, expected=409)
+        assert denied["error"]["code"] == "intake_candidate_not_approved"
+
+        api_request(server.base_url, f"/api/intake/candidates/{candidate_id}/approve", "POST", {})
+        result, _ = api_request(server.base_url, "/api/intake/components/import", "POST",
+                                {"candidate_id": candidate_id})
+        names = [item["name"] for item in result["registered"]]
+        assert "topnav" in names and "hero" in names
+
+        library, _ = api_request(server.base_url, "/api/intake/components")
+        assert {item["name"] for item in library["components"]} >= {"topnav", "hero"}
+        hero = next(item for item in library["components"] if item["name"] == "hero")
+        assert hero["text"].startswith("Hero")
+        assert "<h1>" in hero["snippet"]
+
+
+def test_components_import_rejects_non_components_kind(tmp_path: Path, monkeypatch) -> None:
+    stub_fetch(monkeypatch, {"https://example.com/inspo": (200, {"content-type": "text/html"}, SAMPLE)})
+    with WorkbenchServer(tmp_path) as server:
+        submitted, _ = api_request(server.base_url, "/api/intake/fetch", "POST",
+                                   {"url": "https://example.com/inspo", "source_id": "land-book"})
+        candidate_id = submitted["candidate"]["candidate_id"]
+        api_request(server.base_url, f"/api/intake/candidates/{candidate_id}/approve", "POST", {})
+        wrong, _ = api_request(server.base_url, "/api/intake/components/import", "POST",
+                               {"candidate_id": candidate_id}, expected=409)
+        assert wrong["error"]["code"] == "intake_kind_invalid"

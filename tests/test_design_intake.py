@@ -345,3 +345,14 @@ def test_components_extractor_pulls_sections(tmp_path: Path) -> None:
     assert hero["class"] == "hero"
     assert "Hero" in hero["text_head"]
     assert "<h1>" in hero["snippet"]
+
+
+def test_open_license_candidates_capture_gradient_decorations() -> None:
+    evidence = html_evidence(
+        b'<html><head><style>.a{background:linear-gradient(135deg,#173C8F,#49B894)}</style></head>'
+        b'<body><main>x</main></body></html>')
+    candidate = extract_candidate(evidence, source={"id": "gf", "kind": "gallery", "license_class": "open"})
+    assert candidate["decorations"] == ["linear-gradient(135deg,#173C8F,#49B894)"]
+    # 非开放许可不提取装饰
+    ref = extract_candidate(evidence, source={"id": "lb", "kind": "gallery", "license_class": "reference"})
+    assert "decorations" not in ref
