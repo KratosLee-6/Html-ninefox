@@ -51,7 +51,7 @@ def test_hundred_candidates_stress(tmp_path: Path) -> None:
 
     # 畸形页面也不影响候选可用性（title 兜底为 URL）
     sample_ids = {item["candidate_id"] for item in pending}
-    assert sum(1 for cid in sample_ids if cid.startswith("example.com")) == 100
+    assert sum(1 for cid in sample_ids if cid.startswith("example-com")) == 100
     print(f"stress: create {elapsed_create:.2f}s, list {elapsed_list * 1000:.0f}ms for 100 candidates")
 
 

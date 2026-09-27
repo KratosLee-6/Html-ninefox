@@ -251,11 +251,11 @@ def html_evidence(body: bytes = SAMPLE_HTML, url: str = "https://example.com/pri
 def test_extract_candidate_builds_skeleton_and_tokens() -> None:
     source = {"id": "land-book", "license_class": "reference"}
     candidate = extract_candidate(html_evidence(), source=source)
-    assert candidate["candidate_id"].startswith("example.com")
+    assert candidate["candidate_id"].startswith("example-com")
     assert candidate["title"] == "Acme Pricing Page"
     assert candidate["status"] == "pending"
     assert candidate["license_class"] == "reference"
-    assert candidate["tokens"]["colors"][:2] == ["#173C8F", "rgba(73,184,148,.2)"]
+    assert candidate["tokens"]["colors"][:2] == ["#173C8F", "#49B894"]
     assert "Inter" in candidate["tokens"]["fonts"]
     assert candidate["skeleton"]["semantic"]["nav"] == 1
     assert candidate["skeleton"]["semantic"]["section"] == 2

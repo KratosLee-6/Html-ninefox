@@ -460,3 +460,20 @@ def test_export_center_pptx_end_to_end(tmp_path: Path) -> None:
         assert any(name == "export-report.json" for name in names)
         # 降级与可编辑数在报告里
         assert "pptx" in json.dumps(result)
+
+
+def test_inspiration_only_approve_skips_gallery_import(tmp_path: Path, monkeypatch) -> None:
+    stub_fetch(monkeypatch, {"https://example.com/godly": (200, {"content-type": "text/html"}, SAMPLE)})
+    with WorkbenchServer(tmp_path) as server:
+        submitted, _ = api_request(server.base_url, "/api/intake/fetch", "POST",
+                                   {"url": "https://example.com/godly", "source_id": "godly"})
+        candidate_id = submitted["candidate"]["candidate_id"]
+        assert submitted["candidate"]["license_class"] == "inspiration-only"
+
+        result, _ = api_request(server.base_url, f"/api/intake/candidates/{candidate_id}/approve",
+                                "POST", {})
+        assert result["candidate"]["status"] == "approved"
+        assert result["gallery_item"] is None
+        assert "inspiration-only" in (result.get("gallery_skipped") or "")
+        gallery, _ = api_request(server.base_url, "/api/gallery")
+        assert not any(item.get("source") == "user" for item in gallery["items"])

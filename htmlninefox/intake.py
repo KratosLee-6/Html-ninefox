@@ -222,9 +222,12 @@ def fetch_reference(
 
 def _slugify_url(url: str) -> str:
     parsed = urllib.parse.urlsplit(url)
+    # hostname must be normalized too (unicode/underscore hosts would fail
+    # the store-side id validation and break the whole import)
+    host = re.sub(r"[^a-z0-9-]+", "-", (parsed.hostname or "page").lower()).strip("-") or "page"
     tail = re.sub(r"[^a-z0-9-]+", "-", (parsed.path or "/").strip("/").lower()).strip("-")
     digest = hashlib.sha256(url.encode("utf-8")).hexdigest()[:10]
-    return f"{parsed.hostname or 'page'}-{tail[:48] or 'root'}-{digest}"
+    return f"{host[:48]}-{tail[:48] or 'root'}-{digest}"
 
 
 def save_evidence(root: Path, source_id: str, evidence: dict) -> Path:
@@ -280,6 +283,26 @@ INTENT_KEYWORDS = {
 
 COLOR_PATTERN = re.compile(r"#[0-9a-fA-F]{3,8}\b|rgba?\([^)]+\)|hsla?\([^)]+\)")
 FONT_PATTERN = re.compile(r"font-family\s*:\s*([^;}]+)", re.IGNORECASE)
+def _normalize_color(value: str) -> str | None:
+    """Reduce a css color to a safe #RRGGBB token (kills css-injection via style attrs)."""
+    value = value.strip()
+    if value.startswith("#"):
+        hex_part = value[1:]
+        if len(hex_part) == 3:
+            return "#" + "".join(ch * 2 for ch in hex_part).upper()
+        if len(hex_part) in (6, 8):
+            return "#" + hex_part[:6].upper()
+        return None
+    digits = re.findall(r"\d+", value)
+    if len(digits) >= 3:
+        try:
+            r, g, b = (max(0, min(255, int(part))) for part in digits[:3])
+        except ValueError:
+            return None
+        return f"#{r:02X}{g:02X}{b:02X}"
+    return None
+
+
 SECTION_TAGS = ("nav", "header", "main", "section", "article", "aside", "footer")
 
 
@@ -349,8 +372,8 @@ def extract_candidate(evidence: dict, *, source: dict | None = None,
     style_blob += " " + " ".join(re.findall(r'style="([^"]+)"', html_text))
     colors: list[str] = []
     for match in COLOR_PATTERN.findall(style_blob):
-        value = match.strip()
-        if value not in colors:
+        value = _normalize_color(match)
+        if value and value not in colors:
             colors.append(value)
     fonts: list[str] = []
     for match in FONT_PATTERN.findall(style_blob):

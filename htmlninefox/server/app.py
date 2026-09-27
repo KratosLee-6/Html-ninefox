@@ -225,7 +225,13 @@ class _Handler(BaseHTTPRequestHandler):
         store = self._intake_candidates()
         candidate = store.set_status(candidate_id, "approved" if action == "approve" else "rejected")
         gallery_item = None
+        gallery_skipped = None
         if action == "approve":
+            # 许可治理：灵感板来源只允许原创重渲染路径（风格预设/动效吸收），
+            # 不允许整页代码进入模板库。
+            if candidate.get("license_class") == "inspiration-only":
+                return {"ok": True, "candidate": candidate, "gallery_item": None,
+                        "gallery_skipped": "inspiration-only：仅作灵感板，不做代码导入"}
             safe_name = re.sub(r"[^\w.-]+", "-", candidate["title"]).strip("-")[:60] or "intake-candidate"
             tags = ["intake"]
             if candidate.get("source"):
@@ -237,7 +243,8 @@ class _Handler(BaseHTTPRequestHandler):
                     name=candidate["title"], tags=tags)
             except UserGalleryError as exc:
                 raise StoreError("intake_import_failed", str(exc), 409) from exc
-        return {"ok": True, "candidate": candidate, "gallery_item": gallery_item}
+        return {"ok": True, "candidate": candidate, "gallery_item": gallery_item,
+                "gallery_skipped": gallery_skipped}
 
     def _intake_style_presets(self) -> intake.StylePresetStore:
         return intake.StylePresetStore(_OUTPUT_ROOT)

@@ -87,9 +87,11 @@
             ? `<button class="btn btn-primary" onclick="intakeApprove('${esc(item.candidate_id)}')">✔ 采纳为模板</button>
                <button class="btn btn-danger-ghost" onclick="intakeReject('${esc(item.candidate_id)}')">✕ 拒绝</button>
                <button class="btn btn-secondary" onclick="intakeTogglePreview('${esc(item.candidate_id)}')">👁 预览</button>
-               <button class="btn btn-secondary" onclick="intakeAnalyze('${esc(item.candidate_id)}')">🤖 AI 分析</button>`
+               <button class="btn btn-secondary" id="intake-analyze-${esc(item.candidate_id)}" onclick="intakeAnalyze('${esc(item.candidate_id)}')">🤖 AI 分析</button>`
             : `${item.status === 'approved'
-                ? `<button class="btn btn-secondary" onclick="intakeMakeStylePreset('${esc(item.candidate_id)}')">🎨 生成风格预设</button>`
+                ? `<button class="btn btn-secondary" onclick="intakeMakeStylePreset('${esc(item.candidate_id)}')">🎨 生成风格预设</button>` +
+                  (item.kind === 'components' ? `<button class="btn btn-secondary" onclick="intakeImportComponents('${esc(item.candidate_id)}')">🧩 导入组件</button>` : '') +
+                  (item.kind === 'motion' ? `<button class="btn btn-secondary" onclick="intakeImportMotion('${esc(item.candidate_id)}')">✨ 吸收动效</button>` : '')
                 : `<span class="intake-status">已拒绝</span>`}`}
         </div>
         <iframe class="intake-preview" id="intake-preview-${esc(item.candidate_id)}" hidden
@@ -237,7 +239,7 @@
 
   async function analyze(candidateId) {
     const status = document.querySelector('#intake-status');
-    window.FoxInteraction?.setBusy('#intake-fetch-btn', true, 'AI 分析中…');
+    window.FoxInteraction?.setBusy('#intake-analyze-' + candidateId, true, '分析中…');
     status.textContent = 'AI 正在分析候选素材…';
     try {
       await post('/api/intake/analyze', { candidate_id: candidateId });
@@ -249,6 +251,27 @@
       flash('AI 分析失败：' + error.message, false);
     } finally {
       window.FoxInteraction?.setBusy('#intake-fetch-btn', false);
+    }
+  }
+
+  async function importComponents(candidateId) {
+    try {
+      const result = await post('/api/intake/components/import', { candidate_id: candidateId });
+      flash('✓ 已导入 ' + result.registered.length + ' 个组件到素材面板', true);
+      await preload();
+      await refresh(filter);
+    } catch (error) {
+      flash('组件导入失败：' + error.message, false);
+    }
+  }
+
+  async function importMotion(candidateId) {
+    try {
+      await post('/api/intake/motion/import', { candidate_id: candidateId });
+      flash('✓ 动效样式已入库，motion-lab 可查看', true);
+      await refresh(filter);
+    } catch (error) {
+      flash('动效吸收失败：' + error.message, false);
     }
   }
 
@@ -285,6 +308,6 @@
 
   window.FoxIntake = {
     open, close, refresh, preload, loadStats, fetchCandidate, fetchBatch, importZip,
-    approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply, analyze, makeStylePreset,
+    approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply, analyze, importComponents, importMotion, makeStylePreset,
   };
 })();
