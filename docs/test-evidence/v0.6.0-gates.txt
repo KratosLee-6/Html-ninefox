@@ -1,0 +1,3 @@
+v0.6.0 WebKit (Safari engine) e2e — 2026-09-28 · playwright webkit 2272 · 22/22 passed
+v0.6.0 Chromium e2e — 22/22 passed
+v0.6.0 intake stress — 100 candidates: create 0.28s, list 40ms

@@ -73,9 +73,14 @@ async def main():
     from playwright.async_api import async_playwright
     # HTMLNINEFOX_E2E_CHANNEL=msedge validates the real system Edge engine
     # (WebView2-equivalent) instead of the bundled Chromium.
+    # HTMLNINEFOX_E2E_ENGINE=webkit validates the Safari engine (S18).
+    engine = (os.environ.get("HTMLNINEFOX_E2E_ENGINE") or "chromium").lower()
     channel = os.environ.get("HTMLNINEFOX_E2E_CHANNEL") or None
     async with async_playwright() as p:
-        browser = await p.chromium.launch(channel=channel)
+        if engine == "webkit":
+            browser = await p.webkit.launch()
+        else:
+            browser = await p.chromium.launch(channel=channel)
 
         for intent, _ in PROMPTS:
             page = await browser.new_page(viewport={"width": 1440, "height": 900})
@@ -144,7 +149,7 @@ async def main():
             color = await page.evaluate("nodes.find(node=>node.kind==='ws').data.color")
             check("工作区重命名与颜色", renamed == "品牌官网工作区" and color == "#E07A3F", f"{renamed} · {color}")
 
-            await page.locator(".topbar-more > summary").click()
+            await page.locator("header.topbar .topbar-more > summary").click()
             await page.get_by_role("menu").get_by_role("button", name="新建工作区").click()
             nav_count = await page.locator(".workspace-nav-item").count()
             status = await page.text_content("#tl-status")
