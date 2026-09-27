@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import uuid
 from pathlib import Path
 
 from htmlninefox import intake
@@ -345,7 +346,7 @@ def _enable_ai(server_base: str, monkeypatch=None) -> None:
     api_request(server_base, "/api/settings/ai", "PUT", {
         "enabled": True, "provider": "openai-compatible",
         "model": "test-model", "base_url": "https://llm.example/v1",
-        "api_key": "test-key-123",
+        "api_key": "fake-" + uuid.uuid4().hex[:12],   # 运行时生成的假凭据
     })
     if monkeypatch is not None:
         # PUT 会设置全局 env 指向本测试的临时目录；用 monkeypatch 在 teardown 恢复，
