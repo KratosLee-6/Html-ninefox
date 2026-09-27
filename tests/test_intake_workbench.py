@@ -401,3 +401,31 @@ def test_intake_ai_analyze_requires_configured_ai(tmp_path: Path, monkeypatch) -
         denied, _ = api_request(server.base_url, "/api/intake/analyze", "POST",
                                 {"candidate_id": candidate_id}, expected=400)
         assert denied["error"]["code"] == "ai_not_configured"
+
+
+# ---------------------------------------------------------------- S12 stats
+
+
+def test_intake_stats_aggregate_across_assets(tmp_path: Path, monkeypatch) -> None:
+    stub_fetch(monkeypatch, {
+        "https://example.com/sourced": (200, {"content-type": "text/html"}, SAMPLE),
+        "https://example.com/manual": (200, {"content-type": "text/html"},
+                                       b"<html><head><title>Manual</title></head><body>y</body></html>"),
+    })
+    from htmlninefox.server import app as server_app
+    monkeypatch.setattr(server_app._INTAKE_RATE_LIMITER, "default_interval", 0.0)
+    with WorkbenchServer(tmp_path) as server:
+        api_request(server.base_url, "/api/intake/fetch", "POST",
+                    {"url": "https://example.com/sourced", "source_id": "land-book"})
+        api_request(server.base_url, "/api/intake/fetch", "POST",
+                    {"url": "https://example.com/manual"})
+        approved, _ = api_request(server.base_url, "/api/intake/candidates?status=pending")
+        ids = [item["candidate_id"] for item in approved["candidates"]]
+        api_request(server.base_url, f"/api/intake/candidates/{ids[0]}/approve", "POST", {})
+
+        stats, _ = api_request(server.base_url, "/api/intake/stats")
+        data = stats["stats"]
+        assert data["total"] == 2
+        assert data["by_status"]["pending"] == 1 and data["by_status"]["approved"] == 1
+        assert data["by_source"]["land-book"] == 1 and data["by_source"]["手动导入"] == 1
+        assert data["by_license"]["reference"] == 2

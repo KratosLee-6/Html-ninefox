@@ -295,3 +295,5 @@
 .intake-dialog .flow-body { display:grid; gap:12px; }
 
 .intake-preview { width:100%; height:320px; border:1px dashed var(--border-default); background:#fff; }
+
+.intake-stats { font-size:12px; color:var(--text-secondary); }

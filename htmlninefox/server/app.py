@@ -254,6 +254,28 @@ class _Handler(BaseHTTPRequestHandler):
         entry = self._intake_motion().import_from_candidate(candidate)
         return {"ok": True, "motion": entry}
 
+    def _intake_stats(self) -> dict:
+        candidates = self._intake_candidates().list()
+        by_status: dict[str, int] = {}
+        by_source: dict[str, int] = {}
+        by_license: dict[str, int] = {}
+        for item in candidates:
+            status = item.get("status", "pending")
+            by_status[status] = by_status.get(status, 0) + 1
+            source = item.get("source") or "手动导入"
+            by_source[source] = by_source.get(source, 0) + 1
+            lic = item.get("license_class") or "reference"
+            by_license[lic] = by_license.get(lic, 0) + 1
+        return {
+            "total": len(candidates),
+            "by_status": by_status,
+            "by_source": by_source,
+            "by_license": by_license,
+            "components": len(self._intake_components().list()),
+            "motion_styles": len(self._intake_motion().list()),
+            "style_presets": len(self._intake_style_presets().list()),
+        }
+
     def _api_intake_components_import(self, body: dict) -> dict:
         candidate_id = str(body.get("candidate_id") or "")
         candidate = self._intake_candidates().get(candidate_id)
@@ -449,6 +471,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json({"items": template_gallery.list_gallery(self._user_gallery().root)})
         if path == "/api/intake/motion":
             return self._json({"ok": True, "motions": self._intake_motion().list()})
+        if path == "/api/intake/stats":
+            return self._json({"ok": True, "stats": self._intake_stats()})
         if path == "/api/intake/components":
             return self._json({"ok": True, "components": self._intake_components().list()})
         if path == "/api/intake/style-presets":

@@ -11,8 +11,7 @@
 
   async function open() {
     window.FoxInteraction?.openDialog('#intake-modal', { initialFocus: '#intake-fetch-url' });
-    await loadSources();
-    await refresh();
+    await Promise.all([loadSources(), refresh(), loadStats()]);
   }
 
   function close() {
@@ -44,6 +43,7 @@
       const data = await api('/api/intake/candidates?' + query.toString());
       renderList(data.candidates || []);
       renderSourceFilter(data.sources || []);
+      loadStats();
     } catch (error) {
       list.innerHTML = `<div class="export-warning error">${esc(error.message)}</div>`;
     }
@@ -269,8 +269,22 @@
     } catch (error) { state.intakeComponents = []; }
   }
 
+  async function loadStats() {
+    const box = document.querySelector('#intake-stats');
+    if (!box) return;
+    try {
+      const data = await api('/api/intake/stats');
+      const s = data.stats;
+      const sources = Object.entries(s.by_source || {}).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      box.innerHTML = '<b>吸收指标</b>　候选 ' + (s.total || 0) +
+        '（待审 ' + (s.by_status?.pending || 0) + ' · 已采纳 ' + (s.by_status?.approved || 0) + ' · 已拒绝 ' + (s.by_status?.rejected || 0) + '）' +
+        '　组件 ' + (s.components || 0) + ' · 动效 ' + (s.motion_styles || 0) + ' · 风格预设 ' + (s.style_presets || 0) +
+        (sources.length ? '　|　来源：' + sources.map(([name, count]) => esc(name) + '×' + count).join('、') : '');
+    } catch (error) { box.textContent = '指标加载失败'; }
+  }
+
   window.FoxIntake = {
-    open, close, refresh, preload, fetchCandidate, fetchBatch, importZip,
+    open, close, refresh, preload, loadStats, fetchCandidate, fetchBatch, importZip,
     approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply, analyze, makeStylePreset,
   };
 })();
