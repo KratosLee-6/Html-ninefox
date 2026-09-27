@@ -311,3 +311,26 @@ def test_components_import_rejects_non_components_kind(tmp_path: Path, monkeypat
         wrong, _ = api_request(server.base_url, "/api/intake/components/import", "POST",
                                {"candidate_id": candidate_id}, expected=409)
         assert wrong["error"]["code"] == "intake_kind_invalid"
+
+
+def test_intake_motion_import_endpoint(tmp_path: Path, monkeypatch) -> None:
+    motion_page = (b"<html><head><title>Motion API Inspo</title><style>"
+                   b"h1{animation:fade 9s ease-in}</style></head>"
+                   b"<body><main><h1>T</h1></main></body></html>")
+    stub_fetch(monkeypatch, {"https://example.com/motion": (200, {"content-type": "text/html"}, motion_page)})
+    with WorkbenchServer(tmp_path) as server:
+        submitted, _ = api_request(server.base_url, "/api/intake/fetch", "POST",
+                                   {"url": "https://example.com/motion", "source_id": "codrops"})
+        candidate_id = submitted["candidate"]["candidate_id"]
+
+        denied, _ = api_request(server.base_url, "/api/intake/motion/import", "POST",
+                                {"candidate_id": candidate_id}, expected=409)
+        assert denied["error"]["code"] == "intake_candidate_not_approved"
+
+        api_request(server.base_url, f"/api/intake/candidates/{candidate_id}/approve", "POST", {})
+        result, _ = api_request(server.base_url, "/api/intake/motion/import", "POST",
+                                {"candidate_id": candidate_id})
+        assert "prefers-reduced-motion" in result["motion"]["css"]
+
+        listed, _ = api_request(server.base_url, "/api/intake/motion")
+        assert len(listed["motions"]) == 1

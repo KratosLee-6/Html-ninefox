@@ -538,6 +538,108 @@ class ComponentStore:
         return items
 
 
+# ---------------------------------------------------------------- motion styles (S10)
+
+MOTION_BUDGET_MS = (120, 500)
+TIME_TOKEN = re.compile(r"(\d*\.?\d+m?s)\b")
+EASING_TOKEN = re.compile(r"(cubic-bezier\([^)]*\)|steps\([^)]*\)|ease-in-out|ease-in|ease-out|linear|ease)")
+
+
+def _clamp_duration(token: str) -> int:
+    value = float(token[:-2]) if token.endswith("ms") else float(token[:-1]) * 1000
+    return int(max(MOTION_BUDGET_MS[0], min(MOTION_BUDGET_MS[1], value)))
+
+
+def build_motion_styles(candidate: dict) -> dict:
+    """Generate ORIGINAL motion CSS from extracted parameters only.
+
+    Durations are clamped to the motion budget, keyframes are generic
+    original implementations, and every rule carries a
+    prefers-reduced-motion guard. No reference CSS is copied.
+    """
+    patterns = candidate.get("motion") or {}
+    rules: list[str] = []
+    durations: list[str] = []
+    easings: list[str] = []
+    anim_count = 0
+    trans_count = 0
+    for index, shorthand in enumerate(patterns.get("animations", [])[:8]):
+        timing = TIME_TOKEN.search(shorthand)
+        easing = EASING_TOKEN.search(shorthand)
+        duration = _clamp_duration(timing.group(1)) if timing else 300
+        easing_value = easing.group(1) if easing else "ease"
+        durations.append(f"{duration}ms")
+        easings.append(easing_value)
+        rules.append(
+            f"/* 吸收动效 #{index + 1} · 时长 {duration}ms · 缓动 {easing_value}（原创实现） */\n"
+            f"@keyframes fox-intake-{anim_count}-in {{\n"
+            f"  from {{ opacity: 0; transform: translateY(6px); }}\n"
+            f"  to {{ opacity: 1; transform: none; }}\n"
+            f"}}\n"
+            f".fox-intake-{anim_count} {{ animation: fox-intake-{anim_count}-in "
+            f"{duration}ms {easing_value} both; }}")
+        anim_count += 1
+    for index, shorthand in enumerate(patterns.get("transitions", [])[:8]):
+        timing = TIME_TOKEN.search(shorthand)
+        easing = EASING_TOKEN.search(shorthand)
+        duration = _clamp_duration(timing.group(1)) if timing else 200
+        easing_value = easing.group(1) if easing else "ease"
+        durations.append(f"{duration}ms")
+        easings.append(easing_value)
+        rules.append(
+            f"/* 吸收过渡 #{index + 1} · 时长 {duration}ms · 缓动 {easing_value} */\n"
+            f".fox-intake-t{trans_count} {{ transition: all {duration}ms {easing_value}; }}")
+        trans_count += 1
+    if rules:
+        guards = "\n".join(
+            f".fox-intake-{i} {{ animation: none; }}" for i in range(anim_count))
+        css = ("\n\n".join(rules)
+               + "\n\n@media (prefers-reduced-motion: reduce) {\n"
+               + guards + "\n}\n")
+    else:
+        css = ""
+    return {
+        "motion_id": _slugify_url(candidate["final_url"]),
+        "name": (candidate.get("title") or "Intake Motion")[:60],
+        "css": css,
+        "patterns": {"durations": durations, "easings": easings},
+        "license_class": candidate.get("license_class", "reference"),
+        "source": candidate.get("source", ""),
+    }
+
+
+class MotionStore:
+    """Original motion style candidates under <root>/.library/intake/motion/."""
+
+    def __init__(self, root: str | Path):
+        self.root = Path(root) / ".library" / "intake" / "motion"
+
+    def import_from_candidate(self, candidate: dict) -> dict:
+        if candidate.get("status") != "approved":
+            raise IntakeError("intake_candidate_not_approved", "只有已采纳的候选才能导入动效", 409)
+        if candidate.get("kind") != "motion":
+            raise IntakeError("intake_kind_invalid", "该候选不是动效类来源", 409)
+        entry = build_motion_styles(candidate)
+        if not entry["css"]:
+            raise IntakeError("intake_motion_empty", "候选中没有可吸收的动效模式", 422)
+        self.root.mkdir(parents=True, exist_ok=True)
+        (self.root / f"{entry['motion_id']}.json").write_text(
+            json.dumps(entry, ensure_ascii=False, indent=2), encoding="utf-8")
+        return entry
+
+    def list(self) -> list[dict]:
+        if not self.root.is_dir():
+            return []
+        items = []
+        for path in sorted(self.root.glob("*.json")):
+            try:
+                items.append(json.loads(path.read_text(encoding="utf-8")))
+            except (OSError, json.JSONDecodeError):
+                continue
+        return items
+
+
+# ---------------------------------------------------------------- manual import (S04)
 # ---------------------------------------------------------------- manual import (S04)
 
 ZIP_MAX_ENTRIES = 24

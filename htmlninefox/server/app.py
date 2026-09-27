@@ -245,6 +245,15 @@ class _Handler(BaseHTTPRequestHandler):
     def _intake_components(self) -> intake.ComponentStore:
         return intake.ComponentStore(_OUTPUT_ROOT)
 
+    def _intake_motion(self) -> intake.MotionStore:
+        return intake.MotionStore(_OUTPUT_ROOT)
+
+    def _api_intake_motion_import(self, body: dict) -> dict:
+        candidate_id = str(body.get("candidate_id") or "")
+        candidate = self._intake_candidates().get(candidate_id)
+        entry = self._intake_motion().import_from_candidate(candidate)
+        return {"ok": True, "motion": entry}
+
     def _api_intake_components_import(self, body: dict) -> dict:
         candidate_id = str(body.get("candidate_id") or "")
         candidate = self._intake_candidates().get(candidate_id)
@@ -421,6 +430,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json({"items": pipeline.list_templates()})
         if path == "/api/gallery":
             return self._json({"items": template_gallery.list_gallery(self._user_gallery().root)})
+        if path == "/api/intake/motion":
+            return self._json({"ok": True, "motions": self._intake_motion().list()})
         if path == "/api/intake/components":
             return self._json({"ok": True, "components": self._intake_components().list()})
         if path == "/api/intake/style-presets":
@@ -609,6 +620,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json(self._api_intake_batch(body))
         if path == "/api/intake/components/import":
             return self._json(self._api_intake_components_import(body))
+        if path == "/api/intake/motion/import":
+            return self._json(self._api_intake_motion_import(body))
         if path == "/api/intake/style-presets/create":
             return self._json(self._api_intake_style_preset_create(body))
         if path.startswith("/api/intake/style-presets/") and path.endswith("/apply"):

@@ -356,3 +356,40 @@ def test_open_license_candidates_capture_gradient_decorations() -> None:
     # 非开放许可不提取装饰
     ref = extract_candidate(evidence, source={"id": "lb", "kind": "gallery", "license_class": "reference"})
     assert "decorations" not in ref
+
+
+# ---------------------------------------------------------------- S10 motion styles
+
+MOTION_PAGE = (b"<html><head><title>Motion Inspo Pack</title><style>"
+               b"h1{animation:fade 5s ease-in}p{transition:all .1s linear}"
+               b"</style></head><body><main><h1>T</h1></main></body></html>")
+
+
+def test_motion_import_generates_original_clamped_css(tmp_path: Path) -> None:
+    from htmlninefox.intake import MotionStore, build_motion_styles
+    source = {"id": "codrops", "kind": "motion", "license_class": "reference"}
+    evidence = html_evidence(MOTION_PAGE, url="https://example.com/motion")
+    candidate = extract_candidate(evidence, source=source)
+    candidate["status"] = "approved"
+    entry = build_motion_styles(candidate)
+    # 时长按预算钳制（5s→500ms，0.1s→120ms）
+    assert "500ms" in entry["css"] and "120ms" in entry["css"]
+    # 每条规则带 prefers-reduced-motion 守卫
+    assert "prefers-reduced-motion" in entry["css"]
+    # 原创实现：不包含参考站的 keyframes 名（fade 是我们生成的原创名）
+    assert entry["css"].count("@keyframes fox-intake-") == 1
+
+    store = MotionStore(tmp_path)
+    saved = store.import_from_candidate(candidate)
+    assert saved["motion_id"] == entry["motion_id"]
+    assert store.list()[0]["patterns"]["durations"] == ["500ms", "120ms"]
+
+
+def test_motion_import_rejects_non_motion_kind(tmp_path: Path) -> None:
+    from htmlninefox.intake import MotionStore
+    source = {"id": "land-book", "kind": "gallery", "license_class": "reference"}
+    candidate = extract_candidate(html_evidence(), source=source)
+    candidate["status"] = "approved"
+    with pytest.raises(IntakeError) as excinfo:
+        MotionStore(tmp_path).import_from_candidate(candidate)
+    assert excinfo.value.code == "intake_kind_invalid"

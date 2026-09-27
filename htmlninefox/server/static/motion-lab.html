@@ -12,6 +12,7 @@
 <section class="card"><h2>04 · 阶段切换</h2><p class="caption">这里演示三个阶段；工作台以真实任务状态驱动。</p><div class="demo"><div class="tile" id="stage-demo">分析需求</div></div><button data-demo="stage">下一阶段</button></section>
 <section class="card"><h2>05 · 产物就绪</h2><p class="caption">状态立即可用，揭示动效不阻塞操作。</p><div class="demo"><div class="tile result" id="result-demo">HTML 已就绪</div></div><button data-demo="result">揭示结果</button></section>
 <section class="card"><h2>06 · 版本恢复</h2><p class="caption">强调新的版本编号，保留历史来源。</p><div class="demo"><div class="tile" id="revision-demo">rev1 · 当前</div></div><button data-demo="revision">演示恢复</button></section>
+<section class="card"><h2>07 · 设计吸收动效</h2><p class="caption">从已采纳参考生成的原创动效样式；同样尊重三档偏好与动效预算。</p><div class="demo"><div id="intake-motion-box" style="display:grid;gap:8px"></div></div><button data-demo="intake">重播吸收动效</button></section>
 </div><p id="status" role="status" aria-live="polite">此页为交互样例，不创建项目或提交生成任务。</p><footer>原生 CSS + Web Animations API · 无网络依赖 · <a href="/">返回工作台</a></footer>
 </main><script src="motion-system.js"></script><script>
 const stages=['分析需求','组合输入','产物就绪'];let stage=0,revision=1;
@@ -19,6 +20,7 @@ document.addEventListener('click',event=>{
  const button=event.target.closest('[data-demo]');if(!button)return;
  const type=button.dataset.demo;let target;
  if(type==='wire'){FoxMotion.animateClass(document.querySelector('#wire-demo'),'wire-enter','wire',220);}
+ else if(type==='intake'){document.querySelectorAll('#intake-motion-box .fox-intake-0,.fox-intake-t0').forEach(el=>{el.style.animation='none';el.offsetHeight;el.style.animation='';});}
  else{
   target=document.querySelector('#'+({button:'button',selection:'selection',stage:'stage',result:'result',revision:'revision'}[type])+'-demo');
   if(type==='button')target.textContent='✓ 操作完成';
@@ -29,4 +31,16 @@ document.addEventListener('click',event=>{
  }
  document.querySelector('#status').textContent='已演示：'+button.textContent+' · 当前动效：'+document.documentElement.dataset.foxMotion;
 });
+(async()=>{
+  try{
+    const data=await (await fetch('/api/intake/motion')).json();
+    const box=document.querySelector('#intake-motion-box');
+    if(!data.motions?.length){box.innerHTML='<p class=caption>暂无吸收动效——在工作台「设计吸收」采纳 motion 来源后出现。</p>';return;}
+    const style=document.createElement('style');
+    style.textContent=data.motions.map(m=>m.css).join(String.fromCharCode(10));
+    document.head.appendChild(style);
+    box.innerHTML=data.motions.map(m=>'<div class=tile style=animation:none><b>'+m.name+'</b><br><span class=caption>'+m.patterns.durations.join(' / ')+'</span></div>').join('');
+    requestAnimationFrame(()=>box.querySelectorAll('[class*=fox-intake]').forEach(el=>el.classList.add(...el.className.split(' '))));
+  }catch(e){const box=document.querySelector('#intake-motion-box');if(box)box.innerHTML='<p class=caption>加载失败。</p>';}
+})();
 </script></body></html>
