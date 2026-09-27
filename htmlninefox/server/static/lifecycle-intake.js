@@ -81,11 +81,13 @@
         <div class="intake-card-url">${esc(item.final_url)}</div>
         ${colors ? `<div class="intake-swatches">${colors}</div>` : ''}
         ${headings ? `<div class="intake-outline">${headings}</div>` : ''}
+        ${item.ai_analysis ? `<div class="intake-outline">🤖 ${esc(item.ai_analysis.description || '')}${item.ai_tags?.length ? ' · ' + esc(item.ai_tags.join(' / ')) : ''}</div>` : ''}
         <div class="intake-card-actions">
           ${item.status === 'pending'
             ? `<button class="btn btn-primary" onclick="intakeApprove('${esc(item.candidate_id)}')">✔ 采纳为模板</button>
                <button class="btn btn-danger-ghost" onclick="intakeReject('${esc(item.candidate_id)}')">✕ 拒绝</button>
-               <button class="btn btn-secondary" onclick="intakeTogglePreview('${esc(item.candidate_id)}')">👁 预览</button>`
+               <button class="btn btn-secondary" onclick="intakeTogglePreview('${esc(item.candidate_id)}')">👁 预览</button>
+               <button class="btn btn-secondary" onclick="intakeAnalyze('${esc(item.candidate_id)}')">🤖 AI 分析</button>`
             : `${item.status === 'approved'
                 ? `<button class="btn btn-secondary" onclick="intakeMakeStylePreset('${esc(item.candidate_id)}')">🎨 生成风格预设</button>`
                 : `<span class="intake-status">已拒绝</span>`}`}
@@ -233,6 +235,23 @@
     }
   }
 
+  async function analyze(candidateId) {
+    const status = document.querySelector('#intake-status');
+    window.FoxInteraction?.setBusy('#intake-fetch-btn', true, 'AI 分析中…');
+    status.textContent = 'AI 正在分析候选素材…';
+    try {
+      await post('/api/intake/analyze', { candidate_id: candidateId });
+      status.textContent = 'AI 分析完成';
+      flash('✓ AI 分析完成', true);
+      await refresh(filter);
+    } catch (error) {
+      status.textContent = 'AI 分析失败：' + error.message;
+      flash('AI 分析失败：' + error.message, false);
+    } finally {
+      window.FoxInteraction?.setBusy('#intake-fetch-btn', false);
+    }
+  }
+
   async function makeStylePreset(candidateId) {
     try {
       const result = await post('/api/intake/style-presets/create', { candidate_id: candidateId });
@@ -252,6 +271,6 @@
 
   window.FoxIntake = {
     open, close, refresh, preload, fetchCandidate, fetchBatch, importZip,
-    approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply, makeStylePreset,
+    approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply, analyze, makeStylePreset,
   };
 })();

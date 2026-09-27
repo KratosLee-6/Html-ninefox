@@ -1686,6 +1686,7 @@ function intakeSelectAll() { return window.FoxIntake.selectAllPending(); }
 function intakeBatch(action) { return window.FoxIntake.batchApply(action); }
 function intakeSourceFilter(source) { return window.FoxIntake.refresh(source || 'pending', source); }
 function intakeMakeStylePreset(id) { return window.FoxIntake.makeStylePreset(id); }
+function intakeAnalyze(id) { return window.FoxIntake.analyze(id); }
 document.addEventListener('change', event => {
   if (event.target?.id === 'intake-zip-file' && event.target.files?.[0]) {
     window.FoxIntake.importZip(event.target.files[0]);

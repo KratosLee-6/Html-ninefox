@@ -639,7 +639,56 @@ class MotionStore:
         return items
 
 
-# ---------------------------------------------------------------- manual import (S04)
+# ---------------------------------------------------------------- AI analysis (S11)
+
+ANALYSIS_SYSTEM_PROMPT = (
+    "你是网页设计分析专家。基于给定的页面骨架与设计令牌，输出严格的 JSON："
+    '{"description": "一句话概括页面设计", "tags": ["3-6个设计标签"], '
+    '"layout_notes": "布局系统说明（≤120字）", "content_recipe": "内容配方建议（栏目结构，≤120字）"}'
+    " 只输出 JSON，不要其他文字。"
+)
+
+
+def build_analysis_prompt(candidate: dict) -> str:
+    headings = "；".join(
+        f"h{item['level']}:{item['text']}" for item in (candidate.get("skeleton") or {}).get("headings", []))
+    tokens = candidate.get("tokens") or {}
+    return (
+        f"页面标题：{candidate.get('title', '')}\n"
+        f"标题结构：{headings or '无'}\n"
+        f"语义区块：{json.dumps((candidate.get('skeleton') or {}).get('semantic', {}), ensure_ascii=False)}\n"
+        f"颜色令牌：{json.dumps(tokens.get('colors', []), ensure_ascii=False)}\n"
+        f"字体：{json.dumps(tokens.get('fonts', []), ensure_ascii=False)}\n"
+        f"来源类型：{candidate.get('kind', 'gallery')}\n"
+        "请输出分析 JSON。")
+
+
+def parse_analysis(text: str) -> dict:
+    """Leniently parse the model's JSON (tolerates code fences)."""
+    cleaned = re.sub(r"```(?:json)?|```", "", text).strip()
+    start, end = cleaned.find("{"), cleaned.rfind("}")
+    if start == -1 or end == -1:
+        raise IntakeError("intake_analysis_invalid", "AI 返回内容不是有效 JSON", 502)
+    try:
+        payload = json.loads(cleaned[start:end + 1])
+    except json.JSONDecodeError as exc:
+        raise IntakeError("intake_analysis_invalid", "AI 返回内容解析失败", 502) from exc
+    return {
+        "description": str(payload.get("description") or "")[:300],
+        "tags": [str(tag)[:24] for tag in (payload.get("tags") or [])[:6]],
+        "layout_notes": str(payload.get("layout_notes") or "")[:200],
+        "content_recipe": str(payload.get("content_recipe") or "")[:200],
+    }
+
+
+def apply_analysis(candidate: dict, analysis: dict) -> dict:
+    candidate["ai_analysis"] = {**analysis, "analyzed_at": datetime.now().isoformat(timespec="seconds")}
+    for tag in analysis.get("tags", []):
+        if tag and tag not in candidate.setdefault("ai_tags", []):
+            candidate["ai_tags"].append(tag)
+    return candidate
+
+
 # ---------------------------------------------------------------- manual import (S04)
 
 ZIP_MAX_ENTRIES = 24

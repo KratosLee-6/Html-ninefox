@@ -334,3 +334,70 @@ def test_intake_motion_import_endpoint(tmp_path: Path, monkeypatch) -> None:
 
         listed, _ = api_request(server.base_url, "/api/intake/motion")
         assert len(listed["motions"]) == 1
+
+
+# ---------------------------------------------------------------- S11 AI analysis
+
+
+def _enable_ai(server_base: str, monkeypatch=None) -> None:
+    import os
+    previous = os.environ.get("HTMLNINEFOX_AI_SETTINGS")
+    api_request(server_base, "/api/settings/ai", "PUT", {
+        "enabled": True, "provider": "openai-compatible",
+        "model": "test-model", "base_url": "https://llm.example/v1",
+        "api_key": "test-key-123",
+    })
+    if monkeypatch is not None:
+        # PUT 会设置全局 env 指向本测试的临时目录；用 monkeypatch 在 teardown 恢复，
+        # 避免污染后续测试（否则它们可能读到别的 AI 配置发起真实网络调用）。
+        if previous:
+            monkeypatch.setenv("HTMLNINEFOX_AI_SETTINGS", previous)
+        else:
+            monkeypatch.delenv("HTMLNINEFOX_AI_SETTINGS", raising=False)
+
+
+def test_intake_ai_analyze_enriches_candidate(tmp_path: Path, monkeypatch, request) -> None:
+    stub_fetch(monkeypatch, {"https://example.com/inspo": (200, {"content-type": "text/html"}, SAMPLE)})
+    from htmlninefox.server import app as server_app
+
+    canned = json.dumps({
+        "description": "定价页采用三栏卡片与对比表",
+        "tags": ["定价", "三栏", "SaaS"],
+        "layout_notes": "顶部 hero + 三栏价格卡 + FAQ",
+        "content_recipe": "封面/功能对比/常见问题",
+    }, ensure_ascii=False)
+
+    class FakeResult:
+        text = canned
+        model = "test-model"
+
+    monkeypatch.setattr(server_app.llm.router, "call",
+                        lambda **kwargs: FakeResult(), raising=True)
+    with WorkbenchServer(tmp_path) as server:
+        _enable_ai(server.base_url, monkeypatch)
+        # llm.router 是模块级单例：分析后复位默认配置，避免污染后续测试
+        request.addfinalizer(lambda: server_app.llm.router.configure(
+            server_app.llm.get_default_config()))
+        submitted, _ = api_request(server.base_url, "/api/intake/fetch", "POST",
+                                   {"url": "https://example.com/inspo", "source_id": "land-book"})
+        candidate_id = submitted["candidate"]["candidate_id"]
+
+        analyzed, _ = api_request(server.base_url, "/api/intake/analyze", "POST",
+                                  {"candidate_id": candidate_id})
+        analysis = analyzed["candidate"]["ai_analysis"]
+        assert "三栏" in analysis["description"]
+        assert "定价" in analyzed["candidate"]["ai_tags"]
+
+        stored, _ = api_request(server.base_url, "/api/intake/candidates?status=pending")
+        assert stored["candidates"][0].get("ai_tags") == ["定价", "三栏", "SaaS"]
+
+
+def test_intake_ai_analyze_requires_configured_ai(tmp_path: Path, monkeypatch) -> None:
+    stub_fetch(monkeypatch, {"https://example.com/inspo": (200, {"content-type": "text/html"}, SAMPLE)})
+    with WorkbenchServer(tmp_path) as server:
+        submitted, _ = api_request(server.base_url, "/api/intake/fetch", "POST",
+                                   {"url": "https://example.com/inspo"})
+        candidate_id = submitted["candidate"]["candidate_id"]
+        denied, _ = api_request(server.base_url, "/api/intake/analyze", "POST",
+                                {"candidate_id": candidate_id}, expected=400)
+        assert denied["error"]["code"] == "ai_not_configured"

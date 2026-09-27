@@ -268,6 +268,23 @@ class _Handler(BaseHTTPRequestHandler):
         preset = intake.build_style_preset(candidate)
         return {"ok": True, "preset": self._intake_style_presets().save(preset)}
 
+    def _api_intake_ai_analyze(self, body: dict) -> dict:
+        candidate_id = str(body.get("candidate_id") or "")
+        candidate = self._intake_candidates().get(candidate_id)
+        if not self._activate_ai():
+            raise StoreError("ai_not_configured", "请先在 AI 模型配置中启用并保存密钥", 400)
+        prompt = intake.build_analysis_prompt(candidate)
+        try:
+            result = llm.router.call(prompt=prompt, agent="brief_expert",
+                                     task="intake_analysis", system=intake.ANALYSIS_SYSTEM_PROMPT,
+                                     temperature=0.3, max_tokens=600)
+        except Exception as exc:
+            raise StoreError("intake_analysis_failed", f"AI 分析失败：{exc}", 502) from exc
+        analysis = intake.parse_analysis(result.text)
+        candidate = intake.apply_analysis(candidate, analysis)
+        candidate = self._intake_candidates().save(candidate, {"body": self._intake_candidates().body(candidate_id)})
+        return {"ok": True, "candidate": candidate, "model": result.model}
+
     def _api_intake_batch(self, body: dict) -> dict:
         action = str(body.get("action") or "")
         ids = body.get("ids") if isinstance(body.get("ids"), list) else []
@@ -622,6 +639,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json(self._api_intake_components_import(body))
         if path == "/api/intake/motion/import":
             return self._json(self._api_intake_motion_import(body))
+        if path == "/api/intake/analyze":
+            return self._json(self._api_intake_ai_analyze(body))
         if path == "/api/intake/style-presets/create":
             return self._json(self._api_intake_style_preset_create(body))
         if path.startswith("/api/intake/style-presets/") and path.endswith("/apply"):
