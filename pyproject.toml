@@ -23,6 +23,7 @@ templates = ["jinja2>=3.1"]
 llm = ["litellm>=1.40.0"]
 dev = ["pytest>=7.0", "pytest-cov>=4.0"]
 packaging = ["pyinstaller>=6.0,<7"]
+pptx = ["python-pptx>=0.6.23"]
 
 [project.scripts]
 htmlninefox = "htmlninefox.cli:main"
