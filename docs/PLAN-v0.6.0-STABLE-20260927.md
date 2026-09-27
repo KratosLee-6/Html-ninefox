@@ -61,8 +61,9 @@
 
 | 编号 | 步骤 | 验收 | 预估 |
 |---|---|---|---|
-| V0.6-S13 | **PPTX 映射层**：python-pptx 依赖（optional extra）+ 受控映射（文本框/图片/基础图形/表格；复杂视觉降级为图片并写报告） | deck 项目导出 PPTX，PowerPoint 与 WPS 打开均文本可编辑 | 3 天 |
-| V0.6-S14 | **导出中心接入**：格式增加 pptx；报告记录降级项清单 | UI 选择 pptx → 任务完成 → 报告列出可编辑元素数与降级数 | 1 天 |
+| V0.6-S13 | **PPTX 映射层（文件桥）**：python-pptx 依赖（optional extra）+ 受控映射（文本框/图片/基础图形/表格；复杂视觉降级为图片并写报告） | deck 项目导出 PPTX，PowerPoint 与 WPS 打开均文本可编辑 | 3 天 |
+| V0.6-S13U | **Univer 工作台内编辑器**：集成 [Univer](https://github.com/dream-num/univer)（Apache-2.0）Slides 引擎——deck 产物在工作台内可视化编辑（近 1:1 PowerPoint 观感），编辑结果回写幻灯片结构，再经 S13 文件桥生成 .pptx；Univer bundle **本地 vendor 化**（离线优先，不依赖 CDN） | deck 产物可在工作台内直接拖拽编辑文字与版式，编辑后导出的 PPTX 保留修改 | 3 天 |
+| V0.6-S14 | **导出中心接入**：格式增加 pptx；报告记录降级项清单；若嵌入版 Univer 的 PPTX 导出可用（开源边界待验证），提供「直接导出」作为增强路径 | UI 选择 pptx → 任务完成 → 报告列出可编辑元素数与降级数 | 1 天 |
 | V0.6-S15 | **DOCX 语义导出**（视进度）：doc/archdoc → DOCX 语义段落；复杂元素扁平化 | doc 项目导出 DOCX 可二次编辑；复杂元素在报告标明 | 2 天（可顺延 v0.6.x） |
 
 ## 三、工作流 C：质量与性能门禁
@@ -108,6 +109,13 @@
 - PPTX 在 PowerPoint/WPS 打开且文本可编辑，降级项列报告；
 - 性能与既有门禁不退化（S16/S17/S18 证据入库）；
 - 六平台附件 + SHA-256 齐备且回读一致；中英文档与真实版本一致。
+
+## 七-B、技术决策记录：PPT 编辑采用 Univer（2026-09-27，用户指定方向）
+
+- 选型：[Univer](https://github.com/dream-num/univer)（dream-num，Apache-2.0，@univerjs/presets 预设包）——浏览器端 Slides 引擎，官网宣称近 1:1 PowerPoint 保真、支持 PPT/PPTX 导入与 PPTX 导出、自托管设计。
+- 双层架构：**Univer = 工作台内可视化编辑层**；**python-pptx = 服务端标准 .pptx 文件桥**。无论 Univer 开源版导出边界如何，文件交付都成立。
+- 离线优先：Univer bundle 随包 vendor 化进 `server/static/vendor/`，不依赖 CDN；体积纳入 PWA 缓存与安装包预算。
+- 待验证（S13U 执行时）：开源版内嵌 PPTX 导出的真实边界；若为 Pro 功能则文件桥路径全覆盖。
 
 ## 八、风险与对策
 
