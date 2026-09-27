@@ -90,7 +90,7 @@ def test_export_invalid_format_has_stable_error(tmp_path: Path) -> None:
     try:
         studio.validate_export(ExportRequest(
             project_name=project.name,
-            format="pptx",
+            format="docx",   # v0.6 起 pptx 已合法；docx 计划顺延到 v0.6.x
         ))
     except ExportError as error:
         captured = error
@@ -98,8 +98,8 @@ def test_export_invalid_format_has_stable_error(tmp_path: Path) -> None:
         raise AssertionError("unsupported export format unexpectedly succeeded")
 
     assert captured.code == "export_format_unsupported"
-    assert captured.message == "当前版本支持 PDF 和 PNG"
-    assert captured.details == {"supported": ["pdf", "png"]}
+    assert captured.message == "当前版本支持 PDF、PNG 和 PPTX（deck 产物）"
+    assert captured.details == {"supported": ["pdf", "png", "pptx"]}
 
 
 def test_export_wraps_runtime_failure(tmp_path: Path) -> None:

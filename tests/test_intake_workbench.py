@@ -430,3 +430,33 @@ def test_intake_stats_aggregate_across_assets(tmp_path: Path, monkeypatch) -> No
         assert data["by_status"]["pending"] == 1 and data["by_status"]["approved"] == 1
         assert data["by_source"]["land-book"] == 1 and data["by_source"]["手动导入"] == 1
         assert data["by_license"]["reference"] == 2
+
+
+# ---------------------------------------------------------------- S14 pptx export center
+
+
+def test_export_center_pptx_end_to_end(tmp_path: Path) -> None:
+    from htmlninefox import pipeline
+    from tests.conftest import WorkbenchServer
+    work = pipeline.run_expert("做一个产品发布会 PPT", intent_override="deck",
+                               output=str(tmp_path), quiet_llm=True)["work"]
+    with WorkbenchServer(tmp_path) as server:
+        submitted, _ = api_request(server.base_url, "/api/exports", "POST",
+                                   {"project_name": work.name, "format": "pptx"}, expected=202)
+        job_id = submitted["job"]["id"]
+        import time
+        deadline = time.time() + 60
+        job = {}
+        while time.time() < deadline:
+            job, _ = api_request(server.base_url, f"/api/jobs/{job_id}")
+            if job["status"] not in {"queued", "running"}:
+                break
+            time.sleep(0.2)
+        assert job["status"] == "succeeded", job
+        result = job["result"]
+        assert result["format"] == "pptx"
+        names = [f["name"] for f in result["files"]]
+        assert any(name.endswith(".pptx") for name in names)
+        assert any(name == "export-report.json" for name in names)
+        # 降级与可编辑数在报告里
+        assert "pptx" in json.dumps(result)

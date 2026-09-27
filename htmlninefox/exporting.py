@@ -16,9 +16,10 @@ from typing import Any
 from urllib.parse import quote
 
 from . import pipeline
+from . import pptx_export
 from .server.storage import ProjectStore, StoreError
 
-SUPPORTED_FORMATS = ("pdf", "png")
+SUPPORTED_FORMATS = ("pdf", "png", "pptx")
 PAPER_FORMATS = ("A4", "Letter", "A3")
 _PAGE_LIMIT = 200
 _FREEZE_CSS = """
@@ -147,7 +148,7 @@ def normalize_export_request(payload: dict[str, Any]) -> dict[str, Any]:
         raise StoreError("export_project_required", "请选择需要导出的项目", 400)
     export_format = str(payload.get("format") or "pdf").lower()
     if export_format not in SUPPORTED_FORMATS:
-        raise StoreError("export_format_unsupported", "当前版本支持 PDF 和 PNG", 400,
+        raise StoreError("export_format_unsupported", "当前版本支持 PDF、PNG 和 PPTX（deck 产物）", 400,
                          {"supported": list(SUPPORTED_FORMATS)})
     scope = str(payload.get("scope") or "auto").lower()
     if scope not in {"auto", "pages", "long"}:
@@ -179,6 +180,8 @@ def export_project(root: str | Path, payload: dict[str, Any]) -> dict[str, Any]:
         raise StoreError("export_analysis_failed", "产物未通过导出分析", 409,
                          {"warnings": manifest["warnings"]})
     project = Path(manifest["project_path"])
+    if request["format"] == "pptx":
+        return _export_pptx(project, request, manifest)
     html_path = project / manifest["source_file"]
     export_id = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:6]
     exports_root = project / "exports"
@@ -546,4 +549,51 @@ def _file_result(project_name: str, export_id: str, path: Path) -> dict[str, Any
         "bytes": path.stat().st_size,
         "download_url": f"/output/{relative}?download=1",
         "preview_url": f"/output/{relative}",
+    }
+
+
+def _export_pptx(project: Path, request: dict[str, Any], manifest: dict[str, Any]) -> dict[str, Any]:
+    """PPTX path: no browser involved; deck artifact maps to editable slides."""
+    from . import pptx_export as bridge
+
+    project_path = Path(manifest["project_path"])
+    info = bridge.export_deck_pptx(project_path)
+    target = Path(info["file"])
+    export_id = target.parent.name
+    warnings = [item for item in manifest.get("warnings", []) if item.get("level") != "error"]
+    warnings.append({"code": "pptx_flattened", "level": "warning",
+                     "message": f"扁平化视觉元素 {len(info['flattened_elements'])} 个，详见报告"})
+    report = {
+        "schema_version": 1,
+        "export_id": export_id,
+        "created_at": datetime.now().isoformat(timespec="seconds"),
+        "source": {"project_name": manifest["project_name"], "file": manifest.get("source_file", ""),
+                   "intent": manifest.get("intent", ""), "preset_id": manifest.get("preset_id", "")},
+        "request": request,
+        "browser": {"engine": "python-pptx", "source": "file-bridge"},
+        "warnings": warnings,
+        "files": [{"name": target.name, "bytes": target.stat().st_size}],
+        "pptx": {"slides": info["slides"], "editable_elements": info["editable_elements"],
+                 "flattened_elements": info["flattened_elements"]},
+    }
+    (target.parent / "export-report.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    relative = "/".join(quote(item, safe="") for item in
+                        (manifest["project_name"], "exports", export_id))
+    file_result = {
+        "name": target.name, "bytes": target.stat().st_size,
+        "download_url": f"/output/{relative}/{target.name}?download=1",
+        "preview_url": f"/output/{relative}/{target.name}",
+    }
+    report_entry = dict(file_result); report_entry["name"] = "export-report.json"
+    report_entry["download_url"] = f"/output/{relative}/export-report.json?download=1"
+    return {
+        "project_name": manifest["project_name"],
+        "export_id": export_id,
+        "format": "pptx",
+        "files": [report_entry, file_result],
+        "report": {"name": "export-report.json", "bytes": len(json.dumps(report))},
+        "warnings": warnings,
+        "compatibility_score": manifest["compatibility_score"],
+        "browser": {"source": "python-pptx"},
     }

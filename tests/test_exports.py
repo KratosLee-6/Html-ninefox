@@ -60,8 +60,12 @@ def test_export_request_parses_page_ranges_and_rejects_invalid_values():
     assert request["pages"] == [1, 2, 3, 5]
     assert request["format"] == "png"
     assert request["scale"] == 3
+    # v0.6 起 pptx 是合法格式（deck 文件桥）；真正非法的格式仍被拒绝
+    request, _response = None, None
+    pptx_request = exporting.normalize_export_request({"project_name": "alpha", "format": "pptx"})
+    assert pptx_request["format"] == "pptx"
     with pytest.raises(StoreError) as error:
-        exporting.normalize_export_request({"project_name": "alpha", "format": "pptx"})
+        exporting.normalize_export_request({"project_name": "alpha", "format": "docx"})
     assert error.value.code == "export_format_unsupported"
 
 

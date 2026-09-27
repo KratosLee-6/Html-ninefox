@@ -54,10 +54,14 @@
   }
 
   function syncOptions() {
-    const image = $('#export-format').value === 'png';
+    const format = $('#export-format').value;
+    const image = format === 'png';
+    const pptx = format === 'pptx';
     $('#export-scale-field').hidden = !image;
-    $('#export-paper-field').hidden = image;
-    $('#export-landscape-field').hidden = image;
+    $('#export-paper-field').hidden = image || pptx;
+    $('#export-landscape-field').hidden = image || pptx;
+    const pagesField = $('#export-pages')?.closest('.flow-field');
+    if (pagesField) pagesField.hidden = pptx;
   }
 
   async function start() {
