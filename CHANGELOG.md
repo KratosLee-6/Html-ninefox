@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### v0.6 设计吸收流水线 + 可编辑 PPTX（已合入 main，待全环节测试后发布）
+
+**设计吸收（三条通道 → 素材审核台 → 六资产层）**
+- 安全抓取框架：仅 http/https、解析校验拒私网/环回/重绑定、重定向逐跳过门、事后 rebinding 比对、体积上限、每源限速（`5de8d42`）。
+- 源清单：内置 12 个设计源（四类 kind × 三档许可），支持用户目录同 id 覆盖（`d65b42c`）。
+- 候选提取与审核台：骨架/令牌/意图猜测 → pending 审核；CSP 沙箱预览、批量采纳/拒绝、来源筛选、许可徽章、色板与大纲（`b5a722e`/`59a0cd3`/`8d3f34a`）。
+- 手动导入增强：多 URL 批量（≤10 条逐条容错）+ ZIP 导入（24 文件/24MB 防穿越）（`4e6cdb3`）。
+- 六资产层贯通：组件库（素材面板拖入生成）+ 渐变装饰（`97c88b7`）、动效原创样式（预算钳制 + reduced-motion 守卫 → motion-lab，`488f2e6`）、风格预设（→ 工作台风格面板，`82268ff`）、AI 分析通道（结构化 design brief + 标签，`9264a5c`）、吸收指标面板（`5f82bcf`）。
+- 许可三档强制：inspiration-only 采纳跳过代码导入（`066905f`）。
+
+**可编辑 PPTX（Univer 双层架构）**
+- PPTX 文件桥：deck 产物 → python-pptx 受控映射 → 标准 .pptx（每页标题/要点文本框、对比度背景、页码脚注；扁平化如实上报）；往返验证文本可编辑（`3a3a384`）。
+- 导出中心接入 pptx 格式 + 报告含可编辑元素数与降级清单（`e0d8f6d`）。
+- 工作台内可视化编辑器选型 [Univer](https://github.com/dream-num/univer)（Apache-2.0，bundle 将本地 vendor 化）——S13U 实施中。
+
+**质量与审计**
+- 门禁：吸收压测 100 候选（创建 0.28s / 列表 40ms）+ 路径穿越全拒（`8d920be`）；WebKit 通道（Safari 引擎 22/22）+ Chromium 双通道 22/22；topbar 定位器歧义修复（同提交）。
+- 双审计：mattpocock 四维（7 P1 中 5 修、2 记录）+ Mimosa deep（SSRF 设计性缓解 + 残余披露，见 [AUDIT-v0.6.0](docs/AUDIT-v0.6.0-20260928.md)）。
+
+### v0.6 设计吸收流水线 + 可编辑 PPTX（已合入 main，待全环节测试后发布）
+
 ### Added
 
 - The v0.6 design-intake foundation: a source registry (`data/sources/*.yaml` with user overrides), a safe reference fetcher (http/https only, resolved-host validation rejecting loopback/private/reserved addresses, hop-by-hop redirect validation, post-fetch DNS-rebinding check, size caps, per-source rate limiting), an evidence store under `.library/intake/`, and three built-in gallery/motion sources with license classes.

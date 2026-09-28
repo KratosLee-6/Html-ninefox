@@ -133,6 +133,18 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 - **📤 Export Center**：产物节点直接导出 PDF、逐页 PNG 或完整长图，含兼容性评分与 `export-report.json`。
 - **🔒 隐私边界**：API Key、附件正文与完整反馈原文不写入长期记忆或诊断包。
 
+## 设计吸收流水线（v0.6 新增）
+
+![设计吸收审核台](assets/screenshots/v0.5.0rc3-visual/generation-cancel.png)
+
+把全世界的优秀设计变成自己的素材——模板、风格、组件、装饰、动效、内容六个层面，三条吸收通道：
+
+- **✋ 手动导入**：粘贴单个/批量 URL（≤10 条），或导入 ZIP 模板包，全部进入审核台
+- **🕸 预设源抓取**：内置 12 个设计源（Land-book、Lapa.ninja、Landingfolio、Awwwards、Codrops、Animista、Google Fonts…），按画廊/组件/动效/字体四类适配，安全抓取（拒私网/重绑定/限速）
+- **🤖 AI 分析**：候选自动生成设计描述、标签、布局说明与内容配方（复用你的 AI 设置，无 Key 不影响其他功能）
+
+所有素材经**审核台**人工确认后入库（沙箱预览 + 许可三档治理：开放可入库 / 仅参考重写 / 仅灵感板），风格进面板、组件可拖拽参与生成、动效进 motion-lab——且全部尊重动效偏好与预算。
+
 ## 工作台完整能力
 
 - **🖥️ Web 工作台**：`htmlninefox app` 一键启动本地 Web UI，实时预览 + 智能体日志 + 模板选择。
@@ -360,6 +372,13 @@ Html九尾狐 v0.3-v0.4 的 PPT 生成模块参考了以下两位创作者的开
 - 🎨 **[宝玉 (JimLiu)](https://github.com/JimLiu)** — author of [baoyu-skills](https://github.com/JimLiu/baoyu-skills) (especially [baoyu-slide-deck](https://github.com/JimLiu/baoyu-skills/tree/main/skills/baoyu-slide-deck)). The "AI 画图生成每页 PPT · 17 套风格" image-based PPT approach inspired Html九尾狐 v0.3's `ppt_image` intent.
 
 - 🎨 **[张咋啦 (zarazhangrui)](https://github.com/zarazhangrui)** — author of [frontend-slides](https://github.com/zarazhangrui/frontend-slides), [beautiful-html-templates](https://github.com/zarazhangrui/beautiful-html-templates), [beautiful-feishu-whiteboard](https://github.com/zarazhangrui/beautiful-feishu-whiteboard). The "避开 AI 紫渐变" + "28 套稳定出片" philosophy deeply shaped Html九尾狐 v0.3-v0.4's template library design.
+
+### PPT 编辑工具致敬（v0.6）
+
+v0.6 的可编辑 PPT 能力建立在两位前辈的工作之上，诚挚致谢：
+
+- 🪄 **[Univer](https://github.com/dream-num/univer)（dream-num）** — Apache-2.0 的浏览器端 Office 套件引擎（Sheets / Docs / Slides / Canvas 一体）。v0.6 的工作台内幻灯片可视化编辑（近 1:1 PowerPoint 观感、PPT/PPTX 导入导出）基于 Univer Slides 构建，bundle 本地化保持离线优先。
+- 📄 **[python-pptx](https://github.com/scanny/python-pptx)（Steve Canny）** — MIT 许可的 PowerPoint 文件库。v0.6 的服务端 .pptx 文件桥用它实现受控映射，让导出的 PPT 在 PowerPoint / WPS 中真正文本可编辑。
 
 ### 设计系统致谢（v0.4）
 

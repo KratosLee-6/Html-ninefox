@@ -130,6 +130,16 @@ Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots
 - **📤 Export Center**: Export PDF, paginated PNG, or a full-page image with a compatibility score and `export-report.json`.
 - **🔒 Privacy boundary**: API keys, attachment bodies, and full private feedback text stay out of long-term memory and diagnostics.
 
+## Design intake pipeline (new in v0.6)
+
+Turn the world's best designs into your own assets across six layers — templates, styles, components, decorations, motion, and content — through three intake channels:
+
+- **✋ Manual import**: paste single or batch URLs (up to 10), or import a ZIP template pack — everything lands in the review workbench
+- **🕸 Built-in source registry**: 12 design sources (Land-book, Lapa.ninja, Landingfolio, Awwwards, Codrops, Animista, Google Fonts…) across gallery/component/motion/typography kinds, fetched safely (private-network and rebinding rejection, per-source rate limits)
+- **🤖 AI analysis**: candidates get design descriptions, tags, layout notes and content recipes from your configured LLM (optional; everything works without a key)
+
+Every asset passes a **review workbench** (sandboxed preview + three-tier license governance: open / reference / inspiration-only) before entering the library — styles appear in the style panel, components drag onto the canvas to feed generation, motion styles land in the motion lab, all honoring motion preferences and budgets.
+
 ## Complete Workbench Features
 
 - **✅ Trustworthy release metadata**: Version, CLI, API, packages, Docker tag, test evidence, and Git tag stay aligned.
@@ -283,6 +293,13 @@ htmlninefox --help
 - [Examples](docs/EXAMPLES.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Private template import](docs/PRIVATE-TEMPLATE-IMPORT.md)
+
+## PPT editing tribute (v0.6)
+
+The editable-PPT capability in v0.6 stands on two prior works, with gratitude:
+
+- 🪄 **[Univer](https://github.com/dream-num/univer) (dream-num)** — the Apache-2.0 in-browser office engine (Sheets / Docs / Slides / Canvas in one runtime). The in-workbench slide visual editor (near-1:1 PowerPoint fidelity, PPT/PPTX import & export) is built on Univer Slides, vendored locally to stay offline-first.
+- 📄 **[python-pptx](https://github.com/scanny/python-pptx) (Steve Canny)** — the MIT PowerPoint library powering the server-side .pptx bridge, so exported decks are truly text-editable in PowerPoint / WPS.
 
 ## Contributing
 
