@@ -301,3 +301,9 @@
 .intake-more { position:relative; }
 .intake-more > summary { list-style:none; cursor:pointer; }
 .intake-more[open] > .menu-field, .intake-more > div { z-index:30; }
+
+.slides-dialog .flow-body { max-height:60vh; overflow:auto; display:grid; gap:12px; }
+.slides-slide { border:1px solid var(--border-subtle); padding:10px; display:grid; gap:6px; }
+.slides-slide-head { font-size:12px; color:var(--text-tertiary); }
+.slides-field { display:grid; gap:3px; font-size:12px; color:var(--text-secondary); }
+.slides-field textarea { width:100%; }

@@ -783,6 +783,12 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   </div>
 </div>
 
+<div class="preview-modal" id="slides-modal" hidden role="dialog" aria-modal="true" aria-labelledby="slides-title">
+  <div class="flow-dialog slides-dialog"><div class="preview-bar"><strong id="slides-title">幻灯片编辑</strong><span>文本原位编辑 · 每次保存生成新版本</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeSlideEditor()">关闭</button></div>
+    <div class="flow-body slides-editor" id="slides-editor"></div>
+    <div class="preview-bar" style="border-top:1px solid var(--border-default)"><div class="intake-status" id="slides-status" role="status">读取后即可编辑文本。</div><div class="sp"></div><button class="btn btn-primary" id="slides-save" onclick="saveSlideEditor()">保存为新版本</button></div>
+  </div>
+</div>
 <div class="preview-modal" id="intake-modal" hidden role="dialog" aria-modal="true" aria-labelledby="intake-title">
   <div class="flow-dialog intake-dialog"><div class="preview-bar"><strong id="intake-title">设计吸收</strong><span>全球优秀设计 · 安全抓取 · 审核后入库</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeIntake()">关闭</button></div>
     <div class="flow-body">
@@ -849,6 +855,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <script src="/lifecycle-revisions.js"></script>
 <script src="/lifecycle-exports.js"></script>
 <script src="/lifecycle-intake.js"></script>
+<script src="/lifecycle-slides.js"></script>
 <script>
 /* ============================================================
    迷你线框预览（全可视化素材的核心：图形优先，文字最少）
@@ -1687,6 +1694,9 @@ function intakeSelectAll() { return window.FoxIntake.selectAllPending(); }
 function intakeBatch(action) { return window.FoxIntake.batchApply(action); }
 function intakeSourceFilter(source) { return window.FoxIntake.refresh(source || 'pending', source); }
 function intakeMakeStylePreset(id) { return window.FoxIntake.makeStylePreset(id); }
+function openSlideEditor(id) { return window.FoxSlides.open(id); }
+function closeSlideEditor() { return window.FoxSlides.close(); }
+function saveSlideEditor() { return window.FoxSlides.save(); }
 function intakeImportComponents(id) { return window.FoxIntake.importComponents(id); }
 function intakeImportMotion(id) { return window.FoxIntake.importMotion(id); }
 function intakeAnalyze(id) { return window.FoxIntake.analyze(id); }
@@ -1794,6 +1804,7 @@ function renderInspector() {
       <div class="kv"><span>类型</span><span>${esc(INTENT_LABEL[n.data.intent] || '—')}</span></div>
       <div class="kv"><span>风格</span><span>${esc(n.data.preset_id || '—')}</span></div>
       <div class="kv"><span>版本</span><span id="ins-rev">rev${n.data.revision || 0}</span></div></div>
+      ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" onclick="openSlideEditor(${n.id})">✏️ 编辑幻灯片</button>` : ''}
       <button class="btn btn-secondary" id="btn-revision-diff" onclick="openRevisionDiff(${n.id})">查看版本差异</button>
       <h3 style="margin-top:14px">运行轨迹</h3>${recipeRunMarkup(n.data.recipe_run, n.id)}
       ${memorySummaryMarkup(n.data.memory_applied)}
@@ -1817,6 +1828,7 @@ function renderInspector() {
       <div class="kv"><span>类型</span><span>${esc(INTENT_LABEL[n.data.intent] || '—')}</span></div>
       <div class="kv"><span>风格</span><span>${esc(n.data.preset_id || '—')}</span></div></div>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn btn-primary" onclick="openOutput(${n.id})">↗ 打开产物</button><button class="btn btn-secondary" onclick="openExportCenter(${n.id})">⇩ 导出</button></div>
+      ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" onclick="openSlideEditor(${n.id})">✏️ 编辑幻灯片</button>` : ''}
       <button class="btn btn-secondary" id="btn-revision-diff" onclick="openRevisionDiff(${n.id})">查看版本差异</button>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px">
         <button class="btn btn-secondary" onclick="renameProject(${n.id})">重命名</button>
@@ -2055,6 +2067,7 @@ async function init() {
   window.FoxInteraction?.registerDialog('#ai-modal', { onRequestClose:closeAISettings, initialFocus:'#ai-enabled' });
   window.FoxInteraction?.registerDialog('#memory-modal', { onRequestClose:closeProjectMemory, initialFocus:'#memory-enabled' });
   window.FoxInteraction?.registerDialog('#intake-modal', { onRequestClose:closeIntake, initialFocus:'#intake-fetch-url' });
+  window.FoxInteraction?.registerDialog('#slides-modal', { onRequestClose:closeSlideEditor, initialFocus:'.slides-editor' });
   window.FoxInteraction?.registerDialog('#revision-modal', { onRequestClose:closeRevisionDiff, initialFocus:'#revision-close' });
   updateConnectionStatus();
   const installBtn = $('#btn-install');

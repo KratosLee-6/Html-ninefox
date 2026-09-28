@@ -53,6 +53,7 @@ STATIC_FILES = {
     "/lifecycle-revisions.js": ("lifecycle-revisions.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-exports.js": ("lifecycle-exports.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-intake.js": ("lifecycle-intake.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/lifecycle-slides.js": ("lifecycle-slides.js", "application/javascript; charset=utf-8", "no-cache"),
     "/motion-system.js": ("motion-system.js", "application/javascript; charset=utf-8", "no-cache"),
     "/motion-lab": ("motion-lab.html", "text/html; charset=utf-8", "no-cache"),
     "/canvas-productivity.js": ("canvas-productivity.js", "application/javascript; charset=utf-8", "no-cache"),

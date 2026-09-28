@@ -115,3 +115,57 @@ def test_slides_edit_api_creates_revision_and_conflict_protects(tmp_path: Path) 
         # 生成新 Revision，历史保留
         history = [item["revision"] for item in revisions.history(work)]
         assert history == list(range(result["revision"] + 1))
+
+
+# ---------------------------------------------------------------- S13U-b slides editor dialog
+
+
+def test_slides_editor_dialog_edits_and_saves(tmp_path: Path) -> None:
+    from playwright.sync_api import sync_playwright
+
+    from htmlninefox.server import app as server_app
+    from tests.conftest import WorkbenchServer
+
+    work = pipeline.run_expert("做一个发布会 PPT", intent_override="deck",
+                               output=str(tmp_path), quiet_llm=True)["work"]
+    with WorkbenchServer(tmp_path) as server:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch()
+            page = browser.new_page(viewport={"width": 1440, "height": 900})
+            errors: list[str] = []
+            page.on("pageerror", lambda error: errors.append(str(error)))
+            page.add_init_script("try{localStorage.clear()}catch(e){}")
+            page.goto(server.base_url + "/")
+            page.wait_for_function(
+                "window.FoxInteraction && window.FoxSlides && nodes.length >= 5")
+            node_id = page.evaluate(
+                """project => {
+                    const ws = activeWorkspace();
+                    const node = addNode('output', ws.x + ws.w + 80, ws.y + 30, {
+                        title:'发布会 PPT · 产物', project_name: project,
+                        preview_url:'/output/' + project + '/output.html',
+                        intent:'deck', preset_id:'fox-pixel-garden',
+                        revision:0, feedback:[], workspaceId:ws.id,
+                    });
+                    select(node.id);
+                    return node.id;
+                }""", work.name)
+
+            page.evaluate("nodeId => openSlideEditor(nodeId)", node_id)
+            page.wait_for_selector("#slides-modal:not([hidden])")
+            page.wait_for_function(
+                "document.querySelectorAll('#slides-editor textarea').length >= 5")
+
+            first_area = page.locator("#slides-editor textarea").first
+            original = first_area.input_value()
+            first_area.fill(original + "（已编辑）")
+            page.locator("#slides-save").click()
+            page.wait_for_function(
+                "document.querySelector('.fox-toast[data-toast-type=success]')?.textContent.includes('幻灯片已更新')")
+            page.screenshot(path=str(tmp_path / "slides-editor-save.png"))
+
+            # 版本徽标与产物内容双确认
+            assert "rev1" in page.locator("#ins-rev").inner_text()
+            assert "（已编辑）" in (work / "output.html").read_text(encoding="utf-8")
+            assert errors == []
+            browser.close()
