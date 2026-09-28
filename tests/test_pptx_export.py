@@ -58,3 +58,60 @@ def test_parse_deck_slides_reports_flattened_visuals() -> None:
     assert len(slides) == 2
     assert slides[0]["flattened"] == ["svg×1"]
     assert slides[1]["flattened"] == []
+
+
+# ---------------------------------------------------------------- S13U-a slide editing API
+
+
+def test_slides_edit_api_creates_revision_and_conflict_protects(tmp_path: Path) -> None:
+    import json
+    import time
+    import urllib.error
+    import urllib.request
+
+    from htmlninefox import revisions
+    from htmlninefox.server import app as server_app
+    from tests.conftest import WorkbenchServer
+
+    work = pipeline.run_expert("做一个发布会 PPT", intent_override="deck",
+                               output=str(tmp_path), quiet_llm=True)["work"]
+    with WorkbenchServer(tmp_path) as server:
+        base = server.base_url
+
+        def call(path, method="GET", payload=None, expected=200):
+            data = json.dumps(payload).encode() if payload is not None else None
+            request = urllib.request.Request(base + path, data=data, method=method,
+                                             headers={"Content-Type": "application/json"})
+            try:
+                with urllib.request.urlopen(request, timeout=15) as response:
+                    assert response.status == expected
+                    return json.loads(response.read().decode())
+            except urllib.error.HTTPError as error:
+                assert error.code == expected, error.read().decode()
+                return json.loads(error.read().decode())
+
+        slides_payload = call(f"/api/projects/{work.name}/slides")
+        slides = slides_payload["slides"]
+        current_revision = slides_payload["revision"]
+        assert len(slides) >= 5
+        assert slides[0]["texts"], "每个分页都应有可编辑文本节点"
+
+        target = slides[1]["texts"][0]
+        edits = [{"slide": target["slide"], "node": target["node"], "text": "编辑后的章节标题"}]
+
+        conflict = call(f"/api/projects/{work.name}/slides", "PUT",
+                        {"edits": edits, "expected_revision": current_revision + 99},
+                        expected=409)
+        assert conflict["error"]["code"] == "revision_conflict"
+
+        empty = call(f"/api/projects/{work.name}/slides", "PUT",
+                     {"edits": [], "expected_revision": current_revision}, expected=400)
+        assert empty["error"]["code"] == "slides_edit_empty"
+
+        result = call(f"/api/projects/{work.name}/slides", "PUT",
+                      {"edits": edits, "expected_revision": current_revision})
+        assert result["revision"] == current_revision + 1
+        assert "编辑后的章节标题" in (work / "output.html").read_text(encoding="utf-8")
+        # 生成新 Revision，历史保留
+        history = [item["revision"] for item in revisions.history(work)]
+        assert history == list(range(result["revision"] + 1))

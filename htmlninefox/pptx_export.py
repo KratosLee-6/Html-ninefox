@@ -151,3 +151,93 @@ def export_deck_pptx(project: str | Path, out_dir: str | Path | None = None) -> 
         "generated_at": datetime.now().isoformat(timespec="seconds"),
     }
     return report
+
+
+# ---------------------------------------------------------------- slide text editing (S13U-a)
+
+from html.parser import HTMLParser as _HTMLParser
+
+
+class _TextNodeMapper(_HTMLParser):
+    """Map every visible text node to its exact char span, per slide."""
+
+    SKIP = {"script", "style"}
+
+    def __init__(self, html_text: str):
+        super().__init__(convert_charrefs=False)
+        self._raw = html_text
+        self._line_starts = [0]
+        for line in html_text.splitlines(keepends=True):
+            self._line_starts.append(self._line_starts[-1] + len(line))
+        self.slide = -1
+        self.skipping = 0
+        self.spans: list[dict] = []
+
+    def _offset(self) -> int:
+        line, col = self.getpos()
+        return self._line_starts[line - 1] + col
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.SKIP:
+            self.skipping += 1
+        elif tag == "section" and any(name == "class" and "slide" in (value or "")
+                                      for name, value in attrs):
+            self.slide += 1
+
+    def handle_endtag(self, tag):
+        if tag in self.SKIP and self.skipping:
+            self.skipping -= 1
+
+    def handle_data(self, data):
+        if self.skipping or self.slide < 0 or not data.strip():
+            return
+        start = self._offset()
+        end = start + len(data)
+        # 保守策略：原始切片与解析文本不一致（实体等）时跳过该节点
+        if self._raw[start:end] != data:
+            return
+        self.spans.append({
+            "slide": self.slide, "start": start, "end": end,
+            "raw": data, "text": " ".join(data.split()),
+        })
+
+
+def iter_slide_texts(html_text: str) -> list[dict]:
+    """Group visible text nodes per slide: [{index, title, texts:[{node, text}]}]."""
+    mapper = _TextNodeMapper(html_text)
+    mapper.feed(html_text)
+    mapper.close()
+    slides: dict[int, dict] = {}
+    for position, span in enumerate(mapper.spans):
+        slide = slides.setdefault(span["slide"], {
+            "index": span["slide"], "title": "", "texts": []})
+        slide["texts"].append({"slide": span["slide"], "node": position,
+                               "text": span["text"]})
+        if not slide["title"] and span["slide"] >= 0:
+            slide["title"] = span["text"][:120]
+    return [slides[key] for key in sorted(slides)]
+
+
+def apply_text_edits(html_text: str, edits: list[dict]) -> str:
+    """Replace exact text spans: edits = [{slide, node, text}]."""
+    mapper = _TextNodeMapper(html_text)
+    mapper.feed(html_text)
+    mapper.close()
+    result = html_text
+    applied = 0
+    for edit in sorted(edits, key=lambda item: -int(item.get("node", 0))):
+        slide_index, node_index = int(edit.get("slide", -1)), int(edit.get("node", -1))
+        new_text = str(edit.get("text") or "")
+        matching = [span for span in mapper.spans
+                    if span["slide"] == slide_index and mapper.spans.index(span) == node_index]
+        if not matching:
+            continue
+        span = matching[0]
+        start, end = span["start"], span["end"]
+        if result[start:end] != span["raw"]:
+            continue
+        result = result[:start] + new_text + result[end:]
+        applied += 1
+    if not applied:
+        raise RuntimeError("没有任何文本节点被更新（可能页面已变化），请刷新后重试")
+    return result

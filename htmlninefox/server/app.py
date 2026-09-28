@@ -11,6 +11,7 @@ import re
 import shutil
 import sys
 import traceback
+import copy
 import uuid
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -19,6 +20,7 @@ from typing import Callable
 from urllib.parse import parse_qs, unquote, urlparse
 
 from .. import __version__, exporting, intake, llm, pipeline, project_memory, revisions, template_gallery
+from .. import pptx_export
 from ..application import (
     ExportError, ExportRequest, ExportResult,
     FeedbackError, FeedbackRequest, FeedbackResult,
@@ -482,6 +484,17 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json({"ok": True, "stats": self._intake_stats()})
         if path == "/api/intake/components":
             return self._json({"ok": True, "components": self._intake_components().list()})
+        if path.startswith("/api/projects/") and path.endswith("/slides"):
+            name = path[len("/api/projects/"):-len("/slides")]
+            project = self._store().resolve_project(name)
+            html_path = project / "output.html"
+            if not html_path.is_file():
+                raise StoreError("not_found", "该产物缺少 output.html，无法编辑幻灯片", 404)
+            slides = pptx_export.iter_slide_texts(
+                html_path.read_text(encoding="utf-8", errors="replace"))
+            state = revisions.load_state(project)
+            return self._json({"ok": True, "slides": slides,
+                               "revision": state.get("revision", 0)})
         if path == "/api/intake/style-presets":
             return self._json({"ok": True, "presets": self._intake_style_presets().list()})
         if path == "/api/intake/sources":
@@ -729,6 +742,30 @@ class _Handler(BaseHTTPRequestHandler):
         raise StoreError("not_found", "接口不存在", 404)
 
     def _put(self, path: str, body: dict):
+        if path.startswith("/api/projects/") and path.endswith("/slides"):
+            name = path[len("/api/projects/"):-len("/slides")]
+            edits = body.get("edits") if isinstance(body.get("edits"), list) else []
+            if not edits:
+                raise StoreError("slides_edit_empty", "edits 不能为空", 400)
+            store = self._store()
+            project = store.resolve_project(name)
+            expected = body.get("expected_revision")
+            with revisions.project_lock(project):
+                before = revisions.load_state(project)
+                if type(expected) is not int or expected != before.get("revision", 0):
+                    raise StoreError("revision_conflict",
+                                     "项目已有新版本，请刷新后重试", 409)
+                html_path = project / "output.html"
+                if not html_path.is_file():
+                    raise StoreError("not_found", "该产物缺少 output.html", 404)
+                html_text = html_path.read_text(encoding="utf-8", errors="replace")
+                new_html = pptx_export.apply_text_edits(html_text, edits)
+                after = copy.deepcopy(before)
+                after["updated_at"] = datetime.now().isoformat(timespec="seconds")
+                state = revisions.commit(project, before, after, new_html,
+                                         kind="slides-edit")
+            return self._json({"ok": True, "revision": state.get("revision"),
+                               "project": store.get_project(name)})
         if path == "/api/workspace":
             return self._json({"ok": True, **self._store().save_workspace(body)})
         if path == "/api/memory":
