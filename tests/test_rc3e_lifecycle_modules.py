@@ -85,16 +85,34 @@ def test_rapid_double_advance_is_rejected_and_produces_one_result(
         _wait_for_requirement_text(page, "做一个极简的落地页，介绍本地优先的 HTML 工作台")
 
         ws_id = page.evaluate("activeWorkspace().id")
-        page.evaluate("id => void advanceWs(id)", ws_id)
-        # 快速二次推进：应被 epoch 守卫拒绝，不产生第二个任务
-        page.evaluate("id => void advanceWs(id)", ws_id)
-        page.wait_for_function(
-            "document.querySelector('#tl-status').textContent.includes('该工作区正在推进')")
+        # 生成走 POST /api/jobs（lifecycle-generation.js），轮询是 GET /api/jobs/{id}，按方法与路径分别计数。
+        submitted_jobs: list[str] = []
+        page.on("request", lambda request: submitted_jobs.append(request.url)
+                if request.method == "POST" and request.url.endswith("/api/jobs") else None)
+
+        # 两次推进必须在同一个 evaluate 里同步发出。
+        # 之前是两个 page.evaluate 往返：中间隔着一次网络往返，第一次推进的
+        # 任务轮询器（lifecycle-generation.js 里写 #tl-status 的那个）有机会先把
+        # 守卫提示覆盖掉，断言就永远等不到——这是该用例在 CI 上反复超时的原因，
+        # 而本地因为机器快、窗口小而复现不出来。
+        # advance() 在第一个 await 之前就同步写了 activeJobs，所以同步连发两次
+        # 时第二次必然命中守卫，且此刻首次轮询还没开始，提示不会被覆盖。
+        guard_fired = page.evaluate(
+            """id => {
+                void advanceWs(id);
+                void advanceWs(id);
+                return document.querySelector('#tl-status').textContent
+                    .includes('该工作区正在推进');
+            }""", ws_id)
+        assert guard_fired, "同一次任务内第二次推进应被 epoch 守卫立即拒绝"
 
         page.wait_for_selector(".node.output", timeout=30000)
         page.wait_for_function("document.querySelectorAll('.node.output').length === 1")
         page.wait_for_function(
             "FoxGeneration.generatingNodes.size === 0 && FoxGeneration.generationCleanups.size === 0")
+        # 守卫真正要保证的不变量：被拒绝的那次不产生第二个任务。
+        assert len(submitted_jobs) == 1, (
+            f"守卫应只放行一次生成，实际提交 {len(submitted_jobs)} 次：{submitted_jobs}")
         assert not page.locator("#btn-cancel-gen").is_visible()
         assert errors == []
         browser.close()

@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **「批量抓取」按钮是死按钮，多 URL 批量能力在界面上不可达**：`index.html` 的批量导入区用 `onclick="intakeFetchBatch()"` 调用了一个**从未定义**的全局函数——`FoxIntake.fetchBatch` 明明存在于 `lifecycle-intake.js`，只是没接到全局名上。点击必然 `ReferenceError`，于是 S04「多 URL 批量（≤10 条逐条容错）」这条 v0.6.0 主线能力没有任何用户可达路径，而服务端与其测试全绿。已补转发函数。
+- **`test_rapid_double_advance` 在 CI 上反复超时（长期唯一的主导抖动源）**：该用例原本用两次 `page.evaluate` 往返来模拟「快速二次推进」，再等待 `#tl-status` 出现守卫提示。问题在于 `#tl-status` 有两个写入者——`flash()` 与任务轮询器（`lifecycle-generation.js` 每次轮询都覆盖它），两次往返之间隔着一次网络往返，轮询完全可能先把提示盖掉，断言就永远等不到；本地因为机器快、窗口小而复现不出来（本地约 1/8 概率，CI 上 5 次失败里 3 次命中）。现在两次推进在**同一个 `page.evaluate` 里同步发出**：`advance()` 在第一个 `await` 之前就同步写入 `activeJobs`，所以第二次必然命中守卫，且此刻首次轮询尚未开始、提示不会被覆盖。断言同时从「等一条瞬态文本」升级为核对**真正的不变量**——被拒绝的那次不提交第二个 `POST /api/jobs`。本地压力 15/15 稳定通过。
 - **夜蓝主题的主按钮对比度仅 2.44:1**：`.btn-primary` 等五处把 `color:#fff` 写死，而夜蓝主题的 `--accent` 是亮蓝 `#76A5FF`，白字压在上面几乎读不出来——受影响的是「推进当前工作区」这个全站最重的 CTA。新增 `--on-accent` 语义令牌（纸白 `#FFFFFF` / 夜蓝 `#0C1B2E`），五处统一改用它，保留品牌配色不变。
 - **弱化文字对比度不达 WCAG AA**：版本号、栏目标题、模板英文描述、数量角标、状态字形共用一个 `--text-tertiary`，纸白主题下只有 3.17–3.51:1，而它们又只有 9–11px（小字本就要求 4.5:1）。夜蓝主题另有 9.5px 描述文字停在 3.98:1。两套主题的该值分别调整为 `#59676D` 与 `#A0B6BE`，在各自全部底色上均达 AA。
 - **画布节点头部把类型徽标压成竖排单字**：`.node-head` 是 `flex-wrap:nowrap` 且标题没有收缩下限，中文模板名几乎必然触发——徽标被压到 12×21，两个汉字上下堆叠。现在标题先 `text-overflow:ellipsis` 截断，徽标 `flex:0 0 auto` 保持完整。
