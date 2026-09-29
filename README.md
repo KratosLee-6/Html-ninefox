@@ -21,6 +21,19 @@
 
 ![Html九尾狐 Pixel Garden 工作台（v0.5.0 实拍集）](assets/screenshots/v0.5.0/workbench-paper-1440.png)
 
+## 30 秒看懂 Html九尾狐
+
+<video src="assets/promo/htmlninefox-brand-film-30s-16x9.mp4" controls></video>
+
+<details>
+<summary>English cut (30s)</summary>
+
+<video src="assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4" controls></video>
+
+</details>
+
+> 片中界面、导出产物与导出中心均为 `v0.5.0` 真实运行截图；口号「让灵感在 HTML 里生长」与 Pixel Garden 视觉取自 [`docs/VI.md`](docs/VI.md)。
+
 ## 它解决什么问题
 
 很多 HTML、设计模板、参考文件和 AI Skill 散落在不同目录里。传统生成工具又常常只给出模板名字或线框，让人必须“猜”最终效果。

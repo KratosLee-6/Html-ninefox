@@ -21,6 +21,19 @@
 
 ![HtmlNineFox Pixel Garden workbench (captured on v0.5.0)](assets/screenshots/v0.5.0/workbench-paper-1440.png)
 
+## HtmlNineFox in 30 seconds
+
+<video src="assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4" controls></video>
+
+<details>
+<summary>中文版 (30s)</summary>
+
+<video src="assets/promo/htmlninefox-brand-film-30s-16x9.mp4" controls></video>
+
+</details>
+
+> Every UI frame, exported artifact, and export-center shot in the film is a real screenshot captured from the `v0.5.0` release. The slogan and the Pixel Garden visuals follow [`docs/VI.md`](docs/VI.md).
+
 ## What it solves
 
 HTML references, design templates, source files, and AI skills often live in separate folders. Many generators expose only template names or wireframes, forcing users to guess the final visual result.
