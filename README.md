@@ -8,18 +8,18 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.5.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)
+[![App Release](https://img.shields.io/badge/app-v0.6.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-238%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.5.0.md)
-[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/TEST-REPORT-v0.5.0.md)
+[![Tests](https://img.shields.io/badge/pytest-303%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
+[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![Html九尾狐 v0.5.0 Pixel Garden 工作台](assets/screenshots/v0.5.0/workbench-paper-1440.png)
+![Html九尾狐 Pixel Garden 工作台（v0.5.0 实拍集）](assets/screenshots/v0.5.0/workbench-paper-1440.png)
 
 ## 它解决什么问题
 
@@ -44,19 +44,24 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
   用自然语言反馈，按版本继续迭代
 ```
 
-## 当前版本与最新进展（2026-09-25）
+## 当前版本与最新进展（v0.6.0 准备发布）
 
-当前应用包版本为 `0.5.0`，对应稳定标签 `v0.5.0`（2026-09-25 发布）。v0.5.0 在 RC3 工程基线之上完成共享应用用例、崩溃可恢复 Project 提交与跨进程锁、浏览器生命周期 Module 拆分；Windows、Linux 与 Python 安装包由同名标签工作流构建并附带 SHA-256。
+当前应用包版本为 `0.6.0`，发布标签 `v0.6.0`（RC 门禁已全绿，安装包随标签发布）。v0.6.0 交付两条主线：
+
+1. **设计吸收流水线**：把外部优秀设计变成自己的素材。手动多 URL / ZIP 导入 + 12 个内置设计源（三档许可治理：开放可入库 / 仅参考重写 / 仅灵感板）、SSRF 安全抓取、CSP 沙箱审核台（批量采用 / 拒绝 + 来源筛选）、AI 设计分析通道与吸收指标面板；模板、风格、组件、装饰、动效、内容六个层面全部打通「吸收 → 审核 → 入库 → 使用」。
+2. **可编辑 PPTX**：deck 产物通过 python-pptx 导出为符合标准的 `.pptx`，文本框真正可编辑，并附诚实的降级报告；工作台内新增幻灯片编辑器（`PUT /slides` 带 `expected_revision` 冲突保护 + 产物检查器里的结构化幻灯片对话框），编辑 → 写回 → 导出可保留改动。
 
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
-| 应用 Release | `v0.5.0` 稳定版，可直接下载安装 | [下载与发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
-| 发布验证 | 全量测试 `238 passed, 1 skipped`；Chromium e2e 双通道 `22/22`；附件回读校验一致 | [v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md) |
-| DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
+| 应用 Release | `v0.6.0` 准备发布，门禁全绿 | [发布页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) · [上一稳定版 v0.5.0](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
+| 发布验证 | 全量测试 `303 passed, 1 skipped`；JS 语法 13 个文件 + inline 全通过；Chromium 验收 `22/22`、WebKit（Safari 引擎）验收 `22/22`；发布元数据一致 | [v0.6.0 门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本；本轮 `2/2` 通过 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
+
+> **Fixed**：门禁中发现 `deck` 曾被别名到 `templates/landing.html`，装了可选 `templates` extra（jinja2）的环境会把发布会 PPT 渲染成落地页，整条可编辑 PPTX 链路静默失效；现在 deck 保持意图忠实并回落到原生生成器（7 页 / 24 个可编辑元素），有无 jinja2 结果一致。同期把 Chromium 验收的 doctype 断言改为大小写不敏感。CI 只安装 `.[dev]`（不含 templates extra），所以此前没能发现。
 
 ### 功能 ↔ 截图对照（v0.5.0 实拍集）
 
-以下 18 张全部拍摄自 `v0.5.0` 发布版（顶栏版本徽标为 `v0.5.0`），每张对应一项真实功能：
+以下 18 张全部拍摄自 `v0.5.0` 发布版（顶栏版本徽标为 `v0.5.0`）——这是目前唯一已发布的一套实拍图，v0.6.0 的实拍截图待补齐后再替换。每张对应一项真实功能：
 
 **工作台与画布**
 
@@ -121,7 +126,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 完整 24 张（含 6 张真实产物输出图）见 [assets/screenshots/v0.5.0/](assets/screenshots/v0.5.0/)，清单与复现命令见[截图说明](assets/screenshots/README.md)。
 
-## v0.5.0 稳定版核心能力
+## v0.5.0 稳定版核心能力（历史）
 
 ![崩溃可恢复提交与生命周期 Module](assets/screenshots/v0.5.0/generation-cancel.png)
 
@@ -143,7 +148,13 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 - **🕸 预设源抓取**：内置 12 个设计源（Land-book、Lapa.ninja、Landingfolio、Awwwards、Codrops、Animista、Google Fonts…），按画廊/组件/动效/字体四类适配，安全抓取（拒私网/重绑定/限速）
 - **🤖 AI 分析**：候选自动生成设计描述、标签、布局说明与内容配方（复用你的 AI 设置，无 Key 不影响其他功能）
 
-所有素材经**审核台**人工确认后入库（沙箱预览 + 许可三档治理：开放可入库 / 仅参考重写 / 仅灵感板），风格进面板、组件可拖拽参与生成、动效进 motion-lab——且全部尊重动效偏好与预算。
+所有素材经**审核台**人工确认后入库（沙箱预览 + 许可三档治理：开放可入库 / 仅参考重写 / 仅灵感板），审核台支持批量采用 / 拒绝与按来源筛选，吸收指标面板记录候选与入库情况；风格进面板、组件可拖拽参与生成、动效进 motion-lab——且全部尊重动效偏好与预算。六个层面（模板、风格、组件、装饰、动效、内容）都走同一条「吸收 → 审核 → 入库 → 使用」通路。
+
+## 可编辑 PPTX（v0.6 新增）
+
+- **📄 标准 .pptx 导出**：deck 产物经 python-pptx 导出为符合标准的 `.pptx`，在 PowerPoint / WPS 中文本框真正可编辑；无法映射的能力在降级报告中如实列出。
+- **🖥️ 工作台内幻灯片编辑**：产物检查器里打开结构化幻灯片对话框即可改写标题与要点，通过 `PUT /slides` 带 `expected_revision` 写回，版本冲突时明确提示而不是静默覆盖。
+- **🔁 编辑闭环**：改完写回再导出，之前的编辑会保留在导出的 PPTX 中。
 
 ## 工作台完整能力
 
@@ -161,7 +172,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 - **🐳 Docker 镜像**：`docker run htmlninefox` 跨平台部署，多阶段构建，compose.yaml 注入环境变量。
 - **跨平台使用**：Windows 便携包/安装器、Linux `.run/.tar.gz`、Python CLI、Web/PWA、Docker。
 
-> [Export Center](docs/EXPORT-CENTER.md) 已完成 PDF / PNG 第一阶段。下一阶段提供高保真 PPTX，再推进受控范围内的可编辑 PPTX / DOCX。
+> [Export Center](docs/EXPORT-CENTER.md) 已完成 PDF / PNG；v0.6 补齐高保真 .pptx 导出与工作台内幻灯片编辑闭环，下一步推进受控范围内的 DOCX 导出。
 
 ## 看得见的真实效果
 
@@ -190,10 +201,11 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 版本历史
 
-RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design、TDD 与 code-review 方法完成架构加固，并以 `v0.5.0` 稳定版收口。
+RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 research、domain-modeling、codebase-design、TDD 与 code-review 方法完成架构加固，并以 `v0.5.0` 稳定版收口；v0.6 在其上交付设计吸收流水线与可编辑 PPTX。
 
 | 版本 | 日期 | 交付 | 记录 |
 |---|---|---|---|
+| **v0.6.0 准备发布** | 目标 2026-11-08，尚未正式发布 | 设计吸收流水线（多 URL / ZIP 导入、12 个内置设计源、三档许可、CSP 沙箱审核台、AI 设计分析、吸收指标）；可编辑 PPTX 导出 + 工作台内幻灯片编辑器；门禁 `303 passed, 1 skipped`、Chromium / WebKit 各 `22/22` | [门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | **v0.5.0 稳定版** | 2026-09-25 | RC3 收口，发布 Windows / Linux / wheel / Docker 附件与 SHA-256 | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) · [测试报告](docs/TEST-REPORT-v0.5.0.md) |
 | RC3-E | 2026-09-25 | 浏览器生命周期 Module 拆分、生成取消、导出竞态守卫 | [迭代记录](docs/ITERATION-RC3-E-20260925.md) |
 | RC3-D | 2026-09-25 | 崩溃可恢复 Project 提交（journal 回滚）、跨进程文件锁、生成原子发布 | [迭代记录](docs/ITERATION-RC3-D-20260925.md) |
@@ -218,7 +230,9 @@ RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 re
 
 ## 下载与安装
 
-应用安装包请前往 [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)。这是当前稳定版；DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
+v0.6.0 的安装包将随 [v0.6.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) 发布（当前仓库版本 `0.6.0`，发布前请优先安装最近一次正式发布的 [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)）。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
+
+包体命名规则保持不变，版本号随发布版本推进（下列为最近一次已发布的 v0.5.0 包体）：
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
@@ -319,21 +333,22 @@ htmlninefox export output/html9n-<时间戳> --format png --scope long
 
 ## 测试与信任证据
 
-`v0.5.0` 稳定版已于 **2026-09-25** 发布，全部门禁在发布提交上复验通过：
+v0.6.0 的全部门禁已在提交 `e5f3664`（2026-09-29）复验通过：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python / API / 存储 / 安全 / 浏览器测试 | **238 passed, 1 skipped** | [v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md) |
-| Chromium e2e（bundled Chromium + 系统 Edge/WebView2 引擎双通道） | **22 / 22 · 22 / 22** | [同一报告](docs/TEST-REPORT-v0.5.0.md) |
-| 版本历史、恢复与 100 节点 | **通过** | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
-| 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
+| Python + 浏览器测试套件 | **303 passed, 1 skipped** | [v0.6.0 门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| JavaScript 语法（13 个 static JS + inline 检查） | **全部通过** | [同一证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| Chromium 验收（bundled Chromium） | **22 / 22** | [同一证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| WebKit（Safari 引擎）验收 | **22 / 22** | [同一证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| 发布元数据一致性（`check_release_version.py`） | **一致** | [同一证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | DSH 插件与最终 tarball 安装 | **2 / 2 通过** | [接入与发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| 发布附件 | 5 个包体 + SHA-256；wheel 与 Windows zip 回读校验一致；wheel 干净 venv 安装烟测通过 | [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
-| Windows 便携包真机烟测 | 打包 exe 启动 → 生成 → 真实 PNG 导出 | [同一报告](docs/TEST-REPORT-v0.5.0.md) |
+| 版本历史、恢复与 100 节点 | **通过**（含在 pytest 套件内） | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
+| 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
 | Docker 镜像 | 标签 CI 独立 job 构建并验证 | [构建工作流](.github/workflows/build-release-packages.yml) |
 | LLM 接入 | MiniMax-M3 / Claude / GPT-4o 环境变量自动配置 | [配置文档](docs/INSTALL.md) |
 
-发布命令、环境与限制见：[v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md)。历史版本证据保留在 [v0.5.0rc3 测试报告](docs/TEST-REPORT-v0.5.0rc3.md)与 [v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
+v0.5.0 稳定版的发布证据保留在 [v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md)（含发布附件与 SHA-256、Windows 便携包真机烟测），更早的证据见 [v0.5.0rc3 测试报告](docs/TEST-REPORT-v0.5.0rc3.md)与 [v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
 
 ```bash
 python -m pytest tests -q -p no:cacheprovider
@@ -357,7 +372,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-`v0.5.0` 是当前稳定版（2026-09-25 发布）：共享应用用例、崩溃可恢复 Project 提交与跨进程锁、浏览器生命周期 Module 全部收口，Windows / Linux / wheel / Docker 附件与 SHA-256 齐备。下一阶段按 ROADMAP 进入 v0.6：可编辑 PPTX / DOCX 导出与 Tauri 桌面 sidecar。
+当前仓库版本为 `v0.6.0`（准备发布，发布目标 2026-11-08）：设计吸收流水线与可编辑 PPTX 两条主线交付，门禁在 `e5f3664` 全绿（`303 passed, 1 skipped`、Chromium / WebKit 各 `22/22`）。安装包请以 [Release 页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0)实际存在的附件为准；`v0.5.0`（2026-09-25）仍是最近一次已发布的稳定版。下一阶段按 ROADMAP 推进：可编辑 DOCX 导出与 Tauri 桌面 sidecar。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

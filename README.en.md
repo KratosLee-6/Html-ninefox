@@ -8,18 +8,18 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.5.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)
+[![App Release](https://img.shields.io/badge/app-v0.6.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-238%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.5.0.md)
-[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/test-evidence/v0.4.2-chromium-e2e.txt)
+[![Tests](https://img.shields.io/badge/pytest-303%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
+[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![HtmlNineFox v0.5.0 Pixel Garden workbench](assets/screenshots/v0.5.0/workbench-paper-1440.png)
+![HtmlNineFox Pixel Garden workbench (captured on v0.5.0)](assets/screenshots/v0.5.0/workbench-paper-1440.png)
 
 ## What it solves
 
@@ -42,19 +42,24 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
   Revise with natural language feedback, keeping rev history
 ```
 
-## Current release and latest progress (September 25, 2026)
+## Current release and latest progress (v0.6.0, preparing release)
 
-The application version is `0.5.0`, published under the stable tag `v0.5.0`. v0.5.0 builds on the RC3 engineering baseline with shared application use cases, crash-recoverable Project commits with cross-process locking, and isolated browser lifecycle modules for Windows, Linux, and Python users.
+The application version is `0.6.0`, shipping under the tag `v0.6.0` (all release gates green; packages are built by the same-tag workflow). v0.6.0 delivers two headline pillars:
+
+1. **Design intake pipeline** — turn the best designs on the web into your own assets: manual multi-URL / ZIP import plus 12 built-in design sources with three license tiers (open / reference / inspiration-only), an SSRF-safe fetcher, a CSP-sandboxed review workbench with batch adopt/reject and source filtering, an AI design-analysis channel, and an intake metrics panel. All six asset layers — templates, styles, components, decorations, motion, content — now share one absorb → review → ingest → use path.
+2. **Editable PPTX** — deck artifacts export to a standards-compliant `.pptx` through python-pptx with genuinely editable text frames and an honest degradation report; the workbench also gained an in-workbench slide editor (`PUT /slides` with `expected_revision` conflict protection plus a structured slides dialog in the output inspector), so edit → write back → export preserves your edits.
 
 | Track | Current state | Evidence |
 |---|---|---|
-| Application release | `v0.5.0` stable, available as installable packages | [release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
-| Release verification | Full suite `238 passed, 1 skipped`; Chromium e2e `22/22` on bundled Chromium and the real system Edge engine; attachment checksums verified by download | [v0.5.0 test report](docs/TEST-REPORT-v0.5.0.md) |
-| DeepSeek Harness plugin | Separately versioned `0.1.0-preview.1` | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
+| Application release | `v0.6.0`, preparing release with all gates green | [release page](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) · [last published stable v0.5.0](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
+| Release verification | Full suite `303 passed, 1 skipped`; JS syntax clean across 13 files plus the inline check; Chromium acceptance `22/22`; WebKit (Safari engine) acceptance `22/22`; release metadata consistent | [v0.6.0 gate evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| DeepSeek Harness plugin | `0.1.0-preview.1`, versioned separately from the app; `2/2` passing this round | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
+
+> **Fixed**: the gate run found that `deck` had been aliased to `templates/landing.html`, so in any environment with the optional `templates` extra (jinja2) installed a deck request rendered as a landing page and silently broke the whole editable-PPTX chain. Deck is now intent-faithful and falls through to the native generator (7 slides / 24 editable elements), with or without jinja2. The Chromium acceptance doctype assertion is now case-insensitive as well. CI only installs `.[dev]` (no templates extra), which is why this never showed up there.
 
 ### Feature-to-screenshot map (real captures from v0.5.0)
 
-All 18 shots below were taken on the released `v0.5.0` build (topbar badge reads `v0.5.0`), each mapping to a real feature:
+All 18 shots below were taken on the released `v0.5.0` build (topbar badge reads `v0.5.0`) — the only published capture set so far; the v0.6.0 screenshots are still to come and will replace it. Each maps to a real feature:
 
 **Workbench & canvas**
 
@@ -118,7 +123,7 @@ All 18 shots below were taken on the released `v0.5.0` build (topbar badge reads
 </table>
 Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots/v0.5.0/](assets/screenshots/v0.5.0/); the list and reproduction commands are in [the screenshots README](assets/screenshots/README.md).
 
-## v0.5.0 Stable Capabilities
+## v0.5.0 Stable Capabilities (history)
 
 ![Crash-recoverable commits and lifecycle modules](assets/screenshots/v0.5.0/generation-cancel.png)
 
@@ -138,7 +143,13 @@ Turn the world's best designs into your own assets across six layers — templat
 - **🕸 Built-in source registry**: 12 design sources (Land-book, Lapa.ninja, Landingfolio, Awwwards, Codrops, Animista, Google Fonts…) across gallery/component/motion/typography kinds, fetched safely (private-network and rebinding rejection, per-source rate limits)
 - **🤖 AI analysis**: candidates get design descriptions, tags, layout notes and content recipes from your configured LLM (optional; everything works without a key)
 
-Every asset passes a **review workbench** (sandboxed preview + three-tier license governance: open / reference / inspiration-only) before entering the library — styles appear in the style panel, components drag onto the canvas to feed generation, motion styles land in the motion lab, all honoring motion preferences and budgets.
+Every asset passes a **review workbench** (CSP-sandboxed preview + three-tier license governance: open / reference / inspiration-only) before entering the library — with batch adopt/reject, per-source filtering, and an intake metrics panel tracking candidates and ingested assets. Styles appear in the style panel, components drag onto the canvas to feed generation, motion styles land in the motion lab, all honoring motion preferences and budgets. All six layers (templates, styles, components, decorations, motion, content) share the same absorb → review → ingest → use path.
+
+## Editable PPTX (new in v0.6)
+
+- **📄 Standards-compliant .pptx export**: deck artifacts export through python-pptx into a standards-compliant `.pptx` whose text frames stay editable in PowerPoint / WPS; anything that cannot be mapped is listed honestly in the degradation report.
+- **🖥️ In-workbench slide editing**: open the structured slides dialog in the output inspector to rewrite titles and bullets; `PUT /slides` writes back with `expected_revision`, so a version conflict is reported instead of silently overwritten.
+- **🔁 A real edit loop**: export after writing back and your edits survive in the exported PPTX.
 
 ## Complete Workbench Features
 
@@ -157,7 +168,7 @@ Every asset passes a **review workbench** (sandboxed preview + three-tier licens
 - **Feedback iteration**: Natural language feedback → design token changes → re-render with `rev1 / rev2 / ...` history.
 - **Cross-platform**: Windows installer/portable, Linux `.run/.tar.gz`, Python CLI, Web/PWA, Docker.
 
-> The first [Export Center](docs/EXPORT-CENTER.md) milestone now ships PDF and PNG. High-fidelity PPTX comes next, followed by constrained editable PPTX/DOCX.
+> The first [Export Center](docs/EXPORT-CENTER.md) milestone shipped PDF and PNG; v0.6 adds high-fidelity .pptx export and the in-workbench slide editing loop. Constrained editable DOCX is next.
 
 ## See it in action
 
@@ -174,7 +185,7 @@ Every asset passes a **review workbench** (sandboxed preview + three-tier licens
 
 ### Six real output types
 
-Generated by the e2e acceptance flow of the released `v0.5.0`:
+Generated by the e2e acceptance flow of the released `v0.5.0` (the only published capture set so far):
 
 | Landing | Dashboard | Deck |
 |---|---|---|
@@ -186,7 +197,9 @@ Generated by the e2e acceptance flow of the released `v0.5.0`:
 
 ## Download & Install
 
-Download application packages from the [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0). This is the current stable release. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
+v0.6.0 packages will ship from the [v0.6.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) (the repository is currently at `0.6.0`; until the release is published, install the most recent published [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)). The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
+
+Package naming is unchanged and the version segment follows the release (the filenames below are the most recently published v0.5.0 artifacts):
 
 | Platform | Recommended file | Usage |
 |---|---|---|
@@ -229,10 +242,11 @@ htmlninefox export ./output/ACTUAL-PROJECT --format png --scope pages --pages 1-
 
 ## Version history
 
-RC3-A through E completed the architecture hardening following the [`mattpocock/skills`](https://github.com/mattpocock/skills) research, domain-modeling, codebase-design, TDD, and code-review methods, and shipped as the stable `v0.5.0`.
+RC3-A through E completed the architecture hardening following the [`mattpocock/skills`](https://github.com/mattpocock/skills) research, domain-modeling, codebase-design, TDD, and code-review methods, and shipped as the stable `v0.5.0`; v0.6 builds on it with the design intake pipeline and editable PPTX.
 
 | Version | Date | Delivered | Record |
 |---|---|---|---|
+| **v0.6.0 (preparing release)** | target 2026-11-08, not yet published | Design intake pipeline (multi-URL / ZIP import, 12 built-in design sources, three license tiers, CSP-sandboxed review workbench, AI design analysis, intake metrics); editable PPTX export plus the in-workbench slide editor; gates `303 passed, 1 skipped`, Chromium / WebKit `22/22` each | [gate evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | **v0.5.0 stable** | 2026-09-25 | RC3 wrap-up; Windows / Linux / wheel / Docker attachments with SHA-256 | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) · [test report](docs/TEST-REPORT-v0.5.0.md) |
 | RC3-E | 2026-09-25 | Browser lifecycle modules, generation cancel, export race guards | [iteration record](docs/ITERATION-RC3-E-20260925.md) |
 | RC3-D | 2026-09-25 | Crash-recoverable Project commits (journal rollback), cross-process file locking, atomic generation publication | [iteration record](docs/ITERATION-RC3-D-20260925.md) |
@@ -257,18 +271,20 @@ Real evidence screenshots from historical releases:
 
 ## Testing & Trust Evidence
 
-The stable `v0.5.0` was verified locally on **September 25, 2026** (full gates plus a real system Edge run) and released with installable packages for Windows, Linux, and Python.
+All release gates for v0.6.0 were re-verified on commit `e5f3664` (September 29, 2026):
 
 | Check | Result | Evidence |
 |---|---:|---|
-| Full Python / API / storage / security / browser suite (release build) | **238 passed, 1 skipped** | [v0.5.0 test report](docs/TEST-REPORT-v0.5.0.md) |
-| Chromium e2e on bundled Chromium and the real system Edge engine | **22 / 22 · 22 / 22** | [same report](docs/TEST-REPORT-v0.5.0.md) |
+| Python + browser test suite | **303 passed, 1 skipped** | [v0.6.0 gate evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| JavaScript syntax (13 static JS files + inline check) | **all pass** | [same evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| Chromium acceptance (bundled Chromium) | **22 / 22** | [same evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| WebKit (Safari engine) acceptance | **22 / 22** | [same evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| Release metadata consistency (`check_release_version.py`) | **consistent** | [same evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | DSH registry and final tarball integration | **2 / 2 passed** | [integration record](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
-| Release attachments | 5 packages + SHA-256; wheel and Windows zip checksums verified by download; wheel clean-venv install smoke passed | [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
-| Windows portable real-machine smoke | Packaged exe: launch → generate → real PNG export | [same report](docs/TEST-REPORT-v0.5.0.md) |
+| Revision history, restore, and the 100-node gate | **passed** (covered by the pytest suite) | [RC2 report](docs/TEST-REPORT-RC2-20260918.md) |
 | Docker image | Dedicated tag-CI job builds and verifies | [build workflow](.github/workflows/build-release-packages.yml) |
 
-Remaining known gap: Safari real-machine validation needs macOS; WebView2/Edge device-level validation is complete (22/22).
+The published v0.5.0 release evidence — package attachments with SHA-256 and the Windows portable real-machine smoke — stays in the [v0.5.0 test report](docs/TEST-REPORT-v0.5.0.md); earlier evidence lives in the [v0.5.0rc3 test report](docs/TEST-REPORT-v0.5.0rc3.md) and [v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt).
 
 ### Run from source
 

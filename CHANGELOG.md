@@ -11,7 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### v0.6 设计吸收流水线 + 可编辑 PPTX（已合入 main，待全环节测试后发布）
+## [0.6.0] — 2026-11-08（目标） · 设计吸收流水线 + 可编辑 PPTX
+
+> 目标发布窗口 2026-11-08（11-01 ～ 11-14）。版本号已切换，附件与 SHA-256 随 S21 发布回读。
+> 门禁（2026-09-29，`e5f3664`）：303 passed / 1 skipped；JS 语法 13/13；DSH 插件 2/2；Chromium 22/22；WebKit 22/22。
+> 证据：[S17 门禁报告](docs/test-evidence/v0.6.0-s17-20260929/README.md)、[双审计](docs/AUDIT-v0.6.0-20260928.md)。
 
 **设计吸收（三条通道 → 素材审核台 → 六资产层）**
 - 安全抓取框架：仅 http/https、解析校验拒私网/环回/重绑定、重定向逐跳过门、事后 rebinding 比对、体积上限、每源限速（`5de8d42`）。

@@ -59,8 +59,20 @@ Adapter 负责输入解析、认证或环境适配、响应序列化和错误映
 - `project_memory.py`：保存 Adoption Signal、匹配 Memory Recommendation，并服从 Explicit Requirement 优先级。
 - `recipe_run.py`：记录分析、组合、生成、验证和交付阶段。
 - `exporting.py`：隐藏浏览器选择、兼容性预检、PDF/PNG 分页和输出提交。
+- `intake.py`（v0.6）：设计吸收流水线——源清单加载、按 kind 的安全抓取与结构化提取、候选入库、许可三档判定与六资产层落地。
+- `pptx_export.py`（v0.6）：deck Artifact → 标准 .pptx 的受控映射，以及幻灯片文本的读取与回写，扁平化元素如实上报。
 
 `exporting.py`、ProjectStore、ProjectMemoryStore 和 JobManager 已经具有较好的 Module depth。Generation、Feedback、Restore 与 Export 的应用编排已移入 `StudioApplication`；durable Project commit、跨进程锁、崩溃恢复和浏览器生命周期是 RC3 的主要深化区域。
+
+### 渲染路径与 intent 忠实（v0.6-S17 确立）
+
+生成有三条优先级路径：**联盟 skill（已安装） > 本地 Jinja2 模板 > 原生 generators**。这里有一条硬约束：
+
+> **可选依赖不得改变主渲染路径。**
+
+历史缺陷正是违反了这一条：`deck` 被别名到 `templates/landing.html`，于是安装可选 `templates` extra（jinja2）的环境会把 deck 请求渲染成 hero/features/pricing 落地页，产物中没有 `<section class="slide">`，导致 PPTX 文件桥、幻灯片编辑 API 与导出中心 pptx 全部失去输入。CI 只装 `.[dev]` 不含该 extra，因此长期未暴露。
+
+现在 `_INTENT_TEMPLATE_ALIAS` 不再登记 `deck`（见 `_INTENT_TEMPLATE_ALIAS_NO_FALLBACK`），deck 始终落到原生 `generators/deck.py`，与联盟 manifest 声明的 `fallback: local:deck` 语义一致，并由回归测试 `tests/test_pptx_export.py::test_deck_generation_stays_intent_faithful_with_or_without_jinja2` 锁定。将来若新增 `templates/deck.html`，只需登记别名即可恢复模板优先，但必须保证该模板同样产出分页结构。
 
 ### Infrastructure Module
 
@@ -155,6 +167,8 @@ RC3 将按 Project lifecycle、Generation lifecycle、Revision history、Export 
 - `lifecycle-generation.js` → `FoxGeneration`（推进、轮询、进度环、局部重跑、取消）
 - `lifecycle-revisions.js` → `FoxRevisions`（差异、命名、恢复、反馈迭代）
 - `lifecycle-exports.js` → `FoxExports`（导出中心、分析、任务、诊断）
+- `lifecycle-intake.js` → `FoxIntake`（素材审核台：批量导入、候选筛选、批量采纳/拒绝、指标）
+- `lifecycle-slides.js` → `FoxSlides`（幻灯片编辑：加载可编辑文本节点、保存、revision 徽标刷新）
 
 draft 状态模块私有；域间只经命名空间 API 协作；约 27 个全局入口名保留为委托垫片，兼容 onclick 与浏览器测试锚点。生成按工作区单飞（epoch 守卫）并支持取消/停止等待；导出带 busy 守卫与过期结果丢弃。
 
@@ -179,6 +193,22 @@ Project 包含 Workspace 状态、Artifact、Revision、Recipe Run、Memory 和�
 - 用户文本输出时执行上下文相关转义；生成的完整 HTML 在隔离预览环境中运行。
 - 诊断包默认脱敏。
 - Export 由本地 Playwright/Chromium 执行，不依赖远程截图服务。
+
+### 设计吸收的抓取边界（v0.6）
+
+吸收流水线会主动访问外部站点，因此把 SSRF 防御当作硬边界而不是可选项：
+
+1. 只允许 `http` / `https`，其余协议直接拒绝。
+2. 解析域名后逐个校验地址，拒绝环回、私网、链路本地与保留网段。
+3. 重定向逐跳重新走同一套校验，不允许「先通过再跳走」。
+4. 抓取完成后比对实际连接 IP 与校验 IP，不一致即丢弃。
+5. 体积上限、每源限速、证据落盘到 `.library/intake/`。
+
+已知残余风险（审计 P1-6）：校验 IP 与实际连接 IP 是两次独立解析，理论上存在绑定前的置换窗口。当前处置为「缓解现状 + 限制披露」，连接级 IP 绑定（自建 HTTPConnection 直连校验 IP）列为 v0.6.x 首项。
+
+许可治理同样在架构层强制：`inspiration-only` 的候选在采纳时**跳过代码导入**，只保留令牌与骨架，产物一律原创重渲染。
+
+审核台预览使用 `sandbox=""` + `default-src 'none'` + nosniff 的三重隔离，候选页面的脚本不会被执行。
 
 ## 测试架构
 
