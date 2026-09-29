@@ -9,7 +9,9 @@ assets/
 ├── README.md
 ├── promo/                            # 30s 品牌宣传片（中英双版）
 │   ├── htmlninefox-brand-film-30s-16x9.mp4
-│   └── htmlninefox-brand-film-30s-16x9-en.mp4
+│   ├── htmlninefox-brand-film-30s-16x9-en.mp4
+│   ├── poster-zh.png                 # README 可点击封面（GitHub 不渲染 <video>）
+│   └── poster-en.png
 ├── screenshots/
 │   ├── README.md
 │   ├── v0.3.0b2/ ... v0.5.0rc3/   # 已发布或历史版本快照
@@ -25,6 +27,8 @@ assets/
 `assets/screenshots/v0.5.0rc3-visual/` 当前包含 14 张截图，覆盖 Paper / Pixel Night、桌面 / 平板 / 手机、命令面板、Project Memory、生成结果、Export Center、受控错误和 Revision Restore 等真实产品状态。
 
 `assets/promo/` 是 30 秒品牌宣传片的中英双版（1920×1080 / 30fps / H.264）。片中除第 1 镜的抽象氛围底板由 MiniMax-H3 生成外，产品界面、六类导出产物与导出中心画面全部取自本目录的 `v0.5.0` 真实截图，不使用概念图替代功能证据；品牌标志直接渲染自 `htmlninefox/server/static/*.svg` 官方源文件。
+
+GitHub 的 Markdown 清洗器不支持 `<video>` 标签，因此主 README 用 `[![封面](poster.png)](raw 链接)` 形式跳转播放，不要改回内嵌 `<video>`。
 
 ## 使用规则
 

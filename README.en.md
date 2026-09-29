@@ -23,14 +23,9 @@
 
 ## HtmlNineFox in 30 seconds
 
-<video src="assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4" controls></video>
+[![Play the 30s brand film (English cut)](assets/promo/poster-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4)
 
-<details>
-<summary>中文版 (30s)</summary>
-
-<video src="assets/promo/htmlninefox-brand-film-30s-16x9.mp4" controls></video>
-
-</details>
+**English** 1920×1080 · 30s · no voiceover · [**中文版**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9.mp4) · [all files](assets/promo)
 
 > Every UI frame, exported artifact, and export-center shot in the film is a real screenshot captured from the `v0.5.0` release. The slogan and the Pixel Garden visuals follow [`docs/VI.md`](docs/VI.md).
 

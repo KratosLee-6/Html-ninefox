@@ -23,14 +23,9 @@
 
 ## 30 秒看懂 Html九尾狐
 
-<video src="assets/promo/htmlninefox-brand-film-30s-16x9.mp4" controls></video>
+[![播放 30s 品牌片（中文版）](assets/promo/poster-zh.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9.mp4)
 
-<details>
-<summary>English cut (30s)</summary>
-
-<video src="assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4" controls></video>
-
-</details>
+**中文版** 1920×1080 · 30s · 无声 · [**English cut**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4) · [全部文件](assets/promo)
 
 > 片中界面、导出产物与导出中心均为 `v0.5.0` 真实运行截图；口号「让灵感在 HTML 里生长」与 Pixel Garden 视觉取自 [`docs/VI.md`](docs/VI.md)。
 
