@@ -304,9 +304,16 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 1. ~~**S17 既有门禁不退化**：100 节点画布、20 revisions、Chromium/WebKit 双引擎 e2e、DSH 插件、a11y 全量复跑，证据入 `docs/test-evidence/`。~~ 已完成（`e5f3664`）。
 2. ~~**S19 文档六件套**：双 README（功能↔截图对照）、CHANGELOG 收口、ARCHITECTURE、ROADMAP 勾稽、`RELEASE-NOTES-v0.6.0`、`TEST-REPORT-v0.6.0`；`check_release_version --tag v0.6.0` 通过。~~ 已完成（`44d30d8`）。
 3. ~~**S20 新功能实拍截图**：审核台 / 风格候选 / 组件与装饰库 / 动效实验室 / PPTX 导出与幻灯片编辑，全部入截图集。~~ 已完成：`assets/screenshots/v0.6.0/` 7 张 + 可复现门禁 `tests/test_v060_visual_evidence_states.py`，中英文 README 对照同步更新。**同轮拦下并修复 2 个发布阻断缺陷**（导出中心从未登记 PPTX 选项 → G4 界面不可达；`extract_typography` 形参与派发契约不一致 → 许可「开放许可」档整体不可达）。
-4. **S21 版本切换与发布**：全量回归已绿（306 passed / 1 skipped）→ tag → CI 五 job 构建六平台附件 → Release + SHA-256 回读 → 关闭 Issue #7。
-5. **v0.6.x 技术债**：P1-6 SSRF 连接级 IP 绑定、P1-7 提取 `IntakeService`、P2 批次（清单见 [v0.6.0 计划 §七-C](PLAN-v0.6.0-STABLE-20260927.md)）。
-6. **v0.7**：Tauri 桌面壳与云同步 / iOS Companion 按真实需求启动；原生移动包维持缓发决策。
+4. ~~**设计体检与修复**：真实运行 v0.6.0 工作台做可量化界面审计，修复 6 个实测缺陷并补 6 条回归门禁。~~ 已完成（`0cf99b8`）：死按钮、夜蓝主按钮 2.44:1、弱化文字对比度、节点头部竖排、窄屏步骤条、小触控目标。**同轮挖出并修正了 3 条自己的误判**（详见 [AUDIT-DESIGN-20260929](AUDIT-DESIGN-20260929.md)）。复现工具：`scripts/design_audit.py`。
+5. ~~**收敛 CI 抖动**：`test_rapid_double_advance` 在最近 5 次红色 CI 里挂了 3 次。~~ 已完成（`d8086f4`）：根因是 `#tl-status` 双写者竞争（`flash()` vs 任务轮询器），测试用两次 `page.evaluate` 往返模拟「快速二次推进」给了轮询器覆盖窗口。改为同一次 evaluate 内同步发出，并把断言从「等瞬态文本」升级为核对真正的不变量（被拒绝的推进不提交第二个 `POST /api/jobs`）。本地压力 15/15，CI 连绿两轮。
+6. **S21 版本切换与发布**：全量回归已绿（312 passed / 1 skipped，CI 连绿）→ tag → CI 五 job 构建六平台附件 → Release + SHA-256 回读 → 关闭 Issue #7。**待用户确认后再执行**（S21 是对外发布动作）。
+7. **v0.6.x 精修（尚未开工，逐项状态见 [AUDIT-DESIGN-20260929](AUDIT-DESIGN-20260929.md)）**：
+   - 字号阶梯：修复后仍 29 种字号组合（健康 6–10），建议收敛到 11/12/13/15/18/24 六档并废掉半像素值；**需与文字色层级一起收敛**，否则 AA 达标后 secondary/tertiary 层级已被压缩。
+   - 双 token 命名空间合并 + 40 处硬编码 px 归零（`--bg-base` 18 处 / `--brand-bg` 3 处并存）。
+   - P2 三项：1440px 画布右半空置、侧栏模板卡密度、弹窗模糊与吸收指标层级。
+8. **v0.6.x 技术债**：P1-6 SSRF 连接级 IP 绑定、P1-7 提取 `IntakeService`、P2 批次（清单见 [v0.6.0 计划 §七-C](PLAN-v0.6.0-STABLE-20260927.md)）。
+9. **架构深化候选（尚未开工，逐项状态见 [AUDIT-ARCHITECTURE-20260929](AUDIT-ARCHITECTURE-20260929.md)）**：共 8 个候选，扫描途中另修 1 个死按钮。推荐顺序 C2 写回协议（Top，真实用户可见缺陷）→ C3 竞态守卫 → C6 事件委托（止损）→ C1/C4/C5 → C7 → C8。**注意 C6 目前方向反着**：修死按钮时补的是第 45 个手工转发 shim，正是该候选要消除的模式。
+10. **v0.7**：Tauri 桌面壳与云同步 / iOS Companion 按真实需求启动；原生移动包维持缓发决策。
 
 > RC3-E 已于 2026-09-25 完成并随 v0.5.0 收口，原「下一步 RC3-E」条目作废。
 
