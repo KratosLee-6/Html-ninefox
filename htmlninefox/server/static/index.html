@@ -18,8 +18,8 @@
   color-scheme:light;
   --bg-base:#F4F0E7; --bg-panel:#FFFDF6; --bg-elevated:#EDF3EC; --bg-hover:#E2ECE4;
   --border-subtle:#D5DED5; --border-default:#A9BBB2; --border-strong:#718B80;
-  --text-primary:#17283D; --text-secondary:#536476; --text-tertiary:#7A8A91;
-  --accent:#173C8F; --accent-hover:#2455B6; --accent-soft:rgba(23,60,143,.12);
+  --text-primary:#17283D; --text-secondary:#536476; --text-tertiary:#59676D;
+  --accent:#173C8F; --accent-hover:#2455B6; --accent-soft:rgba(23,60,143,.12); --on-accent:#FFFFFF;
   --indigo:#3568B8; --success:#2F9778; --warning:#DCA934; --danger:#C95C50;
   --info:#2F73B8; --amber:#D79932; --cyan:#328CA3; --pink:#C45C79; --green:#49B894;
   --radius:4px; --shadow-color:rgba(23,60,143,.12); --shadow:3px 3px 0 var(--shadow-color);
@@ -30,8 +30,8 @@
   color-scheme:dark;
   --bg-base:#10253B; --bg-panel:#16314A; --bg-elevated:#1B3B55; --bg-hover:#234761;
   --border-subtle:#27475E; --border-default:#3B6274; --border-strong:#668797;
-  --text-primary:#F7F3EA; --text-secondary:#BCCBD0; --text-tertiary:#829BA5;
-  --accent:#76A5FF; --accent-hover:#9BC0FF; --accent-soft:rgba(118,165,255,.16);
+  --text-primary:#F7F3EA; --text-secondary:#BCCBD0; --text-tertiary:#A0B6BE;
+  --accent:#76A5FF; --accent-hover:#9BC0FF; --accent-soft:rgba(118,165,255,.16); --on-accent:#0C1B2E;
   --indigo:#76A5FF; --success:#62C7A5; --warning:#F0C65A; --danger:#F08A7E;
   --info:#6CB9E9; --amber:#E4AE4F; --cyan:#63BCD0; --pink:#DF86A0; --green:#62C7A5;
   --radius:4px; --shadow-color:rgba(4,14,25,.28); --shadow:3px 3px 0 var(--shadow-color);
@@ -64,7 +64,7 @@ input,textarea,select { font-family:inherit; }
 .btn-ghost { color:var(--text-secondary); } .btn-ghost:hover { background:var(--bg-hover); color:var(--text-primary); }
 .btn-secondary { background:var(--bg-elevated); border-color:var(--border-default); }
 .btn-secondary:hover { border-color:var(--border-strong); }
-.btn-primary { background:var(--accent); color:#fff; font-weight:600; }
+.btn-primary { background:var(--accent); color:var(--on-accent); font-weight:600; }
 .btn-primary:hover { background:var(--accent-hover); }
 .btn-primary:disabled { opacity:.45; cursor:wait; }
 .btn.is-busy { position:relative; cursor:wait; }
@@ -180,9 +180,12 @@ input,textarea,select { font-family:inherit; }
 .node.selected { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), var(--shadow); }
 .node-head { display:flex; align-items:center; gap:7px; padding:6px 10px; cursor:grab;
   border-bottom:1px solid var(--border-subtle); font-size:11.5px; font-weight:600; }
+/* 标题先截断，类型徽标保持完整：否则长中文标题会把 .kind 挤成竖排单字。 */
+.node-head .nm,.node-head > span:first-of-type { min-width:0; flex:1 1 auto;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .node-head:active { cursor:grabbing; }
-.node-head .kind { margin-left:auto; font-size:9.5px; color:var(--text-tertiary); font-weight:500;
-  letter-spacing:.06em; text-transform:uppercase; }
+.node-head .kind { flex:0 0 auto; white-space:nowrap; margin-left:auto; font-size:9.5px;
+  color:var(--text-tertiary); font-weight:500; letter-spacing:.06em; text-transform:uppercase; }
 .node-body { padding:8px 9px; font-size:12px; color:var(--text-secondary); }
 .node textarea { width:100%; min-height:48px; background:var(--bg-base); color:var(--text-primary);
   border:1px solid var(--border-default); border-radius:6px; padding:6px 9px; font-size:12px; resize:vertical; }
@@ -250,10 +253,14 @@ input,textarea,select { font-family:inherit; }
 .ws-head .nm { font-size:11.5px; font-weight:600; max-width:200px; overflow:hidden;
   text-overflow:ellipsis; white-space:nowrap; }
 .ws-head .cnt { font-size:10px; color:var(--text-tertiary); }
-.ws-head button { height:22px; padding:0 9px; border-radius:6px; font-size:10.5px;
+.ws-head button { min-height:28px; padding:0 10px; border-radius:6px; font-size:11px;
   background:var(--bg-elevated); border:1px solid var(--border-default); color:var(--text-secondary); }
+/* 触控设备上提到项目自定的 --control-touch，避免「适配 / 推进」变成难点。 */
+@media (pointer:coarse) {
+  .ws-head button { min-height:var(--control-touch); padding:0 14px; font-size:12px; }
+}
 .ws-head button:hover { color:var(--text-primary); border-color:var(--accent); }
-.ws-head button.go { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+.ws-head button.go { background:var(--accent); border-color:var(--accent); color:var(--on-accent); font-weight:700; }
 .ws-head button.go:hover { background:var(--accent-hover); }
 .ws-head button.go:disabled { opacity:.5; cursor:wait; }
 .ws-handle { position:absolute; right:-7px; bottom:-7px; width:15px; height:15px; pointer-events:auto;
@@ -333,7 +340,7 @@ input,textarea,select { font-family:inherit; }
 .recipe-stage-dot { width:18px; height:18px; display:grid; place-items:center; border-radius:5px;
   border:1px solid var(--border-default); color:var(--text-tertiary); font-size:10px; font-weight:800; }
 .recipe-stage.succeeded .recipe-stage-dot,.recipe-stage.reused .recipe-stage-dot { border-color:var(--success); color:var(--success); }
-.recipe-stage.running .recipe-stage-dot { border-color:var(--accent); background:var(--accent); color:#fff; }
+.recipe-stage.running .recipe-stage-dot { border-color:var(--accent); background:var(--accent); color:var(--on-accent); }
 .recipe-stage.failed { border-color:color-mix(in srgb,var(--danger) 55%,var(--border-subtle)); }
 .recipe-stage.failed .recipe-stage-dot { border-color:var(--danger); color:var(--danger); }
 .recipe-stage-title { font-size:11.5px; color:var(--text-primary); line-height:1.4; }
@@ -350,7 +357,7 @@ input,textarea,select { font-family:inherit; }
   display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-tertiary);
   flex:none; transition:all .25s; }
 .tl-stage.done .tl-dot { border-color:var(--success); color:var(--success); }
-.tl-stage.active .tl-dot { border-color:var(--accent); color:#fff; background:var(--accent);
+.tl-stage.active .tl-dot { border-color:var(--accent); color:var(--on-accent); background:var(--accent);
   box-shadow:0 0 0 4px var(--accent-soft); }
 .tl-label { margin-left:9px; font-size:12px; color:var(--text-tertiary); white-space:nowrap; }
 .tl-stage.active .tl-label, .tl-stage.done .tl-label { color:var(--text-primary); }
@@ -428,7 +435,12 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   .inspector { top:52px; bottom:50px; }
   .mobile-scrim { inset:52px 0 50px; }
   .timeline { padding:0 10px; }
-  .tl-title, .tl-label, .tl-status { display:none; }
+  /* 窄屏不再把五个步骤名全部抹掉：只显示「当前」与「失败」步骤的文字，
+     否则整条进度只剩几个无含义的圆点，进度信息等于不存在。 */
+  .tl-title, .tl-status { display:none; }
+  .tl-stage { min-width:0; flex:0 0 auto; }
+  .tl-stage .tl-label { display:none; }
+  .tl-stage.active .tl-label, .tl-stage.failed .tl-label { display:inline; font-size:11.5px; }
   .tl-line { margin:0 5px; min-width:8px; }
   .tl-dot { width:23px; height:23px; }
   .canvas-empty { max-width:80vw; font-size:12px; }
@@ -464,7 +476,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 #selection-box[hidden] { display:none; }
 #viewport.selection-mode { cursor:crosshair; }
 .hud button:disabled { opacity:.35; cursor:not-allowed; }
-.hud button.on { color:#fff; background:var(--accent); border-color:var(--accent); }
+.hud button.on { color:var(--on-accent); background:var(--accent); border-color:var(--accent); }
 .hud .hud-separator { width:30px; height:1px; background:var(--border-default); margin:1px 0; }
 .minimap { position:absolute; right:56px; bottom:14px; width:196px; height:130px; z-index:9; padding:6px;
   background:color-mix(in srgb,var(--bg-panel) 94%,transparent); border:1px solid var(--border-default);
@@ -499,7 +511,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .fox-toast--error { --toast-color:#D35D5D; }
 .fox-toast-mark { width:8px; height:8px; margin-top:4px; background:var(--toast-color); box-shadow:2px 2px 0 color-mix(in srgb,var(--toast-color) 24%,transparent); }
 .fox-toast-message { font-size:11px; line-height:1.55; overflow-wrap:anywhere; }
-.fox-toast-close { width:22px; height:22px; padding:0; color:var(--text-tertiary); }
+.fox-toast-close { width:28px; height:28px; padding:0; color:var(--text-tertiary); }
+@media (pointer:coarse) { .fox-toast-close { width:36px; height:36px; } }
 .selection-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
 @media(max-width:900px){.minimap{display:none}.hud .desktop-productivity{display:none}}
 
@@ -1687,6 +1700,7 @@ function openIntake() { return window.FoxIntake.open(); }
 function closeIntake() { return window.FoxIntake.close(); }
 function intakeRefresh(filter) { return window.FoxIntake.refresh(filter); }
 function intakeFetch() { return window.FoxIntake.fetchCandidate(); }
+function intakeFetchBatch() { return window.FoxIntake.fetchBatch(); }
 function intakeApprove(id) { return window.FoxIntake.approve(id); }
 function intakeReject(id) { return window.FoxIntake.reject(id); }
 function intakeTogglePreview(id) { return window.FoxIntake.togglePreview(id); }
