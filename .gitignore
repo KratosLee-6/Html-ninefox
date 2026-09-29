@@ -33,3 +33,7 @@ packaging/linux/wheels/pyee-*.whl
 packaging/linux/wheels/typing_extensions-*.whl
 .codex_tmp/
 .mimosa/
+
+# Archify working directories (candidate + per-run receipts; the delivered
+# source and receipts live in docs/diagrams/)
+.archify/

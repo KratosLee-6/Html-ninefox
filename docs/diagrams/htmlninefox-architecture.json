@@ -1,0 +1,280 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Html九尾狐 · 运行时框架",
+    "subtitle": "一个核心 · 两个稳定 seam · 多客户端 adapter（本地优先）",
+    "locale": "zh-CN",
+    "output": "docs/diagrams/htmlninefox-architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/KratosLee-6/Html-ninefox.git",
+      "provider": "github",
+      "revision": "f5707e9e9c0892e12dff009452a38f9afab8da25"
+    }
+  },
+  "components": [
+    {
+      "id": "design-sources",
+      "type": "external",
+      "label": "设计源站",
+      "sublabel": "12 内置源 · 三档许可",
+      "pos": [40, 60],
+      "size": [200, 64],
+      "sources": [
+        { "path": "htmlninefox/intake.py", "line": 83, "end_line": 95, "label": "load_sources" },
+        { "path": "htmlninefox/data/sources/design-galleries.yaml", "line": 1, "end_line": 12, "label": "源清单" }
+      ]
+    },
+    {
+      "id": "intake",
+      "type": "backend",
+      "label": "设计吸收流水线",
+      "sublabel": "SSRF 安全抓取 · 审核台",
+      "pos": [40, 180],
+      "size": [200, 68],
+      "sources": [
+        { "path": "htmlninefox/intake.py", "line": 127, "end_line": 145, "label": "validate_url" },
+        { "path": "htmlninefox/intake.py", "line": 173, "end_line": 222, "label": "fetch_reference" },
+        { "path": "htmlninefox/intake.py", "line": 415, "end_line": 478, "label": "CandidateStore" }
+      ]
+    },
+    {
+      "id": "candidates",
+      "type": "database",
+      "label": "CandidateStore",
+      "sublabel": "候选 / 组件 / 动效 / 预设",
+      "pos": [40, 310],
+      "size": [200, 68],
+      "sources": [
+        { "path": "htmlninefox/intake.py", "line": 521, "end_line": 570, "label": "ComponentStore" },
+        { "path": "htmlninefox/intake.py", "line": 634, "end_line": 674, "label": "MotionStore" },
+        { "path": "htmlninefox/intake.py", "line": 812, "end_line": 840, "label": "StylePresetStore" }
+      ]
+    },
+    {
+      "id": "workbench",
+      "type": "frontend",
+      "label": "Web 工作台",
+      "sublabel": "无限画布 · PWA",
+      "pos": [330, 60],
+      "size": [220, 68],
+      "sources": [
+        { "path": "htmlninefox/server/app.py", "line": 43, "end_line": 88, "label": "STATIC_FILES" },
+        { "path": "htmlninefox/server/static/index.html", "line": 1, "end_line": 8, "label": "工作台入口" }
+      ]
+    },
+    {
+      "id": "http",
+      "type": "backend",
+      "label": "HTTP v1",
+      "sublabel": "127.0.0.1:8620",
+      "pos": [330, 180],
+      "size": [220, 68],
+      "sources": [
+        { "path": "htmlninefox/server/app.py", "line": 141, "end_line": 152, "label": "_Handler" },
+        { "path": "htmlninefox/server/app.py", "line": 110, "end_line": 120, "label": "serve()" }
+      ]
+    },
+    {
+      "id": "app",
+      "type": "backend",
+      "label": "StudioApplication",
+      "sublabel": "生成/反馈/恢复/导出",
+      "pos": [330, 310],
+      "size": [220, 70],
+      "sources": [
+        { "path": "htmlninefox/application.py", "line": 394, "end_line": 399, "label": "StudioApplication" },
+        { "path": "htmlninefox/application.py", "line": 400, "end_line": 478, "label": "generate()" },
+        { "path": "htmlninefox/application.py", "line": 557, "end_line": 600, "label": "export()" }
+      ]
+    },
+    {
+      "id": "pipeline",
+      "type": "backend",
+      "label": "pipeline 编排",
+      "sublabel": "Brief · 风格 · 资产",
+      "pos": [330, 440],
+      "size": [220, 68],
+      "sources": [
+        { "path": "htmlninefox/pipeline.py", "line": 111, "end_line": 157, "label": "run_expert()" }
+      ]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "ProjectStore",
+      "sublabel": "Project · Revision · Memory",
+      "pos": [330, 570],
+      "size": [220, 68],
+      "sources": [
+        { "path": "htmlninefox/server/storage.py", "line": 35, "end_line": 60, "label": "ProjectStore" },
+        { "path": "htmlninefox/revisions.py", "line": 229, "end_line": 261, "label": "commit()" }
+      ]
+    },
+    {
+      "id": "durable",
+      "type": "database",
+      "label": "durable 写入层",
+      "sublabel": "fsync · journal · 跨进程锁",
+      "pos": [330, 700],
+      "size": [220, 68],
+      "sources": [
+        { "path": "htmlninefox/durable.py", "line": 30, "end_line": 43, "label": "atomic_write()" },
+        { "path": "htmlninefox/durable.py", "line": 73, "end_line": 93, "label": "acquire_file_lock()" }
+      ]
+    },
+    {
+      "id": "creator",
+      "type": "external",
+      "label": "创作者",
+      "sublabel": "浏览器 / 桌面",
+      "pos": [640, 60],
+      "size": [210, 68],
+      "sources": [
+        { "path": "README.md", "line": 36, "end_line": 44, "label": "用户路径" }
+      ]
+    },
+    {
+      "id": "cli",
+      "type": "backend",
+      "label": "CLI / 桌面 sidecar",
+      "sublabel": "Tauri 通道",
+      "pos": [640, 180],
+      "size": [210, 68],
+      "sources": [
+        { "path": "htmlninefox/cli.py", "line": 46, "end_line": 60, "label": "main()" },
+        { "path": "htmlninefox/cli.py", "line": 61, "end_line": 106, "label": "expert 命令" }
+      ]
+    },
+    {
+      "id": "exporting",
+      "type": "backend",
+      "label": "Export Center",
+      "sublabel": "PDF / PNG 渲染",
+      "pos": [640, 310],
+      "size": [210, 68],
+      "sources": [
+        { "path": "htmlninefox/exporting.py", "line": 176, "end_line": 235, "label": "export_project()" },
+        { "path": "htmlninefox/exporting.py", "line": 555, "end_line": 575, "label": "_export_pptx()" }
+      ]
+    },
+    {
+      "id": "experts",
+      "type": "backend",
+      "label": "Experts + Generators",
+      "sublabel": "6 类 HTML 渲染",
+      "pos": [640, 440],
+      "size": [210, 68],
+      "sources": [
+        { "path": "htmlninefox/generators/__init__.py", "line": 17, "end_line": 35, "label": "_RENDERERS / render()" },
+        { "path": "htmlninefox/experts/generate_expert.py", "line": 46, "end_line": 70, "label": "渲染路径路由" }
+      ]
+    },
+    {
+      "id": "llm",
+      "type": "external",
+      "label": "LLM Provider",
+      "sublabel": "可选增强 · 无 Key 走规则",
+      "pos": [640, 570],
+      "size": [210, 68],
+      "sources": [
+        { "path": "htmlninefox/llm.py", "line": 157, "end_line": 175, "label": "HtmlNineFoxRouter" },
+        { "path": "htmlninefox/llm.py", "line": 64, "end_line": 87, "label": "环境发现" }
+      ]
+    },
+    {
+      "id": "dsh",
+      "type": "external",
+      "label": "DeepSeek Harness",
+      "sublabel": "DSH 插件",
+      "pos": [960, 180],
+      "size": [210, 68],
+      "sources": [
+        { "path": "integrations/deepseek-harness/index.js", "line": 1, "end_line": 20, "label": "Skill 注册" }
+      ]
+    },
+    {
+      "id": "pptx",
+      "type": "backend",
+      "label": "PPTX 文件桥",
+      "sublabel": "python-pptx 受控映射",
+      "pos": [960, 310],
+      "size": [210, 68],
+      "sources": [
+        { "path": "htmlninefox/pptx_export.py", "line": 76, "end_line": 100, "label": "export_deck_pptx()" },
+        { "path": "htmlninefox/pptx_export.py", "line": 48, "end_line": 73, "label": "parse_deck_slides()" }
+      ]
+    },
+    {
+      "id": "browser",
+      "type": "external",
+      "label": "Playwright 浏览器",
+      "sublabel": "Chromium / WebKit / Edge",
+      "pos": [960, 440],
+      "size": [210, 68],
+      "sources": [
+        { "path": "htmlninefox/exporting.py", "line": 391, "end_line": 405, "label": "_launch_browser()" },
+        { "path": "htmlninefox/exporting.py", "line": 406, "end_line": 446, "label": "引擎候选" }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "本机运行时 · 127.0.0.1，无云端依赖",
+      "wraps": ["workbench", "http", "app", "pipeline", "store", "durable", "cli", "exporting", "pptx", "experts", "intake", "candidates"]
+    },
+    {
+      "kind": "security-group",
+      "label": "输出根目录 · 路径穿越全拒",
+      "wraps": ["store", "durable"],
+      "pad": 14
+    }
+  ],
+  "connections": [
+    { "id": "creator-to-workbench", "from": "creator", "to": "workbench", "label": "编辑 · 预览", "variant": "emphasis", "fromSide": "left", "toSide": "right" },
+    { "id": "workbench-to-http", "from": "workbench", "to": "http", "label": "JSON · v1", "fromSide": "bottom", "toSide": "top" },
+    { "id": "http-to-app", "from": "http", "to": "app", "label": "请求-结果", "fromSide": "bottom", "toSide": "top" },
+    { "id": "app-to-pipeline", "from": "app", "to": "pipeline", "label": "生成 · 反馈 · 恢复", "fromSide": "bottom", "toSide": "top" },
+    { "id": "pipeline-to-store", "from": "pipeline", "to": "store", "label": "写 Project / Revision", "fromSide": "bottom", "toSide": "top" },
+    { "id": "store-to-durable", "from": "store", "to": "durable", "label": "统一原子写 + 锁", "fromSide": "bottom", "toSide": "top" },
+    { "id": "http-to-intake", "from": "http", "to": "intake", "label": "审核台编排", "fromSide": "left", "toSide": "right" },
+    { "id": "intake-to-sources", "from": "intake", "to": "design-sources", "label": "受限抓取", "variant": "security", "fromSide": "top", "toSide": "bottom" },
+    { "id": "intake-to-candidates", "from": "intake", "to": "candidates", "label": "入库候选", "fromSide": "bottom", "toSide": "top" },
+    { "id": "candidates-to-pipeline", "from": "candidates", "to": "pipeline", "label": "预设 · 组件供生成", "fromSide": "right", "toSide": "left" },
+    { "id": "cli-to-app", "from": "cli", "to": "app", "label": "直接调用用例", "fromSide": "left", "toSide": "right" },
+    { "id": "dsh-to-cli", "from": "dsh", "to": "cli", "label": "参数映射", "fromSide": "left", "toSide": "right" },
+    { "id": "app-to-exporting", "from": "app", "to": "exporting", "label": "导出", "fromSide": "right", "toSide": "left" },
+    { "id": "pipeline-to-experts", "from": "pipeline", "to": "experts", "label": "render", "fromSide": "right", "toSide": "left" },
+    { "id": "experts-to-llm", "from": "experts", "to": "llm", "label": "可选增强", "variant": "dashed", "fromSide": "bottom", "toSide": "top" },
+    { "id": "exporting-to-pptx", "from": "exporting", "to": "pptx", "label": "pptx 格式", "fromSide": "right", "toSide": "left" },
+    { "id": "exporting-to-browser", "from": "exporting", "to": "browser", "label": "Playwright 渲染", "fromSide": "right", "toSide": "left" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "客户端 seam",
+      "items": [
+        "HTTP v1 与本地 Python Interface 复用同一 StudioApplication",
+        "CLI / Web / DeepSeek Harness 只做参数映射，不复制业务规则"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "可信交付",
+      "items": [
+        "生成与导出统一经 durable 原子写、commit journal 与跨进程锁",
+        "导出报告如实列出可编辑元素数与降级项"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "设计吸收治理",
+      "items": [
+        "12 个源分三档许可，inspiration-only 采纳时跳过代码导入",
+        "抓取受四层 SSRF 校验，候选预览走 CSP 沙箱"
+      ]
+    }
+  ]
+}

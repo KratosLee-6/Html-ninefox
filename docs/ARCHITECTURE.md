@@ -1,8 +1,10 @@
 # Architecture · 当前架构
 
-> 当前基线：`v0.5.0` 稳定版，更新于 2026-09-25。早期“5 agents · 3 sinks · 1 router”描述记录了项目起点，已经不足以说明当前 Project、Revision、Export、Memory、Job、Workspace 和插件能力。
+> 当前基线：`v0.6.0`（设计吸收流水线 + 可编辑 PPTX），更新于 2026-09-29。早期“5 agents · 3 sinks · 1 router”描述记录了项目起点，已经不足以说明当前 Project、Revision、Export、Memory、Job、Workspace 和插件能力。
 >
-> 工程审计：[mattpocock/skills 方法版审计](AUDIT-MATTPOCOCK-20260920.md) · 下一阶段：[RC3 架构加固计划](ITERATION-PLAN-POST-RC2-20260920.md)
+> 工程审计：[mattpocock/skills 方法版审计](AUDIT-MATTPOCOCK-20260920.md) · 当前计划：[v0.6.0 迭代计划](PLAN-v0.6.0-STABLE-20260927.md)
+>
+> **交互式框架图**：[docs/diagrams/htmlninefox-architecture.html](diagrams/htmlninefox-architecture.html)——用 [Archify](https://github.com/tt-a1i/archify) 从真实源码生成，17 个节点带仓库内源码行号引用，锚定提交 `f5707e9`。类型化源文件与门禁收据同目录留存（`htmlninefox-architecture.json` / `*.finalize.json` / `*.browser-check.json`），可用 `archify.mjs finalize` 复现。
 
 ## 系统边界
 

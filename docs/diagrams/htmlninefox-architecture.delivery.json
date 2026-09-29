@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "91d6720c-ea6c-4ce5-a559-3bd65777a824",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "D:\\工作\\方案\\AI\\html九尾狐\\Html-ninefox\\.archify\\architecture-htmlninefox-20260929-120000\\candidate.json",
+  "output": "D:\\工作\\方案\\AI\\html九尾狐\\Html-ninefox\\docs\\diagrams\\htmlninefox-architecture.html",
+  "specification": {
+    "sha256": "b8337e1bf305321e57d073f0b946ceee54f1889ad9b23f67b1fab009e9fc1127",
+    "bytes": 11313
+  },
+  "artifact": {
+    "sha256": "5af6c41d5298f481f9f851f0aee5a44cc71a3ea3614e553e7d88c41210fd5536",
+    "bytes": 789520
+  }
+}
