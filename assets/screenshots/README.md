@@ -11,6 +11,7 @@
 | `v0.5.0a1/` ～ `v0.5.0rc2/` | 交互、Recipe Run、Project Memory、Revision 与 RC2 发布证据 |
 | 0.5.0rc3/ | Chromium 发布验收生成的纸白、夜蓝与 Export Center 截图 |
 | `v0.5.0rc3-visual/` | `v0.5.0rc3` 的响应式、组件状态与恢复/错误证据 |
+| `v0.6.0/` | `v0.6.0` 设计吸收流水线与可编辑 PPTX 的新功能实拍 |
 
 ## v0.5.0 稳定版截图（24 张）
 
@@ -49,6 +50,20 @@
 
 这些截图覆盖默认、选中、搜索、保存成功、生成完成、导出就绪、受控错误、恢复完成和取消等待等可观察状态。完整说明见 [RC3 视觉收敛记录](../../docs/ITERATION-RC3-VISUAL-CONVERGENCE-20260924.md)。
 
+## v0.6.0 新功能截图（7 张）
+
+只拍 `v0.5.0` 之后新增的功能，`v0.5.0` 系列已有的工作台、图库与导出画面不重复采集：
+
+- `intake-review-pending.png`：素材审核台「待审核」列表——许可三档徽标、来源徽标、设计令牌色板、骨架大纲、批量工具条，以及顶部的吸收指标面板（候选 / 待审 / 已采纳 / 组件 / 动效 / 风格预设 / 来源分布）。
+- `intake-preview-sandbox.png`：审核台 CSP 沙箱预览展开态——`sandbox` 不含 `allow-scripts`，服务端 `default-src 'none'` 兜底，候选脚本永不执行。
+- `intake-approved-absorption.png`：审核台「已采纳」态——已采纳候选显示「生成风格预设 / 导入组件 / 吸收动效」按钮（按 kind 出现），三个动作各自入库后指标面板变为「组件 3 · 动效 1 · 风格预设 1」。
+- `motion-lab-intake-motion.png`：动效实验室 `motion-lab` 的 07 号卡片——从已采纳参考生成的原创动效，时长被动效预算钳制（900ms → 500ms，300ms 保持），并随「减少动态效果」偏好降级。
+- `slide-editor-dialog.png`：工作台内结构化幻灯片编辑对话框（S13U-b）——按页列出全部可编辑文本节点，状态行给出「共 7 页 · 修订基于 rev0」，保存即生成新版本。
+- `export-center-pptx.png`：导出中心选择 PPTX 后的导出完成态——兼容性 100 分、引擎 `python-pptx`，结果区给出 `export-report.json` 与 `.pptx` 两个下载项。
+- `pptx-export-report.png`：服务端返回的 `export-report.json` 正文——`pptx.editable_elements` 可编辑元素数、`pptx.slides` 页数与 `pptx_flattened` 降级清单。
+
+> PPTX 格式项由 `static/index.html` 的 `#export-format-pptx` 登记，`renderAnalysis` 只在 deck 产物放开；采集脚本不再向页面注入任何临时 option，`export-center-pptx.png` 拍的是用户真实可选的路径。
+
 ## 命名与拍摄要求
 
 - 工作台截图采用 `功能-主题-宽度.png` 或 `业务状态.png`。
@@ -64,6 +79,12 @@
 
 ```text
 assets/screenshots/v0.5.0rc3-visual
+```
+
+`tests/test_v060_visual_evidence_states.py` 同款方式产出 `v0.6.0/` 的 7 张新功能截图：审核台、动效实验室、幻灯片编辑对话框与 PPTX 导出报告。默认测试只跑断言不落盘；需要重新生成时将 `HTMLNINEFOX_V060_EVIDENCE_DIR` 指向：
+
+```text
+assets/screenshots/v0.6.0
 ```
 
 提交前至少运行相关浏览器测试、JavaScript 语法检查和 `git diff --check`，并确认所有 Markdown 图片路径存在。

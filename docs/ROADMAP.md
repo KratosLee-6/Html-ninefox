@@ -301,10 +301,10 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 
 ## 10. 下一步执行顺序（2026-09-29 更新）
 
-1. **S17 既有门禁不退化**：100 节点画布、20 revisions、Chromium/WebKit 双引擎 e2e、DSH 插件、a11y 全量复跑，证据入 `docs/test-evidence/`。
-2. **S19 文档六件套**：双 README（功能↔截图对照）、CHANGELOG 收口、ARCHITECTURE、ROADMAP 勾稽、`RELEASE-NOTES-v0.6.0`、`TEST-REPORT-v0.6.0`；`check_release_version --tag v0.6.0` 通过。
-3. **S20 新功能实拍截图**：审核台 / 风格候选 / 组件与装饰库 / 动效实验室 / PPTX 导出与幻灯片编辑，全部入截图集。
-4. **S21 版本切换与发布**：pyproject 切 0.6.0 → 全量回归 → tag → CI 五 job 构建六平台附件 → Release + SHA-256 回读 → 关闭 Issue #7。
+1. ~~**S17 既有门禁不退化**：100 节点画布、20 revisions、Chromium/WebKit 双引擎 e2e、DSH 插件、a11y 全量复跑，证据入 `docs/test-evidence/`。~~ 已完成（`e5f3664`）。
+2. ~~**S19 文档六件套**：双 README（功能↔截图对照）、CHANGELOG 收口、ARCHITECTURE、ROADMAP 勾稽、`RELEASE-NOTES-v0.6.0`、`TEST-REPORT-v0.6.0`；`check_release_version --tag v0.6.0` 通过。~~ 已完成（`44d30d8`）。
+3. ~~**S20 新功能实拍截图**：审核台 / 风格候选 / 组件与装饰库 / 动效实验室 / PPTX 导出与幻灯片编辑，全部入截图集。~~ 已完成：`assets/screenshots/v0.6.0/` 7 张 + 可复现门禁 `tests/test_v060_visual_evidence_states.py`，中英文 README 对照同步更新。**同轮拦下并修复 2 个发布阻断缺陷**（导出中心从未登记 PPTX 选项 → G4 界面不可达；`extract_typography` 形参与派发契约不一致 → 许可「开放许可」档整体不可达）。
+4. **S21 版本切换与发布**：全量回归已绿（306 passed / 1 skipped）→ tag → CI 五 job 构建六平台附件 → Release + SHA-256 回读 → 关闭 Issue #7。
 5. **v0.6.x 技术债**：P1-6 SSRF 连接级 IP 绑定、P1-7 提取 `IntakeService`、P2 批次（清单见 [v0.6.0 计划 §七-C](PLAN-v0.6.0-STABLE-20260927.md)）。
 6. **v0.7**：Tauri 桌面壳与云同步 / iOS Companion 按真实需求启动；原生移动包维持缓发决策。
 

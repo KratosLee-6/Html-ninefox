@@ -46,7 +46,14 @@
     <div class="export-warning-list">${warnings.length ? warnings.map(item => `<div class="export-warning ${esc(item.level)}">${esc(item.message)}</div>`).join('') : '<div class="export-warning">未发现阻塞性兼容问题。</div>'}</div>`;
     $('#export-width').value = manifest.viewport?.width || 1440;
     $('#export-height').value = manifest.viewport?.height || 900;
-    $('#export-format').value = manifest.recommended?.format || 'pdf';
+    // PPTX is only a real capability for deck artifacts; the server rejects
+    // anything else, so keep the option hidden instead of offering a failure.
+    const pptxOption = document.querySelector('#export-format-pptx');
+    if (pptxOption) pptxOption.hidden = manifest.intent !== 'deck';
+    const formatSelect = $('#export-format');
+    const recommended = manifest.recommended?.format || 'pdf';
+    formatSelect.value = (recommended === 'pptx' && manifest.intent !== 'deck') ? 'pdf' : recommended;
+    if (formatSelect.selectedIndex < 0) formatSelect.value = 'pdf';
     $('#export-scope').value = manifest.recommended?.scope || 'auto';
     const runtime = manifest.runtime || {};
     $('#export-runtime').textContent = `本地导出 · ${runtime.engine || 'Chromium'} · ${runtime.package_ready ? '引擎已安装' : '引擎缺失'}。${runtime.install_hint || ''}`;
@@ -93,7 +100,11 @@
       }, stale);
       if (stale()) return;   /* 弹窗已切换到其它产物：丢弃旧结果 */
       $('#export-status').textContent = `导出完成 · 兼容性 ${result.compatibility_score} 分 · ${result.browser?.source || 'Chromium'}`;
-      $('#export-result').innerHTML = [...result.files, result.report].map(file => `<div class="export-file"><span><b>${esc(file.name)}</b><small>${exportBytes(file.bytes)}</small></span><a class="btn btn-secondary" href="${esc(file.download_url)}">下载</a></div>`).join('');
+      // The pptx path already returns the report inside `files`; rendering
+      // `result.report` again would add a row with an undefined href.
+      const entries = [...result.files];
+      if (result.report && result.report.download_url) entries.push(result.report);
+      $('#export-result').innerHTML = entries.map(file => `<div class="export-file"><span><b>${esc(file.name)}</b><small>${exportBytes(file.bytes)}</small></span><a class="btn btn-secondary" href="${esc(file.download_url)}">下载</a></div>`).join('');
       flash(`✓ ${node.data.project_name} 已导出 ${result.files.length} 个文件`, true);
     } catch (error) {
       if (stale()) return;

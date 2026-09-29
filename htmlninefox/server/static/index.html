@@ -720,7 +720,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <section class="export-panel"><h3>01 · 产物分析与兼容性</h3><div id="export-analysis" class="analysis-empty">正在读取 HTML 结构、分页和动态内容…</div></section>
       <section class="export-panel"><h3>02 · 导出设置</h3>
         <div class="export-options">
-          <div class="flow-field"><label>格式</label><select id="export-format" onchange="syncExportOptions()"><option value="pdf">PDF 文档</option><option value="png">PNG 图片</option></select></div>
+          <div class="flow-field"><label>格式</label><select id="export-format" onchange="syncExportOptions()"><option value="pdf">PDF 文档</option><option value="png">PNG 图片</option><option value="pptx" id="export-format-pptx" hidden>PPTX 演示（可编辑 · deck 产物）</option></select></div>
           <div class="flow-field"><label>范围</label><select id="export-scope"><option value="auto">智能判断</option><option value="pages">逐页导出</option><option value="long">整页 / 长图</option></select></div>
           <div class="flow-field wide"><label>页面范围（留空为全部）</label><input id="export-pages" placeholder="例如 1-3,5"></div>
           <div class="flow-field"><label>画布宽度</label><input id="export-width" type="number" min="320" max="3840" value="1920"></div>

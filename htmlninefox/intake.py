@@ -505,8 +505,15 @@ def extract_motion(evidence: dict, html_text: str, style_blob: str) -> dict:
     return {"motion": {"transitions": transitions, "animations": animations, "keyframes": keyframes}}
 
 
-def extract_typography(evidence: dict, style_blob: str) -> dict:
-    """Typography scale: font stacks, size steps, line heights."""
+def extract_typography(evidence: dict, html_text: str, style_blob: str) -> dict:
+    """Typography scale: font stacks, size steps, line heights.
+
+    Signature matches the other KIND_EXTRACTORS entries
+    (evidence, html_text, style_blob): the dispatch at extract_candidate()
+    calls every extractor with the same three arguments, so a two-parameter
+    signature made every typography candidate raise TypeError. Typography
+    sources are the only `open` license tier, so that tier was unreachable.
+    """
     sizes = list(dict.fromkeys(value.strip() for value in FONT_SIZE.findall(style_blob)))[:16]
     heights = list(dict.fromkeys(value.strip() for value in LINE_HEIGHT.findall(style_blob)))[:12]
     return {"typography": {"sizes": sizes, "line_heights": heights}}

@@ -67,7 +67,7 @@ The application version is `0.6.0`, shipping under the tag `v0.6.0` (all release
 
 ### Feature-to-screenshot map (real captures from v0.5.0)
 
-All 18 shots below were taken on the released `v0.5.0` build (topbar badge reads `v0.5.0`) — the only published capture set so far; the v0.6.0 screenshots are still to come and will replace it. Each maps to a real feature:
+All 18 shots below were taken on the released `v0.5.0` build (topbar badge reads `v0.5.0`) — the workbench shell and its interaction semantics are unchanged in v0.6.0, so they still stand. The v0.6.0 additions (design intake and editable PPTX) use real captures taken in this round, 7 of them in `assets/screenshots/v0.6.0/`, shown in the [Design intake pipeline](#design-intake-pipeline-new-in-v06) and [Editable PPTX](#editable-pptx-new-in-v06) sections. Each maps to a real feature:
 
 **Workbench & canvas**
 
@@ -145,6 +145,17 @@ Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots
 
 ## Design intake pipeline (new in v0.6)
 
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.0/intake-review-pending.png" alt="Review workbench"><br><b>Review workbench · pending</b><br>All three license tiers, source badges, token swatches, outline and intake metrics.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/intake-approved-absorption.png" alt="Approved and ingested"><br><b>Approved · ingested</b><br>Style preset, component import and motion absorption, with metrics updating live.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.0/intake-preview-sandbox.png" alt="CSP sandbox preview"><br><b>CSP sandbox preview</b><br>Candidate pages render in a scriptless sandbox; candidate scripts never run.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/motion-lab-intake-motion.png" alt="Motion lab"><br><b>Motion lab</b><br>Absorbed original motion clamped to budget, honoring reduced-motion preferences.</td>
+</tr>
+</table>
+
 Turn the world's best designs into your own assets across six layers — templates, styles, components, decorations, motion, and content — through three intake channels:
 
 - **✋ Manual import**: paste single or batch URLs (up to 10), or import a ZIP template pack — everything lands in the review workbench
@@ -155,7 +166,14 @@ Every asset passes a **review workbench** (CSP-sandboxed preview + three-tier li
 
 ## Editable PPTX (new in v0.6)
 
-- **📄 Standards-compliant .pptx export**: deck artifacts export through python-pptx into a standards-compliant `.pptx` whose text frames stay editable in PowerPoint / WPS; anything that cannot be mapped is listed honestly in the degradation report.
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.0/slide-editor-dialog.png" alt="In-workbench slide editor"><br><b>In-workbench slide editor</b><br>Every editable text node, page by page; saving creates a new revision.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/export-center-pptx.png" alt="Export center PPTX"><br><b>Export center · PPTX</b><br>PPTX is offered for deck artifacts; the run yields both the .pptx and its report.</td>
+</tr>
+</table>
+
+- **📄 Standards-compliant .pptx export**: deck artifacts export through python-pptx into a standards-compliant `.pptx` whose text frames stay editable in PowerPoint / WPS; anything that cannot be mapped is listed honestly in the degradation report ([report as captured](assets/screenshots/v0.6.0/pptx-export-report.png)).
 - **🖥️ In-workbench slide editing**: open the structured slides dialog in the output inspector to rewrite titles and bullets; `PUT /slides` writes back with `expected_revision`, so a version conflict is reported instead of silently overwritten.
 - **🔁 A real edit loop**: export after writing back and your edits survive in the exported PPTX.
 

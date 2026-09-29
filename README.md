@@ -69,7 +69,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ### 功能 ↔ 截图对照（v0.5.0 实拍集）
 
-以下 18 张全部拍摄自 `v0.5.0` 发布版（顶栏版本徽标为 `v0.5.0`）——这是目前唯一已发布的一套实拍图，v0.6.0 的实拍截图待补齐后再替换。每张对应一项真实功能：
+以下 18 张全部拍摄自 `v0.5.0` 发布版（顶栏版本徽标为 `v0.5.0`）——工作台外壳与交互语义在 v0.6.0 未变，继续沿用。v0.6.0 新增的设计吸收与可编辑 PPTX 使用本轮新拍的真实截图，见[设计吸收流水线](#设计吸收流水线v06-新增)与[可编辑 PPTX](#可编辑-pptxv06-新增)两节（`assets/screenshots/v0.6.0/`，7 张）。每张对应一项真实功能：
 
 **工作台与画布**
 
@@ -148,7 +148,16 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 设计吸收流水线（v0.6 新增）
 
-![设计吸收审核台](assets/screenshots/v0.5.0rc3-visual/generation-cancel.png)
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.0/intake-review-pending.png" alt="素材审核台"><br><b>素材审核台 · 待审核</b><br>许可三档徽标、来源徽标、令牌色板、骨架大纲与吸收指标面板。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/intake-approved-absorption.png" alt="已采纳与六层入库"><br><b>已采纳 · 六层入库</b><br>生成风格预设 / 导入组件 / 吸收动效，指标同步更新。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.0/intake-preview-sandbox.png" alt="CSP 沙箱预览"><br><b>CSP 沙箱预览</b><br>候选页面在无脚本沙箱内渲染，候选脚本永不执行。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/motion-lab-intake-motion.png" alt="动效实验室"><br><b>动效实验室</b><br>吸收到的原创动效经预算钳制，并尊重三档减少动效偏好。</td>
+</tr>
+</table>
 
 把全世界的优秀设计变成自己的素材——模板、风格、组件、装饰、动效、内容六个层面，三条吸收通道：
 
@@ -160,7 +169,14 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 可编辑 PPTX（v0.6 新增）
 
-- **📄 标准 .pptx 导出**：deck 产物经 python-pptx 导出为符合标准的 `.pptx`，在 PowerPoint / WPS 中文本框真正可编辑；无法映射的能力在降级报告中如实列出。
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.0/slide-editor-dialog.png" alt="工作台内幻灯片编辑"><br><b>工作台内幻灯片编辑</b><br>按页列出全部可编辑文本节点，保存即生成新版本。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/export-center-pptx.png" alt="导出中心 PPTX"><br><b>导出中心 · PPTX</b><br>deck 产物放开 PPTX 格式，导出完成给出 pptx 与报告两个下载项。</td>
+</tr>
+</table>
+
+- **📄 标准 .pptx 导出**：deck 产物经 python-pptx 导出为符合标准的 `.pptx`，在 PowerPoint / WPS 中文本框真正可编辑；无法映射的能力在降级报告中如实列出（[报告实录](assets/screenshots/v0.6.0/pptx-export-report.png)）。
 - **🖥️ 工作台内幻灯片编辑**：产物检查器里打开结构化幻灯片对话框即可改写标题与要点，通过 `PUT /slides` 带 `expected_revision` 写回，版本冲突时明确提示而不是静默覆盖。
 - **🔁 编辑闭环**：改完写回再导出，之前的编辑会保留在导出的 PPTX 中。
 
