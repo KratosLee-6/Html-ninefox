@@ -34,7 +34,7 @@ jobs:
           npm test
       - run: python -m playwright install --with-deps chromium
       - name: Python and browser test suite
-        run: python -m pytest tests -q -p no:cacheprovider
+        run: python -m pytest tests -q -p no:cacheprovider --tb=short -rf --junitxml=pytest-report.xml
       - name: JavaScript syntax
         run: |
           node --check htmlninefox/server/static/canvas-engine.js
@@ -60,4 +60,5 @@ jobs:
           path: |
             e2e-shots/*.png
             e2e-output/**/.foxstate.json
+            pytest-report.xml
           if-no-files-found: ignore

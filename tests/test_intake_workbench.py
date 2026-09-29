@@ -248,19 +248,23 @@ def test_approved_candidate_becomes_applicable_style_preset(tmp_path: Path, monk
         assert preset["license_class"] == "reference"
 
         # 应用 → 写入用户模板目录 → list_templates 可见
-        real_home = Path.home()
-        templates_dir = tmp_path / "user-templates"
-        templates_dir.mkdir()
-        import htmlninefox.pipeline as pipeline_mod
-        original_home = pipeline_mod.Path.home
-        monkeypatch.setattr(type(real_home), "home", classmethod(lambda cls: tmp_path))
+        # 注意：必须补丁基类 pathlib.Path.home。server/app.py 里 `Path.home()`
+        # 解析到的是基类实现，打在 type(Path.home())（WindowsPath/PosixPath）
+        # 上是空操作，会把产物写进真实的 ~/.htmlninefox。
+        from htmlninefox import pipeline as pipeline_mod
+        monkeypatch.setattr(Path, "home", classmethod(lambda cls: tmp_path))
         try:
             applied, _ = api_request(server.base_url,
                                      f"/api/intake/style-presets/{preset['preset_id']}/apply", "POST", {})
-            style_json = templates_dir / applied["applied"].split("user-templates")[-1].lstrip("/\\") / "style.json"
-            assert style_json.is_file()
+            applied_dir = Path(applied["applied"])
+            assert applied_dir.is_dir(), f"apply 未产出模板目录：{applied['applied']!r}"
+            style_json = applied_dir / "style.json"
+            assert style_json.is_file(), f"apply 未产出 style.json：{style_json}"
+            assert tmp_path in style_json.parents, f"产物泄漏到用户主目录之外：{style_json}"
+            assert any(item["id"] == Path(style_json).parent.name
+                       for item in pipeline_mod.list_templates()), "list_templates 看不到刚应用的预设"
         finally:
-            monkeypatch.setattr(type(real_home), "home", classmethod(lambda cls: real_home))
+            monkeypatch.undo()
 
 
 def test_style_preset_missing_reports_404(tmp_path: Path) -> None:
@@ -452,7 +456,7 @@ def test_export_center_pptx_end_to_end(tmp_path: Path) -> None:
             if job["status"] not in {"queued", "running"}:
                 break
             time.sleep(0.2)
-        assert job["status"] == "succeeded", job
+        assert job["status"] == "succeeded", f"export 任务失败：{job.get('error', job)}"
         result = job["result"]
         assert result["format"] == "pptx"
         names = [f["name"] for f in result["files"]]
