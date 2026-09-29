@@ -21,16 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 六资产层贯通：组件库（素材面板拖入生成）+ 渐变装饰（`97c88b7`）、动效原创样式（预算钳制 + reduced-motion 守卫 → motion-lab，`488f2e6`）、风格预设（→ 工作台风格面板，`82268ff`）、AI 分析通道（结构化 design brief + 标签，`9264a5c`）、吸收指标面板（`5f82bcf`）。
 - 许可三档强制：inspiration-only 采纳跳过代码导入（`066905f`）。
 
-**可编辑 PPTX（Univer 双层架构）**
+**可编辑 PPTX（双层架构：工作台内编辑 + 服务端文件桥）**
 - PPTX 文件桥：deck 产物 → python-pptx 受控映射 → 标准 .pptx（每页标题/要点文本框、对比度背景、页码脚注；扁平化如实上报）；往返验证文本可编辑（`3a3a384`）。
 - 导出中心接入 pptx 格式 + 报告含可编辑元素数与降级清单（`e0d8f6d`）。
-- 工作台内可视化编辑器选型 [Univer](https://github.com/dream-num/univer)（Apache-2.0，bundle 将本地 vendor 化）——S13U 实施中。
+- 工作台内编辑闭环：幻灯片文本编辑 API（`PUT /slides` 带 `expected_revision` 并发保护，`4e893ea`）+ 结构化幻灯片编辑对话框（产物检查器「编辑幻灯片」入口，按页列出可编辑文本节点，保存后刷新 revision 徽章 / 检查器 / 实时预览，`a5d7a93`）。这是 v0.6 内可编辑 PPTX 的交付形态。
+- Univer 可视化画布编辑器**降级为 S13U-b2 单独跟踪**：调研确认开源包只覆盖 slides 模型与 UI，PPTX 导入导出位于 Pro 档（`@univerjs-pro/slides*`）且 slides 无 UMD preset，集成需自建 vendor 构建管线。原 §七-B 的「Univer 作为工作台内可视化编辑层」决策据此修订，文件交付路径不受影响。
 
 **质量与审计**
 - 门禁：吸收压测 100 候选（创建 0.28s / 列表 40ms）+ 路径穿越全拒（`8d920be`）；WebKit 通道（Safari 引擎 22/22）+ Chromium 双通道 22/22；topbar 定位器歧义修复（同提交）。
 - 双审计：mattpocock 四维（7 P1 中 5 修、2 记录）+ Mimosa deep（SSRF 设计性缓解 + 残余披露，见 [AUDIT-v0.6.0](docs/AUDIT-v0.6.0-20260928.md)）。
-
-### v0.6 设计吸收流水线 + 可编辑 PPTX（已合入 main，待全环节测试后发布）
 
 ### Added
 
@@ -39,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Kind-specific intake extractors: motion sources capture transitions, animation shorthands and keyframe names; component sources capture section-level candidates with bounded snippets; typography sources capture size and line-height scales — each candidate records its source kind.
 - Intake candidate extraction and a review store: fetched pages become pending candidates with title, intent guess, color/font tokens, and a section-level skeleton; `CandidateStore` persists them under `.library/intake/candidates/` with pending/approved/rejected status.
 - A macOS (Apple Silicon) portable package: PyInstaller `.app` bundle with an icns icon, `ditto` zip, SHA-256, and a dedicated `macos` job in the release workflow; the desktop channel reports `macos-portable` and capabilities advertise macOS as `beta`.
+
+### Fixed
+
+- **Deck 生成在装有 jinja2 的环境下退化为落地页，导致整条可编辑 PPTX 链路失效（V0.6-S17 门禁发现）**：`generate_expert` 把 `deck` 别名到 `templates/landing.html`，因此凡安装了可选 `templates` extra 的环境，deck 请求都会渲染成 hero/features/pricing 落地页，产物里没有 `<section class="slide">`。结果是 PPTX 文件桥（`export_deck_pptx`）、幻灯片编辑 API（`PUT /slides`）与导出中心 pptx 全部失去输入——即 v0.6 成果 G4「可编辑 PPTX」在该环境下必然失败，且失败点在生成端、报错点在导出端，极难定位。deck 现在保持 intent 忠实：落到原生 `generators/deck.py`，产出真正的分页结构（实测 7 页 / 24 个可编辑元素），与联盟 manifest 声明的 `fallback: local:deck` 语义一致。已补回归测试锁定该不变量。
 
 ## [0.5.0] — 2026-09-25 · 🎉 First Stable Release of the 0.5 Line
 

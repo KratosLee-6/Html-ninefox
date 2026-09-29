@@ -35,9 +35,18 @@ _INTENT_TEMPLATE_ALIAS: Dict[str, str] = {
     "html_template": "beautiful-html-templates", # 飞书绝活大会·张咋啦 28 套
     # 已有映射保留
     "landing":   "landing",
-    "deck":      "landing",     # deck 用 landing 模板兜底（保留原行为）
     "infographic": "landing",   # 信息图走 huashu 联盟，本地兜底到 landing
 }
+
+# v0.6-S13 修复：deck 不再走 landing 模板。
+# 原因：deck → landing 会把「分页幻灯片」渲染成 hero/features/pricing 落地页结构，
+# 产物里没有 <section class="slide">，导致 PPTX 文件桥（export_deck_pptx）与
+# 幻灯片编辑 API 全部失去输入——V0.6 的 G4「可编辑 PPTX」在此环境下必然失败。
+# 现在 deck 保持 intent 忠实：templates/deck.html 不存在 → 落到第 3 路径原生
+# generators/deck.py，产出真正的分页结构；guizang-ppt 等 manifest 声明的
+# `fallback: local:deck` 也正是这个语义。
+# 若将来新增 templates/deck.html，只需在此登记别名即可恢复模板优先。
+_INTENT_TEMPLATE_ALIAS_NO_FALLBACK = frozenset({"deck"})
 
 
 class GenerateExpert(BaseExpert):
@@ -81,7 +90,11 @@ class GenerateExpert(BaseExpert):
 
         # 第 2 路径：Jinja2 本地模板（templates/<intent>.html 或别名模板）
         # v0.3：用别名映射把 ppt_image/ppt_html/html_template 路由到对应模板文件
-        tmpl_name = _INTENT_TEMPLATE_ALIAS.get(intent, intent)
+        # deck 例外：保持 intent 忠实，不落到 landing 模板（见 _INTENT_TEMPLATE_ALIAS_NO_FALLBACK）
+        if intent in _INTENT_TEMPLATE_ALIAS_NO_FALLBACK:
+            tmpl_name = intent
+        else:
+            tmpl_name = _INTENT_TEMPLATE_ALIAS.get(intent, intent)
         tmpl_path = _TEMPLATES_DIR / f"{tmpl_name}.html"
         if tmpl_path.exists() and jinja2 is not None:
             try:

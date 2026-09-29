@@ -60,6 +60,31 @@ def test_parse_deck_slides_reports_flattened_visuals() -> None:
     assert slides[1]["flattened"] == []
 
 
+def test_deck_generation_stays_intent_faithful_with_or_without_jinja2(tmp_path: Path) -> None:
+    """Regression (V0.6-S17): deck must render paginated slides in both environments.
+
+    generate_expert used to alias deck → templates/landing.html, so any environment
+    with the optional `templates` extra (jinja2) rendered a landing page with
+    hero/features/pricing sections. The artifact then had no <section class="slide">,
+    which silently broke the PPTX bridge, the slide edit API and the export center —
+    i.e. the whole V0.6 G4 outcome. Deck now falls through to the native
+    generators/deck.py renderer regardless of whether jinja2 is installed.
+    """
+    from htmlninefox.experts import generate_expert
+
+    assert "deck" not in generate_expert._INTENT_TEMPLATE_ALIAS
+    assert "deck" in generate_expert._INTENT_TEMPLATE_ALIAS_NO_FALLBACK
+
+    work = _make_deck(tmp_path)
+    html = (work / "output.html").read_text(encoding="utf-8")
+
+    from htmlninefox.pptx_export import parse_deck_slides
+    slides = parse_deck_slides(html)
+    assert len(slides) >= 5, "deck 产物必须保持分页 slide 结构"
+    assert slides[0]["title"], "首页标题可被提取"
+    assert slides[0]["bullets"] or slides[0]["subtitle"], "首页应含可编辑正文"
+
+
 # ---------------------------------------------------------------- S13U-a slide editing API
 
 

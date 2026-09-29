@@ -1,8 +1,10 @@
 # Html九尾狐 · 产品长期迭代路线 v4（跨端可用版）
 
 > 制定日期：2026-08-31
+> 最近更新：2026-09-29
 > 当前应用稳定版：v0.5.0（2026-09-25 发布，RC3-B2/C/D/E 收口）
-> 目标：先让真实用户稳定完成“提出需求 → 生成 HTML → 预览 → 反馈修改 → 导出/分享”，再扩展平台数量。
+> 进行中版本：**v0.6.0 设计吸收 + 可编辑 PPTX**（S01–S14 / S16 / S18 / S13U-a / S13U-b 已合入 main；S15 出列、S13U-b2 出列；剩余 S17、S19–S21，目标 2026-11-08 前后发布）
+> 目标：先让真实用户稳定完成"提出需求 → 生成 HTML → 预览 → 反馈修改 → 导出/分享"，再扩展平台数量。
 
 > 2026-09-18：RC2 已接入版本差异、命名、恢复为新版本、键盘、原生动效与 100 节点验收，并进入 `v0.5.0rc2` 应用预发布。详见 [迭代记录](ITERATION-RC2-20260918.md)、[Release Notes](RELEASE-NOTES-v0.5.0rc2.md) 和 [发布测试报告](TEST-REPORT-v0.5.0rc2.md)。下方早期 Sprint 清单为历史规划。
 
@@ -285,14 +287,21 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 
 - **HTTP Adapter 继续膨胀**：`server/app.py` 同时承担 transport、错误映射和业务编排，新增能力容易产生 Divergent Change。
 - ~~**项目多文件写入没有统一事务边界**~~（RC3-D 已解决：journal 回滚 + 跨进程锁 + 原子发布）。
+- **intake 编排仍在 `_Handler`**：约 165 行编排集中在 HTTP Handler（审计 P1-7），应在 v0.6.x 提取 `IntakeService`，与 RC3-C 对 Generation/Feedback/Restore/Export 的处理保持一致。
 - **领域状态依赖松散字典**：生成、反馈、恢复和导出跨 Module 传递大量字典，字段组合难以验证。
-- **浏览器状态仍集中在大页面**：项目、生成、Revision、Export 与动效生命周期相互交叉。
+- ~~**浏览器状态仍集中在大页面**~~（RC3-E 已解决：按 Project / Generation / Revision / Export 生命周期拆分，含新增 Slides 模块）。
 - **本地 HTTP 服务不是云产品**：iOS/小程序必须通过 HTTPS 云端或局域网安全网关访问。
 - **平台过早扩张**：应用用例和 Project commit 稳定前，不启动多条原生客户端实现。
 
-## 10. 下一步执行顺序
+## 10. 下一步执行顺序（2026-09-29 更新）
 
-1. **RC3-E**：按 Project、Generation、Revision、Export 生命周期拆分浏览器业务 Module，并在已完成的视觉基础上继续执行真实状态截图、减少动效和帧预算门禁。
-3. RC3 已随 v0.5.0 收口；v0.6 按主线推进设计吸收流水线三阶段，辅线为可编辑 PPTX（Tauri 移至 v0.7）。详见 [v0.6 规划](PLAN-v0.6-DESIGN-INTAKE-20260926.md)。
+1. **S17 既有门禁不退化**：100 节点画布、20 revisions、Chromium/WebKit 双引擎 e2e、DSH 插件、a11y 全量复跑，证据入 `docs/test-evidence/`。
+2. **S19 文档六件套**：双 README（功能↔截图对照）、CHANGELOG 收口、ARCHITECTURE、ROADMAP 勾稽、`RELEASE-NOTES-v0.6.0`、`TEST-REPORT-v0.6.0`；`check_release_version --tag v0.6.0` 通过。
+3. **S20 新功能实拍截图**：审核台 / 风格候选 / 组件与装饰库 / 动效实验室 / PPTX 导出与幻灯片编辑，全部入截图集。
+4. **S21 版本切换与发布**：pyproject 切 0.6.0 → 全量回归 → tag → CI 五 job 构建六平台附件 → Release + SHA-256 回读 → 关闭 Issue #7。
+5. **v0.6.x 技术债**：P1-6 SSRF 连接级 IP 绑定、P1-7 提取 `IntakeService`、P2 批次（清单见 [v0.6.0 计划 §七-C](PLAN-v0.6.0-STABLE-20260927.md)）。
+6. **v0.7**：Tauri 桌面壳与云同步 / iOS Companion 按真实需求启动；原生移动包维持缓发决策。
 
-工程任务使用 GitHub Issues 跟踪，配置见 [`docs/agents/`](agents/)。完整验收和阶段边界见 [RC3 架构加固计划](ITERATION-PLAN-POST-RC2-20260920.md)。
+> RC3-E 已于 2026-09-25 完成并随 v0.5.0 收口，原「下一步 RC3-E」条目作废。
+
+工程任务使用 GitHub Issues 跟踪，配置见 [`docs/agents/`](agents/)。完整验收和阶段边界见 [RC3 架构加固计划](ITERATION-PLAN-POST-RC2-20260920.md) 与 [v0.6.0 迭代计划](PLAN-v0.6.0-STABLE-20260927.md)。

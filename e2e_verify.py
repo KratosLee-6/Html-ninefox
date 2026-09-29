@@ -56,7 +56,11 @@ async def main():
         r = pipeline.run_expert(prompt, output=str(OUT), quiet_llm=True)
         outputs[intent] = r["work"]
         html = (r["work"] / "output.html").read_text(encoding="utf-8")
-        check(f"生成 {intent}", html.startswith("<!doctype html>") and len(html) > 3000,
+        # HTML doctype 大小写不敏感：原生 generators 用小写 <!doctype html>，
+        # 而可选的 templates 家族（templates/landing.html 等）用大写 <!DOCTYPE html>。
+        # 装/不装 jinja2 会走到不同渲染路径，这里必须大小写无关地判断，
+        # 否则「templates」extra 一装，验收门禁就假失败。
+        check(f"生成 {intent}", html[:15].lower().startswith("<!doctype html>") and len(html) > 3000,
               f"{len(html)}B · {r['preset_id']} · {r['route_decision']}")
 
     # ---------- 2. 反馈迭代（真实变化）----------
