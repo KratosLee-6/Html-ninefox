@@ -820,7 +820,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
             <button class="btn btn-secondary" id="intake-batch-btn" onclick="intakeFetchBatch()">批量抓取</button>
             <label>ZIP 模板包（内含 HTML，≤24 个文件）</label>
             <input type="file" id="intake-zip-file" accept=".zip" style="width:auto;height:auto">
-            <button class="btn btn-secondary" id="intake-zip-btn" onclick="document.querySelector('#intake-zip-file').click()">导入 ZIP</button>
+            <button class="btn btn-secondary" id="intake-zip-btn" onclick="openZipPicker()">导入 ZIP</button>
           </div>
         </details>
       </section>
@@ -953,7 +953,13 @@ function applyTheme(theme) {
 function toggleTheme() {
   applyTheme(document.documentElement.dataset.theme === 'pixel-night' ? 'pixel-paper' : 'pixel-night');
 }
-const esc = s => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+/* 文本 → HTML 属性安全文本。单引号一并转义：esc() 的结果不只进入 HTML，
+ * 还会被塞进模板里的 JS 字符串（例如 onclick="intakeApprove('${esc(id)}')"），
+ * 漏掉单引号会让 id 里的 ' 闭合字符串。
+ * 当前 candidate_id 已被服务端正则限制为 [a-z0-9.-]，所以这还不是可利用
+ * 的漏洞；但它是个会误导后来者的坏味道，先补上。 */
+const esc = s => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 let camera = { x:0, y:0, z:1 };
 let nodes = [], edges = [], selected = null, selectedIds = new Set(), uid = 1, wsSeq = 1, activeWorkspaceId = null;
 /* G7 · 组框容器元数据（成员关系仍以 node.groupId 为准，这里只存组名与配色） */
@@ -1667,54 +1673,73 @@ function membersOf(ws, options = {}) {
   });
 }
 
-/* ================= 生命周期全局入口（委托到 Fox* Module） =================
- * onclick 与浏览器测试锚点依赖这些全局名；实现与内部状态都在 lifecycle-*.js。
- * 画布/检查器与各生命周期域之间只通过 window.Fox* API 协作。 */
-function loadProjects() { return window.FoxProjects.load(); }
-function openOutput(id) { return window.FoxProjects.open(id); }
-function renameProject(id) { return window.FoxProjects.rename(id); }
-function duplicateProject(id) { return window.FoxProjects.duplicate(id); }
-function deleteProject(id) { return window.FoxProjects.trash(id); }
-function updateProjectNodes(oldName, project) { return window.FoxProjects.updateNodes(oldName, project); }
-function advanceActive() { return window.FoxGeneration.advanceActive(); }
-function advanceWs(wsId, options) { return window.FoxGeneration.advance(wsId, options); }
-function rerunRecipeStage(nodeId, stage) { return window.FoxGeneration.rerun(nodeId, stage); }
-function markNodeGenerating(nodeId, pct) { return window.FoxGeneration.mark(nodeId, pct); }
-function createJobProgressReporter(label) { return window.FoxGeneration.progressReporter(label); }
-function finishNodeGenerating(nodeId, failed) { return window.FoxGeneration.finish(nodeId, failed); }
-function cancelGeneration() { return window.FoxGeneration.cancelActive(); }
-function openRevisionDiff(nodeId) { return window.FoxRevisions.open(nodeId); }
-function closeRevisionDiff() { return window.FoxRevisions.close(); }
-function loadRevisionDiff(initial) { return window.FoxRevisions.load(initial); }
-function selectRevision(revision) { return window.FoxRevisions.select(revision); }
-function updateRevisionSelection() { return window.FoxRevisions.updateSelection(); }
-function saveRevisionLabel() { return window.FoxRevisions.saveLabel(); }
-function restoreSelectedRevision() { return window.FoxRevisions.restore(); }
-function sendFeedback(n) { return window.FoxRevisions.sendFeedback(n); }
-function openExportCenter(nodeId) { return window.FoxExports.open(nodeId); }
-function closeExportCenter() { return window.FoxExports.close(); }
-function syncExportOptions() { return window.FoxExports.syncOptions(); }
-function startExport() { return window.FoxExports.start(); }
-function createDiagnostic() { return window.FoxExports.diagnostic(); }
-function openIntake() { return window.FoxIntake.open(); }
-function closeIntake() { return window.FoxIntake.close(); }
-function intakeRefresh(filter) { return window.FoxIntake.refresh(filter); }
-function intakeFetch() { return window.FoxIntake.fetchCandidate(); }
-function intakeFetchBatch() { return window.FoxIntake.fetchBatch(); }
-function intakeApprove(id) { return window.FoxIntake.approve(id); }
-function intakeReject(id) { return window.FoxIntake.reject(id); }
-function intakeTogglePreview(id) { return window.FoxIntake.togglePreview(id); }
-function intakeSelectAll() { return window.FoxIntake.selectAllPending(); }
-function intakeBatch(action) { return window.FoxIntake.batchApply(action); }
-function intakeSourceFilter(source) { return window.FoxIntake.refresh(source || 'pending', source); }
-function intakeMakeStylePreset(id) { return window.FoxIntake.makeStylePreset(id); }
-function openSlideEditor(id) { return window.FoxSlides.open(id); }
-function closeSlideEditor() { return window.FoxSlides.close(); }
-function saveSlideEditor() { return window.FoxSlides.save(); }
-function intakeImportComponents(id) { return window.FoxIntake.importComponents(id); }
-function intakeImportMotion(id) { return window.FoxIntake.importMotion(id); }
-function intakeAnalyze(id) { return window.FoxIntake.analyze(id); }
-function intakeLoadStats() { return window.FoxIntake.loadStats(); }
+/* ================= 动作派发表（全局名的唯一来源） =================
+ *
+ * HTML 与模板字符串里的动作名（onclick / onpointerdown）只能取这里的 key。
+ * 这块此前是 44 个手写的 `function foo(){ return window.FoxBar.foo(); }`
+ * 转发函数，HTML 里的动作字符串与那份清单之间没有任何约束——
+ * 引用一个漏登记的名字只会在用户点击时抛 ReferenceError，单元测试与 CI
+ * 全绿也发现不了。S20 期间的 `intakeFetchBatch` 死按钮就是这个形状。
+ *
+ * 现在动作名集中在这里，且 tests/test_action_registry.py 会在测试期静态
+ * 校验：任何被 HTML/JS 引用但没有登记的名字，门禁立刻失败。
+ *
+ * 内部状态与实现仍都在 lifecycle-*.js；画布与各生命周期域只通过
+ * window.Fox* API 协作。 */
+window.FoxActions = {
+  loadProjects: () => window.FoxProjects.load(),
+  openOutput: id => window.FoxProjects.open(id),
+  renameProject: id => window.FoxProjects.rename(id),
+  duplicateProject: id => window.FoxProjects.duplicate(id),
+  deleteProject: id => window.FoxProjects.trash(id),
+  updateProjectNodes: (oldName, project) => window.FoxProjects.updateNodes(oldName, project),
+  advanceActive: () => window.FoxGeneration.advanceActive(),
+  advanceWs: (wsId, options) => window.FoxGeneration.advance(wsId, options),
+  rerunRecipeStage: (nodeId, stage) => window.FoxGeneration.rerun(nodeId, stage),
+  markNodeGenerating: (nodeId, pct) => window.FoxGeneration.mark(nodeId, pct),
+  createJobProgressReporter: label => window.FoxGeneration.progressReporter(label),
+  finishNodeGenerating: (nodeId, failed) => window.FoxGeneration.finish(nodeId, failed),
+  cancelGeneration: () => window.FoxGeneration.cancelActive(),
+  openRevisionDiff: nodeId => window.FoxRevisions.open(nodeId),
+  closeRevisionDiff: () => window.FoxRevisions.close(),
+  loadRevisionDiff: initial => window.FoxRevisions.load(initial),
+  selectRevision: revision => window.FoxRevisions.select(revision),
+  updateRevisionSelection: () => window.FoxRevisions.updateSelection(),
+  saveRevisionLabel: () => window.FoxRevisions.saveLabel(),
+  restoreSelectedRevision: () => window.FoxRevisions.restore(),
+  sendFeedback: n => window.FoxRevisions.sendFeedback(n),
+  openExportCenter: nodeId => window.FoxExports.open(nodeId),
+  closeExportCenter: () => window.FoxExports.close(),
+  syncExportOptions: () => window.FoxExports.syncOptions(),
+  startExport: () => window.FoxExports.start(),
+  createDiagnostic: () => window.FoxExports.diagnostic(),
+  openIntake: () => window.FoxIntake.open(),
+  closeIntake: () => window.FoxIntake.close(),
+  intakeRefresh: filter => window.FoxIntake.refresh(filter),
+  intakeFetch: () => window.FoxIntake.fetchCandidate(),
+  intakeFetchBatch: () => window.FoxIntake.fetchBatch(),
+  intakeApprove: id => window.FoxIntake.approve(id),
+  intakeReject: id => window.FoxIntake.reject(id),
+  intakeTogglePreview: id => window.FoxIntake.togglePreview(id),
+  intakeSelectAll: () => window.FoxIntake.selectAllPending(),
+  intakeBatch: action => window.FoxIntake.batchApply(action),
+  intakeSourceFilter: source => window.FoxIntake.refresh(source || 'pending', source),
+  intakeMakeStylePreset: id => window.FoxIntake.makeStylePreset(id),
+  openSlideEditor: id => window.FoxSlides.open(id),
+  closeSlideEditor: () => window.FoxSlides.close(),
+  saveSlideEditor: () => window.FoxSlides.save(),
+  intakeImportComponents: id => window.FoxIntake.importComponents(id),
+  intakeImportMotion: id => window.FoxIntake.importMotion(id),
+  intakeAnalyze: id => window.FoxIntake.analyze(id),
+  intakeLoadStats: () => window.FoxIntake.loadStats(),
+  openZipPicker: () => document.querySelector('#intake-zip-file').click(),
+  openClassic: () => window.open('/classic', '_blank'),
+};
+/* onclick 字符串靠全局名解析，这里把派发表挂上去。
+ * 已存在的同名全局不覆盖——真正��工作台函数优先。 */
+for (const [name, fn] of Object.entries(window.FoxActions)) {
+  if (!(name in window)) window[name] = fn;
+}
 document.addEventListener('change', event => {
   if (event.target?.id === 'intake-zip-file' && event.target.files?.[0]) {
     window.FoxIntake.importZip(event.target.files[0]);

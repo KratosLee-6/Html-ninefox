@@ -23,7 +23,7 @@
 | C3 | 竞态守卫 4 份、3 种形状，Slides 完全没写 | Strong | ❌ 未做 |
 | C4 | 「Explicit Requirement + Project Memory → 选定上下文」被实现两次 | Strong | ❌ 未做 |
 | C5 | Export 失败语义在三个 Module 间被翻译三次 | Strong | ❌ 未做 |
-| C6 | inline `onclick` 字符串 seam：44 个手工 shim | Worth exploring | ⚠️ **方向反了** |
+| C6 | inline `onclick` 动作名无编译期约束，靠 44 个手写 shim 连线 | Worth exploring | ⚠️ **已修一半**（派发表 + 静态门禁；事件委托推迟） |
 | C7 | 真实 Interface 是 `index.html` 的全局可变状态 | Speculative | ❌ 未做 |
 | C8 | 设计吸收 Candidate 是松散字典，许可档位靠默认值兜底 | Worth exploring | ❌ 未做 |
 
@@ -56,11 +56,22 @@
 
 回归门禁 `tests/test_artifact_revision_writeback.py`：一条断言协议只有一份实现（其他文件不得再拼 `#rev-${` + `#frame-${` 的组合），一条走「生成 deck → 改幻灯片 → 刷新 → revision 不得回退」。第二条已做反向验证：完全关掉持久化即变红，报 `期望 1，实际 0`。
 
-## C6 方向反了（需优先止损）
+## C6 动作名派发表（已修，事件委托另议）
 
-修死按钮的方式是**补上第 45 个手工转发函数**——而 C6 说的恰恰是别这么干：89 处 inline `onclick` 靠 44 个手写 shim 连线，HTML 字符串与这份清单之间**没有任何编译期约束**，死 shim 正是这么来的。
+修死按钮的方式曾是**补上第 45 个手工转发 shim**——正是本节要消除的形状。已改正：
 
-我用治理这个问题的手段，加重了这个问题的规模。当前实测：130 个顶层全局函数 / 89 处 inline `onclick`。建议在规模继续扩大前改为 `data-action` + 事件委托，全局名由一个派发表统一提供。
+44 个手写的 `function foo(){ return window.FoxBar.foo(); }` 转发函数收成**唯一派发表** `window.FoxActions`，全局名由它统一挂出。新增 `tests/test_action_registry.py`（4 条）：
+
+- 派发表规模不得缩水（≥40 条），防止有人直接删条目绕过门禁；
+- **任何被 HTML / 模板字符串引用的动作名都必须能解析**——引用了没登记的名字，点击时只会抛 `ReferenceError`，而服务端、单元测试与 CI 全绿。这正是 `intakeFetchBatch` 死按钮的形状；
+- 每条登记项须委托给某个 `window.Fox*` Module，少数纯 UI 工具动作（打开文件选择器、新窗口打开）例外且写明理由；
+- 动作属性里不得再出现内联 DOM 操作（`document.querySelector(...).click()` 已改为具名的 `openZipPicker()`）。
+
+门禁已做反向验证：删掉 `intakeFetch` 的登记项后立刻报出「被引用但没有登记」。
+
+顺带修掉 `esc()` 漏转义单引号（`index.html`）——它的结果会被塞进 `onclick="...('${esc(id)}')"` 这类 JS 字符串。当前 `candidate_id` 被服务端正则限制为 `[a-z0-9.-]`，所以**不是可利用漏洞**，但它会误导后来者。
+
+**未做（有意推迟）**：把 112 处 `onclick` 字符串整体迁到 `data-action` + 事件委托。测量下来参数形态有 6 类（无参 44 / 单 id 32 / 字符串参 8 / `stopPropagation` 组合 5 / 内联 DOM 1 / event 传参 2 / 多参 4），其中 `data-*` 取值一律是字符串而节点 id 是数字，`===` 比较会失效；再加上多参与 `stopPropagation` 语义，132 处迁移的每一处都是引入回归的机会。**派发表 + 静态门禁已经把缺陷类堵死了**（漏登记会在 CI 失败，而不是在用户点击时失败），事件委托留作后续可独立进行的 DOM 纯净化。
 
 ## 其余候选要点
 
