@@ -66,7 +66,7 @@ PROBE = """
   };
   const isCanvas = el => !!(el.closest('#viewport') || el.closest('.canvas-wrap'));
 
-  const contrast = [], small = [], type = new Map();
+  const contrast = [], small = [], type = new Map(), sizes = new Set();
   document.querySelectorAll('*').forEach(el => {
     const cs = getComputedStyle(el);
     if (cs.display === 'none' || cs.visibility === 'hidden') return;
@@ -78,6 +78,7 @@ PROBE = """
     if (text) {
       const key = cs.fontSize + '|' + cs.lineHeight + '|' + cs.fontWeight;
       type.set(key, (type.get(key) || 0) + 1);
+      sizes.add(Math.round(parseFloat(cs.fontSize) * 100) / 100);
       if (!el.children.length && !el.closest(opts.nonText)) {
         const fg = parse(cs.color);
         if (fg) {
@@ -100,7 +101,8 @@ PROBE = """
     const r = k.getBoundingClientRect();
     return { text: k.textContent.trim(), w: Math.round(r.width), h: Math.round(r.height) };
   });
-  return { contrast, small, typeSizeCount: type.size, badges };
+  return { contrast, small, typeSizeCount: type.size,
+           sizes: [...sizes].sort((a, b) => a - b), badges };
 }
 """
 
@@ -170,7 +172,12 @@ def main() -> int:
             print(f"      {item['got']}:1 (需 {item['need']}) {item['size']}px "
                   f"{item['sel']} 「{item['text']}」")
     desktop = report["desktop-1440"]
-    print(f"  字号组合数        {desktop['typeSizeCount']}  (健康系统 6–10)")
+    # 主指标是「去重字号数」——这才��字号阶梯。typeSizeCount 统计的是
+    # 字号×行高×字重的组合数，同样字号配不同 line-height/weight 会被拆开计数，
+    # 数值偏大且不代表阶梯混乱，只作辅助诊断。
+    print(f"  去重字号数        {len(desktop['sizes'])}  (健康 6–8)"
+          f"  {desktop['sizes']}")
+    print(f"  字号/行高/字重组合 {desktop['typeSizeCount']}  (辅助指标)")
     print(f"  画布外小触控目标  {len(desktop['small'])} 个  (< 24px)")
     squeezed = [b for b in desktop["badges"] if b["w"] <= b["h"]]
     print(f"  被挤压成竖排的徽标 {len(squeezed)} 个")
