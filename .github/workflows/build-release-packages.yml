@@ -35,6 +35,11 @@ jobs:
           if (-not $installer) { throw "Windows installer was not generated" }
           $hash = (Get-FileHash $installer.FullName -Algorithm SHA256).Hash
           "$hash  $($installer.Name)" | Set-Content "$($installer.FullName).sha256.txt" -Encoding ascii
+      - name: Run the built portable package
+        # 「构建成功」不等于「能启动」。desktop.py 曾因缺 import sys 导致便携包与
+        # 安装器一启动就 NameError，而本 job 只构建不执行，缺陷因此对 CI 完全隐形。
+        # 这���真正把产物跑起来：版本、发行形态、首页、静态资源、干净退出。
+        run: python packaging/verify_portable.py
       - uses: actions/upload-artifact@v7
         with:
           name: htmlninefox-windows
