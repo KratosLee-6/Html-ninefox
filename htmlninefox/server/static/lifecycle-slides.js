@@ -40,6 +40,7 @@
 
   async function save() {
     if (draft.busy) return;
+    const nodeId = draft.nodeId;   /* await 之前锁定目标节点，见下方注释 */
     const edits = [];
     document.querySelectorAll('#slides-editor textarea[data-slide]').forEach(area => {
       const original = (draft.slides[Number(area.dataset.slide)]?.texts || [])
@@ -55,15 +56,10 @@
     try {
       const result = await api('/api/projects/' + encodeURIComponent(draft.projectName) +
         '/slides', 'PUT', { edits, expected_revision: draft.revision });
-      const node = nodes.find(item => item.id === draft.nodeId);
-      if (node) {
-        node.data.revision = result.revision;
-        const badge = document.querySelector(`#rev-${node.id}`);
-        if (badge) badge.textContent = 'rev' + result.revision;
-        const preview = document.querySelector(`#frame-${node.id}`);
-        if (preview) preview.src = node.data.preview_url + '?t=' + Date.now();
-        renderInspector();
-      }
+      // nodeId 在 await 之前取：draft 会在 open() 里被整体重写，
+      // 若在 await 之后读 draft.nodeId，保存进行中切换弹窗会把本次的
+      // revision 号写到另一个 deck 的节点上。
+      await window.FoxRevisions.advanceNodeRevision(nodeId, result.revision);
       flash(`✓ 幻灯片已更新为 rev${result.revision}，原版本保留`, true);
       close();
     } catch (error) {

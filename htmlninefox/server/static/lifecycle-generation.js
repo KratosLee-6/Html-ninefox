@@ -331,16 +331,12 @@
       finish(node.id, false);
       node.data.recipe_run = result.recipe_run;
       node.data.verification = result.verification;
-      node.data.revision = result.revision;
-      const revisionBadge = document.querySelector(`#rev-${node.id}`);
-      if (revisionBadge) revisionBadge.textContent = 'rev' + result.revision;
-      const preview = document.querySelector(`#frame-${node.id}`);
-      if (preview && stage === 'generate') preview.src = node.data.preview_url + '?t=' + Date.now();
       const ws = workspaceForNode(node);
       if (ws) ws.data.recipeRun = result.recipe_run;
-      renderInspector();
       timeline();
-      await persistWorkspaceNow();
+      // 局部重跑只在重新生成阶段才换预览帧；verify 阶段产物没变。
+      await window.FoxRevisions.advanceNodeRevision(node.id, result.revision,
+        { refreshPreview: stage === 'generate' });
       flash(`✓ ${stage === 'verify' ? '质量验证' : '产物生成'} 已局部重跑`, true);
     } catch (error) {
       flash('局部重跑失败：' + error.message, false);

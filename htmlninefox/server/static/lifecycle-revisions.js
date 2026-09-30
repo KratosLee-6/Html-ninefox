@@ -6,6 +6,38 @@
 
   let draft = { projectName: null, request: 0, revisions: [], busy: false };
 
+  /* Artifact 前进到新 Revision 的唯一写回入口。
+   *
+   * 这段协议此前被复制在 sendFeedback / slides.save / generation.rerun
+   * 三处且互不一致：sendFeedback 与 slides.save 都漏了 Workspace 持久化，
+   * 于是内存里的 revision 号变了、持久化快照没变，刷新页面后用户看到旧
+   * rev 号而服务端 Artifact 已是新 rev。把协议收进一个函数后，"忘记做
+   * 其中一步"不再可能——漏一步就会让另外两处一起坏，门禁立刻发现。
+   */
+  async function advanceNodeRevision(nodeId, revision, options) {
+    const opts = options || {};
+    const node = nodes.find(item => item.id === nodeId);
+    if (!node) return null;
+    node.data.revision = revision;
+    const badge = document.querySelector(`#rev-${node.id}`);
+    if (badge) badge.textContent = 'rev' + revision;
+    if (opts.refreshPreview !== false) {
+      const frame = document.querySelector(`#frame-${node.id}`);
+      if (frame && node.data.preview_url) frame.src = node.data.preview_url + '?t=' + Date.now();
+    }
+    renderInspector();
+    if (opts.persist !== false) {
+      // save() 写 localStorage（页面刷新时优先从这里恢复画布）并排队一次
+      // 防抖的服务端写入；persistWorkspaceNow() 再把这次写入立刻提交。
+      // 只调后者是不够的——它只 PUT /api/workspace，刷新后 localStorage
+      // 仍是旧快照，revision 会退回旧值。
+      save();
+      await persistWorkspaceNow();
+    }
+    if (opts.reloadProjects !== false) await window.FoxProjects?.load?.();
+    return node;
+  }
+
   function close() {
     const nodeId = draft.nodeId;
     draft = { projectName: null, request: draft.request + 1, revisions: [], busy: false };
@@ -132,15 +164,13 @@
     const btn = document.querySelector('#fb-send'); btn.disabled = true;
     try {
       const d = await post('/api/feedback', { project: n.data.project, note });
-      n.data.revision = d.revision;
       n.data.feedback = n.data.feedback || [];
       n.data.feedback.unshift({ rev: d.revision, note, sug: d.suggestion || '' });
-      document.querySelector(`#rev-${n.id}`).textContent = 'rev' + d.revision;
-      document.querySelector(`#frame-${n.id}`).src = n.data.preview_url + '?t=' + Date.now();
-      renderInspector(); flash(`✓ rev${d.revision}：${d.suggestion || '已迭代'}`, true); window.FoxProjects?.load();
+      await advanceNodeRevision(n.id, d.revision);
+      flash(`✓ rev${d.revision}：${d.suggestion || '已迭代'}`, true);
     } catch (e) { flash('🦊 ' + e.message, false); }
     finally { btn.disabled = false; }
   }
 
-  window.FoxRevisions = { open, close, load, select, updateSelection, saveLabel, restore, sendFeedback };
+  window.FoxRevisions = { open, close, load, select, updateSelection, saveLabel, restore, sendFeedback, advanceNodeRevision };
 })();

@@ -18,7 +18,7 @@
 | # | 候选 | 强度 | 状态 |
 |---|---|---|---|
 | 🐛 | `intakeFetchBatch` 未定义，「批量抓取」按钮死链 | — | ✅ **已修**（`0cf99b8`） |
-| C2 | Artifact 写回协议复制 4 份，其中 2 份已违约 | Strong | ❌ 未做（**Top 推荐**） |
+| C2 | Artifact 写回协议复制 3 份，其中 2 份漏持久化 | Strong | ✅ 已修（写回协议收进单一拥有者） |
 | C1 | 幻灯片编辑用例住在 HTTP Adapter，锁不变量无归属 | Strong | ❌ 未做 |
 | C3 | 竞态守卫 4 份、3 种形状，Slides 完全没写 | Strong | ❌ 未做 |
 | C4 | 「Explicit Requirement + Project Memory → 选定上下文」被实现两次 | Strong | ❌ 未做 |
@@ -33,22 +33,28 @@
 
 这是「能力在服务端实现齐备，却没有用户可达路径、也没有测试点击过入口」的**第三例**（前两例：S17 的 deck 别名、S20 的 PPTX 下拉缺项）。
 
-## C2 · Artifact 写回协议复制 4 份（Top 推荐）
+## C2 · Artifact 写回协议复制 3 份（已修）
 
-「一个 Artifact 前进到新 Revision 后必须同步四处」是一条被隐式复制 4 遍的协议，四份实现各不相同：
+「一个 Artifact 前进到新 Revision 后必须同步若干处」是一条被复制 3 遍的协议，三份实现互不一致：
 
-| 实现 | `node.data.revision` | `#rev-` 徽标 | iframe 破缓存 | `renderInspector` | 持久化 Workspace |
-|---|---|---|---|---|---|
-| `lifecycle-revisions.js` sendFeedback | ✓ | ✓ | ✓ | ✓ | **✗** |
-| `lifecycle-slides.js` save | ✓ | ✓ | ✓ | ✓ | **✗** |
-| `lifecycle-generation.js` rerun | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `index.html` renderNode | — | — | ✓ | — | — |
+| 实现 | `node.data.revision` | `#rev-` 徽标 | iframe 破缓存 | `renderInspector` | localStorage | 服务端快照 | `FoxProjects.load` |
+|---|---|---|---|---|---|---|---|
+| `revisions.js` sendFeedback | ✓ | ✓ | ✓ | ✓ | **✗** | **✗** | ✓ |
+| `slides.js` save | ✓ | ✓ | ✓ | ✓ | **✗** | **✗** | **✗** |
+| `generation.js` rerun | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | **✗** |
 
-**可复现的用户可见后果**：`workspaceSnapshot()`（`index.html`）整体序列化 `nodes`，`node.data.revision` 就在里面。`slides.js` 与 `sendFeedback` 改了内存里的 Revision 号却没调 `save()`（`lifecycle-slides.js` 全文仅 `:41 async function save()` 一处命中）。**刷新页面后用户看到旧 rev 号，而服务端 Artifact 已是新 rev。**
+> 本节初版把 `revisions.js` 记为「已持久化」，是错的——那一处 `persistWorkspaceNow()` 属于 `mutate()`（restore 路径），不在 `sendFeedback` 里。修正后是 **3 份实现中有 2 份完全没持久化**。
 
-而「编辑幻灯片」正是 v0.6.0 刚对外宣称的核心能力（成果 G4）。
+**可复现的用户可见后果**：页面刷新时画布优先从 localStorage 的 `fox-canvas-v3` 恢复（`index.html` 的 `applyWorkspaceSnapshot` 入口）。`sendFeedback` 与 `slides.save` 改了内存里的 revision 号却没写 localStorage，**刷新后用户看到旧 rev 号，而服务端 Artifact 已是新 rev**。而「编辑幻灯片」正是 v0.6.0 刚对外宣称的核心能力（成果 G4）。
 
-**排第一的理由**：唯一一个既有真实用户可见缺陷、又修复面很小（一个 Module、四个调用点）的候选。做完之后 C3 的竞态原语有了一个天然挂载点。
+**修法**：协议收进唯一拥有者 `window.FoxRevisions.advanceNodeRevision(nodeId, revision, options)`，由它决定是否破缓存预览、是否重绘检查器、是否持久化、是否刷新项目列表。三个调用点各自只留业务语义。
+
+修的过程中有两点必须记下来：
+
+1. **只调 `persistWorkspaceNow()` 是不够的**。它只做 `PUT /api/workspace`，**不写 localStorage**，而刷新路径读的是 localStorage。拥有者必须先 `save()`（同步写 localStorage + 排队防抖的服务端写入）再 `await persistWorkspaceNow()`（立即提交）。第一版修复漏了这一半，是回归测试抓出来的。
+2. **回归测试本身一度是假的**。最初用 `page.add_init_script("localStorage.clear()")` 隔离用例，但它会在**每次导航包括 reload** 时执行——正好把被测对象擦掉，测试无论修复在与不在都通过。去掉它之后测试才真正咬住这个缺陷。
+
+回归门禁 `tests/test_artifact_revision_writeback.py`：一条断言协议只有一份实现（其他文件不得再拼 `#rev-${` + `#frame-${` 的组合），一条走「生成 deck → 改幻灯片 → 刷新 → revision 不得回退」。第二条已做反向验证：完全关掉持久化即变红，报 `期望 1，实际 0`。
 
 ## C6 方向反了（需优先止损）
 
@@ -67,8 +73,8 @@
 
 ## 建议顺序
 
-1. **C2**（真实缺陷 + 修复面小）
-2. **C3**（串号是可复现缺陷；C2 完成后原语有挂载点）
+1. **C2** ✅ 已完成（写回协议单一拥有者 + 刷新后 revision 不回退的回归门禁）
+2. **C3**（串号是可复现缺陷；C2 完成后原语有挂载点——C2 顺带把 slides 的 `draft.nodeId` 在 await 前锁定，串号的一半已经堵上，但 4 套守卫机制仍未统一）
 3. **C6**（止损，别再让它变大）
 4. **C1**、**C4**、**C5**（结构性债，无紧急故障）
 5. **C7**（收益最大、迁移成本未量化，最后评估）
