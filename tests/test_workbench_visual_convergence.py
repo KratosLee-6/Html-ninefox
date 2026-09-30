@@ -28,6 +28,21 @@ def test_workbench_convergence_layout_icons_and_semantic_zoom(workbench_server):
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.goto(server.base_url + "/")
         page.wait_for_function("window.FoxWorkbenchUI && document.querySelectorAll('.ui-icon svg').length > 20")
+        # init() 用 setTimeout 把首屏适配推迟 120ms（首屏不做相机缓动，见 index.html
+        # 的 `if (!restored) setTimeout(() => fitAll(false), 120)`）。READY 为真并不代表
+        # 那次适配已经执行——若此时改 camera.z，随后的 fitAll 会把缩放重置回 fit 值，
+        # 于是 data-canvas-density 与实际缩放对不上，语义缩放断言随机失败。
+        # 这里等相机连续两帧不变，确认首屏适配已落定。
+        page.wait_for_function(
+            "() => new Promise(resolve => {"
+            "  let last = null, stable = 0;"
+            "  const tick = () => {"
+            "    if (Math.abs(camera.z - last) < 1e-6) { if (++stable >= 2) return resolve(true); }"
+            "    else { stable = 0; last = camera.z; }"
+            "    requestAnimationFrame(tick);"
+            "  };"
+            "  requestAnimationFrame(tick);"
+            "})", timeout=10000)
 
         assert page.locator("link[href='/workbench-system.css']").count() == 1
         assert page.locator(".ui-icon svg").count() > 20
