@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 
 from .launcher import frozen_portable_root, launch_workspace
 
