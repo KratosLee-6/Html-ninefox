@@ -116,6 +116,9 @@ def package(app: Path, release_version: str) -> Path:
     archive.with_suffix(archive.suffix + ".sha256.txt").write_text(
         f"{digest}  {archive.name}\n", encoding="ascii"
     )
+    # 与 build_linux.py 对齐：把校验和打进构建日志，否则发布回读时
+    # 只能从附件里的 .sha256.txt 取，日志里查不到。
+    print(f"macos={archive} sha256={digest}")
     return archive
 
 
