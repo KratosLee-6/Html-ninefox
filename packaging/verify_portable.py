@@ -35,6 +35,15 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+# Windows runner 的 stdout 是 cp1252，直接打印中文会在第一行就 UnicodeEncodeError。
+# 本地控制台能打出来不代表 CI 能——这条正是把验证接进流水线之后才暴露的。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        if (_stream.encoding or "").lower().replace("-", "") not in ("utf8", "cp936", "gbk"):
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):  # 已重定向到无 encoding 的流
+        pass
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PORTS = [8620, *range(8621, 8641)]
 
@@ -48,8 +57,12 @@ def version() -> str:
     return re.search(r'^version = "([^"]+)"', text, re.MULTILINE).group(1)
 
 
-def probe_health(timeout: float = 90.0) -> tuple[int, dict]:
-    """按默认端口逐个探测。应用不读环境变量端口，用的是 launcher 的默认/回落。"""
+def probe_health(timeout: float = 90.0, proc=None) -> tuple[int, dict]:
+    """按默认端口逐个探测。应用不读环境变量端口，用的是 launcher 的默认/回落。
+
+    探测失败时把 exe 自己的输出打出来——否则 CI 日志只会显示「连不上」，
+    而真正的崩溃原因（正是当初 desktop.py 那个 NameError）被管道吞掉了。
+    """
     deadline = time.monotonic() + timeout
     last = ""
     while time.monotonic() < deadline:
@@ -59,7 +72,17 @@ def probe_health(timeout: float = 90.0) -> tuple[int, dict]:
                     return port, json.loads(raw.read().decode("utf-8"))
             except (urllib.error.URLError, ConnectionError, OSError) as exc:
                 last = repr(exc)
+        if proc is not None and proc.poll() is not None:
+            break
         time.sleep(1.0)
+    if proc is not None and proc.stdout is not None:
+        try:
+            out = proc.stdout.read()
+            for enc in ("utf-8", "gbk", "cp1252", "latin-1"):
+                print("产物自身输出：\n" + out.decode(enc, "replace"))
+                break
+        except (OSError, ValueError):
+            pass
     raise SystemExit(f"产物在 {timeout:.0f}s 内没有提供服务：{last}")
 
 
@@ -68,8 +91,11 @@ def verify(exe: Path, label: str) -> int:
     proc = subprocess.Popen([str(exe)], cwd=str(exe.parent),
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     try:
-        port, health = probe_health()
+        port, health = probe_health(proc=proc)
         print(f"  /api/health -> {health}")
+        if not health.get("ok"):
+            print("  health 未回报 ok")
+            return 1
         want = version()
         if health.get("version") != want:
             print(f"  版本不符：期望 {want}，实际 {health.get('version')}")
