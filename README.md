@@ -12,14 +12,14 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-303%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
+[![Tests](https://img.shields.io/badge/pytest-387%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![Html九尾狐 Pixel Garden 工作台（v0.5.0 实拍集）](assets/screenshots/v0.5.0/workbench-paper-1440.png)
+![Html九尾狐 Pixel Garden 工作台（v0.6.0 实拍）](assets/screenshots/v0.6.0/workbench-overview.png)
 
 ## 30 秒看懂 Html九尾狐
 
@@ -27,7 +27,7 @@
 
 **中文版** 1920×1080 · 30s · 无声 · [**English cut**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4) · [全部文件](assets/promo)
 
-> 片中界面、导出产物与导出中心均为 `v0.5.0` 真实运行截图；口号「让灵感在 HTML 里生长」与 Pixel Garden 视觉取自 [`docs/VI.md`](docs/VI.md)。
+> **片中界面的版本**：片中出现的「项目记忆」弹窗、导出中心等界面拍摄自 **`v0.5.0`**——本片制作时 v0.6.0 的工作台尚未收敛。这不是文案没跟上，而是**素材本身是旧版**。当前版本的界面以本文档的 [v0.6.0 实拍](#工作台与画布v060-实拍-6-张) 为准。片中只有开场抽象氛围镜头由 MiniMax-H3 生成，UI 镜头一律是真实运行截图，品牌标识渲染自项目内官方 SVG。口号「让灵感在 HTML 里生长」与 Pixel Garden 视觉取自 [`docs/VI.md`](docs/VI.md)。
 
 ## 它解决什么问题
 
@@ -54,39 +54,47 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## 当前版本与最新进展（v0.6.0 准备发布）
 
-当前应用包版本为 `0.6.0`，发布标签 `v0.6.0`（RC 门禁已全绿，安装包随标签发布）。v0.6.0 交付两条主线：
+当前应用包版本为 `0.6.0`，发布标签 `v0.6.0`（全部门禁已绿，安装包随标签发布）。v0.6.0 交付两条主线，外加一轮发布前的设计收口：
 
 1. **设计吸收流水线**：把外部优秀设计变成自己的素材。手动多 URL / ZIP 导入 + 12 个内置设计源（三档许可治理：开放可入库 / 仅参考重写 / 仅灵感板）、SSRF 安全抓取、CSP 沙箱审核台（批量采用 / 拒绝 + 来源筛选）、AI 设计分析通道与吸收指标面板；模板、风格、组件、装饰、动效、内容六个层面全部打通「吸收 → 审核 → 入库 → 使用」。
 2. **可编辑 PPTX**：deck 产物通过 python-pptx 导出为符合标准的 `.pptx`，文本框真正可编辑，并附诚实的降级报告；工作台内新增幻灯片编辑器（`PUT /slides` 带 `expected_revision` 冲突保护 + 产物检查器里的结构化幻灯片对话框），编辑 → 写回 → 导出可保留改动。
+3. **发布前设计收口**：界面在实拍审计中重新收敛——字号 17 种 → 7 档 `--fs-*`、字重 7 种 → 4 档 `--fw-*`、140 余个硬编码间距收进 `--space-*` 尺度；首屏画布不再把浮层导航卡当成通高左栏（缩放 0.33 → 0.80）；夜蓝主题主按钮对比度 2.44:1 提到 AA 以上；两套主题的弱化文字全部达到 WCAG AA。
+
+> 这三条不是「顺手美化」。第 3 条里的每一项都由静态门禁锁定，且每一道门禁都做过反向验证——去掉修复后必须变红，否则视为无效门禁。本轮共新增 84 条测试（303 → 387）。
 
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
 | 应用 Release | `v0.6.0` 准备发布，门禁全绿 | [发布页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) · [上一稳定版 v0.5.0](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
-| 发布验证 | 全量测试 `303 passed, 1 skipped`；JS 语法 13 个文件 + inline 全通过；Chromium 验收 `22/22`、WebKit（Safari 引擎）验收 `22/22`；发布元数据一致 | [v0.6.0 门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| 发布验证 | 全量测试 `387 passed, 1 skipped`（v0.5.0 基线 303，本轮新增 84 条）；JS 语法 13 个文件 + inline 全通过；Chromium 验收 `22/22`、WebKit（Safari 引擎）验收 `22/22`；发布元数据一致 | [v0.6.0 门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| 打包产物实跑 | Windows / Linux / macOS / Docker 四个构建 job 全绿；Windows 便携包（73.8 MB）**真实启动**通过——`/api/health` 回报 `0.6.0 / windows-portable`，首页 161 KB，六项静态资源全通，进程干净退出 | [发布说明 · 验证](docs/RELEASE-NOTES-v0.6.0.md#验证) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本；本轮 `2/2` 通过 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
-> **Fixed**：门禁中发现 `deck` 曾被别名到 `templates/landing.html`，装了可选 `templates` extra（jinja2）的环境会把发布会 PPT 渲染成落地页，整条可编辑 PPTX 链路静默失效；现在 deck 保持意图忠实并回落到原生生成器（7 页 / 24 个可编辑元素），有无 jinja2 结果一致。同期把 Chromium 验收的 doctype 断言改为大小写不敏感。CI 只安装 `.[dev]`（不含 templates extra），所以此前没能发现。
+> **Fixed（发布阻断级）**：打包流水线此前只**构建**产物、从不**执行**它，于是产出了一个能通过全部测试、四个构建 job 全绿、却一启动就崩溃的 Windows 便携包——`desktop.py` 用了 `sys.platform` 却从未 `import sys`，而这条路径只有 PyInstaller 冻结入口会走，源码测试套件从不加载。现已修复，并补两道防线：静态扫描冻结入口未绑定名字的门禁（`tests/test_frozen_entry_gates.py`），以及真实启动产物的验证脚本（`packaging/verify_portable.py`）。同批门禁还拦下三条「服务端实现齐备、界面却不可达」的缺陷：导出中心从来没有 PPTX 选项（成果在界面上无法触达，且没有任何测试点过那个下拉框）、「批量抓取」调用了从未定义的函数、typography 抽取器少一个形参导致许可第三档「开放许可」整体产不出候选。完整清单见[发布说明](docs/RELEASE-NOTES-v0.6.0.md#修复)。
 
-### 功能 ↔ 截图对照（v0.5.0 实拍集）
+### 功能 ↔ 截图对照
 
-以下 18 张全部拍摄自 `v0.5.0` 发布版（顶栏版本徽标为 `v0.5.0`）——工作台外壳与交互语义在 v0.6.0 未变，继续沿用。v0.6.0 新增的设计吸收与可编辑 PPTX 使用本轮新拍的真实截图，见[设计吸收流水线](#设计吸收流水线v06-新增)与[可编辑 PPTX](#可编辑-pptxv06-新增)两节（`assets/screenshots/v0.6.0/`，7 张）。每张对应一项真实功能：
+#### 工作台与画布（v0.6.0 实拍，6 张）
 
-**工作台与画布**
+以下 6 张拍摄自 `v0.6.0` 当前代码（顶栏版本徽标为 `v0.6.0`），包含本轮设计收敛后的字号、字重、间距与画布适配：
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台</b><br>三栏层级：素材库 · 无限画布工作区 · 检查器。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题桌面工作台</b><br>同一组件层级与品牌语义色的完整暗色主题。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台</b><br>三栏层级：素材库 · 无限画布工作区 · 检查器。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题桌面工作台</b><br>同一组件层级的完整暗色主题；主按钮与弱化文字均已提到 WCAG AA 以上。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>工作区导航、识别色、独立推进与整组移动。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>工作区导航卡按真实几何参与画布避让，首屏缩放 81%，不再把内容缩成一团。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动任务视图</b><br>以工作区动作和节点卡片替代不可读的缩小画布。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-mobile-library.png" alt="移动端素材库"><br><b>移动端素材库</b><br>REAL HTML 模板卡片在移动端可直接浏览与拖入。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动任务视图</b><br>以工作区动作和节点卡片替代不可读的缩小画布；进度条只显示当前与失败步骤。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/sidebar-templates.png" alt="侧栏 REAL HTML 模板库"><br><b>侧栏 REAL HTML 模板库</b><br>模板名与描述上下堆叠、各夹 2 行，同屏比收敛前多露出一张卡。</td>
 </tr>
 </table>
+
+#### 其余功能（v0.5.0 实拍，历史集）
+
+> 以下 12 张拍摄自 `v0.5.0` 发布版。**功能与交互语义在 v0.6.0 未变，但视觉不是最新的**——本轮把字号、字重、间距收敛进了尺度 token，并把首屏画布缩放从 0.33 修到 0.80，因此这些图的排版观感与当前版本存在可见差异（字距更紧、画布内容更大）。此处保留它们，是因为这些功能的状态本身没有被本轮改动取代；需要看当前观感，请以上一节的 v0.6.0 实拍为准。
 
 **输入与检查器**
 
@@ -132,7 +140,15 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 </tr>
 </table>
 
-完整 24 张（含 6 张真实产物输出图）见 [assets/screenshots/v0.5.0/](assets/screenshots/v0.5.0/)，清单与复现命令见[截图说明](assets/screenshots/README.md)。
+#### 全部截图清单
+
+| 目录 | 张数 | 内容 |
+|---|---:|---|
+| `assets/screenshots/v0.6.0/` | 13 | 当前版本实拍：工作台 6 张、设计吸收 4 张、幻灯片编辑与 PPTX 导出 3 张 |
+| `assets/screenshots/v0.5.0/` | 24 | v0.5.0 完整实拍集（含 6 张真实产物输出图） |
+| `assets/screenshots/v0.4.0/` | 5 | Pixel Garden、LLM、Docker、Export Center 的历史记录 |
+
+清单与复现命令见[截图说明](assets/screenshots/README.md)。
 
 ## v0.5.0 稳定版核心能力（历史）
 
@@ -196,9 +212,11 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 - **🐳 Docker 镜像**：`docker run htmlninefox` 跨平台部署，多阶段构建，compose.yaml 注入环境变量。
 - **跨平台使用**：Windows 便携包/安装器、Linux `.run/.tar.gz`、Python CLI、Web/PWA、Docker。
 
-> [Export Center](docs/EXPORT-CENTER.md) 已完成 PDF / PNG；v0.6 补齐高保真 .pptx 导出与工作台内幻灯片编辑闭环，下一步推进受控范围内的 DOCX 导出。
+> [Export Center](docs/EXPORT-CENTER.md) 支持四种真实导出格式：`PDF`、逐页 `PNG`、完整长图 `PNG`，以及 v0.6 补齐的 `.pptx`。前三者产出真实文件与 `export-report.json`；`.pptx` 经 python-pptx 受控映射，文本框在 PowerPoint / WPS 中真正可编辑，无法映射的能力在降级报告中如实列出。DOCX 语义导出已出列至 v0.6.x。
 
 ## 看得见的真实效果
+
+> 以下 4 张拍摄自 `v0.4.0`（2026-09-08），是 Pixel Garden 设计语言定型的历史记录。这些界面（模板预览、AI 模型配置、Docker 部署）**功能仍然存在**，但版式已随 v0.5 / v0.6 的设计收敛变化，当前列表观感以 v0.6.0 实拍为准。
 
 <table>
 <tr>
@@ -213,7 +231,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ### 六类真实产物
 
-以下产物图由 `v0.5.0` 发布版的 e2e 验收流程真实生成：
+以下产物图由 `v0.5.0` 发布版的 e2e 验收流程真实生成（六类生成器的产物结构在 v0.6.0 未变）：
 
 | 落地页 | 数据看板 | 发布会 PPT |
 |---|---|---|
@@ -229,7 +247,7 @@ RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 re
 
 | 版本 | 日期 | 交付 | 记录 |
 |---|---|---|---|
-| **v0.6.0 准备发布** | 目标 2026-11-08，尚未正式发布 | 设计吸收流水线（多 URL / ZIP 导入、12 个内置设计源、三档许可、CSP 沙箱审核台、AI 设计分析、吸收指标）；可编辑 PPTX 导出 + 工作台内幻灯片编辑器；门禁 `303 passed, 1 skipped`、Chromium / WebKit 各 `22/22` | [门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| **v0.6.0 准备发布** | 目标 2026-11-08，尚未正式发布 | 设计吸收流水线（多 URL / ZIP 导入、12 个内置设计源、三档许可、CSP 沙箱审核台、AI 设计分析、吸收指标）；可编辑 PPTX 导出 + 工作台内幻灯片编辑器；发布前设计收口（字号 7 档 / 字重 4 档 / 间距尺度 token、首屏画布缩放 0.33→0.80、对比度达 AA）；修 Windows 便携包启动即崩；门禁 `387 passed, 1 skipped`、Chromium / WebKit 各 `22/22` | [发布说明](docs/RELEASE-NOTES-v0.6.0.md) · [门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | **v0.5.0 稳定版** | 2026-09-25 | RC3 收口，发布 Windows / Linux / wheel / Docker 附件与 SHA-256 | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) · [测试报告](docs/TEST-REPORT-v0.5.0.md) |
 | RC3-E | 2026-09-25 | 浏览器生命周期 Module 拆分、生成取消、导出竞态守卫 | [迭代记录](docs/ITERATION-RC3-E-20260925.md) |
 | RC3-D | 2026-09-25 | 崩溃可恢复 Project 提交（journal 回滚）、跨进程文件锁、生成原子发布 | [迭代记录](docs/ITERATION-RC3-D-20260925.md) |
@@ -256,17 +274,19 @@ RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 re
 
 v0.6.0 的安装包将随 [v0.6.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) 发布（当前仓库版本 `0.6.0`，发布前请优先安装最近一次正式发布的 [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)）。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
 
-包体命名规则保持不变，版本号随发布版本推进（下列为最近一次已发布的 v0.5.0 包体）：
+包体命名规则保持不变，版本号随发布版本推进。下列文件名按 `v0.6.0` 列出，与 Release 附件逐一对应：
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.5.0.exe` | 安装到当前用户，创建开始菜单入口 |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.5.0.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
-| Linux | `HtmlNineFox-Linux-0.5.0.run` | `chmod +x` 后运行，安装到当前用户目录 |
-| Linux/审计 | `HtmlNineFox-Linux-0.5.0.tar.gz` | 可查看完整安装内容 |
-| macOS 14+（Apple Silicon） | `HtmlNineFox-macOS-arm64-0.5.0.zip` | 解压后右键 HtmlNineFox.app →「打开」绕过 Gatekeeper（未做公证） |
-| Python 3.10+ | `htmlninefox-0.5.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.5.0-py3-none-any.whl` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.6.0.exe` | 安装到当前用户，创建开始菜单入口 |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.6.0.zip` | 解压后运行 `HtmlNineFox.exe`，免安装（本机实测 73.8 MB） |
+| Linux | `HtmlNineFox-Linux-0.6.0.run` | `chmod +x` 后运行，安装到当前用户目录 |
+| Linux/审计 | `HtmlNineFox-Linux-0.6.0.tar.gz` | 可查看完整安装内容 |
+| macOS 14+（Apple Silicon） | `HtmlNineFox-macOS-arm64-0.6.0.zip` | 解压后右键 HtmlNineFox.app →「打开」绕过 Gatekeeper（未做公证） |
+| Python 3.10+ | `htmlninefox-0.6.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.6.0-py3-none-any.whl` |
 | Docker | 源码构建 | `docker compose up --build`；标签 CI 验证镜像但不上传镜像仓库 |
+
+> **已验证范围**：Windows 便携包已在本机真实启动验证（`/api/health` 回报 `0.6.0 / windows-portable`，首页与六项静态资源正常，进程干净退出）。Linux 与 macOS 产物在 CI 中**只验证了构建成功与 SHA-256，未实跑**——本机是 Windows，无法在此验证。安装器（`Setup.exe`）同样只验证了构建，未实跑安装流程。
 
 ### 快速开始
 
@@ -357,20 +377,26 @@ htmlninefox export output/html9n-<时间戳> --format png --scope long
 
 ## 测试与信任证据
 
-v0.6.0 的全部门禁已在提交 `e5f3664`（2026-09-29）复验通过：
+v0.6.0 的全部门禁已在 2026-09-29 复验通过：
 
 | 验证项 | 结果 | 证据 |
 |---|---:|---|
-| Python + 浏览器测试套件 | **303 passed, 1 skipped** | [v0.6.0 门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| Python + 浏览器测试套件 | **387 passed, 1 skipped**（v0.5.0 基线 303，本轮新增 84 条） | [v0.6.0 门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| —— 设计体检 / 版式层级 / 动效行为 | 6 + 8 + 6 条 | [发布说明 · 验证](docs/RELEASE-NOTES-v0.6.0.md#验证) |
+| —— 生成质量 | 50 条（板块划分顺序、内容质量、最终效果、端到端产物自足） | [同上](docs/RELEASE-NOTES-v0.6.0.md#验证) |
+| —— 动作派发表 / 写回协议 / 冻结入口 | 4 + 2 + 5 条 | [同上](docs/RELEASE-NOTES-v0.6.0.md#验证) |
 | JavaScript 语法（13 个 static JS + inline 检查） | **全部通过** | [同一证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | Chromium 验收（bundled Chromium） | **22 / 22** | [同一证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | WebKit（Safari 引擎）验收 | **22 / 22** | [同一证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| 打包产物实跑 | Windows / Linux / macOS / Docker 四个 job 全绿；**Windows 便携包真实启动通过** | [发布说明 · 验证](docs/RELEASE-NOTES-v0.6.0.md#验证) |
 | 发布元数据一致性（`check_release_version.py`） | **一致** | [同一证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | DSH 插件与最终 tarball 安装 | **2 / 2 通过** | [接入与发布记录](docs/DEEPSEEK-HARNESS-INTEGRATION.md) |
 | 版本历史、恢复与 100 节点 | **通过**（含在 pytest 套件内） | [RC2 报告](docs/TEST-REPORT-RC2-20260918.md) |
 | 动效、减少动态效果、竞态与资源打包 | **通过** | [动效交付记录](docs/ITERATION-MOTION-20260918.md) |
 | Docker 镜像 | 标签 CI 独立 job 构建并验证 | [构建工作流](.github/workflows/build-release-packages.yml) |
 | LLM 接入 | MiniMax-M3 / Claude / GPT-4o 环境变量自动配置 | [配置文档](docs/INSTALL.md) |
+
+> **本轮门禁的做法**：每一条新门禁都做过反向验证——把对应修复去掉，测试必须变红；否则视为无效门禁并重写。这条纪律是必要的，因为本轮被拦下的多数缺陷形态一致：**服务端能力实现齐备，界面却没有可达入口，也没有任何测试点击过它**。打包流水线也据此改成了「构建后必须真实执行产物」，否则一个启动即崩的包能一路带着全绿的四个 job 进入 Release。
 
 v0.5.0 稳定版的发布证据保留在 [v0.5.0 测试报告](docs/TEST-REPORT-v0.5.0.md)（含发布附件与 SHA-256、Windows 便携包真机烟测），更早的证据见 [v0.5.0rc3 测试报告](docs/TEST-REPORT-v0.5.0rc3.md)与 [v0.4.2-environment.txt](docs/test-evidence/v0.4.2-environment.txt)。
 
@@ -396,7 +422,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-当前仓库版本为 `v0.6.0`（准备发布，发布目标 2026-11-08）：设计吸收流水线与可编辑 PPTX 两条主线交付，门禁在 `e5f3664` 全绿（`303 passed, 1 skipped`、Chromium / WebKit 各 `22/22`）。安装包请以 [Release 页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0)实际存在的附件为准；`v0.5.0`（2026-09-25）仍是最近一次已发布的稳定版。下一阶段按 ROADMAP 推进：可编辑 DOCX 导出与 Tauri 桌面 sidecar。
+当前仓库版本为 `v0.6.0`（准备发布，发布目标 2026-11-08）：设计吸收流水线与可编辑 PPTX 两条主线交付，外加一轮发布前设计收口。门禁在 2026-09-29 全绿（`387 passed, 1 skipped`、Chromium / WebKit 各 `22/22`、四个打包 job 全绿且 Windows 便携包已真实启动验证）。安装包请以 [Release 页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0)实际存在的附件为准；`v0.5.0`（2026-09-25）仍是最近一次已发布的稳定版。下一阶段按 ROADMAP 推进：可编辑 DOCX 导出与 Tauri 桌面 sidecar。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 
