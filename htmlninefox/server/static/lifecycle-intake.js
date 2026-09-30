@@ -36,6 +36,13 @@
     selected.clear();
     const list = document.querySelector('#intake-list');
     if (!list) return;
+    // 当前筛选要有视觉状态：此前四个筛选项同权重同外观，用户看不出自己在看哪一批。
+    document.querySelectorAll('[data-intake-filter]').forEach(btn => {
+      const on = btn.dataset.intakeFilter === filter;
+      btn.classList.toggle('btn-primary', on);
+      btn.classList.toggle('btn-secondary', !on);
+      btn.setAttribute('aria-pressed', String(on));
+    });
     list.innerHTML = '<div class="analysis-empty"><span class="spin">读取候选素材…</span></div>';
     try {
       const query = new URLSearchParams({ status: filter });
@@ -298,11 +305,26 @@
     try {
       const data = await api('/api/intake/stats');
       const s = data.stats;
+      const metric = (label, value, tone) =>
+        `<div class="intake-metric"><b>${esc(String(value ?? 0))}</b><span>${esc(label)}</span>${
+          tone ? `<i class="${esc(tone)}"></i>` : ''}</div>`;
       const sources = Object.entries(s.by_source || {}).sort((a, b) => b[1] - a[1]).slice(0, 5);
-      box.innerHTML = '<b>吸收指标</b>　候选 ' + (s.total || 0) +
-        '（待审 ' + (s.by_status?.pending || 0) + ' · 已采纳 ' + (s.by_status?.approved || 0) + ' · 已拒绝 ' + (s.by_status?.rejected || 0) + '）' +
-        '　组件 ' + (s.components || 0) + ' · 动效 ' + (s.motion_styles || 0) + ' · 风格预设 ' + (s.style_presets || 0) +
-        (sources.length ? '　|　来源：' + sources.map(([name, count]) => esc(name) + '×' + count).join('、') : '');
+      box.innerHTML =
+        '<div class="intake-metrics-label">吸收指标</div>'
+        + '<div class="intake-metrics">'
+        + metric('候选', s.total)
+        + metric('待审', s.by_status?.pending, 'pending')
+        + metric('已采纳', s.by_status?.approved, 'approved')
+        + metric('已拒绝', s.by_status?.rejected, 'rejected')
+        + metric('组件', s.components)
+        + metric('动效', s.motion_styles)
+        + metric('风格预设', s.style_presets)
+        + '</div>'
+        + (sources.length
+          ? `<div class="intake-sources"><span>来源</span>${
+              sources.map(([name, count]) =>
+                `<em>${esc(name)}<b>${esc(String(count))}</b></em>`).join('')}</div>`
+          : '');
     } catch (error) { box.textContent = '指标加载失败'; }
   }
 

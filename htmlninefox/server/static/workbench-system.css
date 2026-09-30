@@ -30,6 +30,15 @@
   --fs-lg:14px;
   --fs-xl:19px;
   --fs-dsp:30px;
+
+  /* 字重尺度（2026-09-29 收敛）
+   * 收敛前有 400/500/560/600/650/700/800 七种，其中 560/650/800 是非标称值
+   * （像是可变字体的光学实例，却没建 weight 阶梯），同级元素之间因此看不出
+   * 差别。现在统一为四档。 */
+  --fw-normal:400;
+  --fw-medium:500;
+  --fw-semibold:600;
+  --fw-bold:700;
 }
 
 .app {
@@ -298,6 +307,26 @@
 :root[data-fox-motion="off"] .inspector { transition-duration:0s !important; }
 
 /* ── Intake review workbench (v0.6) ── */
+/* 指标从一行调试字符串改成有层级的指标条：数字是主、标签是辅，
+ * 状态色只用在需要扫一眼区分的待审 / 已采纳 / 已拒绝上。 */
+.intake-stats { display:grid; gap:10px; }
+.intake-metrics-label { font-size:var(--fs-xs); color:var(--text-tertiary);
+  letter-spacing:.08em; }
+.intake-metrics { display:flex; flex-wrap:wrap; gap:6px; }
+.intake-metric { display:grid; gap:1px; min-width:62px; padding:7px 10px;
+  background:var(--bg-panel); border:1px solid var(--border-subtle); border-radius:6px; position:relative; }
+.intake-metric b { font-size:var(--fs-lg); line-height:1.15; color:var(--text-primary); font-weight:var(--fw-bold); }
+.intake-metric span { font-size:var(--fs-2xs); color:var(--text-tertiary); letter-spacing:.04em; }
+.intake-metric i { position:absolute; left:0; top:6px; bottom:6px; width:3px; border-radius:2px; }
+.intake-metric i.pending { background:var(--warning); }
+.intake-metric i.approved { background:var(--success); }
+.intake-metric i.rejected { background:var(--danger); }
+.intake-sources { display:flex; flex-wrap:wrap; align-items:center; gap:6px;
+  font-size:var(--fs-xs); color:var(--text-tertiary); }
+.intake-sources em { display:inline-flex; align-items:center; gap:4px; font-style:normal;
+  padding:2px 7px; border:1px solid var(--border-subtle); border-radius:999px;
+  background:var(--bg-panel); color:var(--text-secondary); }
+.intake-sources em b { color:var(--text-primary); font-weight:var(--fw-semibold); }
 .intake-fetch-row { display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:8px; }
 .intake-fetch-row input { width:100%; }
 .intake-status { margin-top:8px; font-size:var(--fs-md); color:var(--text-secondary); }

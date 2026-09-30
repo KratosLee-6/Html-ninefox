@@ -10,13 +10,16 @@
   --muted:#536476; --primary:#173C8F; --primary2:#2455B6; --accent:#49B894;
   --border:#A9BBB2; --ok:#2F9778; --warn:#DCA934; --err:#C95C50; --focus:#E57A3F;
   --radius:4px;
+  /* 本页是独立页面，不加载 workbench-system.css，所以字重尺度在这里自带一份，
+   * 保持与工作台同一套四档。 */
+  --fw-normal:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif; background:var(--bg);
   color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; }
 header.top { display:flex; align-items:center; gap:14px; padding:14px 22px;
   border-bottom:1px solid var(--border); background:var(--surface); }
-header.top .logo { font-weight:800; font-size:1.05rem; }
+header.top .logo { font-weight:var(--fw-bold); font-size:1.05rem; }
 header.top .logo em { font-style:normal; color:var(--primary2); }
 header.top .ver { color:var(--muted); font-size:.8rem; }
 header.top .sp { flex:1; }
@@ -36,7 +39,7 @@ textarea:focus, select:focus, input:focus { outline:2px solid var(--focus); outl
 textarea { min-height:96px; }
 .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .btn { display:block; width:100%; padding:12px; border:none; border-radius:var(--radius);
-  background:var(--primary); color:#fff; font-weight:700; font-size:.95rem;
+  background:var(--primary); color:#fff; font-weight:var(--fw-bold); font-size:.95rem;
   cursor:pointer; margin-top:16px; font-family:inherit; }
 .btn:hover { background:var(--primary2); }
 .btn.ghost { background:transparent; border:1px solid var(--border); color:var(--text); }
@@ -51,10 +54,10 @@ textarea { min-height:96px; }
   color:var(--muted); }
 .stage-bar .chip { background:var(--surface2); border:1px solid var(--border);
   padding:2px 10px; border-radius:999px; }
-.stage-bar .chip b { color:var(--accent); font-weight:600; }
+.stage-bar .chip b { color:var(--accent); font-weight:var(--fw-semibold); }
 .fb-item { background:var(--surface2); border:1px solid var(--border);
   border-radius:var(--radius); padding:10px 12px; margin-bottom:10px; font-size:.84rem; }
-.fb-item .rev { color:var(--accent); font-weight:700; margin-right:6px; }
+.fb-item .rev { color:var(--accent); font-weight:var(--fw-bold); margin-right:6px; }
 .fb-item .sug { color:var(--muted); margin-top:4px; font-size:.8rem; }
 .hist-item { padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius);
   margin-bottom:8px; cursor:pointer; font-size:.84rem; }

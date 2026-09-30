@@ -215,10 +215,17 @@ def test_v060_intake_review_absorption_and_motion_lab(tmp_path: Path, workbench_
                 f"审核台未显示「{LICENSE_LABEL[tier]}」许可档位徽标，实际徽标：{badges}"
         assert page.locator("#intake-list .intake-swatch").count() >= 6, "候选应展示设计令牌色板"
         assert page.locator("#intake-list .intake-outline").count() >= 3, "候选应展示骨架大纲"
+        # 吸收指标已从一行内联调试串改为指标条（数字在上、标签在下），
+        # 所以这里断言「信息在不在」，不再断言旧的串式排版。
         stats = page.locator("#intake-stats").inner_text()
-        assert f"吸收指标" in stats and f"候选 {total}" in stats \
-            and f"待审 {total}" in stats, stats
-        assert "来源：" in stats, f"吸收指标面板缺少来源分布：{stats}"
+        assert "吸收指标" in stats, stats
+        metrics = page.evaluate("""() => Object.fromEntries(
+            [...document.querySelectorAll('#intake-stats .intake-metric')]
+              .map(m => [m.querySelector('span').textContent.trim(),
+                         m.querySelector('b').textContent.trim()]))""")
+        assert metrics.get("候选") == str(total), f"候选数不符：{metrics}"
+        assert metrics.get("待审") == str(total), f"待审数不符：{metrics}"
+        assert "google-fonts" in stats, f"吸收指标面板缺少来源分布：{stats}"
         _capture(page, "intake-review-pending.png")
 
         # --- 截图 2：沙箱预览展开态
@@ -274,19 +281,34 @@ def test_v060_intake_review_absorption_and_motion_lab(tmp_path: Path, workbench_
         assert preset_card.locator("button", has_text="导入组件").count() == 0
         assert motion_card.locator("button", has_text="生成风格预设").count() == 1
 
+        # 指标面板已改为指标条，断言走数据而不是排版字符串
+        def metrics() -> dict[str, str]:
+            return page.evaluate("""() => Object.fromEntries(
+                [...document.querySelectorAll('#intake-stats .intake-metric')]
+                  .map(m => [m.querySelector('span').textContent.trim(),
+                             m.querySelector('b').textContent.trim()]))""")
+
         preset_card.locator("button", has_text="生成风格预设").click()
         page.wait_for_function(
-            "document.querySelector('#intake-stats').textContent.includes('风格预设 1')")
+            "document.querySelectorAll('#intake-stats .intake-metric').length >= 7"
+            " && [...document.querySelectorAll('#intake-stats .intake-metric')]"
+            "    .some(m => m.querySelector('span').textContent.trim() === '风格预设'"
+            "       && m.querySelector('b').textContent.trim() === '1')")
         component_card.locator("button", has_text="导入组件").click()
         page.wait_for_function(
-            "document.querySelector('#intake-stats').textContent.includes('组件 3')")
+            "[...document.querySelectorAll('#intake-stats .intake-metric')]"
+            "  .some(m => m.querySelector('span').textContent.trim() === '组件'"
+            "     && m.querySelector('b').textContent.trim() === '3')")
         motion_card.locator("button", has_text="吸收动效").click()
         page.wait_for_function(
-            "document.querySelector('#intake-stats').textContent.includes('动效 1')")
+            "[...document.querySelectorAll('#intake-stats .intake-metric')]"
+            "  .some(m => m.querySelector('span').textContent.trim() === '动效'"
+            "     && m.querySelector('b').textContent.trim() === '1')")
 
-        final_stats = page.locator("#intake-stats").inner_text()
-        assert f"已采纳 {approved}" in final_stats and f"待审 {remaining}" in final_stats, final_stats
-        assert "组件 3 · 动效 1 · 风格预设 1" in final_stats, final_stats
+        final = metrics()
+        assert final.get("已采纳") == str(approved), final
+        assert final.get("待审") == str(remaining), final
+        assert (final.get("组件"), final.get("动效"), final.get("风格预设")) == ("3", "1", "1"), final
         # 关掉最早两条「已采纳」提示，避免遮挡指标面板（保留本次三条吸收动作的提示）
         for _ in range(2):
             page.locator(".fox-toast .fox-toast-close").first.click()
