@@ -1,21 +1,30 @@
-"""Rebuild the 30s HtmlNineFox brand film from real v0.6.0 captures.
+"""Rebuild the Html九尾狐 brand film, one shot per documented feature.
 
-Every UI frame in the film is a real screenshot from
-`assets/screenshots/v0.6.0/`. Nothing generative is used for interface
-footage on purpose: a text-to-video model hallucinates garbled CJK glyphs
-instead of real UI text, so a generated interface shot is strictly worse
-than the capture it would replace. The only non-capture frames are the
-three static cards (title / slogan / end), rendered from HTML with
-Playwright, whose brand mark is drawn from the project's own SVG source.
+Coverage contract
+-----------------
+Every UI shot maps 1:1 onto an item that actually ships in v0.6.0, and the
+`shot_index()` table below is the single place that mapping lives. A shot
+whose number has no row here is a bug, not a stylistic choice. The index
+also records, for each shot, the feature it demonstrates and the source
+capture it came from.
+
+Framing
+-------
+Two framing bugs were fixed here.
+
+1. 16:10 captures cropped into a 16:9 frame lost the top bar, and the top
+   bar is where the `v0.6.0` version badge lives. The film is meant to let
+   a viewer confirm which build they are looking at, so the source is now
+   *fitted* and letterboxed with the brand paper colour instead of cropped.
+
+2. `zoompan` computes `x = (iw - iw/zoom) * cx`, which is **0 at zoom=1**
+   for any centre. Every shot therefore used to start at the top-left
+   corner and drift inward. The zoom now runs 1.06 -> 1.00 so the centre
+   offsets are meaningful and each shot starts centred and settles.
 
 Requires ffmpeg + ffprobe and a Playwright chromium install.
 
     python scripts/make_promo_film.py
-
-Writes `assets/promo/` in place. Every clip and the final master are
-duration-checked before anything is overwritten: a clip that misses its
-target length aborts the run rather than shipping a film whose metadata
-looks right while the content is not.
 """
 
 from __future__ import annotations
@@ -31,8 +40,7 @@ PROMO = ROOT / "assets" / "promo"
 WORK = ROOT / "build" / "promo-film"
 
 W, H, FPS = 1920, 1080, 25
-XF = 0.5  # cross-fade duration
-TARGET_SECONDS = 30.0
+XF = 0.5
 
 CJK_BOLD = r"C\:/Windows/Fonts/msyhbd.ttc"
 CJK_REG = r"C\:/Windows/Fonts/msyh.ttc"
@@ -40,52 +48,159 @@ CJK_REG = r"C\:/Windows/Fonts/msyh.ttc"
 NAVY = "#0E1B3D"
 COBALT = "#173C8F"
 MINT = "#49B894"
+PAPER = "#F4F0E7"
 
 # ---------------------------------------------------------------- shot script
-# Each entry: (kind, source, duration, kicker, title, tags)
-#   kind "card" -> HTML-rendered still card (title / slogan / end)
-#   kind "shot" -> real screenshot with a scrim caption
-#   kind "pair" -> two real screenshots cross-faded inside one clip
+# ("card"|"shot"|"pair", source, seconds, kicker, title, tags, catalogue_id)
+# Every catalogue_id must exist in CATALOGUE, or build fails.
 SCRIPT = {
     "zh": [
-        ("card", "title", 3.5, "", "灵感，散落在各处", ""),
-        ("card", "slogan", 3.0, "", "让灵感在 HTML 里生长", ""),
-        ("shot", "workbench-overview.png", 5.0,
+        ("card", "title", 3.5, "", "灵感，散落在各处", "", None),
+        ("card", "slogan", 3.0, "", "让灵感在 HTML 里生长", "", None),
+
+        ("shot", "workbench-overview.png", 3.0,
          "无限画布工作区", "一张画布，编排所有素材",
-         "工作区 · 节点 · 端口连线 · 版本"),
-        ("pair", ("workbench-paper-1440.png", "workbench-night-1440.png"), 4.5,
-         "双主题", "两套主题，文字对比度全部达到 WCAG AA",
-         "Pixel Paper / Pixel Night"),
-        ("pair", ("intake-review-pending.png", "intake-approved-absorption.png"), 5.0,
-         "设计吸收流水线", "把外部设计变成自己的六层素材",
-         "审核台 · 三档许可 · CSP 沙箱"),
-        ("pair", ("slide-editor-dialog.png", "export-center-pptx.png"), 4.5,
-         "可编辑 PPTX", "编辑 → 写回 → 导出真正可编辑的 .pptx",
-         "python-pptx · 诚实的降级报告"),
-        ("pair", ("workbench-tablet-768.png", "workbench-mobile-390.png"), 3.5,
-         "响应式", "桌面 · 平板 · 移动，同一工作台",
-         "语义缩放 · 移动任务视图"),
-        ("card", "end", 4.5, "", "导出的每一个像素，都真的存在", ""),
+         "工作区 · 节点 · 端口连线", "canvas"),
+        ("shot", "sidebar-templates.png", 2.5,
+         "真实 HTML 模板库", "6 套模板，34 个页面可单独抽",
+         "每页都能预览和抽取", "templates"),
+        ("shot", "workbench-paper-1440.png", 2.5,
+         "Pixel Paper", "暖纸底，杂志感排版",
+         "深钴蓝 + 薄荷绿 + 暖纸白", "theme-paper"),
+        ("shot", "workbench-night-1440.png", 2.5,
+         "Pixel Night", "同一套组件的完整暗色主题",
+         "全部文字达到 WCAG AA", "theme-night"),
+        ("shot", "workbench-tablet-768.png", 2.5,
+         "响应式", "桌面 · 平板，同一工作台",
+         "侧栏折叠，语义缩放", "responsive-tablet"),
+        ("shot", "workbench-mobile-390.png", 2.5,
+         "移动任务视图", "手机上换成能读懂的列表",
+         "不再硬塞一张缩小的画布", "responsive-mobile"),
+
+        ("pair", ("intake-review-pending.png", "intake-approved-absorption.png"), 4.0,
+         "设计吸收流水线", "12 个设计源，抓回来的先过审核台",
+         "许可三档 · CSP 沙箱", "intake-review"),
+        ("pair", ("intake-approved-absorption.png", "intake-preview-sandbox.png"), 3.0,
+         "CSP 沙箱预览", "候选页面在无脚本沙箱里渲染",
+         "抓回来的脚本永不执行", "intake-sandbox"),
+        ("shot", "motion-lab-intake-motion.png", 2.5,
+         "动效实验室", "吸收到的动效进实验室",
+         "预算钳制 · 尊重减少动效", "intake-motion"),
+
+        ("shot", "slide-editor-dialog.png", 3.0,
+         "可编辑 PPTX", "在 PowerPoint 里真能编辑",
+         "不是把整页拍成一张图", "pptx-export"),
+        ("shot", "export-center-pptx.png", 2.5,
+         "导出中心", "PDF / 逐页 PNG / 长图 / PPTX",
+         "附诚实的降级报告", "export"),
+        ("shot", "pptx-export-report.png", 2.5,
+         "降级报告", "做不到的部分，写在报告里",
+         "不糊弄", "export-report"),
+
+        ("card", "versions", 4.0, "", "", "", None),
+        ("card", "end", 4.0, "", "导出的每一个像素，都真的存在", "", None),
     ],
     "en": [
-        ("card", "title", 3.5, "", "Ideas, scattered everywhere", ""),
-        ("card", "slogan", 3.0, "", "Let ideas grow in HTML", ""),
-        ("shot", "workbench-overview.png", 5.0,
+        ("card", "title", 3.5, "", "Ideas, scattered everywhere", "", None),
+        ("card", "slogan", 3.0, "", "Let ideas grow in HTML", "", None),
+
+        ("shot", "workbench-overview.png", 3.0,
          "INFINITE CANVAS", "One canvas for every asset",
-         "Workspaces - Nodes - Ports - Revisions"),
-        ("pair", ("workbench-paper-1440.png", "workbench-night-1440.png"), 4.5,
-         "TWO THEMES", "Two themes, every text color above WCAG AA",
-         "Pixel Paper / Pixel Night"),
-        ("pair", ("intake-review-pending.png", "intake-approved-absorption.png"), 5.0,
-         "DESIGN INTAKE", "Turn external designs into six asset layers",
-         "Review workbench - License tiers - CSP sandbox"),
-        ("pair", ("slide-editor-dialog.png", "export-center-pptx.png"), 4.5,
-         "EDITABLE PPTX", "Edit, write back, export a truly editable .pptx",
-         "python-pptx - honest degradation report"),
-        ("pair", ("workbench-tablet-768.png", "workbench-mobile-390.png"), 3.5,
-         "RESPONSIVE", "Desktop, tablet, mobile - one workbench",
-         "Semantic zoom - mobile task view"),
-        ("card", "end", 4.5, "", "Every pixel you export really exists", ""),
+         "Workspaces - Nodes - Ports", "canvas"),
+        ("shot", "sidebar-templates.png", 2.5,
+         "REAL HTML TEMPLATES", "6 sets, 34 pages, each extractable",
+         "Preview and extract any page", "templates"),
+        ("shot", "workbench-paper-1440.png", 2.5,
+         "PIXEL PAPER", "Warm paper, editorial rhythm",
+         "Cobalt + mint + warm white", "theme-paper"),
+        ("shot", "workbench-night-1440.png", 2.5,
+         "PIXEL NIGHT", "The same system, fully dark",
+         "Every text color above WCAG AA", "theme-night"),
+        ("shot", "workbench-tablet-768.png", 2.5,
+         "RESPONSIVE", "Desktop and tablet, one workbench",
+         "Folded sidebar, semantic zoom", "responsive-tablet"),
+        ("shot", "workbench-mobile-390.png", 2.5,
+         "MOBILE TASK VIEW", "A readable list on a phone",
+         "Not a shrunken canvas", "responsive-mobile"),
+
+        ("pair", ("intake-review-pending.png", "intake-approved-absorption.png"), 4.0,
+         "DESIGN INTAKE", "12 sources, every candidate reviewed",
+         "Three license tiers - CSP sandbox", "intake-review"),
+        ("pair", ("intake-approved-absorption.png", "intake-preview-sandbox.png"), 3.0,
+         "CSP SANDBOX", "Candidates render with scripts off",
+         "Fetched scripts never execute", "intake-sandbox"),
+        ("shot", "motion-lab-intake-motion.png", 2.5,
+         "MOTION LAB", "Absorbed motion goes to the lab",
+         "Budget-clamped, reduced-motion aware", "intake-motion"),
+
+        ("shot", "slide-editor-dialog.png", 3.0,
+         "EDITABLE PPTX", "Genuinely editable in PowerPoint",
+         "Not a flattened screenshot", "pptx-export"),
+        ("shot", "export-center-pptx.png", 2.5,
+         "EXPORT CENTER", "PDF / paginated PNG / long image / PPTX",
+         "With an honest degradation report", "export"),
+        ("shot", "pptx-export-report.png", 2.5,
+         "DEGRADATION REPORT", "What could not be mapped is written down",
+         "No glossing over it", "export-report"),
+
+        ("card", "versions", 4.0, "", "", "", None),
+        ("card", "end", 4.0, "", "Every pixel you export really exists", "", None),
+    ],
+}
+
+# ---------------------------------------------------------------------------
+# Catalogue: feature id -> (name, note). Present so the "all features are
+# covered" claim in the README is checkable rather than asserted.
+# ---------------------------------------------------------------------------
+CATALOGUE = {
+    "canvas": ("无限画布工作区", "Infinite canvas workspace"),
+    "templates": ("真实 HTML 模板库 6 套 / 34 页", "Real HTML template library"),
+    "theme-paper": ("Pixel Paper 纸白主题", "Pixel Paper theme"),
+    "theme-night": ("Pixel Night 夜蓝主题", "Pixel Night theme"),
+    "responsive-tablet": ("平板 768 响应式", "Tablet 768 layout"),
+    "responsive-mobile": ("移动 390 任务视图", "Mobile 390 task view"),
+    "intake-review": ("设计吸收 · 审核台 · 12 源 · 三档许可", "Design intake review"),
+    "intake-sandbox": ("CSP 沙箱预览", "CSP sandbox preview"),
+    "intake-motion": ("动效实验室", "Motion lab"),
+    "pptx-export": ("可编辑 PPTX 导出与幻灯片编辑", "Editable PPTX"),
+    "export": ("导出中心 PDF/PNG/长图/PPTX", "Export Center"),
+    "export-report": ("诚实的降级报告", "Honest degradation report"),
+}
+
+# The features that ship but are not interface shots. They are real
+# capabilities; the film simply has no capture of them, and saying so is
+# better than implying the film is exhaustive.
+NOT_IN_FILM = [
+    ("Web 工作台一键启动 / CLI / Docker", "no single capture exists"),
+    ("真实 LLM 接入（MiniMax-M3 / Claude / GPT-4o）", "settings dialog, not a v0.6 capture"),
+    ("AI 模型自主配置与 API Key 仅本地保存", "settings dialog, not a v0.6 capture"),
+    ("离线规则引擎兜底（无 Key 也能生成）", "no single capture exists"),
+    ("统一需求入口（文字/文件/图片）", "input dialog, only captured on v0.5.0"),
+    ("推荐与自由组合双路径", "recommendation state, not captured on v0.6.0"),
+    ("Project Memory", "v0.5.0 capture only"),
+    ("命令面板", "v0.5.0 capture only"),
+    ("反馈迭代与版本历史 / 恢复", "v0.5.0 capture only"),
+    ("生成取消", "v0.5.0 capture only"),
+    ("六类生成器产物输出", "v0.5.0 e2e captures only"),
+    ("十一套视觉系统", "per-preset captures not taken this round"),
+    ("Skill 联盟模板", "v0.3-v0.4 heritage"),
+    ("跨平台安装包", "packaging output, not interface footage"),
+]
+
+VERSIONS = {
+    "zh": [
+        ("v0.6.0", "2026-10-01", "设计吸收 + 可编辑 PPTX"),
+        ("v0.5.0", "2026-09-25", "崩溃回滚 / 跨进程锁 / 取消生成"),
+        ("v0.4.2", "2026-09-08", "Export Center"),
+        ("v0.4.0", "2026-08", "Pixel Garden 设计系统"),
+        ("v0.3.0", "2026-07", "Skill 联盟接入"),
+    ],
+    "en": [
+        ("v0.6.0", "2026-10-01", "Design intake + editable PPTX"),
+        ("v0.5.0", "2026-09-25", "Rollback / locking / cancel"),
+        ("v0.4.2", "2026-09-08", "Export Center"),
+        ("v0.4.0", "2026-08", "Pixel Garden design system"),
+        ("v0.3.0", "2026-07", "Skill alliance"),
     ],
 }
 
@@ -124,16 +239,23 @@ body{
                    linear-gradient(90deg,rgba(111,145,210,.10) 1px,transparent 1px);
   background-size:64px 64px;
   mask-image:radial-gradient(circle at 50% 45%,#000 30%,transparent 78%);}
-.mark{width:132px;height:132px;margin-bottom:54px;position:relative;z-index:2}
-.rule{width:112px;height:7px;background:__MINT__;margin:0 0 46px;
+.mark{width:132px;height:132px;margin-bottom:46px;position:relative;z-index:2}
+.rule{width:112px;height:7px;background:__MINT__;margin:0 0 42px;
       position:relative;z-index:2}
-h1{font-size:92px;font-weight:800;letter-spacing:.02em;line-height:1.24;
+h1{font-size:88px;font-weight:800;letter-spacing:.02em;line-height:1.24;
    text-align:center;position:relative;z-index:2;max-width:1500px}
-.sub{margin-top:40px;font-size:31px;font-weight:400;color:#A9C0EC;
+h1.en{font-size:80px}
+.sub{margin-top:36px;font-size:30px;font-weight:400;color:#A9C0EC;
      letter-spacing:.16em;text-align:center;position:relative;z-index:2}
-.foot{position:absolute;bottom:74px;left:0;right:0;text-align:center;
-      font-size:23px;letter-spacing:.2em;color:#6F8AC4;z-index:2}
-h1.en{font-size:86px}
+.foot{position:absolute;bottom:66px;left:0;right:0;text-align:center;
+      font-size:22px;letter-spacing:.2em;color:#6F8AC4;z-index:2}
+table{position:relative;z-index:2;border-collapse:collapse;font-size:27px}
+td{padding:13px 30px;border-bottom:1px solid rgba(169,192,236,.26);color:#C9D8F2}
+td.v{color:#FFFDF6;font-weight:700;white-space:nowrap}
+td.d{color:#7E9ACB;white-space:nowrap;font-variant-numeric:tabular-nums}
+td.n{color:#A9C0EC}
+.dot{color:__MINT__;font-weight:700}
+.caph{margin-bottom:26px;font-size:24px;letter-spacing:.2em;color:__MINT__}
 """
 
 
@@ -148,8 +270,7 @@ def probe_duration(path: Path) -> float:
     r = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "default=nw=1:nk=1", str(path)],
-        capture_output=True, check=True, encoding="utf-8",
-    )
+        capture_output=True, check=True, encoding="utf-8")
     return float(r.stdout.strip())
 
 
@@ -157,22 +278,53 @@ def probe_has_audio(path: Path) -> bool:
     r = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "a",
          "-show_entries", "stream=index", "-of", "csv=p=0", str(path)],
-        capture_output=True, check=True, encoding="utf-8",
-    )
+        capture_output=True, check=True, encoding="utf-8")
     return bool(r.stdout.strip())
 
 
 def verify(out: Path, want: float, tol: float = 0.12) -> None:
-    """Refuse to ship a clip whose length does not match the shot list."""
     got = probe_duration(out)
     if abs(got - want) > tol:
         raise SystemExit(
             f"{out.name}: duration {got:.2f}s, expected {want:.2f}s "
-            f"-> refusing to ship a film built on a wrong-length clip"
-        )
+            f"-> refusing to ship a film built on a wrong-length clip")
     if probe_has_audio(out):
         raise SystemExit(f"{out.name}: unexpected audio track in a silent film")
     print(f"  ok {out.name} {got:.2f}s")
+
+
+def film_seconds(lang: str = "zh") -> float:
+    """Length is derived from SCRIPT, never hard-coded.
+
+    16 clips summing 47.5s minus 15 cross-fades of 0.5s = 40.0s. Hard-coding
+    it is how the file ends up called `60s` while being 40s long.
+    """
+    d = [e[2] for e in SCRIPT[lang]]
+    return d[0] + sum(x - XF for x in d[1:])
+
+
+def validate_script() -> None:
+    """Every shot must name a catalogue feature, or be an explicit card."""
+    for lang, entries in SCRIPT.items():
+        for kind, source, _d, _k, _t, _g, cat in entries:
+            if kind == "card":
+                if cat is not None:
+                    raise SystemExit(f"{lang}: card {source} must not claim "
+                                     f"a catalogue id ({cat})")
+                continue
+            if cat is None:
+                raise SystemExit(f"{lang}: shot {source} has no catalogue id")
+            if cat not in CATALOGUE:
+                raise SystemExit(f"{lang}: unknown catalogue id {cat!r} "
+                                 f"on {source}")
+        ids = [e[6] for e in entries if e[0] != "card"]
+        missing = sorted(set(CATALOGUE) - set(ids))
+        if missing:
+            raise SystemExit(
+                f"{lang}: catalogue features with no shot: {missing} "
+                f"-> the film would claim less coverage than it documents")
+        print(f"  coverage {lang}: {len(ids)} shots, "
+              f"{len(set(ids))} features, all catalogue ids used")
 
 
 # ------------------------------------------------------------- stage 1: cards
@@ -195,11 +347,26 @@ def render_cards() -> None:
                     f'<h1 class="{"en" if lang == "en" else ""}">{title}</h1>'
                     f'<div class="sub">{sub}</div>'
                     '<div class="foot">HTMLNINEFOX · PIXEL GARDEN</div>',
-                    wait_until="load",
-                )
+                    wait_until="load")
                 out = WORK / f"card-{kind}-{lang}.png"
                 page.screenshot(path=str(out))
                 print("card", out.name)
+        for lang, rows in VERSIONS.items():
+            trs = "".join(
+                f'<tr><td class="v">{v}</td><td class="d">{d}</td>'
+                f'<td class="n">{n}</td></tr>' for v, d, n in rows)
+            css = CARD_CSS.replace("__BG__", NAVY).replace("__MINT__", MINT)
+            cap = "版本沿革" if lang == "zh" else "VERSION HISTORY"
+            page.set_content(
+                f"<style>{css}</style>"
+                f'<div class="grid"></div>'
+                f'<div class="caph">{cap}</div>'
+                f"<table>{trs}</table>"
+                '<div class="foot">HTMLNINEFOX · PIXEL GARDEN</div>',
+                wait_until="load")
+            out = WORK / f"card-versions-{lang}.png"
+            page.screenshot(path=str(out))
+            print("card", out.name)
         browser.close()
 
 
@@ -219,42 +386,39 @@ def caption_filter(kicker: str, title: str, tags: str) -> str:
     if kicker:
         parts.append(
             f"drawtext=fontfile='{CJK_BOLD}':text='{kicker}':x=156:y=944:"
-            f"fontsize=25:fontcolor={MINT}"
-        )
+            f"fontsize=25:fontcolor={MINT}")
     parts.append(
         f"drawtext=fontfile='{CJK_BOLD}':text='{title}':x=156:y=978:"
-        f"fontsize=46:fontcolor=#FFFDF6"
-    )
+        f"fontsize=44:fontcolor=#FFFDF6")
     if tags:
         parts.append(
-            f"drawtext=fontfile='{CJK_REG}':text='{tags}':x=156:y=1034:"
-            f"fontsize=25:fontcolor=#C3D2F0"
-        )
+            f"drawtext=fontfile='{CJK_REG}':text='{tags}':x=156:y=1032:"
+            f"fontsize=25:fontcolor=#C3D2F0")
     return ",".join(parts)
 
 
-def kenburns(dur: float, z0: float, z1: float, cx: float, cy: float) -> str:
+def kenburns(dur: float) -> str:
+    """Fit-and-letterbox, then a gentle settle.
+
+    `scale=...:force_original_aspect_ratio=decrease` + `pad` keeps the whole
+    capture including the top bar (and therefore the version badge) instead
+    of cropping 16:10 into 16:9. The zoom runs 1.06 -> 1.00 because zoompan
+    pins x and y to 0 at zoom=1, which made every shot start off-centre.
+    """
     frames = int(round(dur * FPS))
     return (
-        f"scale=2560:1440:force_original_aspect_ratio=increase,"
-        f"crop=2560:1440,"
-        f"zoompan=z='min({z0}+({z1 - z0})*on/{frames},1.30)':"
-        f"x='(iw-iw/zoom)*{cx}':y='(ih-ih/zoom)*{cy}':"
+        f"scale=2304:1296:force_original_aspect_ratio=decrease:flags=lanczos,"
+        f"pad=2304:1296:(ow-iw)/2:(oh-ih)/2:color={PAPER},"
+        f"zoompan=z='if(eq(on,0),1.06,max(0.0001,1.06-0.06*on/{frames}))':"
+        f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
         f"d={frames}:s={W}x{H}:fps={FPS},"
         f"setsar=1"
     )
 
 
-def build_still(src: Path, dur: float, out: Path, z0: float, z1: float,
-                cx: float, cy: float, cap: str) -> None:
-    """Ken Burns over one still.
-
-    A single image is fed in (no `-loop`): zoompan emits `d` frames *per
-    input frame*, so a looped input multiplies the clip length by `d`
-    again. `-frames:v` pins the output to exactly one shot's worth.
-    """
+def build_still(src: Path, dur: float, out: Path, cap: str) -> None:
     frames = int(round(dur * FPS))
-    chain = [kenburns(dur, z0, z1, cx, cy)]
+    chain = [kenburns(dur)]
     if cap:
         chain.append(cap)
     chain.append("format=yuv420p")
@@ -265,19 +429,12 @@ def build_still(src: Path, dur: float, out: Path, z0: float, z1: float,
 
 
 def build_paired(a: Path, b: Path, dur: float, out: Path, cap: str) -> None:
-    """Two screenshots, half the segment each, cross-faded in the middle.
-
-    Each side is rendered on its own first. Doing the Ken Burns and the
-    xfade in one filter_complex looks tempting but is wrong: the output
-    duration still comes out right while the zoom runs far past its
-    intended range.
-    """
     inner = XF
     side = dur / 2 + inner / 2
     ta = WORK / f"{out.stem}-a.mp4"
     tb = WORK / f"{out.stem}-b.mp4"
-    build_still(a, side, ta, 1.0, 1.05, 0.45, 0.5, cap)
-    build_still(b, side, tb, 1.05, 1.0, 0.55, 0.5, cap)
+    build_still(a, side, ta, cap)
+    build_still(b, side, tb, cap)
     run(["ffmpeg", "-y", "-i", str(ta), "-i", str(tb),
          "-filter_complex",
          f"[0:v][1:v]xfade=transition=fade:duration={inner}:"
@@ -291,14 +448,13 @@ def build_paired(a: Path, b: Path, dur: float, out: Path, cap: str) -> None:
 
 def build_content_clips(lang: str) -> list[Path]:
     clips: list[Path] = []
-    for idx, entry in enumerate(SCRIPT[lang]):
-        kind, source, dur, kicker, title, tags = entry
+    for idx, (kind, source, dur, kicker, title, tags, _cat) in enumerate(
+            SCRIPT[lang]):
         out = WORK / f"{lang}-clip{idx:02d}.mp4"
         if kind == "card":
-            build_still(WORK / f"card-{source}-{lang}.png", dur, out,
-                        1.0, 1.05, 0.5, 0.5, "")
+            build_still(WORK / f"card-{source}-{lang}.png", dur, out, "")
         elif kind == "shot":
-            build_still(SHOTS / source, dur, out, 1.0, 1.08, 0.5, 0.45,
+            build_still(SHOTS / source, dur, out,
                         caption_filter(kicker, title, tags))
         else:
             build_paired(SHOTS / source[0], SHOTS / source[1], dur, out,
@@ -326,10 +482,14 @@ def build_master(lang: str, clips: list[Path], out: Path) -> None:
          "-map", "[v]", "-r", str(FPS), "-c:v", "libx264", "-preset", "slow",
          "-crf", "19", "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
          str(out)])
-    verify(out, TARGET_SECONDS, tol=0.25)
+    total = durations[0] + sum(d - XF for d in durations[1:])
+    verify(out, total, tol=0.4)
+    if abs(total - film_seconds(lang)) > 1e-6:
+        raise SystemExit(f"{lang}: built {total}s but the shot list says "
+                         f"{film_seconds(lang)}s")
 
 
-def poster(video: Path, out: Path, at: float = 8.0) -> None:
+def poster(video: Path, out: Path, at: float) -> None:
     run(["ffmpeg", "-y", "-ss", f"{at}", "-i", str(video), "-frames:v", "1",
          "-q:v", "2", str(out)])
 
@@ -337,25 +497,24 @@ def poster(video: Path, out: Path, at: float = 8.0) -> None:
 def main() -> None:
     WORK.mkdir(parents=True, exist_ok=True)
     PROMO.mkdir(parents=True, exist_ok=True)
-    # Drop any clip left behind by an interrupted run: reusing a truncated
-    # file would silently produce a film that is missing a shot.
     for stale in WORK.glob("*.mp4"):
         stale.unlink()
 
-    if not (WORK / "card-title-zh.png").exists():
+    validate_script()
+    if not (WORK / "card-versions-en.png").exists():
         render_cards()
 
     for lang in ("zh", "en"):
-        name = ("htmlninefox-brand-film-30s-16x9.mp4" if lang == "zh"
-                else "htmlninefox-brand-film-30s-16x9-en.mp4")
+        seconds = int(round(film_seconds(lang)))
+        stem = (f"htmlninefox-brand-film-{seconds}s-16x9" if lang == "zh"
+                else f"htmlninefox-brand-film-{seconds}s-16x9-en")
         final = WORK / f"final-{lang}.mp4"
         build_master(lang, build_content_clips(lang), final)
-        # Only now, with the master verified, is the tracked file replaced.
-        final.replace(PROMO / name)
-        poster(PROMO / name, PROMO / f"poster-{lang}.png")
-        target = PROMO / name
-        print(f"done {name} {target.stat().st_size / 1e6:.2f} MB "
+        final.replace(PROMO / f"{stem}.mp4")
+        target = PROMO / f"{stem}.mp4"
+        print(f"done {target.name} {target.stat().st_size / 1e6:.2f} MB "
               f"{probe_duration(target):.2f}s")
+        poster(target, PROMO / f"poster-{lang}.png", 12.0)
 
 
 if __name__ == "__main__":

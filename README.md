@@ -21,13 +21,15 @@
 
 ![Html九尾狐 Pixel Garden 工作台（v0.6.0 实拍）](assets/screenshots/v0.6.0/workbench-overview.png)
 
-## 30 秒看懂 Html九尾狐
+## 40 秒看懂 Html九尾狐
 
-[![播放 30s 品牌片（中文版）](assets/promo/poster-zh.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9.mp4)
+[![播放 40s 品牌片（中文版）](assets/promo/poster-zh.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-40s-16x9.mp4)
 
-**中文版** 1920×1080 · 30s · 无声 · [**English cut**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4) · [全部文件](assets/promo)
+**中文版** 1920×1080 · 40s · 无声 · [**English cut**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-40s-16x9-en.mp4) · [全部文件](assets/promo)
 
-> **片中画面的来源**：片中全部产品界面均取自 `assets/screenshots/v0.6.0/` 的真实运行截图（13 张），**不含任何生成式镜头**——刻意没有用文生视频模型生成界面画面，因为模型会产出乱码中文文字，比真实截图更差。开场标题卡、标语卡与尾卡是由 [`scripts/make_promo_film.py`](scripts/make_promo_film.py) 用 Playwright 渲染的静态卡，品牌标识渲染自项目内官方 SVG。片中界面与本文档的截图画廊同源、同一版本。口号「让灵感在 HTML 里生长」与 Pixel Garden 视觉取自 [`docs/VI.md`](docs/VI.md)。
+> **片中画面的来源**：片中全部产品界面均取自 `assets/screenshots/v0.6.0/` 的真实运行截图，**不含任何生成式镜头**——刻意没有用文生视频模型生成界面画面，因为模型会产出乱码中文文字，比真实截图更差。开场标题卡、标语卡、版本沿革卡与尾卡是由 [`scripts/make_promo_film.py`](scripts/make_promo_film.py) 用 Playwright 渲染的静态卡，品牌标识渲染自项目内官方 SVG。
+
+> **镜头与功能一一对应**：12 个界面镜头对应 12 项可截图验证的功能（无限画布 / 模板库 / 双主题 / 平板 / 移动 / 审核台 / CSP 沙箱 / 动效实验室 / PPTX / 导出中心 / 降级报告），映射关系由脚本内的 `CATALOGUE` 表强制校验——新增功能而漏配镜头，脚本会直接报错退出。其余能力（LLM 接入、离线引擎、Project Memory、命令面板、版本历史、生成取消、六类产物等）没有本轮实拍，**片中不出现**，原因逐条列在脚本的 `NOT_IN_FILM` 里。
 
 ## 它解决什么问题
 

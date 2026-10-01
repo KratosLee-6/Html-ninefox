@@ -21,13 +21,15 @@
 
 ![HtmlNineFox Pixel Garden workbench (captured on v0.6.0)](assets/screenshots/v0.6.0/workbench-overview.png)
 
-## HtmlNineFox in 30 seconds
+## HtmlNineFox in 40 seconds
 
-[![Play the 30s brand film (English cut)](assets/promo/poster-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4)
+[![Play the 40s brand film (English cut)](assets/promo/poster-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-40s-16x9-en.mp4)
 
-**English** 1920×1080 · 30s · no voiceover · [**中文版**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9.mp4) · [all files](assets/promo)
+**English** 1920×1080 · 40s · no voiceover · [**中文版**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-40s-16x9.mp4) · [all files](assets/promo)
 
-> **What is in the film**: every product-UI frame comes from the real v0.6.0 captures in `assets/screenshots/v0.6.0/` (13 shots), and the film contains **no generative footage at all** — a text-to-video model was deliberately not used for interface frames, because it hallucinates garbled CJK text, which is strictly worse than a real screenshot. The title, slogan, and end cards are static HTML-rendered stills produced by [`scripts/make_promo_film.py`](scripts/make_promo_film.py), with the brand mark drawn from the project's own SVG source. The film's interface footage is same-source and same-version as the screenshot gallery below. The slogan and the Pixel Garden visuals follow [`docs/VI.md`](docs/VI.md).
+> **What is in the film**: every product-UI frame comes from the real v0.6.0 captures in `assets/screenshots/v0.6.0/`, and the film contains **no generative footage at all** — a text-to-video model was deliberately not used for interface frames, because it hallucinates garbled CJK text, which is strictly worse than a real screenshot. The title, slogan, version-history and end cards are static HTML-rendered stills produced by [`scripts/make_promo_film.py`](scripts/make_promo_film.py), with the brand mark drawn from the project's own SVG source.
+
+> **Shots map 1:1 to features**: the 12 interface shots cover 12 screenshot-verifiable features (canvas / template library / both themes / tablet / mobile / review workbench / CSP sandbox / motion lab / PPTX / export center / degradation report), and the mapping is enforced by the `CATALOGUE` table inside the script — adding a feature without a shot makes the script fail rather than ship. The remaining capabilities (LLM integration, offline engine, Project Memory, command palette, revision history, generation cancel, the six artifact types) have no capture from this round and are **absent from the film**; each reason is listed in the script's `NOT_IN_FILM`.
 
 ## What it solves
 
