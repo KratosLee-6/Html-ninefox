@@ -27,7 +27,7 @@
 
 **中文版** 1920×1080 · 30s · 无声 · [**English cut**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-30s-16x9-en.mp4) · [全部文件](assets/promo)
 
-> **片中界面的版本**：片中出现的「项目记忆」弹窗、导出中心等界面拍摄自 **`v0.5.0`**——本片制作时 v0.6.0 的工作台尚未收敛。这不是文案没跟上，而是**素材本身是旧版**。当前版本的界面以本文档的 [v0.6.0 实拍](#工作台与画布v060-实拍-6-张) 为准。片中只有开场抽象氛围镜头由 MiniMax-H3 生成，UI 镜头一律是真实运行截图，品牌标识渲染自项目内官方 SVG。口号「让灵感在 HTML 里生长」与 Pixel Garden 视觉取自 [`docs/VI.md`](docs/VI.md)。
+> **片中画面的来源**：片中全部产品界面均取自 `assets/screenshots/v0.6.0/` 的真实运行截图（13 张），**不含任何生成式镜头**——刻意没有用文生视频模型生成界面画面，因为模型会产出乱码中文文字，比真实截图更差。开场标题卡、标语卡与尾卡是由 [`scripts/make_promo_film.py`](scripts/make_promo_film.py) 用 Playwright 渲染的静态卡，品牌标识渲染自项目内官方 SVG。片中界面与本文档的截图画廊同源、同一版本。口号「让灵感在 HTML 里生长」与 Pixel Garden 视觉取自 [`docs/VI.md`](docs/VI.md)。
 
 ## 它解决什么问题
 

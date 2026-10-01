@@ -26,7 +26,17 @@ assets/
 
 `assets/screenshots/v0.5.0rc3-visual/` 当前包含 14 张截图，覆盖 Paper / Pixel Night、桌面 / 平板 / 手机、命令面板、Project Memory、生成结果、Export Center、受控错误和 Revision Restore 等真实产品状态。
 
-`assets/promo/` 是 30 秒品牌宣传片的中英双版（1920×1080 / 30fps / H.264）。片中除第 1 镜的抽象氛围底板由 MiniMax-H3 生成外，产品界面、六类导出产物与导出中心画面全部取自本目录的 `v0.5.0` 真实截图，不使用概念图替代功能证据；品牌标志直接渲染自 `htmlninefox/server/static/*.svg` 官方源文件。
+`assets/promo/` 是 30 秒品牌宣传片的中英双版（1920×1080 / 25fps / H.264 / 无声）。**片中已不含任何生成式镜头**：所有产品界面画面全部取自本目录 `v0.6.0/` 的真实运行截图，不使用概念图替代功能证据；开场标题卡、标语卡与尾卡是由脚本用 Playwright 渲染的静态卡，其中品牌标志直接渲染自 `htmlninefox/server/static/logo-mark.svg` 官方源文件。
+
+> 上一版（2026-09-29 之前）的中英双版界面镜头取自 `v0.5.0` 截图，且开场氛围底板由 MiniMax-H3 生成——v0.6.0 界面收敛后已整体重制。README 中关于"片中界面为旧版"的说明已同步更新。
+
+重渲命令（需要 `ffmpeg` + `ffprobe` 与 Playwright chromium）：
+
+```bash
+python scripts/make_promo_film.py
+```
+
+该脚本从 `assets/screenshots/v0.6.0/` 读取素材，输出本目录四个文件，并对每个片段与最终成片做时长校验——时长不符即中止且**不覆盖**仓库中已有文件。原因是 `zoompan` 的 `d` 参数语义（每输入帧输出帧数）曾导致 5 秒片段渲成 625 秒，而容器时长字段当时仍显示正常。
 
 GitHub 的 Markdown 清洗器不支持 `<video>` 标签，因此主 README 用 `[![封面](poster.png)](raw 链接)` 形式跳转播放，不要改回内嵌 `<video>`。
 

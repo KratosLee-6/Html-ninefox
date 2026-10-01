@@ -14,8 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.6.0] — 2026-11-08（目标） · 设计吸收流水线 + 可编辑 PPTX
 
 > 目标发布窗口 2026-11-08（11-01 ～ 11-14）。版本号已切换，附件与 SHA-256 随 S21 发布回读。
-> 门禁（2026-09-29，`e5f3664`）：303 passed / 1 skipped；JS 语法 13/13；DSH 插件 2/2；Chromium 22/22；WebKit 22/22。
-> 证据：[S17 门禁报告](docs/test-evidence/v0.6.0-s17-20260929/README.md)、[双审计](docs/AUDIT-v0.6.0-20260928.md)。
+> 门禁（2026-09-29 最终复验）：**387 passed / 1 skipped**（v0.5.0 基线 303，本轮新增 84 条）；JS 语法 13/13；DSH 插件 2/2；Chromium 22/22；WebKit 22/22；Windows / Linux / macOS / Docker 四个构建 job 全绿，且 Windows 便携包**真实启动**通过。
+> 证据：[S17 门禁报告](docs/test-evidence/v0.6.0-s17-20260929/README.md)、[双审计](docs/AUDIT-v0.6.0-20260928.md)、[发布说明](docs/RELEASE-NOTES-v0.6.0.md)。
 
 **设计吸收（三条通道 → 素材审核台 → 六资产层）**
 - 安全抓取框架：仅 http/https、解析校验拒私网/环回/重绑定、重定向逐跳过门、事后 rebinding 比对、体积上限、每源限速（`5de8d42`）。
@@ -35,6 +35,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 门禁：吸收压测 100 候选（创建 0.28s / 列表 40ms）+ 路径穿越全拒（`8d920be`）；WebKit 通道（Safari 引擎 22/22）+ Chromium 双通道 22/22；topbar 定位器歧义修复（同提交）。
 - 双审计：mattpocock 四维（7 P1 中 5 修、2 记录）+ Mimosa deep（SSRF 设计性缓解 + 残余披露，见 [AUDIT-v0.6.0](docs/AUDIT-v0.6.0-20260928.md)）。
 
+**发布前设计收口（2026-09-29，实拍审计后补做）**
+- **尺度 token 收敛**：工作台原本有 17 种字号、7 种字重（含 560/650/800 非标称）、140 余个硬编码间距值。现收敛为 7 档 `--fs-*`、4 档 `--fw-*`，间距 142 个值走 `--space-*` 尺度（`2px` 作为发丝线保留）。分两步落地：先改位移 ≤1px 的网格内值，再由视觉评审决定 10/6/14/18px 的 2px 位移并留 8 张前后对比图（`docs/evidence/spacing-20260929/`）。运行时去重后实际只剩 6 种字号。
+- **设计体检门禁**（`tests/test_design_health_gates.py`，6 条）、**版式与信息层级门禁**（`tests/test_layout_hierarchy_gates.py`，8 条）、**动效行为门禁**（`tests/test_motion_behavior_gates.py`，6 条）、**生成质量门禁**（`tests/test_generation_quality_gates.py`，50 条，覆盖板块划分顺序 / 内容质量 / 最终效果 / 端到端产物自足）。
+- **动作派发表门禁**（`tests/test_action_registry.py`，4 条）与**写回协议门禁**（`tests/test_artifact_revision_writeback.py`，2 条）。
+- **撤回两条此前的审计结论**：「两套 token 命名空间冲突」实为不同作用域（`pixel-garden-tokens.css` 随产物发布、`workbench-system.css` 属工作台外壳），且各自的间距刻度本就该不同——真实问题是前者承诺「各产物 @import」却从未被任何生成器引用，已订正其文件头；「40 处硬编码 px」实为 60 处间距声明，且初版把圆点直径、投影偏移等非间距属性混了进来。详见 [AUDIT-DESIGN](docs/AUDIT-DESIGN-20260929.md)。
+
+**品牌宣传片重制（v0.6.0 实拍）**
+- 中英双版 30s 品牌片整体重制：原版界面镜头取自 `v0.5.0` 截图，且开场氛围底板由 MiniMax-H3 生成。v0.6.0 界面收敛（字号 / 字重 / 间距尺度 token、首屏画布缩放 0.33→0.80、审核台改指标条、夜蓝主题对比度提升）后，原片已与实际产品不符。
+- 新片**不含任何生成式镜头**：全部界面画面取自 `assets/screenshots/v0.6.0/` 的 13 张真实运行截图；开场 / 标语 / 尾卡为 Playwright 渲染的静态卡，品牌标志渲染自 `htmlninefox/server/static/logo-mark.svg` 官方源文件。**刻意不用文生视频模型重做界面镜头**——模型会生成乱码中文文字，比真实截图更差。
+- 合成脚本入库为 `scripts/make_promo_film.py`（原为本地临时脚本），使「本片由 v0.6.0 实拍合成」这句声明可被复现验证。成片 30.00s / 1920×1080 / 25fps / 无声。
+- 脚本内建**时长断言**：每个片段与最终成片构建后立即校验，不符即中止且不覆盖仓库已有文件。原因是 `zoompan` 的 `d` 是「每输入帧输出帧数」，曾与 `-loop 1` 相乘导致 5 秒片段渲成 625 秒，而容器时长字段当时仍显示正常——没有断言就会静默产出「元数据正常、内容全错」的发布物。
+
 ### Added
 
 - The v0.6 design-intake foundation: a source registry (`data/sources/*.yaml` with user overrides), a safe reference fetcher (http/https only, resolved-host validation rejecting loopback/private/reserved addresses, hop-by-hop redirect validation, post-fetch DNS-rebinding check, size caps, per-source rate limiting), an evidence store under `.library/intake/`, and three built-in gallery/motion sources with license classes.
@@ -48,6 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Windows 便携包与安装器一启动就崩溃（发布阻断级）**：`htmlninefox/desktop.py` 用了 `sys.platform` 却从未 `import sys`，PyInstaller 冻结入口一进入就抛 `NameError`，`/api/health` 永不回报。这条路径只有冻结入口会走，源码测试套件从不加载它——而打包流水线此前**只构建产物、从不执行产物**，于是一个能通过全部测试、四个构建 job 全绿、却完全无法启动的发布物被生产了出来。已修 `import sys`，并补两道防线：门禁 `tests/test_frozen_entry_gates.py`（5 条：静态扫描冻结入口未绑定的名字、冻结路径可导入、入口可执行、发行形态标注），以及真实启动产物的验证脚本 `packaging/verify_portable.py`（Windows job 在上传附件前实跑 exe，校验 health 回报的版本与发行形态、首页体积、六项静态资源与干净退出）。本机实测 73.8 MB 便携包启动后 health 回报 `0.6.0 / windows-portable`、首页 161 KB、静态资源全通、进程干净退出。
+- **`verify_portable.py` 在非 UTF-8 控制台上 UnicodeEncodeError**：Windows 默认代码页为 cp1252，打印中文/全角字符时抛 `UnicodeEncodeError`，使「验证产物」这道防线在本地根本跑不起来。已固定 stdout 编码。
 - **首屏画布把内容缩到 0.33 倍，右侧空出 666px**：`canvasFitInsets()` 把左上角那块浮层「工作区导航卡」当成一条**通高左栏**来避让（`left: 导航卡右缘` = 290px），于是 916px 宽的画布只剩 446px 可用，缩放被压到 0.33，内容缩成一小团、右侧大片空置——用户第一眼看到的是「这软件怎么这么小」。现在按各浮层的真实几何分别计入上 / 下 / 右三边（导航卡计入 top、HUD 计入 right、小地图计入 bottom），不再预留通高左带；fit 留白由 90px 收到 36px，小地图由 196×130 收到 150×100。首屏缩放 **0.33 → 0.80**，画布内容利用率 39% → 42% 且居中。
 - **侧栏模板卡因英文描述与标题并排 flex 而高度跳到 179px、标题断词换行**：`.pal-name` 是 flex 容器，模板名与英文描述是兄弟节点，描述一换行就把标题挤成断词换行并把卡片撑高。两者改为上下堆叠、各自夹 2 行，卡片高度稳定（实测 3 行 → 2 行），缩略图 104px → 86px，`REAL HTML` 徽标从缩略图左上（压住内容）移到左下。
 - **审核台的吸收指标是一行调试字符串、四个筛选项无选中态**：指标改为指标条（数字为主、标签为辅，待审 / 已采纳 / 已拒绝带状态色条），并补回区块标题「吸收指标」；筛选按钮按当前状态切换主/次样式并带 `aria-pressed`。同时把弹窗背景模糊由 12px 降到 6px——此前工作台被糊成一片，失去「我在哪个界面」的上下文。
