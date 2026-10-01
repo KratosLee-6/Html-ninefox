@@ -20,7 +20,12 @@ CI 的打包 job 只**构建**产物，从不**执行**它。2026-09-29 的发�
 macOS 产物同理可用 `packaging/verify_portable.py <解压目录> <app 可执行>`
 的等价物在对应平台验证；本脚本针对 Windows 便携包。
 
-脚本会真实启动 exe，并验证版本、发行形态、首页、静态资源与干净退出。
+脚本会真实启动 exe，并验证版本、发行形态、首页、静态资源、**产物内容**与干净退出。
+
+「内容」这一层不是形式检查：它断言冻结包经 HTTP 伺服出来的资源里确实带着
+本版本新增或修复过的标记（尺度 token、`--on-accent`、PPTX 选项、动作派发表、
+`expected_revision` 等）。收敛前的源码不具备这些符号，因此一份陈旧产物会在
+这里被抓住，而不会带着「六个路由全通、体积正常」的假象一路走进 Release。
 """
 
 from __future__ import annotations
@@ -50,6 +55,28 @@ DEFAULT_PORTS = [8620, *range(8621, 8641)]
 # 路由名不等于文件名：/motion-lab 服务的是 motion-lab.html。
 STATIC_ROUTES = ("/workbench-system.css", "/lifecycle-intake.js",
                  "/motion-lab", "/classic", "/sw.js", "/icon.svg")
+
+# 为什么还要验内容
+# ----------------
+# 「文件存在且大于 200 字节」只能证明包里塞了东西，证明不了塞的是**这一版**的
+# 东西。一份用旧源码打出来的包，能把上面六条路由全伺服出来、能报出正确的版本号，
+# 却让用户拿到收敛前的界面与失效的按钮——而本项目这一版修的几乎全是这类
+# 「服务端齐备、界面不可达 / 内容陈旧」的问题。只查体积，恰好查不到它们。
+#
+# 因此下面每条断言都锁定**本版本真正新增或修复过**的具体标记：
+# 收敛前的工作台里不存在这些符号，所以一条陈旧产物会立刻被抓住。
+CONTENT_EXPECTATIONS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    # 收敛前的 17 种字号 / 7 种字重 / 140 余个硬编码间距
+    ("/workbench-system.css", ("--fs-", "--fw-", "--space-")),
+    # 夜蓝主题主按钮对比度修复引入的语义令牌
+    ("/", ("--on-accent",)),
+    # 导出中心的 PPTX 选项（此前根本没登记）、动作派发表、批量抓取转发函数
+    ("/", ("export-format", "PPTX", "FoxActions", "intakeFetchBatch")),
+    # 幻灯片写回的并发保护、吸收批量的入口、revision 写回的唯一拥有者
+    ("/lifecycle-slides.js", ("expected_revision",)),
+    ("/lifecycle-intake.js", ("fetchBatch",)),
+    ("/lifecycle-revisions.js", ("advanceNodeRevision",)),
+)
 
 
 def version() -> str:
@@ -86,6 +113,34 @@ def probe_health(timeout: float = 90.0, proc=None) -> tuple[int, dict]:
     raise SystemExit(f"产物在 {timeout:.0f}s 内没有提供服务：{last}")
 
 
+def fetch(port: int, route: str, timeout: float = 10.0) -> bytes:
+    with urllib.request.urlopen(f"http://127.0.0.1:{port}{route}", timeout=timeout) as raw:
+        return raw.read()
+
+
+def verify_content(port: int) -> int:
+    """断言产物**伺服出来的**就是这一版的资源，而不只是「路由有响应」。
+
+    抓的是冻结包经 HTTP 返回的字节，不是仓库里的源文件——这正是关键差别：
+    源文件是对的、打进包的却是旧的，这道检查才抓得住。
+    """
+    served: dict[str, str] = {}
+    bad = 0
+    for route, markers in CONTENT_EXPECTATIONS:
+        if route not in served:
+            served[route] = fetch(port, route).decode("utf-8", "replace")
+        body = served[route]
+        missing = [m for m in markers if m not in body]
+        if missing:
+            print(f"  产物内容不符：{route} 缺少 {missing}")
+            bad += 1
+        else:
+            print(f"  产物内容符合：{route} 含 {list(markers)}")
+    if bad:
+        print(f"  {bad} 项内容断言失败——产物很可能是用陈旧源码打出来的")
+    return 1 if bad else 0
+
+
 def verify(exe: Path, label: str) -> int:
     print(f"验证 {label}：{exe}")
     proc = subprocess.Popen([str(exe)], cwd=str(exe.parent),
@@ -119,6 +174,10 @@ def verify(exe: Path, label: str) -> int:
             if size < 200:
                 print(f"  {route} 异常小，疑似未打进包")
                 return 1
+
+        rc = verify_content(port)
+        if rc:
+            return rc
     finally:
         proc.terminate()
         try:
@@ -146,7 +205,8 @@ def main() -> int:
         return 2
     code = verify(exe, archive.name)
     if code == 0:
-        print("\n产物验证通过：能启动、版本与形态正确、首页与静态资源完整。")
+        print("\n产物验证通过：能启动、版本与形态正确、首页与静态资源完整、"
+              "伺服内容与本版本一致。")
     return code
 
 

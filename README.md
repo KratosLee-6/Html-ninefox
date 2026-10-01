@@ -52,9 +52,9 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
   用自然语言反馈，按版本继续迭代
 ```
 
-## 当前版本与最新进展（v0.6.0 准备发布）
+## 当前版本与最新进展（v0.6.0 已发布）
 
-当前应用包版本为 `0.6.0`，发布标签 `v0.6.0`（全部门禁已绿，安装包随标签发布）。v0.6.0 交付两条主线，外加一轮发布前的设计收口：
+当前应用包版本为 `0.6.0`，发布标签 `v0.6.0`。v0.6.0 交付两条主线，外加一轮发布前的设计收口：
 
 1. **设计吸收流水线**：把外部优秀设计变成自己的素材。手动多 URL / ZIP 导入 + 12 个内置设计源（三档许可治理：开放可入库 / 仅参考重写 / 仅灵感板）、SSRF 安全抓取、CSP 沙箱审核台（批量采用 / 拒绝 + 来源筛选）、AI 设计分析通道与吸收指标面板；模板、风格、组件、装饰、动效、内容六个层面全部打通「吸收 → 审核 → 入库 → 使用」。
 2. **可编辑 PPTX**：deck 产物通过 python-pptx 导出为符合标准的 `.pptx`，文本框真正可编辑，并附诚实的降级报告；工作台内新增幻灯片编辑器（`PUT /slides` 带 `expected_revision` 冲突保护 + 产物检查器里的结构化幻灯片对话框），编辑 → 写回 → 导出可保留改动。
@@ -64,7 +64,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
-| 应用 Release | `v0.6.0` 准备发布，门禁全绿 | [发布页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) · [上一稳定版 v0.5.0](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
+| 应用 Release | `v0.6.0` 已发布（2026-10-01），门禁全绿 | [发布页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) · [上一稳定版 v0.5.0](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
 | 发布验证 | 全量测试 `387 passed, 1 skipped`（v0.5.0 基线 303，本轮新增 84 条）；JS 语法 13 个文件 + inline 全通过；Chromium 验收 `22/22`、WebKit（Safari 引擎）验收 `22/22`；发布元数据一致 | [v0.6.0 门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | 打包产物实跑 | Windows / Linux / macOS / Docker 四个构建 job 全绿；Windows 便携包（73.8 MB）**真实启动**通过——`/api/health` 回报 `0.6.0 / windows-portable`，首页 161 KB，六项静态资源全通，进程干净退出 | [发布说明 · 验证](docs/RELEASE-NOTES-v0.6.0.md#验证) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本；本轮 `2/2` 通过 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
@@ -247,7 +247,7 @@ RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 re
 
 | 版本 | 日期 | 交付 | 记录 |
 |---|---|---|---|
-| **v0.6.0 准备发布** | 目标 2026-11-08，尚未正式发布 | 设计吸收流水线（多 URL / ZIP 导入、12 个内置设计源、三档许可、CSP 沙箱审核台、AI 设计分析、吸收指标）；可编辑 PPTX 导出 + 工作台内幻灯片编辑器；发布前设计收口（字号 7 档 / 字重 4 档 / 间距尺度 token、首屏画布缩放 0.33→0.80、对比度达 AA）；修 Windows 便携包启动即崩；门禁 `387 passed, 1 skipped`、Chromium / WebKit 各 `22/22` | [发布说明](docs/RELEASE-NOTES-v0.6.0.md) · [门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| **v0.6.0** | 2026-10-01 | 设计吸收流水线（多 URL / ZIP 导入、12 个内置设计源、三档许可、CSP 沙箱审核台、AI 设计分析、吸收指标）；可编辑 PPTX 导出 + 工作台内幻灯片编辑器；发布前设计收口（字号 7 档 / 字重 4 档 / 间距尺度 token、首屏画布缩放 0.33→0.80、对比度达 AA）；修 Windows 便携包启动即崩，并把产物验证加到内容级；门禁 `387 passed, 1 skipped`、Chromium / WebKit 各 `22/22` | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) · [发布说明](docs/RELEASE-NOTES-v0.6.0.md) · [门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | **v0.5.0 稳定版** | 2026-09-25 | RC3 收口，发布 Windows / Linux / wheel / Docker 附件与 SHA-256 | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) · [测试报告](docs/TEST-REPORT-v0.5.0.md) |
 | RC3-E | 2026-09-25 | 浏览器生命周期 Module 拆分、生成取消、导出竞态守卫 | [迭代记录](docs/ITERATION-RC3-E-20260925.md) |
 | RC3-D | 2026-09-25 | 崩溃可恢复 Project 提交（journal 回滚）、跨进程文件锁、生成原子发布 | [迭代记录](docs/ITERATION-RC3-D-20260925.md) |
@@ -272,7 +272,7 @@ RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 re
 
 ## 下载与安装
 
-v0.6.0 的安装包将随 [v0.6.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) 发布（当前仓库版本 `0.6.0`，发布前请优先安装最近一次正式发布的 [v0.5.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0)）。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
+v0.6.0 已于 2026-10-01 发布，安装包随 [v0.6.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) 提供；若本地版本低于此，请优先升级。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
 
 包体命名规则保持不变，版本号随发布版本推进。下列文件名按 `v0.6.0` 列出，与 Release 附件逐一对应：
 
@@ -422,7 +422,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-当前仓库版本为 `v0.6.0`（准备发布，发布目标 2026-11-08）：设计吸收流水线与可编辑 PPTX 两条主线交付，外加一轮发布前设计收口。门禁在 2026-09-29 全绿（`387 passed, 1 skipped`、Chromium / WebKit 各 `22/22`、四个打包 job 全绿且 Windows 便携包已真实启动验证）。安装包请以 [Release 页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0)实际存在的附件为准；`v0.5.0`（2026-09-25）仍是最近一次已发布的稳定版。下一阶段按 ROADMAP 推进：可编辑 DOCX 导出与 Tauri 桌面 sidecar。
+当前仓库版本为 `v0.6.0`（已于 2026-10-01 发布）：设计吸收流水线与可编辑 PPTX 两条主线交付，外加一轮发布前设计收口。门禁全绿（`387 passed, 1 skipped`、Chromium / WebKit 各 `22/22`、四个打包 job 全绿；Windows 便携包已真实启动，并核对伺服内容与本版本一致）。`v0.5.0`（2026-09-25）是上一稳定版。下一阶段按 ROADMAP 推进：可编辑 DOCX 导出与 Tauri 桌面 sidecar。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

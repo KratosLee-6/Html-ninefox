@@ -6,7 +6,7 @@
 - 环境：Windows · Python 3.11.15 · Node v24.15.0 · Playwright chromium + webkit
 - 关联文档：[发布说明](RELEASE-NOTES-v0.6.0.md) · [双审计报告](AUDIT-v0.6.0-20260928.md) · [S17 门禁证据](test-evidence/v0.6.0-s17-20260929/README.md) · [v0.6.0 计划](PLAN-v0.6.0-STABLE-20260927.md) · [设计审计](AUDIT-DESIGN-20260929.md) · [架构审计](AUDIT-ARCHITECTURE-20260929.md)
 - 结论：**全部可本地执行门禁通过（387 passed / 1 skipped，v0.5.0 基线 303，本轮新增 84 条）；发布阻断项 0。**
-- ⚠️ **本报告不是"已发布"报告**：v0.6.0 尚未发布。S20 截图实拍**已完成**（`assets/screenshots/v0.6.0/` 共 13 张）；S21 打 tag / 构建附件 / Release **未执行**。
+- ⚠️ **本报告记录的是发布前门禁**：v0.6.0 于 2026-10-01 发布，本报告不含附件清单、SHA-256 与下载链接——那些由 CI 在打 tag 后生成，以 [v0.6.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) 页面为准。S20 截图实拍已完成（`assets/screenshots/v0.6.0/` 共 13 张）。
 
 ## 一、发布候选结论
 
@@ -112,8 +112,6 @@ HTMLNINEFOX_E2E_ENGINE=webkit python e2e_verify.py
 - v0.6 的吸收流水线（S04–S12）与 PPTX 链路（S13 / S14 / S13U-a / S13U-b）**未让既有能力退化**，Chromium 与 WebKit 双通道均 22/22。
 - 发布阻断项 **0**。本轮拦下的发布阻断级缺陷是 **Windows 便携包与安装器一启动就崩溃**（`desktop.py` 用 `sys.platform` 却从未 `import sys`），根因是打包流水线只构建产物、从不执行产物；现已修复，并新增冻结入口静态门禁与 `packaging/verify_portable.py` 真实启动验证。Windows 便携包（73.8 MB）已在本机实跑通过。
 - 建议将"可选依赖不得改变主渲染路径"列入 Definition of Done。
-- **本轮尚未完成、不可据本报告认为已发布的事项**：
-  - **S21 发布动作**（tag `v0.6.0` → CI 构建 Windows / Linux / macOS / Docker 附件 → GitHub Release 挂附件与 SHA-256 回读 → 关闭 Issue #7）**未执行**。
-  - 因此本报告不包含 v0.6.0 的附件清单、SHA-256 校验值或下载链接；目标发布日期仍为 **2026-11-08**（窗口 11-01 ～ 11-14，含 7 天稳定化窗口 M5：11-01 ～ 11-07），**尚未发布**。
+- **本轮门禁的验证边界**（记录以便日后不再误读）：
+  - 本报告不包含 v0.6.0 的附件清单、SHA-256 校验值或下载链接；它们由 CI 在打 tag 后生成，以 [Release 页面](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) 为准。
   - **未实跑的产物**：本机为 Windows，Linux 与 macOS 包仅验证构建成功与 SHA-256；安装器（`Setup.exe`）同样只验证构建。CI 中亦无此步骤。
-  - DOCX 语义导出（S15）已出列至 v0.6.x，不在本报告验证范围。
