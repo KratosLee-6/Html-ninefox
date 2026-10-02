@@ -39,6 +39,22 @@ C2 已在 `await` 前锁 `draft.nodeId`，堵了一半。
 
 **做**：先加一条一致性断言把当前行为固定住（此时它可能变红，暴露既有漂移），再谈收敛。**本轮不删重复代码。**
 
+> ### 1.2 实测结论（2026-10-02）：**绿**
+>
+> 新增 `tests/test_prompt_path_consistency.py`，5 条用例全通过。结论是：**两条路径在合法输入上产出完全一致**，当前并不存在已发生的漂移。四处被列为「差异」的写法，实际影响如下：
+>
+> | 差异 | 实测影响 |
+> |---|---|
+> | `str(item)` 强转只在 adapter 侧 | 只对非字符串 id 有意义。`GenerationRequest.input_ids` 类型是 `tuple[str, ...]`，而 `InputStore.describe` 本身按 `[0-9a-f]{32}` 过滤，非 hex 的 id 一律丢弃。已用 `test_non_string_input_id_does_not_break_the_adapter_path` 钉住 adapter 侧的承重墙 |
+> | `_json_object()` 只在 application 侧 | **语义上是 no-op**：`describe()` 只 `append` `isinstance(meta, dict)` 的项，因此每项必然已是 dict。已用 `test_adapter_omits_non_dict_description_shape` 记录该事实 |
+> | `prompt_required` 只在 application 侧 | adapter 在 `app.py::_api_analyze` 有等价守卫（handler 层），因此未纳入一致性断言，纳入会产生假阳性。已用 `test_application_path_rejects_empty_prompt_without_attachments` 单独立住 generate 侧的拒绝行为 |
+> | 默认 prompt 串字面量重复两处 | 当前值相同故结果一致，但**这是一个没有门禁的重复字面量**——改一边就会静默漂移。已用 `test_attachment_only_input_yields_the_shared_default_prompt` 钉住该串 |
+>
+> **因此 C4 本轮的产出是「把不变量钉住」，不是「修一个 bug」。** 残留的真实债：两处默认串仍是两份字面量。合并它们属于纯重构，不在本轮，且应当与「让 adapter 委托给 application」一起做——否则只是把两份重复换成一份重复加一层间接。
+
+> 这五条用例自身也经过两轮修正才对：首版把两侧序列化写成不同格式（服务端按页 `||` 分组、DOM 侧全部 `|`），断言恒假；`_make_store` 又少写了 `InputStore` 自动追加的 `.inputs` 层，导致「仅附件」用例莫名抛 `prompt_required`。两处都是**门禁自己的 bug**，不是产品缺陷——但如果不实跑就提交，会得到一条「永远绿」的假门禁，而那正是本项目反复栽的形状。
+
+
 > 这两条的共同形状正是本项目反复栽的同一种：**两边都在，但没人保证它们一致**。
 
 ---

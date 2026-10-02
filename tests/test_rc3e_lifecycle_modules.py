@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -200,6 +201,132 @@ def test_export_start_is_guarded_while_a_job_is_running(tmp_path, workbench_serv
         assert not page.locator("#export-start").is_disabled()
         assert errors == []
         browser.close()
+
+
+def test_slides_open_discards_stale_response(tmp_path, workbench_server):
+    """交错打开两个 deck 时，先发出的那次 GET 不得覆盖后一次的 draft。
+
+    缺陷形态：`open()` 在 await 之后无保护地写 `draft.revision` / `draft.slides`，
+    而 `open()` 开头会把 draft 整体重写。于是「打开 A → GET 在途 → 打开 B →
+    A 的 GET 返回」会把 A 的幻灯片与 revision 写进 B 的 draft，随后保存时
+    `advanceNodeRevision(B, A 的 revision)` 把 revision 写进了另一个节点。
+    原有守卫只有 `draft.busy`，它只挡保存按钮重复点击，对这个交错毫无作用。
+    """
+    slides_ready = ("window.FoxInteraction && window.FoxSlides && nodes.length >= 5")
+    with workbench_server as server, sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        page = browser.new_page(viewport={"width": 1440, "height": 900})
+        errors: list[str] = []
+        page.on("pageerror", lambda error: errors.append(str(error)))
+        page.add_init_script("localStorage.clear()")
+
+        first = pipeline.run_expert(
+            "做一个甲号产品发布会 PPT", intent_override="deck",
+            output=str(server.output_root), quiet_llm=True)["work"]
+        second = pipeline.run_expert(
+            "做一个乙号季度复盘发布会 PPT", intent_override="deck",
+            output=str(server.output_root), quiet_llm=True)["work"]
+
+        def add_deck_node(project: str, title: str) -> str:
+            return page.evaluate(
+                """project => {
+                    const ws = activeWorkspace();
+                    const node = addNode('output', ws.x + ws.w + 80, ws.y + 80, {
+                        title: project, project_name: project,
+                        preview_url: '/output/' + project + '/output.html',
+                        intent: 'deck', preset_id: 'fox-pixel-garden',
+                        revision: 0, feedback: [], workspaceId: ws.id,
+                    });
+                    select(node.id);
+                    return node.id;
+                }""", project)
+
+        page.goto(server.base_url + "/")
+        page.wait_for_function(slides_ready)
+        add_deck_node(first.name, "甲号")
+        add_deck_node(second.name, "乙号")
+
+        # 让甲号的 slides 响应慢一拍，从而稳定复现「先发后到」的交错。
+        # 慢的必须是先发的那次，否则守卫无意义。
+        def delay_first_slides(route):
+            if "/slides" in route.request.url and first.name in route.request.url:
+                page.wait_for_timeout(1200)
+            route.continue_()
+
+        page.route("**/*", delay_first_slides)
+        # 两次 open 必须在同一次 evaluate 里同步发出：两次往返之间隔着网络
+        # 往返，慢的那次可能已经返回，交错就复现不出来（同 test_rapid_double_advance
+        # 的教训）。open() 在第一个 await 之前就同步重写了 draft。
+        page.evaluate(
+            """pair => { void FoxSlides.open(pair[0]); void FoxSlides.open(pair[1]); }""",
+            [first.name and _node_id_for(page, first.name),
+             _node_id_for(page, second.name)])
+
+        page.wait_for_function(
+            "document.querySelectorAll('#slides-editor .slides-slide').length > 0",
+            timeout=30000)
+        # 让被延迟的甲号响应落地
+        page.wait_for_timeout(2500)
+
+        title = page.locator("#slides-title").inner_text()
+        # 精确匹配而不是子串：两次 run_expert 若落在同一秒，产物名会是
+        # html9n-<ts> 与 html9n-<ts>-2，后者包含前者，子串断言会假失败。
+        assert title == "幻灯片编辑 · " + second.name, (
+            f"后打开的 deck 应留在编辑器里，实际是：{title}")
+
+        # 真正的不变量：渲染出来的**内容**必须属于第二个 deck。
+        # 标题是 open() 同步写的，天然属于第二个 deck，不足以作证据。
+        # 比对页数也不行——两个 deck 同为 deck 意图，页数很可能相同，
+        # 那样旧响应覆盖后页数照样对得上，断言就成了摆设（本次就是这么假通过的）。
+        # 比对首个文本节点同样不行——deck 生成器把封面写成固定的
+        # 「Your Product · 发布会 2026」，两个 deck 完全一样。
+        # 因此比对**全部可编辑文本**的拼接结果。
+        join_slides = """project => fetch('/api/projects/' + encodeURIComponent(project) + '/slides')
+            .then(r => r.json())
+            .then(d => d.slides.map(s => s.texts.map(t => t.node + '=' + t.text).join('|'))
+                              .join('||'))"""
+        expected_text = page.evaluate(join_slides, second.name)
+        stale_text = page.evaluate(join_slides, first.name)
+        assert expected_text != stale_text, (
+            "两个 deck 的全部可编辑文本必须不同，否则本用例无法区分新旧状态")
+        rendered_text = page.evaluate(
+            """() => {
+                // 必须与服务端序列化同构：按页分组、页内用 | 、页间用 ||
+                // 之前把全部 textarea 直接用 | 拼，导致与 expected 格式不同、
+                // 断言恒假，是这条门禁自己的 bug。
+                const bySlide = new Map();
+                for (const a of document.querySelectorAll(
+                        '#slides-editor textarea[data-slide][data-node]')) {
+                    const k = a.dataset.slide;
+                    if (!bySlide.has(k)) bySlide.set(k, []);
+                    bySlide.get(k).push(a.dataset.node + '=' + a.value);
+                }
+                return Array.from(bySlide.values()).map(v => v.join('|')).join('||');
+            }""")
+        assert rendered_text == expected_text, (
+            f"编辑器渲染的是另一个 deck 的内容（首个差异位置）：\n"
+            f"  期望(第二个)={_first_diff(expected_text, rendered_text)}"
+            f"\n  实际        ={_first_diff(rendered_text, expected_text)}"
+            f"\n  先发后到的   ={_first_diff(stale_text, expected_text)}")
+        assert re.search(r"共 \d+ 页 · 修订基于 rev\d+",
+                         page.locator("#slides-status").inner_text())
+
+        page.unroute("**/*", delay_first_slides)
+        assert errors == []
+        browser.close()
+
+
+def _first_diff(a: str, b: str) -> str:
+    for i, (x, y) in enumerate(zip(a, b)):
+        if x != y:
+            return f"…{a[max(0, i - 30):i + 30]}… vs …{b[max(0, i - 30):i + 30]}…"
+    return f"(长度 {len(a)} vs {len(b)})"
+
+
+def _node_id_for(page, project_name: str) -> str:
+    return page.evaluate(
+        "name => nodes.find(n => n.data && n.data.project_name === name).id",
+        project_name)
 
 
 def test_intake_workbench_dialog_lists_candidates(tmp_path: Path, workbench_server) -> None:

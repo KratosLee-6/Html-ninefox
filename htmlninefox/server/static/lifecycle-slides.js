@@ -5,23 +5,30 @@
 (function () {
   'use strict';
 
-  let draft = { projectName: null, nodeId: null, revision: 0, slides: [] };
+  let draft = { projectName: null, nodeId: null, revision: 0, slides: [], request: 0, busy: false };
 
   async function open(nodeId) {
     const node = nodes.find(item => item.id === nodeId);
     if (!node?.data?.project_name) return flash('该产物缺少项目信息', false);
-    draft = { projectName: node.data.project_name, nodeId, revision: 0, slides: [] };
+    draft = { projectName: node.data.project_name, nodeId, revision: 0, slides: [], request: draft.request + 1, busy: false };
+    // 请求序号防竞态：open() 里 draft 会被整体重写，保存进行中再打开另一个 deck
+    // 时，先发的那次 GET 返回后若无保护，就会用它自己的 slides 与 revision
+    // 覆盖掉新 deck 的 draft，随后保存时把 revision 写进另一个节点。
+    // 与 lifecycle-revisions.js 的 draft.request 守卫同构。
+    const request = draft.request;
     window.FoxInteraction?.openDialog('#slides-modal', { initialFocus: '.slides-editor' });
     $('#slides-title').textContent = '幻灯片编辑 · ' + node.data.project_name;
     $('#slides-status').textContent = '正在读取幻灯片…';
     $('#slides-editor').innerHTML = '<div class="analysis-empty"><span class="spin">读取分页…</span></div>';
     try {
       const data = await api('/api/projects/' + encodeURIComponent(node.data.project_name) + '/slides');
+      if (request !== draft.request) return;   /* 旧响应不覆盖新状态 */
       draft.revision = data.revision;
       draft.slides = data.slides;
       renderEditor();
       $('#slides-status').textContent = `共 ${data.slides.length} 页 · 修订基于 rev${data.revision}`;
     } catch (error) {
+      if (request !== draft.request) return;
       $('#slides-editor').innerHTML = `<div class="export-warning error">${esc(error.message)}</div>`;
       $('#slides-status').textContent = '读取失败';
     }
@@ -75,6 +82,9 @@
   }
 
   function close() {
+    // 关闭本身也要作废在途请求：否则弹窗已关，读回来的响应仍会写进 draft，
+    // 并覆盖下一次打开的编辑器内容。
+    draft = { projectName: null, nodeId: null, revision: 0, slides: [], request: draft.request + 1, busy: false };
     window.FoxInteraction?.closeDialog('#slides-modal');
   }
 
