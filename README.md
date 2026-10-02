@@ -21,15 +21,15 @@
 
 ![Html九尾狐 Pixel Garden 工作台（v0.6.0 实拍）](assets/screenshots/v0.6.0/workbench-overview.png)
 
-## 40 秒看懂 Html九尾狐
+## 55 秒看懂 Html九尾狐
 
-[![播放 40s 品牌片（中文版）](assets/promo/poster-zh.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-40s-16x9.mp4)
+[![播放 55s 品牌片（中文版）](assets/promo/poster-zh.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-55s-16x9.mp4)
 
-**中文版** 1920×1080 · 40s · 无声 · [**English cut**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-40s-16x9-en.mp4) · [全部文件](assets/promo)
+**中文版** 1920×1080 · 55s · 无声 · [**English cut**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-55s-16x9-en.mp4) · [全部文件](assets/promo)
 
 > **片中画面的来源**：片中全部产品界面均取自 `assets/screenshots/v0.6.0/` 的真实运行截图，**不含任何生成式镜头**——刻意没有用文生视频模型生成界面画面，因为模型会产出乱码中文文字，比真实截图更差。开场标题卡、标语卡、版本沿革卡与尾卡是由 [`scripts/make_promo_film.py`](scripts/make_promo_film.py) 用 Playwright 渲染的静态卡，品牌标识渲染自项目内官方 SVG。
 
-> **镜头与功能一一对应**：12 个界面镜头对应 12 项可截图验证的功能（无限画布 / 模板库 / 双主题 / 平板 / 移动 / 审核台 / CSP 沙箱 / 动效实验室 / PPTX / 导出中心 / 降级报告），映射关系由脚本内的 `CATALOGUE` 表强制校验——新增功能而漏配镜头，脚本会直接报错退出。其余能力（LLM 接入、离线引擎、Project Memory、命令面板、版本历史、生成取消、六类产物等）没有本轮实拍，**片中不出现**，原因逐条列在脚本的 `NOT_IN_FILM` 里。
+> **镜头与功能一一对应**：21 个镜头对应 21 项可截图验证的功能（画布 / 模板库 / 双主题 / 平板 / 移动 / 移动素材库 / 输入入口 / 两个检查器 / 命令面板 / Project Memory / 版本恢复 / 取消生成 / 经典模式 / 审核台 / CSP 沙箱 / 动效实验室 / PPTX / 导出中心 / 降级报告），映射关系由脚本内的 `CATALOGUE` 表强制校验——新增功能而漏配镜头，脚本会直接报错退出。六类生成器产物没有本轮实拍，**片中不出现**。
 
 ## 它解决什么问题
 
@@ -94,29 +94,29 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 </tr>
 </table>
 
-#### 其余功能（v0.5.0 实拍，历史集）
-
-> 以下 12 张拍摄自 `v0.5.0` 发布版。**功能与交互语义在 v0.6.0 未变，但视觉不是最新的**——本轮把字号、字重、间距收敛进了尺度 token，并把首屏画布缩放从 0.33 修到 0.80，因此这些图的排版观感与当前版本存在可见差异（字距更紧、画布内容更大）。此处保留它们，是因为这些功能的状态本身没有被本轮改动取代；需要看当前观感，请以上一节的 v0.6.0 实拍为准。
-
-**输入与检查器**
+#### 输入与检查器
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/input-dialog-paper.png" alt="输入需求引导"><br><b>输入需求引导</b><br>文字、文件与图片统一入口，AI 分析后推荐组合。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/classic-pixel-garden.png" alt="经典表单模式"><br><b>经典表单模式</b><br>一句话 Brief 快速生成，与工作台同一品牌系统。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/input-brief.png" alt="统一需求入口"><br><b>统一需求入口</b><br>文字、文件、图片走同一个入口，AI 分析后推荐组合。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/command-palette.png" alt="命令面板"><br><b>命令面板</b><br>Ctrl+K 键盘打开、输关键词直达，每个动作都带快捷键提示。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/selected-node-inspector.png" alt="需求节点检查器"><br><b>需求节点检查器</b><br>选中即编辑文字与附件，一键向所属工作区推进。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/generated-output-inspector.png" alt="产物节点检查器"><br><b>产物节点检查器</b><br>版本徽标、运行轨迹、采用学习、口语反馈与导出入口。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/node-inspector.png" alt="需求节点检查器"><br><b>需求节点检查器</b><br>选中即编辑文字与附件，一键向所属工作区推进。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/output-inspector.png" alt="产物节点检查器"><br><b>产物节点检查器</b><br>版本徽标、运行轨迹、采用学习、口语反馈与导出入口。</td>
 </tr>
 </table>
 
-**Project Memory 与命令面板**
+**Project Memory、命令与版本**
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/project-memory-saved.png" alt="项目记忆"><br><b>项目记忆</b><br>品牌、受众、语气、禁忌、模板与长期说明本地保存，成功状态可见。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/command-palette-search.png" alt="命令面板"><br><b>命令面板</b><br>Ctrl+K 键盘打开、输入搜索、活动项与快捷键提示。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/project-memory.png" alt="项目记忆"><br><b>项目记忆</b><br>品牌、受众、语气、禁忌、模板与长期说明本地保存，下次生成直接复用。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/revision-restore.png" alt="版本历史与恢复"><br><b>版本历史与恢复</b><br>反馈、重跑、恢复都保留快照；恢复生成新版本，历史不覆盖。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.0/generation-cancel.png" alt="取消生成"><br><b>取消生成</b><br>等待期可取消：排队任务真取消，执行中诚实转为“停止等待”。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/classic.png" alt="经典表单模式"><br><b>经典表单模式</b><br>一句话 Brief 直接生成，和工作台同一套品牌系统。</td>
 </tr>
 </table>
 
@@ -124,21 +124,8 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/export-center-ready.png" alt="导出分析就绪"><br><b>导出分析就绪</b><br>兼容性评分、分页模型、动态特性与本地引擎状态。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/export-center.png" alt="真实导出结果"><br><b>真实导出结果</b><br>deck 检测 7 页，实际产出 page-01.png 与 export-report.json 并可下载。</td>
-</tr>
-</table>
-
-**版本、错误与取消**
-
-<table>
-<tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/revision-restore-complete.png" alt="版本恢复"><br><b>版本恢复</b><br>真实把 rev0 恢复为新的 rev2，显示恢复来源、行级差异与成功 Toast。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/export-analysis-error.png" alt="受控错误"><br><b>受控错误</b><br>服务端返回项目不存在：按钮禁用、错误面板与 Toast 同步反馈。</td>
-</tr>
-<tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/generation-cancel.png" alt="取消生成"><br><b>取消生成</b><br>等待期可取消：排队任务真取消，执行中诚实转为“停止等待”。</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-paper-1440.png" alt="生成进度环"><br><b>生成进度环</b><br>真实 job.progress 驱动节点进度环，完成收敛、失败陶土橙。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/export-ready.png" alt="导出分析就绪"><br><b>导出分析就绪</b><br>兼容性评分、分页模型、动态特性与本地引擎状态；deck 产物额外放开 PPTX。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/export-center-pptx.png" alt="PPTX 导出结果"><br><b>PPTX 导出结果</b><br>导出完成给出 pptx 与报告两个下载项，报告列出可编辑元素与降级清单。</td>
 </tr>
 </table>
 
@@ -146,15 +133,17 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 | 目录 | 张数 | 内容 |
 |---|---:|---|
-| `assets/screenshots/v0.6.0/` | 13 | 当前版本实拍：工作台 6 张、设计吸收 4 张、幻灯片编辑与 PPTX 导出 3 张 |
+| `assets/screenshots/v0.6.0/` | **23** | 当前版本实拍：工作台与画布 7 张、输入与检查器 4 张、Project Memory / 版本 / 取消 / 经典模式 4 张、设计吸收 3 张、幻灯片编辑与 PPTX 导出 3 张、移动端素材库 1 张 |
 | `assets/screenshots/v0.5.0/` | 24 | v0.5.0 完整实拍集（含 6 张真实产物输出图） |
 | `assets/screenshots/v0.4.0/` | 5 | Pixel Garden、LLM、Docker、Export Center 的历史记录 |
 
-清单与复现命令见[截图说明](assets/screenshots/README.md)。
+> v0.6.0 的 23 张全部由可复跑的门禁产出（`tests/test_v060_visual_evidence_states.py` 与
+> `tests/test_v061_visual_evidence_states.py`），不是手工截图；清单与重采命令见[截图说明](assets/screenshots/README.md)。
+> 仍引用 `v0.5.0/` 的只有**六类生成器产物**——它们由生成器实跑产出而非 UI 截图，产物结构在 v0.6.0 未变。
 
 ## v0.5.0 稳定版核心能力（历史）
 
-![崩溃可恢复提交与生命周期 Module](assets/screenshots/v0.5.0/generation-cancel.png)
+![崩溃可恢复提交与生命周期 Module](assets/screenshots/v0.6.0/generation-cancel.png)
 
 - **🧠 Project Memory**：品牌、受众、语气、禁忌、模板、主色和字体保存在本地，可查看、编辑、关闭或清空。
 - **♡ 明确采用后学习**：只有在产物检查器点击“采用此版本并学习”才会进入长期记忆，测试稿和失败稿不会污染偏好；分析、Recipe Run 和检查器会显示本次复用了什么（可解释复用）。
@@ -233,7 +222,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ### 六类真实产物
 
-以下产物图由 `v0.5.0` 发布版的 e2e 验收流程真实生成（六类生成器的产物结构在 v0.6.0 未变）：
+以下产物图由 `v0.5.0` 发布版的 e2e 验收流程真实生成（六类生成器的产物结构在 v0.6.0 未变；这 6 张由生成器实跑产出而非 UI 截图，因此仍是 v0.5.0 版式）：
 
 | 落地页 | 数据看板 | 发布会 PPT |
 |---|---|---|

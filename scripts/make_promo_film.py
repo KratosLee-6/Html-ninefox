@@ -76,6 +76,34 @@ SCRIPT = {
         ("shot", "workbench-mobile-390.png", 2.5,
          "移动任务视图", "手机上换成能读懂的列表",
          "不再硬塞一张缩小的画布", "responsive-mobile"),
+        ("shot", "mobile-library.png", 2.0,
+         "移动素材库", "手机上照样能浏览和拖入模板",
+         "REAL HTML 模板卡可直接拖入", "mobile-library"),
+
+        ("shot", "input-brief.png", 2.5,
+         "统一需求入口", "文字、文件、图片，一个入口",
+         "TXT / Markdown / JSON / CSV / 图片", "input-brief"),
+        ("shot", "node-inspector.png", 2.0,
+         "需求节点检查器", "选中即改文字与附件",
+         "改完一键推进所属工作区", "node-inspector"),
+        ("shot", "output-inspector.png", 2.0,
+         "产物节点检查器", "版本徽标、运行轨迹、导出入口",
+         "口语反馈直接改设计 token", "output-inspector"),
+        ("shot", "command-palette.png", 2.0,
+         "命令面板", "Ctrl+K 打开，输关键词直达",
+         "每个动作都带快捷键提示", "command-palette"),
+        ("shot", "project-memory.png", 2.0,
+         "项目记忆", "品牌、语气、禁忌记在本地",
+         "下次生成直接复用，不用重复交代", "project-memory"),
+        ("shot", "revision-restore.png", 2.5,
+         "版本历史与恢复", "反馈、重跑、恢复都留快照",
+         "恢复生成新版本，历史不覆盖", "revision-restore"),
+        ("shot", "generation-cancel.png", 2.0,
+         "取消生成", "等待期可取消，跑着的诚实告知",
+         "不骗你说「已取消」", "generation-cancel"),
+        ("shot", "classic.png", 2.5,
+         "经典表单模式", "一句话 Brief 直接出 HTML",
+         "和工作台同一套 Pixel Garden 品牌", "classic"),
 
         ("pair", ("intake-review-pending.png", "intake-approved-absorption.png"), 4.0,
          "设计吸收流水线", "12 个设计源，抓回来的先过审核台",
@@ -122,6 +150,34 @@ SCRIPT = {
         ("shot", "workbench-mobile-390.png", 2.5,
          "MOBILE TASK VIEW", "A readable list on a phone",
          "Not a shrunken canvas", "responsive-mobile"),
+        ("shot", "mobile-library.png", 2.0,
+         "MOBILE LIBRARY", "Browse and drag templates on a phone",
+         "REAL HTML cards stay draggable", "mobile-library"),
+
+        ("shot", "input-brief.png", 2.5,
+         "ONE ENTRY", "Text, files and images together",
+         "TXT / Markdown / JSON / CSV / images", "input-brief"),
+        ("shot", "node-inspector.png", 2.0,
+         "REQUIREMENT NODE", "Edit text and attachments in place",
+         "Then advance its workspace", "node-inspector"),
+        ("shot", "output-inspector.png", 2.0,
+         "OUTPUT NODE", "Revision, run trace, export entry",
+         "Feedback rewrites design tokens", "output-inspector"),
+        ("shot", "command-palette.png", 2.0,
+         "COMMAND PALETTE", "Ctrl+K, type, jump straight there",
+         "Every action shows its shortcut", "command-palette"),
+        ("shot", "project-memory.png", 2.0,
+         "PROJECT MEMORY", "Brand, tone, taboos stay local",
+         "Reused next time, never re-explained", "project-memory"),
+        ("shot", "revision-restore.png", 2.5,
+         "REVISION HISTORY", "Feedback, rerun and restore all snapshot",
+         "Restore creates a new revision", "revision-restore"),
+        ("shot", "generation-cancel.png", 2.0,
+         "CANCEL GENERATION", "Cancel while queued, honest while running",
+         "Never claims a false cancel", "generation-cancel"),
+        ("shot", "classic.png", 2.5,
+         "CLASSIC MODE", "One-line brief straight to HTML",
+         "Same Pixel Garden brand as the workbench", "classic"),
 
         ("pair", ("intake-review-pending.png", "intake-approved-absorption.png"), 4.0,
          "DESIGN INTAKE", "12 sources, every candidate reviewed",
@@ -159,6 +215,15 @@ CATALOGUE = {
     "theme-night": ("Pixel Night 夜蓝主题", "Pixel Night theme"),
     "responsive-tablet": ("平板 768 响应式", "Tablet 768 layout"),
     "responsive-mobile": ("移动 390 任务视图", "Mobile 390 task view"),
+    "mobile-library": ("移动端素材库抽屉", "Mobile library drawer"),
+    "input-brief": ("统一需求入口", "Guided requirement input"),
+    "node-inspector": ("需求节点检查器", "Requirement node inspector"),
+    "output-inspector": ("产物节点检查器", "Output node inspector"),
+    "command-palette": ("命令面板 Ctrl+K", "Command palette"),
+    "project-memory": ("Project Memory 项目记忆", "Project Memory"),
+    "revision-restore": ("版本历史与恢复", "Revision history and restore"),
+    "generation-cancel": ("取消生成", "Cancel generation"),
+    "classic": ("经典表单模式", "Classic form mode"),
     "intake-review": ("设计吸收 · 审核台 · 12 源 · 三档许可", "Design intake review"),
     "intake-sandbox": ("CSP 沙箱预览", "CSP sandbox preview"),
     "intake-motion": ("动效实验室", "Motion lab"),
@@ -506,6 +571,12 @@ def main() -> None:
 
     for lang in ("zh", "en"):
         seconds = int(round(film_seconds(lang)))
+        if abs(seconds - film_seconds(lang)) > 0.01:
+            # 文件名必须精确等于片长。这个项目已经吃过一次亏：片长 54.5s 时
+            # round() 得到 54，文件名就比成片短了半秒。宁可调整镜头时长凑整。
+            raise SystemExit(
+                f"{lang}: 片长 {film_seconds(lang)}s 不是整数，文件名会与成片不符；"
+                f"请调整某个镜头的秒数使其为整秒")
         stem = (f"htmlninefox-brand-film-{seconds}s-16x9" if lang == "zh"
                 else f"htmlninefox-brand-film-{seconds}s-16x9-en")
         final = WORK / f"final-{lang}.mp4"

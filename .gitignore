@@ -22,6 +22,8 @@ release/
 .settings/
 .inputs/
 user-data/
+# Cross-process project lock files (LOCK_DIR in revisions.py)
+.locks/
 .venv*/
 .tmp/
 **/.foxstate.json

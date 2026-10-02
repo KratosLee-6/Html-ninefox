@@ -11,7 +11,36 @@
 | `v0.5.0a1/` ～ `v0.5.0rc2/` | 交互、Recipe Run、Project Memory、Revision 与 RC2 发布证据 |
 | 0.5.0rc3/ | Chromium 发布验收生成的纸白、夜蓝与 Export Center 截图 |
 | `v0.5.0rc3-visual/` | `v0.5.0rc3` 的响应式、组件状态与恢复/错误证据 |
-| `v0.6.0/` | `v0.6.0` 设计吸收流水线与可编辑 PPTX 的新功能实拍 |
+| `v0.6.0/` | `v0.6.0` 的工作台、设计吸收、PPTX 导出与历史功能实拍（23 张） |
+
+## v0.6.0 截图（23 张 · 顶栏徽标均为 v0.6.0）
+
+分两批采集，都由可复跑的门禁产出，**不是手工截图**：
+
+**第一批 · v0.6.0 新功能**（`tests/test_v060_visual_evidence_states.py`）
+`intake-review-pending` / `intake-approved-absorption` / `intake-preview-sandbox` /
+`motion-lab-intake-motion` / `slide-editor-dialog` / `export-center-pptx` / `pptx-export-report`
+
+**第二批 · 补齐「功能仍在但无 v0.6.0 实拍」的 19 项缺口**（`tests/test_v061_visual_evidence_states.py`）
+
+| 分组 | 文件 |
+|---|---|
+| 工作台与画布 | `workbench-overview` `workbench-paper-1440` `workbench-night-1440` `workbench-tablet-768` `workbench-mobile-390` `sidebar-templates` `mobile-library` |
+| 输入与检查器 | `input-brief` `node-inspector` `output-inspector` `command-palette` |
+| 状态与能力 | `project-memory` `revision-restore` `generation-cancel` `export-ready` `classic` |
+
+重采命令（两个门禁都受 `HTMLNINEFOX_V060_EVIDENCE_DIR` 控制；**未设置时只跑断言、不落盘**，
+因此在 CI 上必跑且零副作用）：
+
+```bash
+HTMLNINEFOX_V060_EVIDENCE_DIR=assets/screenshots/v0.6.0 \
+  python -m pytest tests/test_v060_visual_evidence_states.py tests/test_v061_visual_evidence_states.py -q
+```
+
+> **不要用 `e2e_verify.py` / `canvas_e2e.py` 补图**：两者都把输出目录写死为
+> `assets/screenshots/v{__version__}/` 并直接 `mkdir` 写图，运行即污染版本化发布资产。
+
+> `v0.5.0/` 下的 6 张仍是 `v0.5.0` 版式，README「六类真实产物」表继续引用它们并已注明版本。
 
 ## v0.5.0 稳定版截图（24 张）
 

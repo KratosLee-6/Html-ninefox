@@ -7,9 +7,9 @@
 ```text
 assets/
 ├── README.md
-├── promo/                            # 40s 品牌宣传片（中英双版）
-│   ├── htmlninefox-brand-film-40s-16x9.mp4
-│   ├── htmlninefox-brand-film-40s-16x9-en.mp4
+├── promo/                            # 55s 品牌宣传片（中英双版）
+│   ├── htmlninefox-brand-film-55s-16x9.mp4
+│   ├── htmlninefox-brand-film-55s-16x9-en.mp4
 │   ├── poster-zh.png                 # README 可点击封面（GitHub 不渲染 <video>）
 │   └── poster-en.png
 ├── screenshots/
@@ -26,7 +26,7 @@ assets/
 
 `assets/screenshots/v0.5.0rc3-visual/` 当前包含 14 张截图，覆盖 Paper / Pixel Night、桌面 / 平板 / 手机、命令面板、Project Memory、生成结果、Export Center、受控错误和 Revision Restore 等真实产品状态。
 
-`assets/promo/` 是 40 秒品牌宣传片的中英双版（1920×1080 / 25fps / H.264 / 无声）。**片中已不含任何生成式镜头**：所有产品界面画面全部取自本目录 `v0.6.0/` 的真实运行截图，不使用概念图替代功能证据；开场标题卡、标语卡、版本沿革卡与尾卡是由脚本用 Playwright 渲染的静态卡，其中品牌标志直接渲染自 `htmlninefox/server/static/logo-mark.svg` 官方源文件。
+`assets/promo/` 是 55 秒品牌宣传片的中英双版（1920×1080 / 25fps / H.264 / 无声）。**片中已不含任何生成式镜头**：所有产品界面画面全部取自本目录 `v0.6.0/` 的真实运行截图，不使用概念图替代功能证据；开场标题卡、标语卡、版本沿革卡与尾卡是由脚本用 Playwright 渲染的静态卡，其中品牌标志直接渲染自 `htmlninefox/server/static/logo-mark.svg` 官方源文件。
 
 > 取景说明：截图为 16:10，片子是 16:9。脚本用 `scale=...:force_original_aspect_ratio=decrease` + `pad` **留边而非裁切**，所以顶栏一直可见——`v0.6.0` 版本徽标在每个界面镜头里都能读到。此前版本用 `crop`，把顶栏裁掉了，徽标只在每个镜头开头约 1 秒偶然可见。
 >
@@ -42,7 +42,9 @@ assets/
 python scripts/make_promo_film.py
 ```
 
-该脚本对每个片段与最终成片做时长校验，不符即中止且**不覆盖**仓库中已有文件。片长由 `SCRIPT` 表推导（`film_seconds()`）而非写死——写死过一次，结果文件名写成 `60s` 而实际 40s。
+该脚本对每个片段与最终成片做时长校验，不符即中止且**不覆盖**仓库中已有文件。片长由 `SCRIPT` 表推导（`film_seconds()`）而非写死，且**必须是整秒**——脚本会在片长非整数时直接报错退出。写死过一次（文件名写 `60s` 而实际 40s），改成推导后又出现过一次（片长 54.5s 而 `round()` 得到 54，文件名比成片短半秒），因此现在宁可用整秒凑，也不让文件名去四舍五入。
+
+**镜头与功能一一对应**：21 个镜头 ↔ 21 项可截图验证的功能，映射表是脚本内的 `CATALOGUE`，`validate_script()` 会在「有功能没镜头」或「有镜头没登记」时直接报错退出。
 
 GitHub 的 Markdown 清洗器不支持 `<video>` 标签，因此主 README 用 `[![封面](poster.png)](raw 链接)` 形式跳转播放，不要改回内嵌 `<video>`。
 

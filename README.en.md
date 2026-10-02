@@ -21,15 +21,15 @@
 
 ![HtmlNineFox Pixel Garden workbench (captured on v0.6.0)](assets/screenshots/v0.6.0/workbench-overview.png)
 
-## HtmlNineFox in 40 seconds
+## HtmlNineFox in 55 seconds
 
-[![Play the 40s brand film (English cut)](assets/promo/poster-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-40s-16x9-en.mp4)
+[![Play the 55s brand film (English cut)](assets/promo/poster-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-55s-16x9-en.mp4)
 
-**English** 1920×1080 · 40s · no voiceover · [**中文版**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-40s-16x9.mp4) · [all files](assets/promo)
+**English** 1920×1080 · 55s · no voiceover · [**中文版**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-55s-16x9.mp4) · [all files](assets/promo)
 
 > **What is in the film**: every product-UI frame comes from the real v0.6.0 captures in `assets/screenshots/v0.6.0/`, and the film contains **no generative footage at all** — a text-to-video model was deliberately not used for interface frames, because it hallucinates garbled CJK text, which is strictly worse than a real screenshot. The title, slogan, version-history and end cards are static HTML-rendered stills produced by [`scripts/make_promo_film.py`](scripts/make_promo_film.py), with the brand mark drawn from the project's own SVG source.
 
-> **Shots map 1:1 to features**: the 12 interface shots cover 12 screenshot-verifiable features (canvas / template library / both themes / tablet / mobile / review workbench / CSP sandbox / motion lab / PPTX / export center / degradation report), and the mapping is enforced by the `CATALOGUE` table inside the script — adding a feature without a shot makes the script fail rather than ship. The remaining capabilities (LLM integration, offline engine, Project Memory, command palette, revision history, generation cancel, the six artifact types) have no capture from this round and are **absent from the film**; each reason is listed in the script's `NOT_IN_FILM`.
+> **Shots map 1:1 to features**: the 21 shots cover 21 screenshot-verifiable features (canvas / template library / both themes / tablet / mobile / mobile library / input entry / both inspectors / command palette / Project Memory / revision restore / cancel generation / classic mode / review workbench / CSP sandbox / motion lab / PPTX / export center / degradation report), and the mapping is enforced by the `CATALOGUE` table inside the script — adding a feature without a shot makes the script fail rather than ship. The six generated artifact types have no capture this round and are **absent from the film**.
 
 ## What it solves
 
@@ -92,29 +92,33 @@ The six shots below were taken from the current `v0.6.0` code (the topbar badge 
 </tr>
 </table>
 
-#### Everything else (v0.5.0 captures, historical set)
+#### Input, inspectors, memory and revisions
 
-> The 12 shots below were taken on the released `v0.5.0` build. **The features and their interaction semantics are unchanged in v0.6.0, but the visuals are not current** — this round folded font size, font weight, and spacing into scale tokens and moved first-paint canvas fit from 0.33 to 0.80, so the typography and canvas scale in these shots differ visibly from the current build. They are kept because none of these states was replaced by this round; for the current look, use the v0.6.0 captures above.
+All of the following are re-captured on the current `v0.6.0` build.
 
 **Input & inspectors**
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/input-dialog-paper.png" alt="Guided requirement input"><br><b>Guided requirement input</b><br>One entry for text, files, and images; AI analysis recommends a composition.</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/classic-pixel-garden.png" alt="Classic form mode"><br><b>Classic form mode</b><br>One-line Brief quick generation on the same brand system.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/input-brief.png" alt="One entry for everything"><br><b>One entry for everything</b><br>Text, files and images share a single entry; AI analysis recommends a composition.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/command-palette.png" alt="Command palette"><br><b>Command palette</b><br>Ctrl+K to open, type to jump, every action shows its shortcut.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/selected-node-inspector.png" alt="Requirement node inspector"><br><b>Requirement node inspector</b><br>Edit text and attachments on selection; advance to the workspace.</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/generated-output-inspector.png" alt="Output node inspector"><br><b>Output node inspector</b><br>Revision badge, recipe run, adoption, conversational feedback, export entry.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/node-inspector.png" alt="Requirement node inspector"><br><b>Requirement node inspector</b><br>Edit text and attachments on selection; advance to the workspace.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/output-inspector.png" alt="Output node inspector"><br><b>Output node inspector</b><br>Revision badge, recipe run, adoption, conversational feedback, export entry.</td>
 </tr>
 </table>
 
-**Project Memory & command palette**
+**Project Memory, revisions & cancel**
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/project-memory-saved.png" alt="Project Memory"><br><b>Project Memory</b><br>Brand, audience, tone, forbidden patterns, templates saved locally with visible success.</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/command-palette-search.png" alt="Command palette"><br><b>Command palette</b><br>Ctrl+K keyboard open, search, active result, shortcut hints.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/project-memory.png" alt="Project Memory"><br><b>Project Memory</b><br>Brand, audience, tone, forbidden patterns and templates stay local and are reused next time.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/revision-restore.png" alt="Revision history and restore"><br><b>Revision history and restore</b><br>Feedback, reruns and restores all snapshot; restore creates a new revision.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.0/generation-cancel.png" alt="Cancel generation"><br><b>Cancel generation</b><br>Queued jobs cancel for real; running jobs honestly switch to stop-waiting.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/classic.png" alt="Classic form mode"><br><b>Classic form mode</b><br>One-line Brief straight to HTML, same brand system as the workbench.</td>
 </tr>
 </table>
 
@@ -122,30 +126,23 @@ The six shots below were taken from the current `v0.6.0` code (the topbar badge 
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/export-center-ready.png" alt="Export analysis ready"><br><b>Export analysis ready</b><br>Compatibility score, page model, dynamic features, local engine status.</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/export-center.png" alt="Real export result"><br><b>Real export result</b><br>Deck detects 7 pages; page-01.png and export-report.json produced and downloadable.</td>
-</tr>
-</table>
-
-**Revisions, errors & cancel**
-
-<table>
-<tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/revision-restore-complete.png" alt="Revision restore"><br><b>Revision restore</b><br>Real rev0 → rev2 restore with lineage, line diff, and success toast.</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/export-analysis-error.png" alt="Controlled error"><br><b>Controlled error</b><br>Missing project: button disabled with panel and toast feedback.</td>
-</tr>
-<tr>
-<td width="50%"><img src="assets/screenshots/v0.5.0/generation-cancel.png" alt="Cancel generation"><br><b>Cancel generation</b><br>Queued jobs cancel for real; running jobs honestly switch to stop-waiting.</td>
-<td width="50%"><img src="assets/screenshots/v0.5.0/workbench-paper-1440.png" alt="Generation progress rings"><br><b>Generation progress rings</b><br>Real job.progress drives node rings; success collapses, failure turns terracotta.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/export-ready.png" alt="Export analysis ready"><br><b>Export analysis ready</b><br>Compatibility score, page model, dynamic features, engine status; PPTX is offered for deck artifacts.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.0/export-center-pptx.png" alt="PPTX export result"><br><b>PPTX export result</b><br>Both the .pptx and the report are downloadable; the report lists editable elements and degradations.</td>
 </tr>
 </table>
 Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots/v0.5.0/](assets/screenshots/v0.5.0/); the list and reproduction commands are in [the screenshots README](assets/screenshots/README.md).
+
+> The v0.6.0 captures are all produced by re-runnable gates
+> (`tests/test_v060_visual_evidence_states.py` and `tests/test_v061_visual_evidence_states.py`),
+> not hand-shot. The only remaining `v0.5.0/` references are the **six generated
+> artifacts** — they come from a real generator run rather than a UI screenshot,
+> and the artifact structure is unchanged in v0.6.0.
 
 #### Full screenshot inventory
 
 | Directory | Count | Contents |
 |---|---:|---|
-| `assets/screenshots/v0.6.0/` | 13 | Current build: 6 workbench, 4 design intake, 3 slide editor / PPTX export |
+| `assets/screenshots/v0.6.0/` | **23** | Current build: 7 workbench, 4 input & inspectors, 4 memory/revision/cancel/classic, 3 design intake, 3 slide editor / PPTX, 1 mobile library, 1 report |
 | `assets/screenshots/v0.5.0/` | 24 | Full v0.5.0 set, including 6 real generated-output shots |
 | `assets/screenshots/v0.4.0/` | 5 | Historical: Pixel Garden, LLM config, Docker, Export Center |
 
@@ -153,7 +150,7 @@ See the [screenshot notes](assets/screenshots/README.md) for the full listing an
 
 ## v0.5.0 Stable Capabilities (history)
 
-![Crash-recoverable commits and lifecycle modules](assets/screenshots/v0.5.0/generation-cancel.png)
+![Crash-recoverable commits and lifecycle modules](assets/screenshots/v0.6.0/generation-cancel.png)
 
 - **🧠 Project Memory**: Brand, audience, tone, forbidden patterns, template, primary color, and font stay local and remain editable, disableable, and clearable.
 - **♡ Learn only after adoption**: Long-term memory changes only when the user explicitly selects "Adopt this version and learn"; analysis, Recipe Run, and the inspector explain what was reused (explainable reuse).
