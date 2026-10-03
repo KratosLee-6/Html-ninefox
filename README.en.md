@@ -21,13 +21,13 @@
 
 ![HtmlNineFox Pixel Garden workbench (captured on v0.6.0)](assets/screenshots/v0.6.0/workbench-overview.png)
 
-## HtmlNineFox in 55 seconds
+## HtmlNineFox in 63 seconds
 
-[![Play the 55s brand film (English cut)](assets/promo/poster-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-55s-16x9-en.mp4)
+[![Play the 63s brand film (English cut)](assets/promo/poster-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-63s-16x9-en.mp4)
 
-**English** 1920×1080 · 55s · no voiceover · [**中文版**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-55s-16x9.mp4) · [all files](assets/promo)
+**English** 1920×1080 · 63s · no voiceover · [**中文版**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-63s-16x9.mp4) · [all files](assets/promo)
 
-> **What is in the film**: every product-UI frame comes from the real v0.6.0 captures in `assets/screenshots/v0.6.0/`, and the film contains **no generative footage at all** — a text-to-video model was deliberately not used for interface frames, because it hallucinates garbled CJK text, which is strictly worse than a real screenshot. The title, slogan, version-history and end cards are static HTML-rendered stills produced by [`scripts/make_promo_film.py`](scripts/make_promo_film.py), with the brand mark drawn from the project's own SVG source.
+> **What is in the film**: every **product-UI frame** comes from the real v0.6.0 captures in `assets/screenshots/v0.6.0/` — **not one interface frame is generated**. A text-to-video model was deliberately not used for interface footage, because it hallucinates garbled CJK text, which is strictly worse than a real screenshot. The one generative shot is the **opening abstract atmosphere** (warm paper, square grid, cobalt and mint light, 8s), which contains no text and no interface. The title, slogan, version-history and end cards are static HTML-rendered stills produced by [`scripts/make_promo_film.py`](scripts/make_promo_film.py), with the brand mark drawn from the project's own SVG source.
 
 > **Shots map 1:1 to features**: the 21 shots cover 21 screenshot-verifiable features (canvas / template library / both themes / tablet / mobile / mobile library / input entry / both inspectors / command palette / Project Memory / revision restore / cancel generation / classic mode / review workbench / CSP sandbox / motion lab / PPTX / export center / degradation report), and the mapping is enforced by the `CATALOGUE` table inside the script — adding a feature without a shot makes the script fail rather than ship. The six generated artifact types have no capture this round and are **absent from the film**.
 

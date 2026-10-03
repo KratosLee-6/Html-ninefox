@@ -559,6 +559,54 @@ def poster(video: Path, out: Path, at: float) -> None:
          "-q:v", "2", str(out)])
 
 
+# ---------------------------------------------------------------- H3 opener
+# The only generative footage in the film, and it is deliberately abstract:
+# warm paper, square grid ruling, cobalt and mint light. No text, no
+# letters, no interface -- a text-to-video model renders CJK glyphs as noise,
+# so the prompt forbids them outright and every UI frame stays a real capture.
+#
+# H3 emits a native audio track. The film is silent, so it is dropped here
+# rather than muxed and muted later.
+OPENER_SRC = PROMO / "opener-h3-2k.mp4"
+# Expressed in FRAMES, not seconds. At 25fps a 0.5s cross-fade is 12.5 frames,
+# so computing the total in floating point lands on 63.02s and the filename
+# guard correctly refuses. 200 (source) + 13 tail, cross-faded by 13, against a
+# 1375-frame master: 213 + 1375 - 13 = 1575 frames = exactly 63.00s.
+OPENER_SOURCE_FRAMES = 200
+OPENER_TAIL_FRAMES = 13
+OPENER_XF_FRAMES = 13
+
+
+def build_opener(out: Path) -> float:
+    """Normalise the H3 clip to the film's format and freeze its tail."""
+    chain = ",".join([
+        f"tpad=stop_mode=clone:stop_duration={OPENER_TAIL_FRAMES / FPS:.6f}",
+        f"scale={W}:{H}:force_original_aspect_ratio=decrease:flags=lanczos",
+        f"pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color={PAPER}",
+        f"fps={FPS}",
+    ])
+    run(["ffmpeg", "-y", "-i", str(OPENER_SRC), "-vf", chain,
+         "-frames:v", str(OPENER_SOURCE_FRAMES + OPENER_TAIL_FRAMES),
+         "-an", "-c:v", "libx264", "-preset", "slow", "-crf", "17",
+         "-pix_fmt", "yuv420p", str(out)])
+    return probe_duration(out)
+
+
+def splice_opener(opener: Path, master: Path, out: Path) -> None:
+    """Cross-fade the opener in front of the shot master. Both are silent."""
+    xf = OPENER_XF_FRAMES / FPS
+    offset = probe_duration(opener) - xf
+    run(["ffmpeg", "-y", "-i", str(opener), "-i", str(master),
+         "-filter_complex",
+         f"[0:v][1:v]xfade=transition=fade:duration={xf:.6f}:offset={offset:.6f},"
+         f"format=yuv420p[v]",
+         "-map", "[v]", "-r", str(FPS), "-c:v", "libx264", "-preset", "slow",
+         "-crf", "19", "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
+         str(out)])
+    want = probe_duration(opener) + probe_duration(master) - xf
+    verify(out, want, tol=0.4)
+
+
 def main() -> None:
     WORK.mkdir(parents=True, exist_ok=True)
     PROMO.mkdir(parents=True, exist_ok=True)
@@ -568,24 +616,33 @@ def main() -> None:
     validate_script()
     if not (WORK / "card-versions-en.png").exists():
         render_cards()
+    opener_seconds = build_opener(WORK / "opener-normalized.mp4")
+    # Must mirror splice_opener(): it cross-fades by OPENER_XF_FRAMES/FPS,
+    # not by XF. Using XF here is how the total came out 63.02 instead of 63.00.
+    opener_xf = OPENER_XF_FRAMES / FPS
+    total_seconds = film_seconds("zh") + opener_seconds - opener_xf
+    print(f"opener {opener_seconds:.2f}s (H3 abstract, silent), "
+          f"cross-fade {opener_xf:.2f}s, film total {total_seconds:.2f}s")
 
     for lang in ("zh", "en"):
-        seconds = int(round(film_seconds(lang)))
-        if abs(seconds - film_seconds(lang)) > 0.01:
+        seconds = int(round(total_seconds))
+        if abs(seconds - total_seconds) > 0.01:
             # 文件名必须精确等于片长。这个项目已经吃过一次亏：片长 54.5s 时
             # round() 得到 54，文件名就比成片短了半秒。宁可调整镜头时长凑整。
             raise SystemExit(
-                f"{lang}: 片长 {film_seconds(lang)}s 不是整数，文件名会与成片不符；"
-                f"请调整某个镜头的秒数使其为整秒")
+                f"{lang}: 片长 {total_seconds}s 不是整数，文件名会与成片不符；"
+                f"请调整开场或某个镜头的帧数使其为整秒")
         stem = (f"htmlninefox-brand-film-{seconds}s-16x9" if lang == "zh"
                 else f"htmlninefox-brand-film-{seconds}s-16x9-en")
+        master = WORK / f"master-{lang}.mp4"
+        build_master(lang, build_content_clips(lang), master)
         final = WORK / f"final-{lang}.mp4"
-        build_master(lang, build_content_clips(lang), final)
+        splice_opener(WORK / "opener-normalized.mp4", master, final)
         final.replace(PROMO / f"{stem}.mp4")
         target = PROMO / f"{stem}.mp4"
         print(f"done {target.name} {target.stat().st_size / 1e6:.2f} MB "
               f"{probe_duration(target):.2f}s")
-        poster(target, PROMO / f"poster-{lang}.png", 12.0)
+        poster(target, PROMO / f"poster-{lang}.png", 8.0 + film_seconds(lang) * 0.2)
 
 
 if __name__ == "__main__":

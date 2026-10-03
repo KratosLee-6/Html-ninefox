@@ -7,9 +7,10 @@
 ```text
 assets/
 ├── README.md
-├── promo/                            # 55s 品牌宣传片（中英双版）
-│   ├── htmlninefox-brand-film-55s-16x9.mp4
-│   ├── htmlninefox-brand-film-55s-16x9-en.mp4
+├── promo/                            # 63s 品牌宣传片（中英双版）
+│   ├── htmlninefox-brand-film-63s-16x9.mp4
+│   ├── htmlninefox-brand-film-63s-16x9-en.mp4
+│   ├── opener-h3-2k.mp4              # 开场抽象氛围镜头（MiniMax-H3 生成 · 8s 2K）
 │   ├── poster-zh.png                 # README 可点击封面（GitHub 不渲染 <video>）
 │   └── poster-en.png
 ├── screenshots/
@@ -26,7 +27,9 @@ assets/
 
 `assets/screenshots/v0.5.0rc3-visual/` 当前包含 14 张截图，覆盖 Paper / Pixel Night、桌面 / 平板 / 手机、命令面板、Project Memory、生成结果、Export Center、受控错误和 Revision Restore 等真实产品状态。
 
-`assets/promo/` 是 55 秒品牌宣传片的中英双版（1920×1080 / 25fps / H.264 / 无声）。**片中已不含任何生成式镜头**：所有产品界面画面全部取自本目录 `v0.6.0/` 的真实运行截图，不使用概念图替代功能证据；开场标题卡、标语卡、版本沿革卡与尾卡是由脚本用 Playwright 渲染的静态卡，其中品牌标志直接渲染自 `htmlninefox/server/static/logo-mark.svg` 官方源文件。
+`assets/promo/` 是 63 秒品牌宣传片的中英双版（1920×1080 / 25fps / H.264 / 无声）。**界面画面没有任何一帧是生成的**：所有产品界面全部取自本目录 `v0.6.0/` 的真实运行截图，不使用概念图替代功能证据。**唯一由 MiniMax-H3 生成的是开场的抽象氛围镜头**（`opener-h3-2k.mp4`，8 秒 2K：暖纸、方格格线、钴蓝与薄荷光），它不含任何文字或界面——刻意如此，因为文生视频模型会把中文渲染成乱码。开场标题卡、标语卡、版本沿革卡与尾卡是由脚本用 Playwright 渲染的静态卡，其中品牌标志直接渲染自 `htmlninefox/server/static/logo-mark.svg` 官方源文件。
+
+> H3 会为生成视频附带一条原生音轨；本片是静音的，拼接时用 `-an` 直接丢弃，而不是先混进去再静音。
 
 > 取景说明：截图为 16:10，片子是 16:9。脚本用 `scale=...:force_original_aspect_ratio=decrease` + `pad` **留边而非裁切**，所以顶栏一直可见——`v0.6.0` 版本徽标在每个界面镜头里都能读到。此前版本用 `crop`，把顶栏裁掉了，徽标只在每个镜头开头约 1 秒偶然可见。
 >
