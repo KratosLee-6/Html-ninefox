@@ -40,7 +40,8 @@ PROMO = ROOT / "assets" / "promo"
 WORK = ROOT / "build" / "promo-film"
 
 W, H, FPS = 1920, 1080, 25
-XF = 0.5
+XF = 0.4  # cross-fade; 10 whole frames at 25fps
+TARGET_SECONDS = 35.0
 
 CJK_BOLD = r"C\:/Windows/Fonts/msyhbd.ttc"
 CJK_REG = r"C\:/Windows/Fonts/msyh.ttc"
@@ -54,160 +55,82 @@ PAPER = "#F4F0E7"
 # ("card"|"shot"|"pair", source, seconds, kicker, title, tags, catalogue_id)
 # Every catalogue_id must exist in CATALOGUE, or build fails.
 SCRIPT = {
+    # 镜头是**精选子集**，不是 21 项全覆盖：63s / 21 镜的版本被反馈为
+    # 「太长、一直在抖、前面试了十几秒才看到产品」。
+    # 现在 34s / 10 镜（+2 张卡），每个镜头停留更久、更好读。
+    # CATALOGUE 仍是完整功能清单；validate_script() 改为校验
+    # 「每个镜头都对应清单里的真实功能」+「精选比例不低于下限」，
+    # 而不再要求「每个功能都必须有镜头」——那正是让片子变长的原因。
     "zh": [
-        ("card", "title", 3.5, "", "灵感，散落在各处", "", None),
-        ("card", "slogan", 3.0, "", "让灵感在 HTML 里生长", "", None),
-
+        ("card", "title", 2.6, "", "灵感，散落在各处", "", None),
         ("shot", "workbench-overview.png", 3.0,
          "无限画布工作区", "一张画布，编排所有素材",
          "工作区 · 节点 · 端口连线", "canvas"),
-        ("shot", "sidebar-templates.png", 2.5,
+        ("shot", "sidebar-templates.png", 2.8,
          "真实 HTML 模板库", "6 套模板，34 个页面可单独抽",
          "每页都能预览和抽取", "templates"),
-        ("shot", "workbench-paper-1440.png", 2.5,
-         "Pixel Paper", "暖纸底，杂志感排版",
-         "深钴蓝 + 薄荷绿 + 暖纸白", "theme-paper"),
-        ("shot", "workbench-night-1440.png", 2.5,
+        ("shot", "workbench-night-1440.png", 2.8,
          "Pixel Night", "同一套组件的完整暗色主题",
          "全部文字达到 WCAG AA", "theme-night"),
-        ("shot", "workbench-tablet-768.png", 2.5,
-         "响应式", "桌面 · 平板，同一工作台",
-         "侧栏折叠，语义缩放", "responsive-tablet"),
-        ("shot", "workbench-mobile-390.png", 2.5,
+        ("shot", "workbench-mobile-390.png", 2.8,
          "移动任务视图", "手机上换成能读懂的列表",
          "不再硬塞一张缩小的画布", "responsive-mobile"),
-        ("shot", "mobile-library.png", 2.0,
-         "移动素材库", "手机上照样能浏览和拖入模板",
-         "REAL HTML 模板卡可直接拖入", "mobile-library"),
-
-        ("shot", "input-brief.png", 2.5,
-         "统一需求入口", "文字、文件、图片，一个入口",
-         "TXT / Markdown / JSON / CSV / 图片", "input-brief"),
-        ("shot", "node-inspector.png", 2.0,
-         "需求节点检查器", "选中即改文字与附件",
-         "改完一键推进所属工作区", "node-inspector"),
-        ("shot", "output-inspector.png", 2.0,
-         "产物节点检查器", "版本徽标、运行轨迹、导出入口",
-         "口语反馈直接改设计 token", "output-inspector"),
-        ("shot", "command-palette.png", 2.0,
-         "命令面板", "Ctrl+K 打开，输关键词直达",
-         "每个动作都带快捷键提示", "command-palette"),
-        ("shot", "project-memory.png", 2.0,
-         "项目记忆", "品牌、语气、禁忌记在本地",
-         "下次生成直接复用，不用重复交代", "project-memory"),
-        ("shot", "revision-restore.png", 2.5,
-         "版本历史与恢复", "反馈、重跑、恢复都留快照",
-         "恢复生成新版本，历史不覆盖", "revision-restore"),
-        ("shot", "generation-cancel.png", 2.0,
-         "取消生成", "等待期可取消，跑着的诚实告知",
-         "不骗你说「已取消」", "generation-cancel"),
-        ("shot", "classic.png", 2.5,
-         "经典表单模式", "一句话 Brief 直接出 HTML",
-         "和工作台同一套 Pixel Garden 品牌", "classic"),
-
-        ("pair", ("intake-review-pending.png", "intake-approved-absorption.png"), 4.0,
+        ("shot", "intake-review-pending.png", 3.0,
          "设计吸收流水线", "12 个设计源，抓回来的先过审核台",
          "许可三档 · CSP 沙箱", "intake-review"),
-        ("pair", ("intake-approved-absorption.png", "intake-preview-sandbox.png"), 3.0,
+        ("shot", "intake-preview-sandbox.png", 2.8,
          "CSP 沙箱预览", "候选页面在无脚本沙箱里渲染",
          "抓回来的脚本永不执行", "intake-sandbox"),
-        ("shot", "motion-lab-intake-motion.png", 2.5,
-         "动效实验室", "吸收到的动效进实验室",
-         "预算钳制 · 尊重减少动效", "intake-motion"),
-
         ("shot", "slide-editor-dialog.png", 3.0,
          "可编辑 PPTX", "在 PowerPoint 里真能编辑",
-         "不是把整页拍成一张图", "pptx-export"),
-        ("shot", "export-center-pptx.png", 2.5,
+         "工作台内也能直接改幻灯片", "pptx-export"),
+        ("shot", "export-ready.png", 2.8,
          "导出中心", "PDF / 逐页 PNG / 长图 / PPTX",
-         "附诚实的降级报告", "export"),
-        ("shot", "pptx-export-report.png", 2.5,
-         "降级报告", "做不到的部分，写在报告里",
-         "不糊弄", "export-report"),
-
-        ("card", "versions", 4.0, "", "", "", None),
-        ("card", "end", 4.0, "", "导出的每一个像素，都真的存在", "", None),
+         "deck 产物额外放开 PPTX", "export"),
+        ("shot", "revision-restore.png", 2.8,
+         "版本历史与恢复", "反馈、重跑、恢复都留快照",
+         "恢复生成新版本，历史不覆盖", "revision-restore"),
+        ("shot", "command-palette.png", 3.4,
+         "命令面板", "Ctrl+K 打开，输关键词直达",
+         "每个动作都带快捷键提示", "command-palette"),
+        ("card", "end", 2.6, "", "导出的每一个像素，都真的存在", "", None),
     ],
     "en": [
-        ("card", "title", 3.5, "", "Ideas, scattered everywhere", "", None),
-        ("card", "slogan", 3.0, "", "Let ideas grow in HTML", "", None),
-
+        ("card", "title", 2.6, "", "Ideas, scattered everywhere", "", None),
         ("shot", "workbench-overview.png", 3.0,
          "INFINITE CANVAS", "One canvas for every asset",
          "Workspaces - Nodes - Ports", "canvas"),
-        ("shot", "sidebar-templates.png", 2.5,
+        ("shot", "sidebar-templates.png", 2.8,
          "REAL HTML TEMPLATES", "6 sets, 34 pages, each extractable",
          "Preview and extract any page", "templates"),
-        ("shot", "workbench-paper-1440.png", 2.5,
-         "PIXEL PAPER", "Warm paper, editorial rhythm",
-         "Cobalt + mint + warm white", "theme-paper"),
-        ("shot", "workbench-night-1440.png", 2.5,
+        ("shot", "workbench-night-1440.png", 2.8,
          "PIXEL NIGHT", "The same system, fully dark",
          "Every text color above WCAG AA", "theme-night"),
-        ("shot", "workbench-tablet-768.png", 2.5,
-         "RESPONSIVE", "Desktop and tablet, one workbench",
-         "Folded sidebar, semantic zoom", "responsive-tablet"),
-        ("shot", "workbench-mobile-390.png", 2.5,
+        ("shot", "workbench-mobile-390.png", 2.8,
          "MOBILE TASK VIEW", "A readable list on a phone",
          "Not a shrunken canvas", "responsive-mobile"),
-        ("shot", "mobile-library.png", 2.0,
-         "MOBILE LIBRARY", "Browse and drag templates on a phone",
-         "REAL HTML cards stay draggable", "mobile-library"),
-
-        ("shot", "input-brief.png", 2.5,
-         "ONE ENTRY", "Text, files and images together",
-         "TXT / Markdown / JSON / CSV / images", "input-brief"),
-        ("shot", "node-inspector.png", 2.0,
-         "REQUIREMENT NODE", "Edit text and attachments in place",
-         "Then advance its workspace", "node-inspector"),
-        ("shot", "output-inspector.png", 2.0,
-         "OUTPUT NODE", "Revision, run trace, export entry",
-         "Feedback rewrites design tokens", "output-inspector"),
-        ("shot", "command-palette.png", 2.0,
-         "COMMAND PALETTE", "Ctrl+K, type, jump straight there",
-         "Every action shows its shortcut", "command-palette"),
-        ("shot", "project-memory.png", 2.0,
-         "PROJECT MEMORY", "Brand, tone, taboos stay local",
-         "Reused next time, never re-explained", "project-memory"),
-        ("shot", "revision-restore.png", 2.5,
-         "REVISION HISTORY", "Feedback, rerun and restore all snapshot",
-         "Restore creates a new revision", "revision-restore"),
-        ("shot", "generation-cancel.png", 2.0,
-         "CANCEL GENERATION", "Cancel while queued, honest while running",
-         "Never claims a false cancel", "generation-cancel"),
-        ("shot", "classic.png", 2.5,
-         "CLASSIC MODE", "One-line brief straight to HTML",
-         "Same Pixel Garden brand as the workbench", "classic"),
-
-        ("pair", ("intake-review-pending.png", "intake-approved-absorption.png"), 4.0,
+        ("shot", "intake-review-pending.png", 3.0,
          "DESIGN INTAKE", "12 sources, every candidate reviewed",
          "Three license tiers - CSP sandbox", "intake-review"),
-        ("pair", ("intake-approved-absorption.png", "intake-preview-sandbox.png"), 3.0,
+        ("shot", "intake-preview-sandbox.png", 2.8,
          "CSP SANDBOX", "Candidates render with scripts off",
          "Fetched scripts never execute", "intake-sandbox"),
-        ("shot", "motion-lab-intake-motion.png", 2.5,
-         "MOTION LAB", "Absorbed motion goes to the lab",
-         "Budget-clamped, reduced-motion aware", "intake-motion"),
-
         ("shot", "slide-editor-dialog.png", 3.0,
          "EDITABLE PPTX", "Genuinely editable in PowerPoint",
-         "Not a flattened screenshot", "pptx-export"),
-        ("shot", "export-center-pptx.png", 2.5,
+         "Also editable inside the workbench", "pptx-export"),
+        ("shot", "export-ready.png", 2.8,
          "EXPORT CENTER", "PDF / paginated PNG / long image / PPTX",
-         "With an honest degradation report", "export"),
-        ("shot", "pptx-export-report.png", 2.5,
-         "DEGRADATION REPORT", "What could not be mapped is written down",
-         "No glossing over it", "export-report"),
-
-        ("card", "versions", 4.0, "", "", "", None),
-        ("card", "end", 4.0, "", "Every pixel you export really exists", "", None),
+         "PPTX is offered for deck artifacts", "export"),
+        ("shot", "revision-restore.png", 2.8,
+         "REVISION HISTORY", "Feedback, rerun and restore all snapshot",
+         "Restore creates a new revision", "revision-restore"),
+        ("shot", "command-palette.png", 3.4,
+         "COMMAND PALETTE", "Ctrl+K, type, jump straight there",
+         "Every action shows its shortcut", "command-palette"),
+        ("card", "end", 2.6, "", "Every pixel you export really exists", "", None),
     ],
 }
 
-# ---------------------------------------------------------------------------
-# Catalogue: feature id -> (name, note). Present so the "all features are
-# covered" claim in the README is checkable rather than asserted.
-# ---------------------------------------------------------------------------
 CATALOGUE = {
     "canvas": ("无限画布工作区", "Infinite canvas workspace"),
     "templates": ("真实 HTML 模板库 6 套 / 34 页", "Real HTML template library"),
@@ -235,18 +158,22 @@ CATALOGUE = {
 # The features that ship but are not interface shots. They are real
 # capabilities; the film simply has no capture of them, and saying so is
 # better than implying the film is exhaustive.
+#
+# This list is documentation, not a gate: nothing reads it. It must not claim
+# a feature is absent from the film when a shot in SCRIPT now covers it —
+# 命令面板 and 版本历史与恢复 were exactly that mistake once v0.6.0 finally
+# captured them. Re-check this list against SCRIPT's catalogue ids after
+# every edit to the shot list.
 NOT_IN_FILM = [
     ("Web 工作台一键启动 / CLI / Docker", "no single capture exists"),
     ("真实 LLM 接入（MiniMax-M3 / Claude / GPT-4o）", "settings dialog, not a v0.6 capture"),
     ("AI 模型自主配置与 API Key 仅本地保存", "settings dialog, not a v0.6 capture"),
     ("离线规则引擎兜底（无 Key 也能生成）", "no single capture exists"),
-    ("统一需求入口（文字/文件/图片）", "input dialog, only captured on v0.5.0"),
-    ("推荐与自由组合双路径", "recommendation state, not captured on v0.6.0"),
-    ("Project Memory", "v0.5.0 capture only"),
-    ("命令面板", "v0.5.0 capture only"),
-    ("反馈迭代与版本历史 / 恢复", "v0.5.0 capture only"),
-    ("生成取消", "v0.5.0 capture only"),
-    ("六类生成器产物输出", "v0.5.0 e2e captures only"),
+    ("统一需求入口（文字/文件/图片）", "captured, but 10 镜放不下，读图也来不及"),
+    ("推荐与自由组合双路径", "captured, but 10 镜放不下，读图也来不及"),
+    ("Project Memory", "captured, but 10 镜放不下，读图也来不及"),
+    ("生成取消", "瞬态状态，静态帧无法证明"),
+    ("六类生成器产物输出", "生成器实跑产物，不走界面"),
     ("十一套视觉系统", "per-preset captures not taken this round"),
     ("Skill 联盟模板", "v0.3-v0.4 heritage"),
     ("跨平台安装包", "packaging output, not interface footage"),
@@ -347,29 +274,42 @@ def probe_has_audio(path: Path) -> bool:
     return bool(r.stdout.strip())
 
 
-def verify(out: Path, want: float, tol: float = 0.12) -> None:
+def verify(out: Path, want: float, tol: float = 0.12, want_audio: bool = False) -> None:
     got = probe_duration(out)
     if abs(got - want) > tol:
         raise SystemExit(
             f"{out.name}: duration {got:.2f}s, expected {want:.2f}s "
             f"-> refusing to ship a film built on a wrong-length clip")
-    if probe_has_audio(out):
-        raise SystemExit(f"{out.name}: unexpected audio track in a silent film")
-    print(f"  ok {out.name} {got:.2f}s")
+    has_audio = probe_has_audio(out)
+    if want_audio and not has_audio:
+        raise SystemExit(f"{out.name}: 期望有音轨，实际静音")
+    if not want_audio and has_audio:
+        raise SystemExit(f"{out.name}: 片段不应带音轨（音轨只属于开场与成片）")
+    print(f"  ok {out.name} {got:.2f}s"
+          f"{' +audio' if has_audio else ''}")
 
 
 def film_seconds(lang: str = "zh") -> float:
     """Length is derived from SCRIPT, never hard-coded.
 
-    16 clips summing 47.5s minus 15 cross-fades of 0.5s = 40.0s. Hard-coding
-    it is how the file ends up called `60s` while being 40s long.
+    12 clips summing 34.4s minus 11 cross-fades of 0.4s = 30.0s of shot
+    master; the 4.4s opener minus its 0.4s cross-fade brings it to 34.0s.
+    Hard-coding it is how the file ends up called `60s` while being 40s long.
     """
     d = [e[2] for e in SCRIPT[lang]]
     return d[0] + sum(x - XF for x in d[1:])
 
 
 def validate_script() -> None:
-    """Every shot must name a catalogue feature, or be an explicit card."""
+    """每个镜头都必须对应 CATALOGUE 里的真实功能；精选子集不得低于下限。
+
+    早先的规则是「每个功能都必须有镜头」，那等于片子必须覆盖全部 23 项，
+    63s / 21 镜由此而来，并被反馈为太长、画面一直在抖。规则改为：
+      1. 镜头引用的 feature id 必须存在（不许编造画面）
+      2. 同一功能不得出现多个镜头；镜头数不得低于下限（不许砍成一个预告片）
+    未被选中的功能由 README / 截图集 / 品牌片素材表承担说明，不在片中出现。
+    """
+    min_shots = 8
     for lang, entries in SCRIPT.items():
         for kind, source, _d, _k, _t, _g, cat in entries:
             if kind == "card":
@@ -383,13 +323,16 @@ def validate_script() -> None:
                 raise SystemExit(f"{lang}: unknown catalogue id {cat!r} "
                                  f"on {source}")
         ids = [e[6] for e in entries if e[0] != "card"]
-        missing = sorted(set(CATALOGUE) - set(ids))
-        if missing:
-            raise SystemExit(
-                f"{lang}: catalogue features with no shot: {missing} "
-                f"-> the film would claim less coverage than it documents")
-        print(f"  coverage {lang}: {len(ids)} shots, "
-              f"{len(set(ids))} features, all catalogue ids used")
+        if len(set(ids)) != len(ids):
+            raise SystemExit(f"{lang}: 同一功能出现多个镜头：{ids}")
+        if len(ids) < min_shots:
+            raise SystemExit(f"{lang}: 只剩 {len(ids)} 个界面镜头，"
+                             f"少于下限 {min_shots}，片子会退化成预告片")
+        picked = sorted(set(ids))
+        missing = sorted(set(CATALOGUE) - set(picked))
+        print(f"  coverage {lang}: {len(ids)} 镜 / 精选 {len(picked)} 项 "
+              f"（清单 {len(CATALOGUE)} 项，未入选 {len(missing)} 项，"
+              f"由 README 与截图集承担）")
 
 
 # ------------------------------------------------------------- stage 1: cards
@@ -463,31 +406,37 @@ def caption_filter(kicker: str, title: str, tags: str) -> str:
 
 
 def kenburns(dur: float) -> str:
-    """Fit-and-letterbox, then a gentle settle.
+    """Fit-and-letterbox only — **no** zoom.
 
-    `scale=...:force_original_aspect_ratio=decrease` + `pad` keeps the whole
-    capture including the top bar (and therefore the version badge) instead
-    of cropping 16:10 into 16:9. The zoom runs 1.06 -> 1.00 because zoompan
-    pins x and y to 0 at zoom=1, which made every shot start off-centre.
+    63s 版本给 21 个镜头每个都加了 1.06 → 1.00 的慢速缩放，整片画面没停过，
+    被形容成「一直抖」。界面截图本来不需要运镜：静态帧 + 交叉淡入读起来更稳，
+    也更像产品而不是预告片。运动只留给 H3 开场那一镜。
+
+    `scale=...:decrease` + `pad`（暖纸色）保留整张截图，16:10 进 16:9 不裁切，
+    因此顶栏与 v0.6.0 版本徽标全程可见。
     """
-    frames = int(round(dur * FPS))
     return (
-        f"scale=2304:1296:force_original_aspect_ratio=decrease:flags=lanczos,"
-        f"pad=2304:1296:(ow-iw)/2:(oh-ih)/2:color={PAPER},"
-        f"zoompan=z='if(eq(on,0),1.06,max(0.0001,1.06-0.06*on/{frames}))':"
-        f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
-        f"d={frames}:s={W}x{H}:fps={FPS},"
+        f"scale={W}:{H}:force_original_aspect_ratio=decrease:flags=lanczos,"
+        f"pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color={PAPER},"
+        f"fps={FPS},"
         f"setsar=1"
     )
 
 
 def build_still(src: Path, dur: float, out: Path, cap: str) -> None:
+    """A still held for `dur` seconds, optionally with a caption.
+
+    The hold used to come from zoompan's `d=<frames>`, which stretched one
+    input frame into a clip. With the zoom removed there is nothing doing
+    that, so the still is looped and the frame count pinned explicitly --
+    otherwise a card silently becomes a one-frame clip.
+    """
     frames = int(round(dur * FPS))
     chain = [kenburns(dur)]
     if cap:
         chain.append(cap)
     chain.append("format=yuv420p")
-    run(["ffmpeg", "-y", "-i", str(src),
+    run(["ffmpeg", "-y", "-loop", "1", "-t", f"{dur}", "-i", str(src),
          "-vf", ",".join(chain), "-frames:v", str(frames), "-r", str(FPS),
          "-c:v", "libx264", "-preset", "slow", "-crf", "18",
          "-pix_fmt", "yuv420p", "-an", str(out)])
@@ -568,17 +517,21 @@ def poster(video: Path, out: Path, at: float) -> None:
 # H3 emits a native audio track. The film is silent, so it is dropped here
 # rather than muxed and muted later.
 OPENER_SRC = PROMO / "opener-h3-2k.mp4"
+MUSIC_BED = PROMO / "brand-bed.mp3"
 # Expressed in FRAMES, not seconds. At 25fps a 0.5s cross-fade is 12.5 frames,
-# so computing the total in floating point lands on 63.02s and the filename
-# guard correctly refuses. 200 (source) + 13 tail, cross-faded by 13, against a
-# 1375-frame master: 213 + 1375 - 13 = 1575 frames = exactly 63.00s.
-OPENER_SOURCE_FRAMES = 200
-OPENER_TAIL_FRAMES = 13
-OPENER_XF_FRAMES = 13
+# so computing the total in floating point lands on a non-integer length and the
+# filename guard correctly refuses. Frame counts keep it exact.
+OPENER_SOURCE_FRAMES = 100   # 4.0s of the generated plate
+OPENER_TAIL_FRAMES = 10      # hold the last frame so the fade lands whole
+OPENER_XF_FRAMES = 10
 
 
 def build_opener(out: Path) -> float:
-    """Normalise the H3 clip to the film's format and freeze its tail."""
+    """Normalise the H3 clip to the film's format and freeze its tail.
+
+    Its native audio is kept here (it is the only real ambience in the film)
+    and faded out under the music bed at splice time.
+    """
     chain = ",".join([
         f"tpad=stop_mode=clone:stop_duration={OPENER_TAIL_FRAMES / FPS:.6f}",
         f"scale={W}:{H}:force_original_aspect_ratio=decrease:flags=lanczos",
@@ -587,24 +540,42 @@ def build_opener(out: Path) -> float:
     ])
     run(["ffmpeg", "-y", "-i", str(OPENER_SRC), "-vf", chain,
          "-frames:v", str(OPENER_SOURCE_FRAMES + OPENER_TAIL_FRAMES),
-         "-an", "-c:v", "libx264", "-preset", "slow", "-crf", "17",
+         "-c:a", "aac", "-b:a", "128k", "-ac", "2", "-ar", "48000",
+         "-c:v", "libx264", "-preset", "slow", "-crf", "17",
          "-pix_fmt", "yuv420p", str(out)])
     return probe_duration(out)
 
 
 def splice_opener(opener: Path, master: Path, out: Path) -> None:
-    """Cross-fade the opener in front of the shot master. Both are silent."""
+    """Cross-fade the opener in front of the shot master, then lay music under it.
+
+    A silent film reads as unfinished, so the generated plate keeps its own
+    ambience through the cross-fade and the instrumental bed fades in as the
+    opener ends -- it is barely audible under the opening, which is the point.
+    """
     xf = OPENER_XF_FRAMES / FPS
     offset = probe_duration(opener) - xf
+    total = probe_duration(opener) + probe_duration(master) - xf
+    fade = 1.6
     run(["ffmpeg", "-y", "-i", str(opener), "-i", str(master),
+         "-stream_loop", "-1", "-i", str(MUSIC_BED),
          "-filter_complex",
-         f"[0:v][1:v]xfade=transition=fade:duration={xf:.6f}:offset={offset:.6f},"
-         f"format=yuv420p[v]",
-         "-map", "[v]", "-r", str(FPS), "-c:v", "libx264", "-preset", "slow",
-         "-crf", "19", "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
-         str(out)])
-    want = probe_duration(opener) + probe_duration(master) - xf
-    verify(out, want, tol=0.4)
+         f"[0:v]setpts=PTS-STARTPTS[ov];[1:v]setpts=PTS-STARTPTS[mv];"
+         f"[ov][mv]xfade=transition=fade:duration={xf:.6f}:offset={offset:.6f},"
+         f"format=yuv420p[v];"
+         f"[0:a]atrim=0:{offset + xf:.3f},asetpts=PTS-STARTPTS,"
+         f"afade=t=out:st={offset - 0.2:.3f}:d=0.7,volume=0.9[oa];"
+         f"[2:a]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,"
+         f"afade=t=in:st={offset - 0.6:.3f}:d=2.0,"
+         f"afade=t=out:st={total - 2.2:.3f}:d=2.2,volume=0.16[bed];"
+         f"[oa][bed]amix=inputs=2:duration=first:dropout_transition=0,"
+         f"alimiter=limit=0.92[a]",
+         "-map", "[v]", "-map", "[a]",
+         "-t", f"{total:.4f}", "-r", str(FPS), "-c:v", "libx264",
+         "-preset", "slow", "-crf", "19", "-pix_fmt", "yuv420p",
+         "-c:a", "aac", "-b:a", "160k", "-ar", "48000", "-ac", "2",
+         "-movflags", "+faststart", str(out)])
+    verify(out, total, tol=0.4, want_audio=True)
 
 
 def main() -> None:
