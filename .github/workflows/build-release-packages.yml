@@ -132,6 +132,22 @@ jobs:
           if [ -d "$screenshot_dir" ]; then
             cp "$screenshot_dir"/*.png release-assets/
           fi
+          # The brand films ship with the release, not just the repo. Only the
+          # demo cuts and the stills fallback are attached; the raw H3 opener,
+          # the music bed and the build scripts stay in the repo. Naming is
+          # explicit rather than a glob so a future intermediate cut cannot
+          # slip into a published release unnoticed.
+          for asset in \
+            assets/promo/htmlninefox-brand-demo-50s-16x9.mp4 \
+            assets/promo/htmlninefox-brand-demo-53s-16x9-en.mp4 \
+            assets/promo/htmlninefox-brand-film-34s-16x9.mp4 \
+            assets/promo/htmlninefox-brand-film-34s-16x9-en.mp4; do
+            if [ -f "$asset" ]; then
+              cp "$asset" release-assets/
+            else
+              echo "::warning::release asset missing: $asset"
+            fi
+          done
           if ! gh release view "$tag" >/dev/null 2>&1; then
             release_flags=()
             if [[ "$tag" == *rc* || "$tag" == *alpha* || "$tag" == *beta* ]]; then

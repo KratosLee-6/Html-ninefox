@@ -8,18 +8,18 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.6.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0)
+[![App Release](https://img.shields.io/badge/app-v0.6.1-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.1)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-387%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
+[![Tests](https://img.shields.io/badge/pytest-403%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![HtmlNineFox Pixel Garden workbench (captured on v0.6.0)](assets/screenshots/v0.6.0/workbench-overview.png)
+![HtmlNineFox Pixel Garden workbench (captured on v0.6.0)](assets/screenshots/v0.6.1/workbench-overview.png)
 
 ## Watch HtmlNineFox work in 53 seconds
 
@@ -56,22 +56,25 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
   Revise with natural language feedback, keeping rev history
 ```
 
-## Current release and latest progress (v0.6.0, released)
+## Current release and latest progress (v0.6.1, released)
 
-The application version is `0.6.0`, shipped under the tag `v0.6.0` on 2026-10-01. v0.6.0 delivers two headline pillars, plus a pre-release design convergence pass:
+The application version is `0.6.1`, shipped under the tag `v0.6.1` on 2026-10-03. It is a patch release centred on **defect fixes and asset completion**:
 
-1. **Design intake pipeline** — turn the best designs on the web into your own assets: manual multi-URL / ZIP import plus 12 built-in design sources with three license tiers (open / reference / inspiration-only), an SSRF-safe fetcher, a CSP-sandboxed review workbench with batch adopt/reject and source filtering, an AI design-analysis channel, and an intake metrics panel. All six asset layers — templates, styles, components, decorations, motion, content — now share one absorb → review → ingest → use path.
-2. **Editable PPTX** — deck artifacts export to a standards-compliant `.pptx` through python-pptx with genuinely editable text frames and an honest degradation report; the workbench also gained an in-workbench slide editor (`PUT /slides` with `expected_revision` conflict protection plus a structured slides dialog in the output inspector), so edit → write back → export preserves your edits.
-3. **Pre-release design convergence** — 17 font sizes → 7 `--fs-*` steps, 7 font weights → 4 `--fw-*` steps, and 140+ hard-coded spacing values folded into a `--space-*` scale; the first-paint canvas no longer mistakes a floating workspace nav card for a full-height left rail (fit 0.33 → 0.80); the Pixel Night theme's primary button went from 2.44:1 to above WCAG AA, and weak foreground text in both themes now clears AA.
+1. **Slide editor race (release-blocking)** — opening deck A's slides dialog and, while its GET is still in flight, opening deck B let A's late response overwrite B's edit state with A's own `revision`, so saving wrote the revision into the wrong node. Every exit path (`try` / `catch` / `close()`) is now guarded by a request sequence number, mirroring the revision module.
+2. **Prompt-path consistency pinned** — the two server-side prompt assembly paths differ in four places. Measured, only the duplicated default-prompt literal is a real risk, so the implementation was left alone and 5 new consistency tests now lock both paths together.
+3. **Visual evidence completed** — 10 features that shipped with no visual evidence at all (classic form, command palette, export-ready, cancel generation, requirement input, mobile library, both inspectors, Project Memory, revision restore) are now captured; the screenshot set reaches 23.
+4. **Brand film: stills → real operating recording** — the 50s Chinese and 53s English cuts are both recordings of the live server, with the interface responding for real.
 
-> This third item is not incidental polish. Every change in it is locked by a static gate, and every gate was verified in reverse — removing the fix must turn the test red, otherwise the gate is discarded and rewritten. This round added 84 tests (303 → 387).
+> The two v0.6.0 pillars — the **design intake pipeline** and **editable PPTX** — shipped with v0.6.0; see the [v0.6.0 release notes](docs/RELEASE-NOTES-v0.6.0.md). v0.6.1 changes no project schema, no HTTP surface and no revision history, so **v0.6.0 users can upgrade in place; the data directory is not migrated and nothing is overwritten**.
+
+> This round added 16 tests (387 → 403). Every new gate was verified in reverse — removing the fix must turn the test red, otherwise the gate is discarded and rewritten.
 
 | Track | Current state | Evidence |
 |---|---|---|
-| Application release | `v0.6.0`, released 2026-10-01 with all gates green | [release page](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) · [last stable before it, v0.5.0](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) |
-| Release verification | Full suite `387 passed, 1 skipped` (v0.5.0 baseline 303, 84 added this round); JS syntax clean across 13 files plus the inline check; Chromium acceptance `22/22`; WebKit (Safari engine) acceptance `22/22`; release metadata consistent | [v0.6.0 gate evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
-| Built-package run | All four build jobs green (Windows / Linux / macOS / Docker); the Windows portable package (73.8 MB) was **actually launched** — `/api/health` reports `0.6.0 / windows-portable`, the home page is 161 KB, all six static assets load, and the process exits cleanly | [Release notes · Verification](docs/RELEASE-NOTES-v0.6.0.md#验证) |
-| DeepSeek Harness plugin | `0.1.0-preview.1`, versioned separately from the app; `2/2` passing this round | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
+| Application release | `v0.6.1`, released 2026-10-03 | [release page](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.1) · [previous stable, v0.6.0](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) |
+| Release verification | Full suite `403 passed, 1 skipped` (v0.6.0 was 387, 16 added this round); release metadata consistent | [v0.6.1 release notes · Verification](docs/RELEASE-NOTES-v0.6.1.md#验证) |
+| Previous release | v0.6.0: `387 passed, 1 skipped`; all four build jobs green and the Windows portable package was really launched | [v0.6.0 gate evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
+| DeepSeek Harness plugin | `0.1.0-preview.1`, versioned separately from the app | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 > **Fixed (release-blocking)**: the packaging pipeline used to only **build** artifacts, never **run** them — which let a Windows portable package that crashed the instant it started ship through four green build jobs. `desktop.py` used `sys.platform` without ever importing `sys`, and only the PyInstaller frozen entry point reaches that code, so the source test suite never loaded it. It is fixed now, with two new defenses: a static scan for unbound names in frozen entry points (`tests/test_frozen_entry_gates.py`), and a verification script that really launches the artifact (`packaging/verify_portable.py`). The same gate run also caught three defects of a recurring shape — the server side was complete, the UI was not: the export center had no PPTX option at all (so the headline feature was unreachable, and no test had ever clicked that dropdown), "batch fetch" called a function that was never defined, and the typography extractor was missing a parameter, which made the most permissive license tier produce no candidates at all. Full list in the [release notes](docs/RELEASE-NOTES-v0.6.0.md#修复).
 
@@ -83,16 +86,16 @@ The six shots below were taken from the current `v0.6.0` code (the topbar badge 
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-paper-1440.png" alt="Desktop workbench (Pixel Paper)"><br><b>Desktop workbench (Pixel Paper)</b><br>Three-column hierarchy: library · infinite-canvas workspaces · inspector.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-night-1440.png" alt="Desktop workbench (Pixel Night)"><br><b>Desktop workbench (Pixel Night)</b><br>Full dark theme on the same hierarchy; primary button and weak foreground text now clear WCAG AA.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/workbench-paper-1440.png" alt="Desktop workbench (Pixel Paper)"><br><b>Desktop workbench (Pixel Paper)</b><br>Three-column hierarchy: library · infinite-canvas workspaces · inspector.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/workbench-night-1440.png" alt="Desktop workbench (Pixel Night)"><br><b>Desktop workbench (Pixel Night)</b><br>Full dark theme on the same hierarchy; primary button and weak foreground text now clear WCAG AA.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-overview.png" alt="Workspace management"><br><b>Workspace management</b><br>The workspace nav card now participates in canvas insets by its real geometry — first-paint fit is 81% instead of shrinking content into a corner.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-tablet-768.png" alt="Tablet 768 layout"><br><b>Tablet 768 layout</b><br>Sidebar folds into topbar drawers; canvas keeps semantic zoom.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/workbench-overview.png" alt="Workspace management"><br><b>Workspace management</b><br>The workspace nav card now participates in canvas insets by its real geometry — first-paint fit is 81% instead of shrinking content into a corner.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/workbench-tablet-768.png" alt="Tablet 768 layout"><br><b>Tablet 768 layout</b><br>Sidebar folds into topbar drawers; canvas keeps semantic zoom.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/workbench-mobile-390.png" alt="Mobile task view (390px)"><br><b>Mobile task view (390px)</b><br>Workspace actions and node cards replace an unreadable scaled canvas; the progress strip shows only the current and failed steps.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/sidebar-templates.png" alt="Sidebar REAL HTML template library"><br><b>Sidebar REAL HTML template library</b><br>Template name and description stack vertically, each clamped to 2 lines, revealing one more card per screen.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/workbench-mobile-390.png" alt="Mobile task view (390px)"><br><b>Mobile task view (390px)</b><br>Workspace actions and node cards replace an unreadable scaled canvas; the progress strip shows only the current and failed steps.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/sidebar-templates.png" alt="Sidebar REAL HTML template library"><br><b>Sidebar REAL HTML template library</b><br>Template name and description stack vertically, each clamped to 2 lines, revealing one more card per screen.</td>
 </tr>
 </table>
 
@@ -104,12 +107,12 @@ All of the following are re-captured on the current `v0.6.0` build.
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/input-brief.png" alt="One entry for everything"><br><b>One entry for everything</b><br>Text, files and images share a single entry; AI analysis recommends a composition.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/command-palette.png" alt="Command palette"><br><b>Command palette</b><br>Ctrl+K to open, type to jump, every action shows its shortcut.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/input-brief.png" alt="One entry for everything"><br><b>One entry for everything</b><br>Text, files and images share a single entry; AI analysis recommends a composition.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/command-palette.png" alt="Command palette"><br><b>Command palette</b><br>Ctrl+K to open, type to jump, every action shows its shortcut.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/node-inspector.png" alt="Requirement node inspector"><br><b>Requirement node inspector</b><br>Edit text and attachments on selection; advance to the workspace.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/output-inspector.png" alt="Output node inspector"><br><b>Output node inspector</b><br>Revision badge, recipe run, adoption, conversational feedback, export entry.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/node-inspector.png" alt="Requirement node inspector"><br><b>Requirement node inspector</b><br>Edit text and attachments on selection; advance to the workspace.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/output-inspector.png" alt="Output node inspector"><br><b>Output node inspector</b><br>Revision badge, recipe run, adoption, conversational feedback, export entry.</td>
 </tr>
 </table>
 
@@ -117,12 +120,12 @@ All of the following are re-captured on the current `v0.6.0` build.
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/project-memory.png" alt="Project Memory"><br><b>Project Memory</b><br>Brand, audience, tone, forbidden patterns and templates stay local and are reused next time.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/revision-restore.png" alt="Revision history and restore"><br><b>Revision history and restore</b><br>Feedback, reruns and restores all snapshot; restore creates a new revision.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/project-memory.png" alt="Project Memory"><br><b>Project Memory</b><br>Brand, audience, tone, forbidden patterns and templates stay local and are reused next time.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/revision-restore.png" alt="Revision history and restore"><br><b>Revision history and restore</b><br>Feedback, reruns and restores all snapshot; restore creates a new revision.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/generation-cancel.png" alt="Cancel generation"><br><b>Cancel generation</b><br>Queued jobs cancel for real; running jobs honestly switch to stop-waiting.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/classic.png" alt="Classic form mode"><br><b>Classic form mode</b><br>One-line Brief straight to HTML, same brand system as the workbench.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/generation-cancel.png" alt="Cancel generation"><br><b>Cancel generation</b><br>Queued jobs cancel for real; running jobs honestly switch to stop-waiting.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/classic.png" alt="Classic form mode"><br><b>Classic form mode</b><br>One-line Brief straight to HTML, same brand system as the workbench.</td>
 </tr>
 </table>
 
@@ -130,8 +133,8 @@ All of the following are re-captured on the current `v0.6.0` build.
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/export-ready.png" alt="Export analysis ready"><br><b>Export analysis ready</b><br>Compatibility score, page model, dynamic features, engine status; PPTX is offered for deck artifacts.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/export-center-pptx.png" alt="PPTX export result"><br><b>PPTX export result</b><br>Both the .pptx and the report are downloadable; the report lists editable elements and degradations.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/export-ready.png" alt="Export analysis ready"><br><b>Export analysis ready</b><br>Compatibility score, page model, dynamic features, engine status; PPTX is offered for deck artifacts.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/export-center-pptx.png" alt="PPTX export result"><br><b>PPTX export result</b><br>Both the .pptx and the report are downloadable; the report lists editable elements and degradations.</td>
 </tr>
 </table>
 Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots/v0.5.0/](assets/screenshots/v0.5.0/); the list and reproduction commands are in [the screenshots README](assets/screenshots/README.md).
@@ -146,7 +149,7 @@ Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots
 
 | Directory | Count | Contents |
 |---|---:|---|
-| `assets/screenshots/v0.6.0/` | **23** | Current build: 7 workbench, 4 input & inspectors, 4 memory/revision/cancel/classic, 3 design intake, 3 slide editor / PPTX, 1 mobile library, 1 report |
+| `assets/screenshots/v0.6.1/` | **23** | Current build: 7 workbench, 4 input & inspectors, 4 memory/revision/cancel/classic, 3 design intake, 3 slide editor / PPTX, 1 mobile library, 1 report |
 | `assets/screenshots/v0.5.0/` | 24 | Full v0.5.0 set, including 6 real generated-output shots |
 | `assets/screenshots/v0.4.0/` | 5 | Historical: Pixel Garden, LLM config, Docker, Export Center |
 
@@ -154,7 +157,7 @@ See the [screenshot notes](assets/screenshots/README.md) for the full listing an
 
 ## v0.5.0 Stable Capabilities (history)
 
-![Crash-recoverable commits and lifecycle modules](assets/screenshots/v0.6.0/generation-cancel.png)
+![Crash-recoverable commits and lifecycle modules](assets/screenshots/v0.6.1/generation-cancel.png)
 
 - **🧠 Project Memory**: Brand, audience, tone, forbidden patterns, template, primary color, and font stay local and remain editable, disableable, and clearable.
 - **♡ Learn only after adoption**: Long-term memory changes only when the user explicitly selects "Adopt this version and learn"; analysis, Recipe Run, and the inspector explain what was reused (explainable reuse).
@@ -168,12 +171,12 @@ See the [screenshot notes](assets/screenshots/README.md) for the full listing an
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/intake-review-pending.png" alt="Review workbench"><br><b>Review workbench · pending</b><br>All three license tiers, source badges, token swatches, outline and intake metrics.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/intake-approved-absorption.png" alt="Approved and ingested"><br><b>Approved · ingested</b><br>Style preset, component import and motion absorption, with metrics updating live.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/intake-review-pending.png" alt="Review workbench"><br><b>Review workbench · pending</b><br>All three license tiers, source badges, token swatches, outline and intake metrics.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/intake-approved-absorption.png" alt="Approved and ingested"><br><b>Approved · ingested</b><br>Style preset, component import and motion absorption, with metrics updating live.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/intake-preview-sandbox.png" alt="CSP sandbox preview"><br><b>CSP sandbox preview</b><br>Candidate pages render in a scriptless sandbox; candidate scripts never run.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/motion-lab-intake-motion.png" alt="Motion lab"><br><b>Motion lab</b><br>Absorbed original motion clamped to budget, honoring reduced-motion preferences.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/intake-preview-sandbox.png" alt="CSP sandbox preview"><br><b>CSP sandbox preview</b><br>Candidate pages render in a scriptless sandbox; candidate scripts never run.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/motion-lab-intake-motion.png" alt="Motion lab"><br><b>Motion lab</b><br>Absorbed original motion clamped to budget, honoring reduced-motion preferences.</td>
 </tr>
 </table>
 
@@ -189,12 +192,12 @@ Every asset passes a **review workbench** (CSP-sandboxed preview + three-tier li
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.0/slide-editor-dialog.png" alt="In-workbench slide editor"><br><b>In-workbench slide editor</b><br>Every editable text node, page by page; saving creates a new revision.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.0/export-center-pptx.png" alt="Export center PPTX"><br><b>Export center · PPTX</b><br>PPTX is offered for deck artifacts; the run yields both the .pptx and its report.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/slide-editor-dialog.png" alt="In-workbench slide editor"><br><b>In-workbench slide editor</b><br>Every editable text node, page by page; saving creates a new revision.</td>
+<td width="50%"><img src="assets/screenshots/v0.6.1/export-center-pptx.png" alt="Export center PPTX"><br><b>Export center · PPTX</b><br>PPTX is offered for deck artifacts; the run yields both the .pptx and its report.</td>
 </tr>
 </table>
 
-- **📄 Standards-compliant .pptx export**: deck artifacts export through python-pptx into a standards-compliant `.pptx` whose text frames stay editable in PowerPoint / WPS; anything that cannot be mapped is listed honestly in the degradation report ([report as captured](assets/screenshots/v0.6.0/pptx-export-report.png)).
+- **📄 Standards-compliant .pptx export**: deck artifacts export through python-pptx into a standards-compliant `.pptx` whose text frames stay editable in PowerPoint / WPS; anything that cannot be mapped is listed honestly in the degradation report ([report as captured](assets/screenshots/v0.6.1/pptx-export-report.png)).
 - **🖥️ In-workbench slide editing**: open the structured slides dialog in the output inspector to rewrite titles and bullets; `PUT /slides` writes back with `expected_revision`, so a version conflict is reported instead of silently overwritten.
 - **🔁 A real edit loop**: export after writing back and your edits survive in the exported PPTX.
 
@@ -246,17 +249,17 @@ Generated by the e2e acceptance flow of the released `v0.5.0` (the artifact stru
 
 ## Download & Install
 
-v0.6.0 was released on 2026-10-01; packages ship from the [v0.6.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0). If your local build is older, upgrade to it. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
+v0.6.1 was released on 2026-10-03; packages ship from the [v0.6.1 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.1). v0.6.0 users can upgrade in place — the project schema and data directory are unchanged. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
 
-Package naming is unchanged and the version segment follows the release. The filenames below are listed for `v0.6.0` and correspond one-to-one with the Release attachments:
+Package naming is unchanged and the version segment follows the release. The filenames below are listed for `v0.6.1` and correspond one-to-one with the Release attachments:
 
 | Platform | Recommended file | Usage |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.6.0.exe` | Per-user installer with a Start menu entry |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.6.0.zip` | Extract and run `HtmlNineFox.exe`, no install needed (73.8 MB, verified locally) |
-| Linux | `HtmlNineFox-Linux-0.6.0.run` | `chmod +x` and run; installs to user directory |
-| Linux / audit | `HtmlNineFox-Linux-0.6.0.tar.gz` | Inspectable full installation contents |
-| macOS 14+ (Apple Silicon) | `HtmlNineFox-macOS-arm64-0.6.0.zip` | Extract, then right-click HtmlNineFox.app → Open to bypass Gatekeeper (unsigned) |
+| Windows 10/11 | `HtmlNineFox-Setup-0.6.1.exe` | Per-user installer with a Start menu entry |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.6.1.zip` | Extract and run `HtmlNineFox.exe`, no install needed (73.8 MB, verified locally) |
+| Linux | `HtmlNineFox-Linux-0.6.1.run` | `chmod +x` and run; installs to user directory |
+| Linux / audit | `HtmlNineFox-Linux-0.6.1.tar.gz` | Inspectable full installation contents |
+| macOS 14+ (Apple Silicon) | `HtmlNineFox-macOS-arm64-0.6.1.zip` | Extract, then right-click HtmlNineFox.app → Open to bypass Gatekeeper (unsigned) |
 | Python 3.10+ | `htmlninefox-0.6.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.6.0-py3-none-any.whl` |
 | Docker | Build from source | `docker compose up --build`; tag CI verifies but does not publish the image |
 

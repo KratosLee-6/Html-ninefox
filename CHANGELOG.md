@@ -11,9 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.0] — 2026-11-08（目标） · 设计吸收流水线 + 可编辑 PPTX
+## [0.6.1] — 2026-10-03 · 竞态修复 + 视觉证据补齐 + 真实操作录屏
 
-> 目标发布窗口 2026-11-08（11-01 ～ 11-14）。版本号已切换，附件与 SHA-256 随 S21 发布回读。
+> 补丁版本：项目 schema、HTTP 接口与 Revision 历史均不变，v0.6.0 用户可直接升级，数据目录不迁移、不覆盖。
+> 门禁：**403 passed / 1 skipped**（v0.6.0 为 387，本轮新增 16 条）；发布元数据一致性通过。
+> 证据：[发布说明](docs/RELEASE-NOTES-v0.6.1.md)。
+
+**Fixed**
+- **幻灯片编辑器交错请求会写错节点（发布阻断级）**：`open()` 在 `await` 之后无保护地写 `draft.revision` / `draft.slides`，而开头又整体重写 `draft`。开 A → GET 在途 → 开 B，A 返回后会用 A 的内容覆盖 B，随后保存把 revision 写进错误节点。既有的 `draft.busy` 只挡重复点击保存，对交错无效。现以请求序号守卫 `try` / `catch` / `close()` 全部出口，`close()` 自身也作废在途请求（`lifecycle-slides.js`）。门禁 `test_slides_open_discards_stale_response` 经**反向验证**：摘掉守卫即失败。
+
+**Changed**
+- **提示词路径一致性由「不管」改为「钉住」**：`app.py::_prompt_and_inputs` 与 `application.py::_prepare_generation` 的四处差异逐条实测后，只有默认 prompt 串字面量重复构成真实风险，其余为语义 no-op 或已有等价守卫。因此**未改实现**，新增 `tests/test_prompt_path_consistency.py`（5 条）把两条路径锁住。
+
+**Added**
+- **视觉证据补齐**：10 个已交付但此前无任何视觉证据的功能补拍为图，截图集 13 → 23 张。采集受 `HTMLNINEFOX_V060_EVIDENCE_DIR` 控制，未设置时零副作用。
+- **`scripts/capture_core_shots.py`**：补上一直缺采集脚本的 5 张工作台主视图，**逐张断言顶栏徽标等于目标 tag**。这 5 张在 v0.6.1 最初是直接从 v0.6.0 复用的，验收时发现徽标写着 v0.6.0——那是对附件内容的假声明，已全部重拍。
+- **品牌片改为真实操作录屏**：50 秒中文版 + 53 秒英文版（`--lang en` 独立录制，英文需求真实重分析故报 72% 而非套用 67%），由 `scripts/record_demo_film.py` 驱动真实服务录下。34 秒中英双语静帧版保留为无录屏渠道备选。
+- **Release 附件纳入品牌片**：`.github/workflows/build-release-packages.yml` 的 `publish-release` 显式列举 4 支成片，避免中间版本被 glob 误带入。
+
+## [0.6.0] — 2026-10-01 · 设计吸收流水线 + 可编辑 PPTX
+
+> 原定发布窗口 11-01 ～ 11-14，本次为窗口前的稳定化完成发布，**实际发布日 2026-10-01**。附件与 SHA-256 随发布回读。
 > 门禁（2026-09-29 最终复验）：**387 passed / 1 skipped**（v0.5.0 基线 303，本轮新增 84 条）；JS 语法 13/13；DSH 插件 2/2；Chromium 22/22；WebKit 22/22；Windows / Linux / macOS / Docker 四个构建 job 全绿，且 Windows 便携包**真实启动**通过。
 > 证据：[S17 门禁报告](docs/test-evidence/v0.6.0-s17-20260929/README.md)、[双审计](docs/AUDIT-v0.6.0-20260928.md)、[发布说明](docs/RELEASE-NOTES-v0.6.0.md)。
 
