@@ -7,13 +7,16 @@
 ```text
 assets/
 ├── README.md
-├── promo/                            # 34s 品牌宣传片（中英双版）
-│   ├── htmlninefox-brand-film-34s-16x9.mp4
+├── promo/                            # 品牌宣传片
+│   ├── htmlninefox-brand-demo-50s-16x9.mp4    # 50s 真实操作录屏（定稿 · 中文）
+│   ├── htmlninefox-brand-demo-53s-16x9-en.mp4 # 53s 真实操作录屏（定稿 · English）
+│   ├── poster-demo-zh.png                    # 50s 成片抽帧（中文 README 展示位）
+│   ├── poster-demo-en.png                    # 53s 成片抽帧（English README 展示位）
+│   ├── htmlninefox-brand-film-34s-16x9.mp4    # 34s 静帧速览（中英双版 · 备选）
 │   ├── htmlninefox-brand-film-34s-16x9-en.mp4
 │   ├── opener-h3-2k.mp4              # 开场抽象氛围镜头（MiniMax-H3 生成 · 8s 2K）
 │   ├── brand-bed.mp3                 # 全片器乐床（67s 无人声）
-│   ├── poster-zh.png                 # README 可点击封面（GitHub 不渲染 <video>）
-│   └── poster-en.png
+│   └── poster-zh.png / poster-en.png # 34s 版封面
 ├── screenshots/
 │   ├── README.md
 │   ├── v0.3.0b2/ ... v0.5.0rc3/   # 已发布或历史版本快照
@@ -28,7 +31,24 @@ assets/
 
 `assets/screenshots/v0.5.0rc3-visual/` 当前包含 14 张截图，覆盖 Paper / Pixel Night、桌面 / 平板 / 手机、命令面板、Project Memory、生成结果、Export Center、受控错误和 Revision Restore 等真实产品状态。
 
-`assets/promo/` 是 34 秒品牌宣传片的中英双版（1920×1080 / 25fps / H.264 / AAC 立体声 48kHz）。**界面画面没有任何一帧是生成的**：所有产品界面全部取自本目录 `v0.6.0/` 的真实运行截图，不使用概念图替代功能证据。**唯一由 MiniMax-H3 生成的是开场的抽象氛围镜头**（`opener-h3-2k.mp4`，8 秒 2K：暖纸、方格格线、钴蓝与薄荷光），它不含任何文字或界面——刻意如此，因为文生视频模型会把中文渲染成乱码。开场标题卡与尾卡是由脚本用 Playwright 渲染的静态卡，其中品牌标志直接渲染自 `htmlninefox/server/static/logo-mark.svg` 官方源文件。
+`assets/promo/` 里有两支片子，**用途不同，不要混淆**：
+
+- **50s 中文 / 53s English 真实操作录屏（定稿）**
+  `htmlninefox-brand-demo-50s-16x9.mp4` / `htmlninefox-brand-demo-53s-16x9-en.mp4`
+  由 `scripts/record_demo_film.py` 驱动 **v0.6.0 的真实运行服务**录下：
+  光标真的移动、需求真的逐字打出、节点真的逐个长出、导出中心真的被点开。
+  字幕里的每个数字都是产品当场报出的（中文版置信度 67%、英文版 72%——
+  因为英文版是**独立录制**，英文需求被重新分析过，两者之间不共用数字；
+  分析耗时 8ms、交付 40ms、兼容性 100、「未发现阻塞性兼容问题」）。
+  **界面在两版里都是中文**：工作台默认中文，这是产品事实；分析返回的
+  chips（落地页 / 首页 Hero）是产品自己的输出，同样不改写。
+- **34s 静帧速览（备选，中英双版）**
+  23 张真实截图交叉淡入，用于无录屏环境或静态渠道；它是**速度概览**而非演示。
+
+**为什么界面不用 H3 生成**：文生视频模型会把中文渲染成乱码、按钮位置随机、
+连线毫无逻辑、点击无反应——那与「可正常演示」直接矛盾。唯一由 H3 生成的是
+**开场 3.5s 抽象氛围**，提示词明确禁止任何文字。34s 静帧版另有自己的说明，
+其取景、字幕与音效细节见下文。
 
 **声音**：全片有一条器乐床 `brand-bed.mp3`（无人声，音量 0.16，2 秒淡入 / 2.2 秒淡出，末端 `alimiter=0.92` 防削顶）。开场的 H3 原生环境音保留并在 0.4s 交叉淡入处淡出，随后由器乐床接管。实测成片 `mean_volume -28.7 dB` / `max_volume -10.0 dB`。
 

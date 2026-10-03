@@ -21,15 +21,26 @@
 
 ![Html九尾狐 Pixel Garden 工作台（v0.6.0 实拍）](assets/screenshots/v0.6.0/workbench-overview.png)
 
-## 34 秒看懂 Html九尾狐
+## 50 秒看完 Html九尾狐怎么干活
 
-[![播放 34s 品牌片（中文版）](assets/promo/poster-zh.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-34s-16x9.mp4)
+[![播放 50s 真实操作演示（中文版）](assets/promo/poster-demo-zh.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-demo-50s-16x9.mp4)
 
-**中文版** 1920×1080 · 34s · 器乐配乐 · [**English cut**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-34s-16x9-en.mp4) · [全部文件](assets/promo)
+**中文版** 1920×1080 · 50s · 带配乐 · [**English cut · 53s**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-demo-53s-16x9-en.mp4) · [34s 静帧速览版](assets/promo/htmlninefox-brand-film-34s-16x9.mp4) · [34s English](assets/promo/htmlninefox-brand-film-34s-16x9-en.mp4) · [全部文件](assets/promo)
 
-> **片中画面的来源**：片中全部**产品界面**均取自 `assets/screenshots/v0.6.0/` 的真实运行截图，**界面画面没有任何一帧是生成的**——刻意没有用文生视频模型生成界面，因为模型会产出乱码中文文字，比真实截图更差。唯一由 MiniMax-H3 生成的是**开场的抽象氛围镜头**（暖纸、方格、钴蓝与薄荷光，8 秒），它不含任何文字或界面；开场标题卡与尾卡是由 [`scripts/make_promo_film.py`](scripts/make_promo_film.py) 用 Playwright 渲染的静态卡，品牌标识渲染自项目内官方 SVG。界面镜头一律静态，运动只留给开场。
+> **这不是动画，是录屏**：光标真的移动、27 个字真的一个个被敲进去、节点真的一个个长出来、导出中心真的被点开。片子由 [`scripts/record_demo_film.py`](scripts/record_demo_film.py) 驱动 **v0.6.0 的真实运行服务**录下，全部画面来自真实操作，字幕里的数字也是产品当场报出来的——置信度 67%、需求分析 8ms、保存交付 40ms、兼容性 100 分、「未发现阻塞性兼容问题」。没有一帧是画的，也没有一帧是生成的。
+>
+> 唯一由 MiniMax-H3 生成的是**开场的 3.5 秒抽象氛围**（暖纸、方格、钴蓝与薄荷光），它不含任何文字。界面演示**刻意不用**文生视频模型：模型会把中文渲染成乱码、按钮位置随机、连线毫无逻辑，那样的画面恰好与「可正常演示」相反。
 
-> **镜头是精选子集**：10 个界面镜头（+ 标题卡 / 尾卡）对应 21 项可截图验证功能中的 10 项——画布 / 模板库 / Pixel Night / 移动任务视图 / 设计吸收审核台 / CSP 沙箱 / 可编辑 PPTX / 导出中心 / 版本恢复 / 命令面板，映射关系由脚本内的 `CATALOGUE` 强制校验。片长与镜头数在可截图验证的范围内取最短，完整功能清单与全部 23 张截图见 [截图集](assets/screenshots)。
+### 它演示的完整主线
+
+| 时间 | 真实发生的事 |
+|---|---|
+| 0–3.5s | H3 抽象氛围开场 |
+| 3.5–12s | 光标点开「输入需求」，**逐字打出**一句真实需求 |
+| 12–19s | 「AI 分析并推荐」返回**置信度 67%** 与推荐模板（实时渲染的预览） |
+| 19–28s | 「采用推荐并生成」→ 节点与连线**逐个长出**，底部实时计时 8ms → 40ms |
+| 28–38s | 六个真实内容区块落到画布，点开产物节点看 `rev0` |
+| 38–50s | 导出中心：**兼容性 100**、11 KB 单文件、「未发现阻塞性兼容问题」 |
 
 ## 它解决什么问题
 

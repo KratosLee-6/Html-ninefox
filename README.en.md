@@ -21,15 +21,19 @@
 
 ![HtmlNineFox Pixel Garden workbench (captured on v0.6.0)](assets/screenshots/v0.6.0/workbench-overview.png)
 
-## HtmlNineFox in 34 seconds
+## Watch HtmlNineFox work in 53 seconds
 
-[![Play the 34s brand film (English cut)](assets/promo/poster-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-34s-16x9-en.mp4)
+[![Play the 53s real-operating demo (English cut)](assets/promo/poster-demo-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-demo-53s-16x9-en.mp4)
 
-**English** 1920×1080 · 34s · instrumental score · [**中文版**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-film-34s-16x9.mp4) · [all files](assets/promo)
+**English** 1920×1080 · 53s · instrumental score · [**中文版 · 50s 真实操作演示**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-demo-50s-16x9.mp4) · [34s stills cut](assets/promo/htmlninefox-brand-film-34s-16x9-en.mp4) · [all files](assets/promo)
 
-> **What is in the film**: every **product-UI frame** comes from the real v0.6.0 captures in `assets/screenshots/v0.6.0/` — **not one interface frame is generated**. A text-to-video model was deliberately not used for interface footage, because it hallucinates garbled CJK text, which is strictly worse than a real screenshot. The one generative shot is the **opening abstract atmosphere** (warm paper, square grid, cobalt and mint light, 8s), which contains no text and no interface. The title and end cards are static HTML-rendered stills produced by [`scripts/make_promo_film.py`](scripts/make_promo_film.py), with the brand mark drawn from the project's own SVG source. Interface shots are held static; motion belongs to the opening alone.
-
-> **Shots are a curated subset**: 10 interface shots (plus the title and end cards) cover 10 of 21 screenshot-verifiable features — canvas / template library / Pixel Night / mobile task view / design-intake review / CSP sandbox / editable PPTX / export center / revision restore / command palette — and the mapping is enforced by the `CATALOGUE` table inside the script. The film is kept as short as the feature set allows; the complete list and all 23 captures live in the [screenshot set](assets/screenshots).
+> **This is not animation, it is a screen recording.** The cursor really moves, the 95 characters of the requirement are really typed one at a time, nodes really appear one by one, and the export centre is really opened. [`scripts/record_demo_film.py`](scripts/record_demo_film.py) drives the **real v0.6.0 server** and records it; every frame is real operation, and the numbers in the captions are what the product reported on the spot.
+>
+> The English cut is a **separate recording, not a translation**: the requirement is typed in English and analysed for real, which is why it reports **72%** confidence where the Chinese cut reports 67%. Nothing is carried over between the two sessions.
+>
+> The interface stays Chinese in both cuts, because the workbench ships in Chinese by default. The chips the analysis returns (落地页, 首页 Hero) are the product's own output and are not rewritten.
+>
+> The one generated element is the **3.5s abstract opener** (warm paper, square grid, cobalt and mint light), which contains no text. A text-to-video model is deliberately **not** used for interface footage: it renders CJK as garbled glyphs, places buttons arbitrarily and draws meaningless edges — the opposite of a working demonstration.
 
 ## What it solves
 
