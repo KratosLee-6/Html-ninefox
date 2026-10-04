@@ -3,9 +3,16 @@
 Every outbound request goes through `validate_url`, which allows only
 http/https, resolves the host, and rejects any non-global address
 (loopback, private, reserved, link-local, multicast). Redirects are
-followed hop by hop with the same validation, and the host is
-re-resolved after the response arrives so DNS rebinding cannot swap in
-a private target mid-flight.
+followed hop by hop with the same validation.
+
+Since v0.6.2 the vetted addresses are also what the socket connects to
+(`_PinnedHTTPHandler` / `_PinnedHTTPSHandler`): the Host header and the TLS
+SNI/certificate name stay on the real hostname, but the connection target is
+the address `validate_url` just approved, so there is no second DNS lookup to
+swap a public answer for a private one between checking and connecting.
+Resolving again after the response arrives and discarding on a change is kept
+as a third layer, but it is detection, not prevention — the pre-v0.6.2 code
+only did that much, and the docstring used to overstate it as the latter.
 """
 
 from __future__ import annotations
@@ -148,9 +155,139 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-def _default_transport(url: str, headers: dict[str, str], timeout: float, max_bytes: int):
+def _host_header(host: str, port: int) -> str:
+    if port in (80, 443):
+        return host
+    return f"{host}:{port}"
+
+
+def _pin_http_connection(ips: list[str], port: int, timeout: float):
+    """Open a plain-HTTP connection to an address that was already vetted.
+
+    This is the whole fix. `urllib`'s own handler asks the resolver a second
+    time and connects to whatever it says, so a host that resolved to a public
+    address during `validate_url` can resolve to loopback a moment later and
+    the fetch then opens a connection nobody checked. Binding the socket to the
+    vetted address removes the second resolution entirely.
+
+    Plain HTTP only. The TLS case lives in `_PinnedHTTPSHandler`, which has to
+    keep the real hostname on the connection object for SNI and certificate
+    validation and therefore cannot go through this helper.
+    """
+    import http.client
+
+    last: Exception | None = None
+    for ip_text in ips:
+        conn = None
+        try:
+            conn = http.client.HTTPConnection(ip_text, port, timeout=timeout)
+            conn.connect()
+            return conn
+        except OSError as exc:
+            last = exc
+            if conn is not None:
+                try:
+                    conn.close()
+                except OSError:
+                    pass
+            continue
+    raise IntakeError(
+        "intake_connect_failed",
+        f"无法连接到已校验的地址 {', '.join(ips)}：{last}",
+    ) from last
+
+
+class _PinnedHTTPHandler(urllib.request.HTTPHandler):
+    """`urllib` handler that connects to a vetted address, not a fresh lookup."""
+
+    def __init__(self, ips: list[str]):
+        super().__init__()
+        self._vetted_ips = list(ips)
+
+    def do_open(self, http_class, req):  # noqa: ANN001
+        # `Request` exposes host and type but no port, so take it from the URL.
+        parts = urllib.parse.urlsplit(req.full_url)
+        host = parts.hostname
+        port = parts.port or 80
+        conn = _pin_http_connection(self._vetted_ips, port, req.timeout)
+        try:
+            headers = {k: v for k, v in req.headers.items()
+                       if k.lower() != "host"}
+            headers["Host"] = _host_header(host, port)
+            conn.request(req.get_method(), req.selector, headers,
+                         encode_chunked=req.has_header("Transfer-encoding"))
+            return conn.getresponse()
+        except OSError as exc:
+            raise IntakeError("intake_connect_failed", f"连接失败：{exc}") from exc
+
+
+class _PinnedHTTPSHandler(urllib.request.HTTPSHandler):
+    """TLS variant: socket pinned to the vetted address, SNI/cert on the host.
+
+    `http.client.HTTPSConnection.connect` wraps the socket with
+    `server_hostname=self.host`, and `HTTPSConnection` resolves the cert name
+    from `self.host` as well. The pinned address must therefore be the connect
+    target while `self.host` stays the real name; the connection is built
+    against the IP and `host` is restored afterwards, so SNI and certificate
+    validation both still see the true hostname.
+    """
+
+    def __init__(self, ips: list[str], context=None):
+        super().__init__(context=context)
+        self._vetted_ips = list(ips)
+
+    def do_open(self, http_class, req):  # noqa: ANN001
+        import http.client
+        import ssl as _ssl
+
+        parts = urllib.parse.urlsplit(req.full_url)
+        host = parts.hostname
+        port = parts.port or 443
+        context = self._context or _ssl.create_default_context()
+        last: Exception | None = None
+        for ip_text in self._vetted_ips:
+            conn = http.client.HTTPSConnection(
+                ip_text, port, timeout=req.timeout, context=context)
+            # SNI + certificate name come from self.host; keep the real one
+            # even though the socket is pointed at the vetted IP.
+            conn._tunnel_host = None  # noqa: SLF001
+            conn._tunnel_port = None  # noqa: SLF001
+            conn.host = host
+            try:
+                conn.connect()
+            except OSError as exc:
+                last = exc
+                continue
+            try:
+                headers = {k: v for k, v in req.headers.items()
+                           if k.lower() != "host"}
+                headers["Host"] = _host_header(host, port)
+                conn.request(req.get_method(), req.selector, headers,
+                             encode_chunked=req.has_header("Transfer-encoding"))
+                return conn.getresponse()
+            except OSError as exc:
+                last = exc
+                continue
+        raise IntakeError(
+            "intake_connect_failed",
+            f"无法连接到已校验的地址 {', '.join(self._vetted_ips)}：{last}",
+        ) from last
+
+
+def _default_transport(url: str, headers: dict[str, str], timeout: float,
+                       max_bytes: int, ips: list[str] | None = None):
+    """Fetch over a connection bound to `ips` — the addresses `validate_url` vetted.
+
+    `ips` stays keyword-optional so the seam is visible and testable, but every
+    real call path in `fetch_reference` passes it; without it the opener
+    re-resolves and the validation above protects nothing.
+    """
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **headers})
-    opener = urllib.request.build_opener(_NoRedirect)
+    if ips:
+        opener = urllib.request.build_opener(
+            _PinnedHTTPHandler(ips), _PinnedHTTPSHandler(ips), _NoRedirect)
+    else:
+        opener = urllib.request.build_opener(_NoRedirect)
     try:
         with opener.open(request, timeout=timeout) as response:
             status = response.status
@@ -160,6 +297,8 @@ def _default_transport(url: str, headers: dict[str, str], timeout: float, max_by
         if exc.code in REDIRECT_STATUSES:
             return exc.code, {key.lower(): value for key, value in exc.headers.items()}, b""
         raise IntakeError("intake_fetch_failed", f"远端返回 HTTP {exc.code}", 502) from exc
+    except IntakeError:
+        raise
     except (urllib.error.URLError, OSError) as exc:
         raise IntakeError("intake_fetch_failed", f"连接失败：{exc}") from exc
     if len(body) > max_bytes:
@@ -168,6 +307,34 @@ def _default_transport(url: str, headers: dict[str, str], timeout: float, max_by
 
 
 # ---------------------------------------------------------------- fetching
+
+
+def _call_transport(transport: Callable, url: str, headers: dict[str, str],
+                     timeout: float, max_bytes: int, ips: list[str]):
+    """Call the transport, passing vetted IPs when its signature accepts them.
+
+    The default transport takes `ips`; injected test transports written against
+    the old four-argument signature keep working, so existing gates stay
+    meaningful instead of all needing rewrites.
+
+    The decision is made from the signature, not by catching TypeError. A
+    blanket except would also swallow a TypeError raised *inside* a transport
+    and retry the call without `ips` — turning a real bug into a silent
+    fallback, which is the same "looks like it worked" shape this project keeps
+    hitting.
+    """
+    import inspect
+
+    try:
+        params = inspect.signature(transport).parameters
+    except (TypeError, ValueError):
+        params = {}
+
+    accepts_ips = "ips" in params or any(
+        p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values())
+    if accepts_ips:
+        return transport(url, headers, timeout, max_bytes, ips)
+    return transport(url, headers, timeout, max_bytes)
 
 
 def fetch_reference(
@@ -186,7 +353,11 @@ def fetch_reference(
     followed: list[str] = [url]
     for _ in range(max_hops + 1):
         _, host, before_ips = validate_url(current_url, resolver)
-        status, resp_headers, body = transport(current_url, headers or {}, timeout, max_bytes)
+        # Hand the vetted addresses to the transport. Each redirect hop is
+        # validated and pinned independently — hop N never reuses hop N-1's
+        # addresses.
+        status, resp_headers, body = _call_transport(
+            transport, current_url, headers or {}, timeout, max_bytes, before_ips)
         if status in REDIRECT_STATUSES:
             location = resp_headers.get("location", "")
             if not location:
