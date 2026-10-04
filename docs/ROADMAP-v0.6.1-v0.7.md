@@ -166,11 +166,26 @@ Word 导出是加格式，桌面版是换打包方式，后两者是打磨。按
 
 | 项 | 性质 | 备注 |
 |---|---|---|
-| **C7** 前端 12 个 classic script 共享顶层作用域 | 收益最大、风险最高 | 已核实：全部 `<script src>` 无 `type="module"`；`state.*` 无声明约束；**这些文件目前无法被单元测试** |
+| **C7** 前端共享顶层作用域 | 🔄 **第一步已落地，第二步已设计** | 范围比原估小一半：13 个脚本里**只有 2 个**是裸的（`fox-core.js`、`workbench-features.js`），其余 11 个已是箭头 IIFE。见下 |
 | ~~P1-6 SSRF 连接级 IP 绑定~~ | ✅ **已于 v0.6.2 关闭** | 见下方 |
 | C1 Project 锁三种写法并存 | 结构性 | 根因：`RestoreRunner` 的 Interface 未声明「被调方持有 Project 锁」 |
 | C5 错误码三处硬编码 | 易漏 | 忘加映射表就静默变 500 |
 | P1-7 + C8 提取 `IntakeService` | 结构性 | `app.py:141` 的 `_Handler` 仍承担 intake 编排 |
+
+> ### C7 进度（2026-10-04）
+>
+> **第一步 · 抽内核，已完成**（`d37d35b`）：81,375 字符的共享内核从 `index.html`
+> 的 inline `<script>` 逐字节搬进 `static/fox-core.js`。真正的根因不是文件太大，
+> 是 `app.py:43` 的 `STATIC_FILES` 是**手写白名单**——新脚本不登记就 404，
+> 工作台全白而所有门禁全绿。门禁 4 条全部执行真实代码，变异 10/10 CAUGHT。
+> 见 [`DESIGN-c7-front-end-kernel.md`](DESIGN-c7-front-end-kernel.md)。
+>
+> **第二步 · 依赖注入，设计已定**：见
+> [`DESIGN-c7-step2-injectable-state.md`](DESIGN-c7-step2-injectable-state.md)。
+> 选定切口是 `state` + `PALETTE`（不是 `nodes`），一次改动解锁
+> `workbench-features.js` 里 8 个目前完全无法单测的纯函数，
+> 并顺带拆掉三条「顶层立即读」造成的硬加载顺序依赖。
+> 9 个真正的共享可变状态里，`nodes`/`edges` 有跨文件**整体替换**，必须留到下一阶段。
 
 > ### P1-6 实测结论（2026-10-04）：**已关闭，随 v0.6.2 安全补丁发布**
 >
@@ -189,7 +204,28 @@ Word 导出是加格式，桌面版是换打包方式，后两者是打磨。按
 > 门禁第一版**假绿**的教训：resolver 固定返回公网时门禁是绿的，必须让它「先公网、
 > 后私网」才暴露窗口。
 
-**C7 建议单独立项。** 它是唯一「不做会持续付利息」的：前端无法单测，意味着 C3、C4 这类缺陷只能靠人工与 e2e 兜——而 v0.6 挖出的三个死按钮全是这么漏掉的。
+**C7 仍建议单独立项。** 它是唯一「不做会持续付利息」的：前端无法单测，意味着 C3、C4 这类缺陷只能靠人工与 e2e 兜——而 v0.6 挖出的三个死按钮全是这么漏掉的。
+
+> ### 附带成果：发布包第一次被真正验证（2026-10-04）
+>
+> v0.6.1 / v0.6.2 / v0.6.3 三轮里，两个 103.75MB 的 Linux 附件因本机带宽限制
+> **从未真正下载过**，「已验证」实际只意味着元数据对得上。
+> 本轮用 `gh release download` 实际拉回并逐字节检查了两个较小的产物：
+>
+> - `htmlninefox-0.6.3-py3-none-any.whl`（0.3MB）：SHA-256 与公布摘要一致，
+>   22 个 `static/` 文件全在，页面请求的 12 个脚本全在
+> - `HtmlNineFox-Windows-x64-0.6.3.zip`（50.4MB）：摘要一致、364 条目无损坏、
+>   `_internal/.../server/static` 下 22 个文件全在、**并且真的启动成功**——
+>   `/api/health` 报 `version 0.6.3` / `distribution windows-portable`，
+>   工作台页面带全部 4 个前端标记，12 个脚本与 6 条静态路由全部可取
+>
+> 仍未验证：macOS 58.1MB、Linux 103.8MB ×2、Setup.exe 36.9MB（带宽所限）。
+> 这项缺口已固化成门禁：见下面的 `package-payload`。
+>
+> 顺带查出并修掉的两件事：
+> ① `tests/test_ssrf_tls_pinning.py` 依赖 `cryptography`，而该依赖从未声明，
+>    **这条安全门禁从 v0.6.3 加进去到发现为止一次都没在 CI 里执行过**（本机恰好装了）。
+> ② `publish-release` 现在依赖 `package-payload`：载荷门禁不过就不发版。
 
 ---
 
