@@ -11,6 +11,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.3] — 2026-10-04 · 修复 v0.6.2 的发布阻断缺陷
+
+> 补丁版本。产品行为、界面、项目 schema、HTTP 接口与 Revision 历史**均未改变**。
+> 门禁：**414 passed / 1 skipped**；**变异测试 5/5 全部捕获**。
+> 证据：[发布说明](docs/RELEASE-NOTES-v0.6.3.md)、[设计文档](docs/DESIGN-v0.6.2-ssrf-pinning.md)。
+
+**Fixed**
+- **v0.6.2 的出站抓取 100% 失败**（发布阻断）。三处缺陷：
+  1. `conn.request(method, url, headers)` —— `http.client` 签名第三位是 `body`，
+     headers 落进 `body` 位，`http.client` 把 dict 当 chunked body 迭代后抛
+     `TypeError: can't concat str to bytes`。连接已建立、请求行已上线，然后客户端崩
+  2. `do_open(http_class, req)` 缺 urllib 必传的 `context` 关键字，所有 HTTPS 请求建连前即崩
+  3. `conn.host = host` 在 `connect()` 之前执行——`HTTPSConnection.connect()` 用
+     `self.host` 同时决定**连接目标**与 SNI，等于把 socket 送回一次全新 DNS 解析，
+     被钉住的地址被丢弃，**原 SSRF 缺陷在 TLS 上原样复现**
+- HTTPS 改为**换 socket 工厂**（`_create_connection` 连已校验 IP）而非改 `conn.host`；
+  顺序为「先钉 socket，再交主机名给 TLS」，两者反了都不成立
+- 环境代理被显式移除（`ProxyHandler({})`）：设计吸收抓取**刻意不走环境代理**。
+  连带修掉请求行退化为绝对形式、以及代理后唯一可达的站点抓不到
+- `ips == []` 改为直接报错，不再静默退回未绑定路径——「没校验到任何东西」
+  不等于「不需要钉」
+
+**为什么 CI 没拦住**
+> v0.6.2 发布时五个 job 全绿、39 个附件逐个下载重算 SHA-256 全部匹配、
+> 元数据门禁通过，**而功能是坏的**。因为那 6 条门禁**全是拒绝型测试**，
+> 没有一条让抓取成功返回过 body——「正确拒绝」与「彻底坏了」信号相同。
+> 实证：把实现改回有漏洞的版本，6 条门禁**仍然全绿**。
+>
+> 这与 v0.6.0 的 Windows 便携包是同一形状。
+
+**门禁 6 → 11**
+- 新增**成功路径**（真起服务，断言 200 与正确 body）与 **TLS 端到端**（真证书 +
+  真 socket，主机名解析不到服务，只有按钉住 IP 连才成功，而证书仍按主机名校验——
+  一次请求同时证明 socket 半与 TLS 半）
+- **变异测试**用五种方式破坏实现，**5/5 全部被捕获**。它翻出五条「门禁自己说谎」：
+  只有拒绝型测试无成功路径、`pytest.skip` 自我放行、源码文本断言锁死有害代码、
+  TLS 测试两分支结果等价、测试夹具自己补上了漏洞。**五条里有三条是我自己写的
+  门禁在坏代码上报绿**——所以「11 条全过」不是提交依据，变异测试才是
+
+**Removed**
+- **一条被证伪的结构性门禁**：试图禁止关键功能路径只有拒绝型覆盖，
+  以扫描源码文本实现，变异测试 **1/5**。已剔除并移出 `tests/`
+  （留存为 `tests/test_gate_quality_gates.py.rejected`）。**一条无效门禁比没有门禁更糟**，
+  它训练人忽略门禁；正确实现应当执行被检查的东西并断言结果，而不是 grep 源码
+
 ## [0.6.2] — 2026-10-04 · 安全补丁：SSRF 连接级 IP 绑定（P1-6）
 
 > 纯安全补丁。产品行为、界面、项目 schema、HTTP 接口与 Revision 历史**均未改变**。

@@ -13,14 +13,14 @@
 | `v0.5.0rc3-visual/` | `v0.5.0rc3` 的响应式、组件状态与恢复/错误证据 |
 | `v0.6.0/` | `v0.6.0` 的工作台、设计吸收、PPTX 导出与历史功能实拍（23 张） |
 
-## v0.6.2 截图（23 张 · 顶栏徽标均为 v0.6.2）
+## v0.6.3 截图（23 张 · 顶栏徽标均为 v0.6.3）
 
-v0.6.2 是纯安全补丁，界面与 v0.6.1 逐像素相同，**但整目录仍重新实拍**——
+v0.6.3 是纯补丁，界面与 v0.6.1 逐像素相同，**但整目录仍重新实拍**——
 沿用 v0.6.1 的图会让 Release 附上写着旧版本号的截图。`scripts/capture_core_shots.py`
 的 tag、端口与输出目录现全部从包 `__version__` 推导，不再写死。
 
 ```bash
-HTMLNINEFOX_V060_EVIDENCE_DIR=assets/screenshots/v0.6.2 python -m pytest \
+HTMLNINEFOX_V060_EVIDENCE_DIR=assets/screenshots/v0.6.3 python -m pytest \
   tests/test_v060_visual_evidence_states.py tests/test_v061_visual_evidence_states.py -q
 FOX_DEMO_BASE=http://127.0.0.1:<port> python scripts/capture_core_shots.py
 ```

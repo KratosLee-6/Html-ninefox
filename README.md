@@ -8,18 +8,18 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.6.2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.2)
+[![App Release](https://img.shields.io/badge/app-v0.6.3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-409%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
+[![Tests](https://img.shields.io/badge/pytest-414%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![Html九尾狐 Pixel Garden 工作台（v0.6.0 实拍）](assets/screenshots/v0.6.2/workbench-overview.png)
+![Html九尾狐 Pixel Garden 工作台（v0.6.0 实拍）](assets/screenshots/v0.6.3/workbench-overview.png)
 
 ## 50 秒看完 Html九尾狐怎么干活
 
@@ -65,26 +65,31 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
   用自然语言反馈，按版本继续迭代
 ```
 
-## 当前版本与最新进展（v0.6.2 已发布）
+## 当前版本与最新进展（v0.6.3 已发布）
 
-当前应用包版本为 `0.6.2`，发布标签 `v0.6.2`。v0.6.2 是**纯安全补丁**——产品行为、界面、项目 schema、HTTP 接口与 Revision 历史均未改变：
+当前应用包版本为 `0.6.3`，发布标签 `v0.6.3`。**v0.6.3 是修复 v0.6.2 缺陷的补丁版本**：
 
-1. **关闭设计吸收的 SSRF TOCTOU 窗口**。`validate_url` 早已在校验出合法 IP，但 `fetch_reference` **从未把它交给传输层**，而 `urllib` 建连时会自己再解析一次 DNS。两次解析之间，校验时解析到公网地址、建连时解析到 127.0.0.1，就会打开一条没人校验过的私网连接。原有的「响应后重新解析比对」是**事后检测**——响应会被丢弃，但字节已经流过那条连接。
-2. **修复方式**：socket 连到已校验的地址，`Host` 头与 TLS 的 SNI、证书校验仍用真实主机名，因此虚拟主机站点与证书校验都不受影响；重定向逐跳独立校验并绑定。
-3. **这是已公开披露的残余风险，不是新漏洞**。`v0.6.0` 发布说明已把它列为已知项。之所以提前到本版关闭，是因为 v0.7 的「粘贴任意网址」会把暴露面从 12 个内置源放大到任意地址。
-4. **新增 6 条走真实 socket 的门禁**。既有 SSRF 测试**全部注入假 transport**，没有一条验证真实连接连到了哪个 IP——这正是它活到今天的原因。门禁已做反向验证：摘掉修复必须变红。
+- **v0.6.2 的设计吸收抓取是坏的**。升级到 v0.6.2 后，抓取 100% 失败，每一次请求都抛
+  `TypeError`。原因有三处：`conn.request()` 把 headers 传进了 `body` 位、
+  `do_open` 缺 urllib 必传的 `context` 形参、以及 `conn.host = host` 让 TLS 的连接
+  目标退回 DNS 解析。
+- **为什么没被拦住**：那 6 条门禁**全是「拒绝型」测试**，没有一条让抓取成功返回过
+  body——在这样的套件里，「正确拒绝」和「彻底坏了」信号完全相同。实测把实现改回
+  有漏洞的版本，6 条门禁**仍然全绿**。
+- **本版全部修复**，并把门禁从 6 条扩到 11 条，新增**成功路径**与 **TLS 端到端**覆盖，
+  随后用**变异测试**验证：故意用五种方式破坏实现，**5/5 全部被门禁捕获**。
 
-> 全量测试 **409 passed / 1 skipped**（v0.6.1 为 403）。既有 62 条 intake 测试**零放宽**。
-
-> v0.6.1 的幻灯片编辑器竞态修复、提示词路径一致性钉住、视觉证据补齐与真实操作录屏，以及 v0.6.0 的设计吸收与可编辑 PPTX 两条主线，均已随前两版发布，内容见各自的[发布说明](docs/RELEASE-NOTES-v0.6.0.md)。v0.6.0 / v0.6.1 用户可直接升级，**数据目录不迁移、不覆盖**。
+> v0.6.2 的 SSRF 连接级 IP 绑定修复本身是对的，只是实现有缺陷导致功能不可用。
+> v0.6.1（幻灯片编辑器竞态修复 + 真实操作录屏）与 v0.6.0（设计吸收 + 可编辑 PPTX
+> 两条主线）的内容不受影响，内容见各自的[发布说明](docs/RELEASE-NOTES-v0.6.0.md)。
+> **建议从 v0.6.1 或 v0.6.0 直接升级到 v0.6.3**，跳过 v0.6.2。
 
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
-| 应用 Release | `v0.6.2` 已发布（2026-10-04） | [发布页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.2) · [上一版 v0.6.1](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.1) |
-| 发布验证 | 全量测试 `409 passed, 1 skipped`（新增 6 条真实 socket 门禁，反向验证通过）；发布元数据一致性门禁通过 | [v0.6.2 发布说明](docs/RELEASE-NOTES-v0.6.2.md) · [设计文档](docs/DESIGN-v0.6.2-ssrf-pinning.md) |
+| 应用 Release | `v0.6.3` 已发布（2026-10-04） | [发布页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3) · [上一版 v0.6.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.2) |
+| 发布验证 | 全量测试 `414 passed, 1 skipped`；**变异测试 5/5 捕获**；发布元数据一致性门禁通过 | [v0.6.3 发布说明](docs/RELEASE-NOTES-v0.6.3.md) · [设计文档](docs/DESIGN-v0.6.2-ssrf-pinning.md) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
-> **Fixed（发布阻断级）**：打包流水线此前只**构建**产物、从不**执行**它，于是产出了一个能通过全部测试、四个构建 job 全绿、却一启动就崩溃的 Windows 便携包——`desktop.py` 用了 `sys.platform` 却从未 `import sys`，而这条路径只有 PyInstaller 冻结入口会走，源码测试套件从不加载。现已修复，并补两道防线：静态扫描冻结入口未绑定名字的门禁（`tests/test_frozen_entry_gates.py`），以及真实启动产物的验证脚本（`packaging/verify_portable.py`）。同批门禁还拦下三条「服务端实现齐备、界面却不可达」的缺陷：导出中心从来没有 PPTX 选项（成果在界面上无法触达，且没有任何测试点过那个下拉框）、「批量抓取」调用了从未定义的函数、typography 抽取器少一个形参导致许可第三档「开放许可」整体产不出候选。完整清单见[发布说明](docs/RELEASE-NOTES-v0.6.0.md#修复)。
 
 ### 功能 ↔ 截图对照
 
@@ -94,16 +99,16 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台</b><br>三栏层级：素材库 · 无限画布工作区 · 检查器。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题桌面工作台</b><br>同一组件层级的完整暗色主题；主按钮与弱化文字均已提到 WCAG AA 以上。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台</b><br>三栏层级：素材库 · 无限画布工作区 · 检查器。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题桌面工作台</b><br>同一组件层级的完整暗色主题；主按钮与弱化文字均已提到 WCAG AA 以上。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>工作区导航卡按真实几何参与画布避让，首屏缩放 81%，不再把内容缩成一团。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>工作区导航卡按真实几何参与画布避让，首屏缩放 81%，不再把内容缩成一团。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动任务视图</b><br>以工作区动作和节点卡片替代不可读的缩小画布；进度条只显示当前与失败步骤。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/sidebar-templates.png" alt="侧栏 REAL HTML 模板库"><br><b>侧栏 REAL HTML 模板库</b><br>模板名与描述上下堆叠、各夹 2 行，同屏比收敛前多露出一张卡。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动任务视图</b><br>以工作区动作和节点卡片替代不可读的缩小画布；进度条只显示当前与失败步骤。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/sidebar-templates.png" alt="侧栏 REAL HTML 模板库"><br><b>侧栏 REAL HTML 模板库</b><br>模板名与描述上下堆叠、各夹 2 行，同屏比收敛前多露出一张卡。</td>
 </tr>
 </table>
 
@@ -111,12 +116,12 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/input-brief.png" alt="统一需求入口"><br><b>统一需求入口</b><br>文字、文件、图片走同一个入口，AI 分析后推荐组合。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/command-palette.png" alt="命令面板"><br><b>命令面板</b><br>Ctrl+K 键盘打开、输关键词直达，每个动作都带快捷键提示。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/input-brief.png" alt="统一需求入口"><br><b>统一需求入口</b><br>文字、文件、图片走同一个入口，AI 分析后推荐组合。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/command-palette.png" alt="命令面板"><br><b>命令面板</b><br>Ctrl+K 键盘打开、输关键词直达，每个动作都带快捷键提示。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/node-inspector.png" alt="需求节点检查器"><br><b>需求节点检查器</b><br>选中即编辑文字与附件，一键向所属工作区推进。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/output-inspector.png" alt="产物节点检查器"><br><b>产物节点检查器</b><br>版本徽标、运行轨迹、采用学习、口语反馈与导出入口。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/node-inspector.png" alt="需求节点检查器"><br><b>需求节点检查器</b><br>选中即编辑文字与附件，一键向所属工作区推进。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/output-inspector.png" alt="产物节点检查器"><br><b>产物节点检查器</b><br>版本徽标、运行轨迹、采用学习、口语反馈与导出入口。</td>
 </tr>
 </table>
 
@@ -124,12 +129,12 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/project-memory.png" alt="项目记忆"><br><b>项目记忆</b><br>品牌、受众、语气、禁忌、模板与长期说明本地保存，下次生成直接复用。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/revision-restore.png" alt="版本历史与恢复"><br><b>版本历史与恢复</b><br>反馈、重跑、恢复都保留快照；恢复生成新版本，历史不覆盖。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/project-memory.png" alt="项目记忆"><br><b>项目记忆</b><br>品牌、受众、语气、禁忌、模板与长期说明本地保存，下次生成直接复用。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/revision-restore.png" alt="版本历史与恢复"><br><b>版本历史与恢复</b><br>反馈、重跑、恢复都保留快照；恢复生成新版本，历史不覆盖。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/generation-cancel.png" alt="取消生成"><br><b>取消生成</b><br>等待期可取消：排队任务真取消，执行中诚实转为“停止等待”。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/classic.png" alt="经典表单模式"><br><b>经典表单模式</b><br>一句话 Brief 直接生成，和工作台同一套品牌系统。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/generation-cancel.png" alt="取消生成"><br><b>取消生成</b><br>等待期可取消：排队任务真取消，执行中诚实转为“停止等待”。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/classic.png" alt="经典表单模式"><br><b>经典表单模式</b><br>一句话 Brief 直接生成，和工作台同一套品牌系统。</td>
 </tr>
 </table>
 
@@ -137,8 +142,8 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/export-ready.png" alt="导出分析就绪"><br><b>导出分析就绪</b><br>兼容性评分、分页模型、动态特性与本地引擎状态；deck 产物额外放开 PPTX。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/export-center-pptx.png" alt="PPTX 导出结果"><br><b>PPTX 导出结果</b><br>导出完成给出 pptx 与报告两个下载项，报告列出可编辑元素与降级清单。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/export-ready.png" alt="导出分析就绪"><br><b>导出分析就绪</b><br>兼容性评分、分页模型、动态特性与本地引擎状态；deck 产物额外放开 PPTX。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/export-center-pptx.png" alt="PPTX 导出结果"><br><b>PPTX 导出结果</b><br>导出完成给出 pptx 与报告两个下载项，报告列出可编辑元素与降级清单。</td>
 </tr>
 </table>
 
@@ -146,7 +151,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 | 目录 | 张数 | 内容 |
 |---|---:|---|
-| `assets/screenshots/v0.6.2/` | **23** | 当前版本实拍：工作台与画布 7 张、输入与检查器 4 张、Project Memory / 版本 / 取消 / 经典模式 4 张、设计吸收 3 张、幻灯片编辑与 PPTX 导出 3 张、移动端素材库 1 张 |
+| `assets/screenshots/v0.6.3/` | **23** | 当前版本实拍：工作台与画布 7 张、输入与检查器 4 张、Project Memory / 版本 / 取消 / 经典模式 4 张、设计吸收 3 张、幻灯片编辑与 PPTX 导出 3 张、移动端素材库 1 张 |
 | `assets/screenshots/v0.5.0/` | 24 | v0.5.0 完整实拍集（含 6 张真实产物输出图） |
 | `assets/screenshots/v0.4.0/` | 5 | Pixel Garden、LLM、Docker、Export Center 的历史记录 |
 
@@ -156,7 +161,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ## v0.5.0 稳定版核心能力（历史）
 
-![崩溃可恢复提交与生命周期 Module](assets/screenshots/v0.6.2/generation-cancel.png)
+![崩溃可恢复提交与生命周期 Module](assets/screenshots/v0.6.3/generation-cancel.png)
 
 - **🧠 Project Memory**：品牌、受众、语气、禁忌、模板、主色和字体保存在本地，可查看、编辑、关闭或清空。
 - **♡ 明确采用后学习**：只有在产物检查器点击“采用此版本并学习”才会进入长期记忆，测试稿和失败稿不会污染偏好；分析、Recipe Run 和检查器会显示本次复用了什么（可解释复用）。
@@ -170,12 +175,12 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/intake-review-pending.png" alt="素材审核台"><br><b>素材审核台 · 待审核</b><br>许可三档徽标、来源徽标、令牌色板、骨架大纲与吸收指标面板。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/intake-approved-absorption.png" alt="已采纳与六层入库"><br><b>已采纳 · 六层入库</b><br>生成风格预设 / 导入组件 / 吸收动效，指标同步更新。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/intake-review-pending.png" alt="素材审核台"><br><b>素材审核台 · 待审核</b><br>许可三档徽标、来源徽标、令牌色板、骨架大纲与吸收指标面板。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/intake-approved-absorption.png" alt="已采纳与六层入库"><br><b>已采纳 · 六层入库</b><br>生成风格预设 / 导入组件 / 吸收动效，指标同步更新。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/intake-preview-sandbox.png" alt="CSP 沙箱预览"><br><b>CSP 沙箱预览</b><br>候选页面在无脚本沙箱内渲染，候选脚本永不执行。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/motion-lab-intake-motion.png" alt="动效实验室"><br><b>动效实验室</b><br>吸收到的原创动效经预算钳制，并尊重三档减少动效偏好。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/intake-preview-sandbox.png" alt="CSP 沙箱预览"><br><b>CSP 沙箱预览</b><br>候选页面在无脚本沙箱内渲染，候选脚本永不执行。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/motion-lab-intake-motion.png" alt="动效实验室"><br><b>动效实验室</b><br>吸收到的原创动效经预算钳制，并尊重三档减少动效偏好。</td>
 </tr>
 </table>
 
@@ -191,12 +196,12 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.2/slide-editor-dialog.png" alt="工作台内幻灯片编辑"><br><b>工作台内幻灯片编辑</b><br>按页列出全部可编辑文本节点，保存即生成新版本。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.2/export-center-pptx.png" alt="导出中心 PPTX"><br><b>导出中心 · PPTX</b><br>deck 产物放开 PPTX 格式，导出完成给出 pptx 与报告两个下载项。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/slide-editor-dialog.png" alt="工作台内幻灯片编辑"><br><b>工作台内幻灯片编辑</b><br>按页列出全部可编辑文本节点，保存即生成新版本。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/export-center-pptx.png" alt="导出中心 PPTX"><br><b>导出中心 · PPTX</b><br>deck 产物放开 PPTX 格式，导出完成给出 pptx 与报告两个下载项。</td>
 </tr>
 </table>
 
-- **📄 标准 .pptx 导出**：deck 产物经 python-pptx 导出为符合标准的 `.pptx`，在 PowerPoint / WPS 中文本框真正可编辑；无法映射的能力在降级报告中如实列出（[报告实录](assets/screenshots/v0.6.2/pptx-export-report.png)）。
+- **📄 标准 .pptx 导出**：deck 产物经 python-pptx 导出为符合标准的 `.pptx`，在 PowerPoint / WPS 中文本框真正可编辑；无法映射的能力在降级报告中如实列出（[报告实录](assets/screenshots/v0.6.3/pptx-export-report.png)）。
 - **🖥️ 工作台内幻灯片编辑**：产物检查器里打开结构化幻灯片对话框即可改写标题与要点，通过 `PUT /slides` 带 `expected_revision` 写回，版本冲突时明确提示而不是静默覆盖。
 - **🔁 编辑闭环**：改完写回再导出，之前的编辑会保留在导出的 PPTX 中。
 
@@ -276,17 +281,17 @@ RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 re
 
 ## 下载与安装
 
-v0.6.2 已于 2026-10-04 发布，安装包随 [v0.6.2 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.2) 提供。v0.6.0 / v0.6.1 用户可直接升级，项目 schema 与数据目录不变。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
+v0.6.3 已于 2026-10-04 发布，安装包随 [v0.6.3 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3) 提供。v0.6.0 / v0.6.1 用户可直接升级，项目 schema 与数据目录不变。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
 
-包体命名规则保持不变，版本号随发布版本推进。下列文件名按 `v0.6.2` 列出，与 Release 附件逐一对应：
+包体命名规则保持不变，版本号随发布版本推进。下列文件名按 `v0.6.3` 列出，与 Release 附件逐一对应：
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.6.2.exe` | 安装到当前用户，创建开始菜单入口 |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.6.2.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
-| Linux | `HtmlNineFox-Linux-0.6.2.run` | `chmod +x` 后运行，安装到当前用户目录 |
-| Linux/审计 | `HtmlNineFox-Linux-0.6.2.tar.gz` | 可查看完整安装内容 |
-| macOS 14+（Apple Silicon） | `HtmlNineFox-macOS-arm64-0.6.2.zip` | 解压后右键 HtmlNineFox.app →「打开」绕过 Gatekeeper（未做公证） |
+| Windows 10/11 | `HtmlNineFox-Setup-0.6.3.exe` | 安装到当前用户，创建开始菜单入口 |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.6.3.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
+| Linux | `HtmlNineFox-Linux-0.6.3.run` | `chmod +x` 后运行，安装到当前用户目录 |
+| Linux/审计 | `HtmlNineFox-Linux-0.6.3.tar.gz` | 可查看完整安装内容 |
+| macOS 14+（Apple Silicon） | `HtmlNineFox-macOS-arm64-0.6.3.zip` | 解压后右键 HtmlNineFox.app →「打开」绕过 Gatekeeper（未做公证） |
 | Python 3.10+ | `htmlninefox-0.6.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.6.0-py3-none-any.whl` |
 | Docker | 源码构建 | `docker compose up --build`；标签 CI 验证镜像但不上传镜像仓库 |
 
@@ -426,7 +431,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-当前仓库版本为 `v0.6.2`（已于 2026-10-04 发布）：**纯安全补丁**，关闭设计吸收出站抓取的 SSRF TOCTOU 窗口——socket 现连到已校验的地址，TLS 的 SNI 与证书校验仍用真实主机名。门禁 `409 passed / 1 skipped`，新增 6 条走真实 socket 的用例并做过反向验证。`v0.6.1` 是上一稳定版（幻灯片编辑器竞态修复 + 真实操作录屏），`v0.6.0` 交付设计吸收与可编辑 PPTX 两条主线。下一阶段按 [ROADMAP-v0.6.1-v0.7](docs/ROADMAP-v0.6.1-v0.7.md) 推进：网页反向拆解。
+当前仓库版本为 `v0.6.3`（已于 2026-10-04 发布）：**纯安全补丁**，关闭设计吸收出站抓取的 SSRF TOCTOU 窗口——socket 现连到已校验的地址，TLS 的 SNI 与证书校验仍用真实主机名。门禁 `409 passed / 1 skipped`，新增 6 条走真实 socket 的用例并做过反向验证。`v0.6.1` 是上一稳定版（幻灯片编辑器竞态修复 + 真实操作录屏），`v0.6.0` 交付设计吸收与可编辑 PPTX 两条主线。下一阶段按 [ROADMAP-v0.6.1-v0.7](docs/ROADMAP-v0.6.1-v0.7.md) 推进：网页反向拆解。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 
