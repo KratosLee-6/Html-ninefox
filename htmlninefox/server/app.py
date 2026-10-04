@@ -47,6 +47,11 @@ STATIC_FILES = {
     "/logo-mark.svg": ("logo-mark.svg", "image/svg+xml; charset=utf-8", "public, max-age=86400"),
     "/logo-horizontal.svg": ("logo-horizontal.svg", "image/svg+xml; charset=utf-8", "public, max-age=86400"),
     "/canvas-engine.js": ("canvas-engine.js", "application/javascript; charset=utf-8", "no-cache"),
+    # The shared front-end kernel, extracted from index.html so tests can load
+    # it. It must stay in this table: STATIC_FILES is an explicit allowlist,
+    # and an unregistered script 404s, which shows up as a blank page rather
+    # than as a build or test failure.
+    "/fox-core.js": ("fox-core.js", "application/javascript; charset=utf-8", "no-cache"),
     "/interaction-system.js": ("interaction-system.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-projects.js": ("lifecycle-projects.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-generation.js": ("lifecycle-generation.js", "application/javascript; charset=utf-8", "no-cache"),

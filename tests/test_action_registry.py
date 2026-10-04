@@ -34,11 +34,17 @@ IGNORE = {"if", "for", "while", "switch", "catch", "function", "return"}
 
 SCANNED = [
     "index.html", "classic.html", "motion-lab.html",
+    # The shared kernel used to be an inline <script> inside index.html and was
+    # extracted to its own file by the C7 first step. It still has to be scanned:
+    # it is where most action functions and the whole dispatch table live now.
+    "fox-core.js",
     "workbench-features.js", "canvas-productivity.js", "lifecycle-intake.js",
     "lifecycle-revisions.js", "lifecycle-generation.js", "lifecycle-exports.js",
     "lifecycle-slides.js", "lifecycle-projects.js", "workbench-ui.js",
     "interaction-system.js", "motion-system.js", "canvas-engine.js",
 ]
+
+TABLE_MARKER = "window.FoxActions = {"
 
 
 def _read(name: str) -> str:
@@ -46,10 +52,24 @@ def _read(name: str) -> str:
     return path.read_text(encoding="utf-8") if path.is_file() else ""
 
 
+def _action_table() -> str:
+    """Return the body of the dispatch table.
+
+    The table does not live in index.html any more, so hard-coding that file
+    turns a relocation into three opaque IndexErrors. Find the file that
+    actually defines it and say so plainly when none does.
+    """
+    for name in SCANNED:
+        text = _read(name)
+        if TABLE_MARKER in text:
+            return text.split(TABLE_MARKER, 1)[1].split("\n};", 1)[0]
+    raise AssertionError(
+        f"没有任何被扫描的文件定义 {TABLE_MARKER}——派发表被删掉或搬到了未登记的文件；"
+        f"已扫描：{SCANNED}")
+
+
 def _registered_actions() -> set[str]:
-    index = _read("index.html")
-    table = index.split("window.FoxActions = {", 1)[1].split("\n};", 1)[0]
-    return set(TABLE_KEY.findall(table))
+    return set(TABLE_KEY.findall(_action_table()))
 
 
 def _real_functions() -> set[str]:
@@ -94,8 +114,7 @@ def test_registry_entries_point_at_real_fox_modules() -> None:
         "openZipPicker": "打开审核台的 ZIP 文件选择器，纯 DOM 触发，无领域行为",
         "openClassic": "新窗口打开 classic 静态页，纯导航，无领域行为",
     }
-    index = _read("index.html")
-    table = index.split("window.FoxActions = {", 1)[1].split("\n};", 1)[0]
+    table = _action_table()
     module_globals = {
         "window.FoxProjects", "window.FoxGeneration", "window.FoxRevisions",
         "window.FoxExports", "window.FoxIntake", "window.FoxSlides",

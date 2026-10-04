@@ -102,3 +102,32 @@ jobs:
           path: |
             ${{ runner.temp }}/htmlninefox-mutation/
           if-no-files-found: ignore
+
+  # The front-end kernel was an 81k inline <script> until the C7 first step, so
+  # nothing could unit test it. It now loads as a real file, which makes two
+  # failure modes testable: the script chain throwing on load, and STATIC_FILES
+  # serving the wrong bytes for a script the page asks for. The second is the
+  # v0.6.0-shaped trap — the file ships, the whitelist forgets it, the page goes
+  # blank and every other job stays green. The mutation step is what proves these
+  # gates can see that; without it they would just be four more green tests.
+  frontend-kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Front-end kernel gates
+        run: >
+          python -m pytest tests/test_frontend_kernel_loadable.py
+          tests/test_action_registry.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the kernel gates must fail on broken code
+        run: python scripts/mutate_frontend_kernel_gates.py
