@@ -204,21 +204,33 @@ class _PinnedHTTPHandler(urllib.request.HTTPHandler):
         super().__init__()
         self._vetted_ips = list(ips)
 
-    def do_open(self, http_class, req):  # noqa: ANN001
+    def do_open(self, http_class, req, context=None):  # noqa: ANN001
+        # `HTTPSHandler.https_open` passes `context=` as a keyword, so an
+        # override that does not accept it raises TypeError before a socket is
+        # ever opened. Accept it even on the plain handler for the same reason.
         # `Request` exposes host and type but no port, so take it from the URL.
         parts = urllib.parse.urlsplit(req.full_url)
         host = parts.hostname
         port = parts.port or 80
         conn = _pin_http_connection(self._vetted_ips, port, req.timeout)
         try:
-            headers = {k: v for k, v in req.headers.items()
-                       if k.lower() != "host"}
-            headers["Host"] = _host_header(host, port)
-            conn.request(req.get_method(), req.selector, headers,
+            headers = _request_headers(req, host, port)
+            # `HTTPConnection.request(method, url, body, headers)` — the body
+            # is the THIRD positional argument. Passing headers there makes
+            # http.client iterate a dict as if it were chunked body data and
+            # die with "can't concat str to bytes" after the connection is
+            # already up.
+            conn.request(req.get_method(), req.selector, req.data, headers,
                          encode_chunked=req.has_header("Transfer-encoding"))
-            return conn.getresponse()
+            response = conn.getresponse()
+            response.url = req.get_full_url()
+            response.msg = response.reason
+            return response
         except OSError as exc:
             raise IntakeError("intake_connect_failed", f"连接失败：{exc}") from exc
+        except Exception:
+            conn.close()
+            raise
 
 
 class _PinnedHTTPSHandler(urllib.request.HTTPSHandler):
@@ -236,42 +248,103 @@ class _PinnedHTTPSHandler(urllib.request.HTTPSHandler):
         super().__init__(context=context)
         self._vetted_ips = list(ips)
 
-    def do_open(self, http_class, req):  # noqa: ANN001
+    def do_open(self, http_class, req, context=None):  # noqa: ANN001
         import http.client
         import ssl as _ssl
 
         parts = urllib.parse.urlsplit(req.full_url)
         host = parts.hostname
         port = parts.port or 443
-        context = self._context or _ssl.create_default_context()
+        ctx = context or self._context or _ssl.create_default_context()
         last: Exception | None = None
         for ip_text in self._vetted_ips:
-            conn = http.client.HTTPSConnection(
-                ip_text, port, timeout=req.timeout, context=context)
-            # SNI + certificate name come from self.host; keep the real one
-            # even though the socket is pointed at the vetted IP.
-            conn._tunnel_host = None  # noqa: SLF001
-            conn._tunnel_port = None  # noqa: SLF001
-            conn.host = host
+            conn = None
             try:
+                # Connect to the vetted address, but present the real hostname
+                # to TLS. `HTTPSConnection.connect()` takes BOTH the connect
+                # target and the SNI name from `self.host`, so setting
+                # `conn.host = host` before connect() would send the socket
+                # back to a fresh DNS lookup — the vetted address would be
+                # discarded and the original window would return.
+                #
+                # Instead: keep self.host as the address, and hand the real
+                # name to the TLS layer explicitly via server_hostname. The
+                # Host header carries the hostname, and certificate validation
+                # still runs against it.
+                conn = http.client.HTTPSConnection(
+                    ip_text, port, timeout=req.timeout, context=ctx)
+                conn._tunnel_host = None  # noqa: SLF001
+                # `HTTPSConnection` wraps the socket with
+                # `server_hostname=self.host`, so before connect() the
+                # hostname must already be in place for SNI and certificate
+                # matching — while the connect itself must still target the
+                # vetted address. Override the socket factory so connect()
+                # dials the IP, then set `self.host` so the TLS layer uses the
+                # real name. Unlike setting `conn.host` *before* connect (which
+                # silently sends the connect back through DNS), this happens
+                # after the socket is already bound to the vetted address.
+                import socket as _socket_mod
+
+                def _dial(addr, timeout, source=None, _ip=ip_text):
+                    return _socket_mod.create_connection((_ip, port), timeout)
+
+                conn._create_connection = _dial  # noqa: SLF001
+                conn.host = host
                 conn.connect()
-            except OSError as exc:
-                last = exc
-                continue
-            try:
-                headers = {k: v for k, v in req.headers.items()
-                           if k.lower() != "host"}
-                headers["Host"] = _host_header(host, port)
-                conn.request(req.get_method(), req.selector, headers,
+                headers = _request_headers(req, host, port)
+                conn.request(req.get_method(), req.selector, req.data, headers,
                              encode_chunked=req.has_header("Transfer-encoding"))
-                return conn.getresponse()
+                response = conn.getresponse()
+                response.url = req.get_full_url()
+                response.msg = response.reason
+                return response
             except OSError as exc:
                 last = exc
+                if conn is not None:
+                    try:
+                        conn.close()
+                    except OSError:
+                        pass
                 continue
         raise IntakeError(
             "intake_connect_failed",
             f"无法连接到已校验的地址 {', '.join(self._vetted_ips)}：{last}",
         ) from last
+
+
+def _request_headers(req, host: str, port: int) -> dict[str, str]:
+    """Outgoing headers with Host set explicitly and the connection not reused.
+
+    urllib's own handlers also send `Connection: close`; dropping it changes
+    the interaction pattern with keep-alive servers for no benefit here.
+    """
+    headers = {k: v for k, v in req.headers.items() if k.lower() != "host"}
+    headers["Host"] = _host_header(host, port)
+    headers["Connection"] = "close"
+    return headers
+
+
+def _build_pinned_opener(ips: list[str]):
+    """Opener whose connection target is the vetted address — and nothing else.
+
+    `ProxyHandler()` with no arguments is passed explicitly for two reasons.
+    Without it, `build_opener` installs a default one that reads
+    HTTP_PROXY / HTTPS_PROXY from the environment, and handler order puts it
+    first — so on any host behind a proxy the request is handed to the proxy,
+    which does its own DNS and its own connection, and the address
+    `validate_url` just approved is never used. The pinning would silently do
+    nothing. Passing an empty ProxyHandler removes it from the chain.
+
+    Routing design-intake fetches around the ambient proxy is the intended
+    behaviour, not a workaround: the vetted address is meaningless if the
+    bytes travel to a proxy that re-resolves the name.
+    """
+    return urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),   # no proxy, deliberately
+        _PinnedHTTPHandler(ips),
+        _PinnedHTTPSHandler(ips),
+        _NoRedirect,
+    )
 
 
 def _default_transport(url: str, headers: dict[str, str], timeout: float,
@@ -283,11 +356,18 @@ def _default_transport(url: str, headers: dict[str, str], timeout: float,
     re-resolves and the validation above protects nothing.
     """
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **headers})
-    if ips:
-        opener = urllib.request.build_opener(
-            _PinnedHTTPHandler(ips), _PinnedHTTPSHandler(ips), _NoRedirect)
+    # `ips is None`, not `not ips`: an empty list means validation approved
+    # nothing at all, and treating that as "no pinning needed" would be exactly
+    # backwards. `validate_url` rejects it upstream; this keeps the transport
+    # from silently degrading if a caller ever reaches it.
+    if ips is not None:
+        if not ips:
+            raise IntakeError(
+                "intake_host_unresolved", "没有可用的已校验地址", 502)
+        opener = _build_pinned_opener(ips)
     else:
-        opener = urllib.request.build_opener(_NoRedirect)
+        opener = urllib.request.build_opener(
+            urllib.request.ProxyHandler({}), _NoRedirect)
     try:
         with opener.open(request, timeout=timeout) as response:
             status = response.status

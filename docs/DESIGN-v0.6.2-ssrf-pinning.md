@@ -96,42 +96,76 @@ L199-203 的检查**保留不删**。它现在不再是唯一防线，而是纵�
 
 ---
 
-## 五、实现中撞到的三处真实坑
+## 四、实现中撞到的真实坑
 
-设计对了不等于实现对了。以下三处都是「API 契约与直觉不一致」，写下来是为了下次
-不再重踩。
+设计对了不等于实现对了。以下几处都是「API 契约与直觉不一致」或「门禁自己说谎」，
+写下来是为了下次不再重踩。
 
-### 5.1 `urllib` 的 `do_open` 签名是 `do_open(http_class, req)`
+### 4.1 `urllib` 的 `do_open` 签名是 `do_open(http_class, req)`
 
 `HTTPHandler.http_open` 调用的是 `self.do_open(http.client.HTTPConnection, req)`。
 按 `do_open(self, req)` 写会在运行期抛
 `TypeError: do_open() takes 2 positional arguments but 3 were given`。
 
-### 5.2 `Request` 没有 `.port`
+### 4.2 `Request` 没有 `.port`
 
 `req.host` / `req.type` 有，**`.port` 没有**。端口要从 `req.full_url` 解析：
 `urllib.parse.urlsplit(req.full_url).port or 80`。
 
-### 5.3 HTTPS 不能走同一个 helper
+### 4.3 HTTPS 只能用「换 socket 工厂」，不能改 `conn.host`
 
-`http.client.HTTPSConnection.connect()` 用 `server_hostname=self.host` 做 SNI，
-证书校验也取 `self.host`。**如果按 IP 构造再把 `self.host` 设成 IP，SNI 和证书
-就都对着地址校验了**——每个虚拟主机站点都会证书不匹配。
+`http.client.HTTPSConnection.connect()` 用 `self.host` **同时**决定
+**连接目标**和 `server_hostname`（SNI 与证书校验名）。这带来一个陷阱：
 
-正确做法：连接对象对 IP 构造（socket 去 IP），随后把 `conn.host` 改回真实主机名，
-再 `connect()`。这也是为什么 `_pin_http_connection` 只服务明文 HTTP，
-TLS 必须留在 `_PinnedHTTPSHandler` 里单独处理。
+直觉写法是「按 IP 构造连接，再把 `conn.host` 改回真实主机名」——
+**这是错的**。`connect()` 读的就是 `self.host`，改回主机名等于把 socket
+送回一次全新的 DNS 解析，钉住的地址被丢弃，原缺陷在 TLS 上原样复现。
+v0.6.2 发布的代码正是这样写的。
 
-> 这条如果没测，就会产出一个「HTTP 门禁全绿、真实 HTTPS 抓取全崩」的修复。
-> `test_https_pinning_keeps_the_real_hostname_for_sni` 就是为它写的。
+正确做法：**不碰 `self.host`，改掉 socket 工厂**——
 
-### 5.4 附带一处：第一版门禁自己有个假断言
+```python
+def _dial(addr, timeout, source=None, _ip=ip_text):
+    return socket.create_connection((_ip, port), timeout)
+
+conn = http.client.HTTPSConnection(ip_text, port, context=ctx)
+conn._create_connection = _dial   # 连接走已校验 IP
+conn.host = host                  # SNI / 证书名走真实主机名
+conn.connect()                    # 顺序：先钉 socket，再交名字给 TLS
+```
+
+顺序不能反：`conn.host` 必须在 `connect()` **之前**赋值（否则 SNI 拿到 IP），
+而 `_create_connection` 保证 `connect()` 不去重新解析名字。
+
+> 这条如果没测，就会产出一个「HTTP 门禁全绿、HTTPS 抓取 100% 失败」的修复——
+> 而那正是 v0.6.2 实际发生的事。
+> `tests/test_ssrf_tls_pinning.py` 一次请求同时证明 socket 半与 TLS 半。
+
+### 4.4 代理环境变量（独立审查期间发现，我的初判是反的）
+
+`urllib.request.build_opener` 会安装**默认 `ProxyHandler`**，从环境读
+`HTTP_PROXY` / `HTTPS_PROXY`，并排在链首。
+
+**我最初的判断被实测推翻**，此处如实记录：当时认定「设了代理时请求会被代理
+抢走、绑定彻底失效」。独立审查用活的本地探针代理实测后**否定了这一点**——
+`ProxyHandler.proxy_open` 只是 `set_proxy()` 改写 Request 后重新派发，
+真正建 socket 的仍是钉住的 handler，探针一次都没被命中。
+
+真实后果是反过来的：**配置的代理被完全绕过**（出网管控失效、代理后唯一可达的
+站点抓不到），且 `set_proxy` 把请求行改写成绝对形式
+（`GET http://host/ HTTP/1.1`），大量源站会 400。
+
+修复仍是显式传 `urllib.request.ProxyHandler({})`，但**理由是
+「intake 抓取刻意不走环境代理」**，不是「防止代理吃掉绑定」。
+本机要注意：Windows 注册表里也配了代理，清掉环境变量并不生效。
+
+### 4.5 第一版门禁自己有个假断言
 
 `assert SECRET not in str(exc)` 写成了 bytes 与 str 比较，抛
 `TypeError: 'in <string>' requires string as left operand`。断言根本没执行——
 **门禁自己的 bug**，不是产品缺陷。但它意味着「私网字节没进内存」这条其实没被检查。
 
-### 5.5 一个更微妙的发现：门禁第一版是**假绿**的
+### 4.6 一个更微妙的发现：门禁第一版是**假绿**的
 
 第一版门禁用「固定返回公网 IP」的 resolver。跑出来是**绿的**——因为
 `validate_url` 的那次解析就返回了公网，第二次解析也返回公网，`urllib` 连的是
@@ -149,7 +183,16 @@ TLS 必须留在 `_PinnedHTTPSHandler` 里单独处理。
 
 ---
 
-## 六、怎么证明做对了（门禁 + 反向验证）
+## 六、怎么证明做对了
+
+三层，缺一不可：
+
+1. **门禁**（11 条，见第八节）——覆盖拒绝路径、成功路径、TLS 端到端与接线
+2. **反向验证**——摘掉修复门禁必须变红；已实测通过
+3. **变异测试**——故意破坏实现，确认门禁会红（第九节，5/5）
+
+> 只做第 1 层是不够的。v0.6.2 发布时 6 条门禁全过，
+> 而三个阻断级缺陷同时存在——**门禁在坏代码上也是绿的**。
 
 ---
 
@@ -169,31 +212,84 @@ TLS 必须留在 `_PinnedHTTPSHandler` 里单独处理。
 | # | 判据 | 结果 |
 |---|---|---|
 | 1 | 真实 socket 门禁：解析器先报公网、后报 127.0.0.1 时必须失败 | ✅ |
-| 2 | **反向验证**：摘掉绑定逻辑门禁变红，恢复后全绿 | ✅ 实测通过 |
+| 2 | **反向验证**：摘掉绑定逻辑门禁变红，恢复后全绿 | ✅ |
 | 3 | 逐跳重定向各自绑定 | ✅ 由 `_call_transport` 逐跳传入本跳 `before_ips` 保证 |
-| 4 | https 证书校验不被破坏 | ✅ `test_https_pinning_keeps_the_real_hostname_for_sni` |
-| 5 | 现有 intake 测试零放宽 | ✅ 62 条全过，未改动任何既有断言 |
-| 6 | 全量回归 ≥403 通过 | ✅ **409 passed / 1 skipped**（403 基线 + 6 条新门禁） |
+| 4 | https 证书校验不被破坏 | ✅ `test_ssrf_tls_pinning.py` 端到端 |
+| 5 | 现有 intake 测试零放宽 | ✅ 全过，未改动任何既有断言 |
+| 6 | 全量回归 | ✅ **414 passed / 1 skipped**（v0.6.1 为 403） |
+| 7 | **变异测试 5/5 全部捕获** | ✅ 见第九节 |
 
-### 门禁清单（`tests/test_ssrf_connection_pinning.py`，6 条）
+### 门禁清单（11 条）
+
+`tests/test_ssrf_connection_pinning.py`（10 条）
 
 | 用例 | 作用 |
 |---|---|
+| `test_a_pinned_fetch_actually_returns_the_body` | **成功路径**：真起服务，断言 200 与正确 body |
+| `test_the_request_line_is_a_path_not_an_absolute_url` | 请求行必须是 `GET /path`，不是代理导致的绝对形式 |
 | `test_public_answer_does_not_reach_loopback` | 核心 TOCTOU 门禁，走真实 socket |
+| `test_https_pinning_keeps_the_ip_as_the_connect_target` | 断言连接层收到的目标是 IP 字面量 |
+| `test_https_handler_accepts_the_context_keyword` | 断言 `do_open` 接受 urllib 必传的 `context` |
 | `test_loopback_is_refused_before_any_connection` | 字面 loopback 在连接前就被拒 |
 | `test_validate_url_reports_the_ips_it_vetted` | 确认校验层确实返回了地址清单 |
 | `test_default_transport_accepts_a_pinned_address` | 断言接线缝隙存在 |
-| `test_pinned_handlers_replace_the_default_ones` | 断言绑定 handler 真的挂进了 opener |
-| `test_https_pinning_keeps_the_real_hostname_for_sni` | 断言 SNI 没被绑定到 IP 上 |
+| `test_pinned_handlers_replace_the_default_ones` | 断言绑定 handler 在链上，且 stock handler 不在 |
+| `test_opener_has_no_proxy_handler_in_front_of_the_pinned_ones` | 断言环境代理不能抢在绑定之前接管请求 |
 
-后三条是**接线门禁**：它们防的是「代码看起来修好了，但没接到链路上」——
-这正是 C3 / C4 / 「导出中心从来没有 PPTX 选项」的同一形状。
+`tests/test_ssrf_tls_pinning.py`（1 条）
+
+| 用例 | 作用 |
+|---|---|
+| `test_a_pinned_https_fetch_succeeds_with_real_sni_and_cert` | **TLS 端到端**：真证书 + 真 socket，一次请求同时证明 socket 半与 TLS 半 |
 
 ---
 
-## 九、发布策略
+## 九、变异测试：门禁自己说过五次谎
 
-补丁版本，**tag 需显式授权**。发布说明必须写明：
-本版关闭的是**已公开披露**的残余风险，而非新发现的漏洞；
-并记录 v0.6.0 披露以来该风险的实际暴露面（12 个内置源），
-以及 v0.7「用户粘贴任意网址」会把这个暴露面放大的事实。
+`.codex_tmp/mutate_verify.py` 故意破坏实现，确认门禁会红。
+**在坏代码上仍然是绿的门禁不是门禁**，所以这一节是本文最重要的一节。
+
+最终结果：**5/5 全部捕获**
+
+| 变异 | 结果 |
+|---|---|
+| M1 headers 传到 body 位 | CAUGHT（2 failed） |
+| M2 `do_open` 不接受 `context` | CAUGHT（3 failed） |
+| M3 TLS 丢失主机名（SNI 消失） | CAUGHT（1 failed） |
+| M4 代理回到绑定 handler 之前 | CAUGHT（1 failed） |
+| M5 去掉钉住，改为按主机名连接 | CAUGHT（1 failed） |
+
+### 它翻出来的五个问题，每一个都是「门禁在说谎」
+
+1. **只有拒绝型测试**。最初的 6 条里没有一条让抓取成功返回过 body。
+   「该拒绝的拒绝了」和「彻底坏了」在这个套件里长得一模一样。
+2. **`pytest.skip` 自我放行**。连接层没被观察到时门禁选择跳过，
+   而跳过就是绿灯——M3 因此漏了两轮。
+3. **源码文本断言锁死了有害代码**。
+   `assert "conn.host = host" in inspect.getsource(...)` 把**引入缺陷的那一行**
+   固化成了要求。变异证明它连一行注释都能满足。
+4. **TLS 测试的场景区分不出真伪**。测试用 `https://localhost` 配
+   `ips=["127.0.0.1"]`，而 `localhost` 本就解析到 127.0.0.1——「按主机名连」
+   和「按钉住 IP 连」结果完全相同。**它在坏代码上也是绿的。**
+5. **测试证书自己补上了漏洞**。证书同时签了 `DNS:pinned.example` 与
+   `IP:127.0.0.1`，于是「丢掉主机名、改为对着地址校验」照样通过。
+   改成只签 DNS 名后，M3 才被抓住。
+
+> 五个问题里有三个是我自己写的门禁在坏代码上报绿。
+> **这就是为什么「11 条全过」不能作为提交依据**——变异测试才是。
+>
+> 另一个反复出现的形状：修好一处之后我曾两次宣布「已补强」，
+> 下一轮变异又翻出新的。门禁的加固是迭代的，不是一次性的。
+
+---
+
+## 十、发布状态
+
+- v0.6.2 tag `v0.6.2` → commit `8eeaaf5`，**已发布，且带着上述三个缺陷**
+  （CI 五 job 全绿、39 个附件字节校验全过、元数据门禁通过——这些都不能证明功能可用）
+- 本次修正未打 tag；补发补丁需显式授权
+
+> 两次同形状事故：v0.6.0 的 Windows 便携包「四个 job 全绿、全部测试通过、
+> 一启动就崩」，以及本次的「全绿、但抓取 100% 失败」。
+> **建议 v0.7 开工前先补一条 CI 门禁：每个关键功能路径必须有一条
+> 「成功执行」测试，而不只有「该拒绝的拒绝了」这一类。**

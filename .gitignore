@@ -39,3 +39,7 @@ packaging/linux/wheels/typing_extensions-*.whl
 # Archify working directories (candidate + per-run receipts; the delivered
 # source and receipts live in docs/diagrams/)
 .archify/
+
+# TLS certificates generated on the fly by tests/test_ssrf_tls_pinning.py.
+# They are throwaway material for a loopback server, not repo assets.
+tests/cert/
