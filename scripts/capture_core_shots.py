@@ -11,17 +11,25 @@ saving, so a stale capture cannot pass silently again.
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8")
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from htmlninefox import __version__  # noqa: E402
+
 from playwright.sync_api import sync_playwright  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "assets/screenshots/v0.6.1"
-BASE = "http://127.0.0.1:8636"
-EXPECTED = "v0.6.1"
+# Version, port and output root are derived rather than written down. A
+# hard-coded tag here is exactly how v0.6.1's directory ended up holding
+# shots whose top-bar badge read v0.6.0.
+VERSION = __version__
+OUT = ROOT / f"assets/screenshots/v{VERSION}"
+BASE = os.environ.get("FOX_DEMO_BASE", "http://127.0.0.1:8636")
+EXPECTED = f"v{VERSION}"
 
 
 def snap(page, name: str) -> None:

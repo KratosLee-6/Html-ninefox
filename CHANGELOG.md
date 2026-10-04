@@ -11,6 +11,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.2] — 2026-10-04 · 安全补丁：SSRF 连接级 IP 绑定（P1-6）
+
+> 纯安全补丁。产品行为、界面、项目 schema、HTTP 接口与 Revision 历史**均未改变**。
+> 门禁：**409 passed / 1 skipped**（v0.6.1 为 403，新增 6 条真实 socket 门禁）。
+> 证据：[发布说明](docs/RELEASE-NOTES-v0.6.2.md)、[设计文档](docs/DESIGN-v0.6.2-ssrf-pinning.md)。
+
+**Fixed**
+- **设计吸收出站抓取的 SSRF TOCTOU 窗口（P1-6）**：`validate_url` 早已解析并校验出合法 IP，但 `fetch_reference` **从未把它交给传输层**；`_default_transport` 交给 `urllib` 建连时，`urllib` 会**自己再解析一次 DNS**。两次解析之间，校验时解析到公网地址、建连时解析到 127.0.0.1，就会打开一条没人校验过的私网连接。原有的「响应后重新解析比对」是**事后检测**——响应会被丢弃，但字节已流过那条连接。
+  - 修复：新增 `_PinnedHTTPHandler` / `_PinnedHTTPSHandler`，socket 连到已校验的地址，`Host` 头与 TLS 的 SNI、证书校验仍用真实主机名（虚拟主机与证书校验均不受影响）。重定向逐跳独立校验并绑定。响应后比对保留为第三层防御。
+  - 新错误码 `intake_connect_failed`，失败不退化成 500。
+  - **风险口径**：这是关闭 `v0.6.0` 已公开披露的残余风险，**不是新漏洞**。披露至今暴露面为 12 个内置设计源（地址由产品内置）；之所以提前关闭，是因为 v0.7「粘贴任意网址」会把暴露面放大到任意地址。
+  - 模块 docstring 原先声称 rebinding「cannot swap in a private target」，**与实际行为不符**（它做到的是发现后丢弃），已改为如实描述。
+
+**Added**
+- **`tests/test_ssrf_connection_pinning.py`（6 条）**：全部走真实 socket。既有 SSRF 测试**全部注入假 transport**，没有一条验证真实连接连到了哪个 IP——这正是该缺陷活到今天的原因。
+  - 门禁**第一版是假绿的**：resolver 固定返回公网时，`urllib` 连的是公网地址，压根够不到本机服务，什么都没证明。必须脚本化为「先公网、后 127.0.0.1」（攻击者的真实手法）才暴露窗口。改完后旧实现以 `intake_fetch_failed` 失败——**它真的去连了私网，只是没连上**。断言因此写成「必须因决策失败，不能因连接失败侥幸失败」。
+  - 门禁自身第一版还有一处 `assert SECRET not in str(exc)`（bytes 比 str）抛 TypeError，**断言根本没执行**。
+  - 三条为「接线门禁」，防「代码看起来修好了但没接到链路上」——与 C3 / C4 /「导出中心从来没有 PPTX 选项」同一形状。
+- **`scripts/capture_core_shots.py` 版本推导**：原先把 tag、端口、输出目录写死，正是 v0.6.1 目录里混入 v0.6.0 截图的成因。现从包 `__version__` 推导，端口用环境变量覆盖。
+
+**验证**
+- 新门禁 6/6 通过；**反向验证**：摘掉绑定 → 红（提示「连接被尝试了，不是被阻止」），恢复 → 绿。
+- 既有 62 条 intake 测试**全过且零放宽**。
+- 实现中撞到三处 API 契约陷阱，已记入设计文档：`urllib` 的 `do_open(http_class, req)` 签名、`Request` 无 `.port`、HTTPS 不能与 HTTP 共用 helper（`HTTPSConnection` 用 `self.host` 做 SNI 与证书校验，绑定后必须把主机名改回，否则每个虚拟主机站点都会证书不匹配）。
+
 ## [0.6.1] — 2026-10-03 · 竞态修复 + 视觉证据补齐 + 真实操作录屏
 
 > 补丁版本：项目 schema、HTTP 接口与 Revision 历史均不变，v0.6.0 用户可直接升级，数据目录不迁移、不覆盖。
