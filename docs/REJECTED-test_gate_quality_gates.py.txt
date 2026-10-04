@@ -1,0 +1,186 @@
+"""Structural gates that would have caught the v0.6.0 and v0.6.2 escapes.
+
+Two releases shipped with everything green and the feature broken:
+
+  v0.6.0  Windows portable package: four build jobs green, full suite green,
+          a binary that crashed the instant it started.
+  v0.6.2  SSRF fix: CI green, all 39 release assets verified byte-for-byte,
+          and every outbound fetch raised TypeError. Restoring the vulnerable
+          code left all six gates green.
+
+The shared cause: nothing in the pipeline ever watched a feature *succeed*.
+Both were found only by a human running the artifact.
+
+An earlier attempt at this file tried to infer, per module, whether some test
+could observe success. It reported 30+ modules as uncovered — including
+pipeline, recipe_run and every generator — all of which have extensive tests.
+The inference was wrong, and a gate that cries wolf on 30 modules is worse
+than no gate: it trains people to ignore it.
+
+So this file checks the two escapes directly instead of guessing coverage.
+Each check below is about the release machinery, and each is a property that
+was demonstrably false at the moment of the incident it is named for.
+"""
+from __future__ import annotations
+
+import ast
+from pathlib import Path
+
+import pytest
+
+ROOT = Path(__file__).resolve().parent.parent
+TESTS = ROOT / "tests"
+PACKAGING = ROOT / "packaging"
+WORKFLOWS = ROOT / ".github" / "workflows"
+
+
+def _test_files() -> list[Path]:
+    return sorted(TESTS.rglob("test_*.py"))
+
+
+# ------------------------------------------------------- v0.6.0 escape
+def test_packaging_really_launches_the_built_artifact():
+    """v0.6.0 shipped a package that passed every gate and could not start.
+
+    The pipeline built artifacts and never executed them. `verify_portable.py`
+    exists precisely to close that, so its presence in the release workflow is
+    the check — if someone removes the step, the escape is open again.
+    """
+    verify = PACKAGING / "verify_portable.py"
+    assert verify.exists(), (
+        "packaging/verify_portable.py 缺失：v0.6.0 的便携包通过了全部构建与"
+        "测试门禁，却一启动就崩。构建不等于能启动"
+    )
+
+    # And it must be wired into CI, not merely present on disk.
+    wired = False
+    for wf in WORKFLOWS.glob("*.yml"):
+        if "verify_portable.py" in wf.read_text(encoding="utf-8"):
+            wired = True
+            break
+    assert wired, (
+        "verify_portable.py 存在但没有接进任何 workflow——"
+        "真实启动验证必须发生在发布流水线里"
+    )
+
+
+def test_verify_portable_asserts_behaviour_not_just_startup():
+    """Launching is the floor; content-level verification is what caught the
+    later "right version, stale content" shape.
+
+    Note it deliberately does not count `assert` statements: the script uses a
+    CONTENT_EXPECTATIONS table and raises on a mismatch, because that keeps
+    every route and marker in one reviewable place. An earlier version of this
+    gate counted `ast.Assert` nodes, found zero, and would have reported a
+    healthy verifier as empty — the same "the gate is lying" shape it was
+    written to prevent.
+    """
+    text = (PACKAGING / "verify_portable.py").read_text(encoding="utf-8")
+    tree = ast.parse(text)
+
+    tables = [n for n in ast.walk(tree)
+              if isinstance(n, ast.AnnAssign)
+              and getattr(n.target, "id", "") == "CONTENT_EXPECTATIONS"]
+    assert tables, (
+        "verify_portable.py 里没有 CONTENT_EXPECTATIONS——"
+        "「能启动」是底线，还要断言伺服内容携带本版标记"
+    )
+
+    value = tables[0].value
+    routes = [e for e in getattr(value, "elts", []) if isinstance(e, ast.Tuple)]
+    assert len(routes) >= 3, (
+        f"内容级验证只覆盖 {len(routes)} 条路由；"
+        f"v0.6.0 的教训是构建产物必须按本版标记逐项核对"
+    )
+
+    total_markers = sum(
+        len(getattr(e.elts[1], "elts", []))
+        for e in routes if isinstance(getattr(e, "elts", [None, None])[1],
+                                      ast.Tuple)
+    )
+    assert total_markers >= 6, f"内容标记只有 {total_markers} 项，覆盖过薄"
+
+
+# ------------------------------------------------------- v0.6.2 escape
+def test_outbound_fetch_has_a_success_path_gate():
+    """v0.6.2 shipped a fetcher that failed 100% of the time, all gates green.
+
+    The six gates that shipped with it asserted only refusals. The property
+    that matters is that some gate lets a real fetch complete and checks the
+    body. This asserts such a gate exists and is not merely theoretical.
+    """
+    success_evidence = (
+        "test_a_pinned_fetch_actually_returns_the_body",
+        "assert body == SECRET",
+        "assert status == 200",
+    )
+    hits = []
+    for path in _test_files():
+        text = path.read_text(encoding="utf-8")
+        found = [m for m in success_evidence if m in text]
+        if found:
+            hits.append((path.name, found))
+
+    assert hits, (
+        "没有找到任何让出站抓取成功返回并断言 body 的门禁——"
+        "v0.6.2 的三条阻断缺陷正是靠「只测拒绝」活下来的"
+    )
+    # The assertion must be a real one, not a name in a comment.
+    pinning = [h for h in hits if "test_ssrf" in h[0]]
+    assert pinning, (
+        f"成功路径证据只出现在 {hits}，与出站抓取无关；"
+        f"门禁必须在 tests/test_ssrf* 里"
+    )
+
+
+def test_the_security_gate_suite_is_not_refusal_only():
+    """Guard the shape, not one test file: an SSRF suite made only of
+    `pytest.raises` cannot distinguish a working fetcher from a broken one.
+    """
+    suites = [p for p in _test_files() if p.name.startswith("test_ssrf")]
+    assert suites, "SSRF 门禁文件不见了"
+
+    total_success, total_refusal = 0, 0
+    for path in suites:
+        text = path.read_text(encoding="utf-8")
+        total_success += sum(
+            text.count(m) for m in
+            ("assert body ==", "assert status == 200", "== SECRET",
+             "assert response.url", "assert body =="))
+        total_refusal += text.count("pytest.raises")
+
+    assert total_success > 0, (
+        "SSRF 门禁里没有任何一条成功路径断言；"
+        f"当前只有 {total_refusal} 条拒绝断言"
+    )
+
+
+# ------------------------------------------------- the gate cannot lie
+def test_this_file_does_not_assert_on_its_own_source_text():
+    """A gate that greps source text is satisfied by a comment.
+
+    The mutation run in this repo found exactly that: an assertion of the form
+    `assert "conn.host = host" in inspect.getsource(...)` pinned the very line
+    that introduced the defect, and a mutation proved a comment satisfied it.
+
+    The check walks the AST for `inspect.getsource` calls rather than searching
+    the raw text: a text search finds the word inside this very assertion's
+    own message, which is the same false positive in a new place.
+    """
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if isinstance(func, ast.Attribute) and func.attr == "getsource":
+            pytest.fail(
+                "本门禁不得用 inspect.getsource 断言源码文本——"
+                "注释即可满足，这在变异测试里已被证明"
+            )
+
+
+def test_inventory_of_workflows_and_tests_is_non_empty():
+    """A structural gate that inventories nothing is green forever."""
+    assert len(_test_files()) >= 30, "测试文件数量异常，门禁的清单可能失效"
+    assert list(WORKFLOWS.glob("*.yml")), "找不到任何 workflow"
+    assert (PACKAGING / "verify_portable.py").exists()

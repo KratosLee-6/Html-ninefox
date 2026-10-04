@@ -62,3 +62,43 @@ jobs:
             e2e-output/**/.foxstate.json
             pytest-report.xml
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Success-path smoke, kept separate from the main suite on purpose.
+  #
+  # v0.6.0 shipped a portable package that passed four build jobs and the whole
+  # suite, then crashed on start. v0.6.2 shipped a fetcher that raised on every
+  # request while five CI jobs, 39 byte-verified release assets and the metadata
+  # gate all passed. Both times the suite could observe a *refusal* but never a
+  # *success*, so "correctly refused" and "completely broken" were the same
+  # signal.
+  #
+  # This job runs the smoke suite and then mutation-tests it: each production
+  # path is deliberately broken and the suite must go red. A green run here
+  # means the suite can actually see a working feature, not just a rejected
+  # one. The mutation step is the part that makes the job meaningful — without
+  # it this would be yet another set of tests that would pass on broken code.
+  smoke-success-paths:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,pptx]"
+      - name: Success-path smoke
+        run: >
+          python -m pytest tests/test_smoke_success_paths.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the smoke must fail on broken code
+        run: python scripts/mutate_smoke_gates.py
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: htmlninefox-smoke-evidence
+          path: |
+            ${{ runner.temp }}/htmlninefox-mutation/
+          if-no-files-found: ignore
