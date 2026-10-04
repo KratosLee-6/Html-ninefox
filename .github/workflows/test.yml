@@ -24,7 +24,12 @@ jobs:
         with:
           node-version: "22"
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e ".[dev]"
+      # setuptools and wheel are not optional here: the package payload gates
+      # build a real wheel through setuptools' own PEP 517 backend. Without
+      # them those two tests die at setup, which is the same shape as the
+      # cryptography gap fixed in fae38fe — a gate that cannot run in CI is
+      # worse than one that fails, because locally it passes.
+      - run: python -m pip install -e ".[dev]" setuptools wheel
       - name: Release metadata consistency
         run: python scripts/check_release_version.py
       - name: DeepSeek Harness plugin integration
