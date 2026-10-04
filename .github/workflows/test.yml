@@ -131,3 +131,61 @@ jobs:
           -q -p no:cacheprovider --tb=short -rf
       - name: Mutation check — the kernel gates must fail on broken code
         run: python scripts/mutate_frontend_kernel_gates.py
+
+  # Does what the product actually ships carry the front end? A file can be
+  # written, committed, referenced by the page and still be absent from the
+  # wheel, because setuptools package-data is a hand-written allowlist. That is
+  # the v0.6.0 shape: green everywhere, broken once installed.
+  #
+  # This is cheap (about 2s to build the wheel) so it runs on every push. The
+  # same check is repeated in build-release-packages.yml, which is where it
+  # gates publishing; having it here means the problem is found at the commit
+  # rather than at the release.
+  package-payload:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]" setuptools wheel
+      - name: Package payload gates
+        run: >
+          python -m pytest tests/test_package_payload.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the payload gates must fail on a broken package
+        run: python scripts/verify_package_payload.py --mutate
+
+  # The layer the other jobs cannot see: does clicking a control actually make
+  # the product do something? The v0.6.0 missing-PPTX option and the v0.6.1 slide
+  # race both lived in the browser, where the server-side suite is blind.
+  #
+  # Separate from pytest-and-browser because it carries a mutation step, and the
+  # mutation step is the point: a dead button (onclick naming a function the
+  # dispatch table does not have) is invisible to every other job here. Eight
+  # mutations break the wiring the way it breaks in production and each must
+  # turn a test red.
+  ui-e2e-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,pptx]"
+      - run: python -m playwright install --with-deps chromium
+      - name: UI behaviour smoke
+        run: >
+          python -m pytest tests/test_ui_e2e_smoke.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the UI gates must fail on a dead control
+        run: python scripts/mutate_ui_gates.py
