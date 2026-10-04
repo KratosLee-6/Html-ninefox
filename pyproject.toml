@@ -21,7 +21,12 @@ dependencies = [
 templates = ["jinja2>=3.1"]
 # LLM 增强（可选）：无 Key 时自动走离线规则引擎，功能不缺失
 llm = ["litellm>=1.40.0"]
-dev = ["pytest>=7.0", "pytest-cov>=4.0", "python-pptx>=0.6.23"]
+# cryptography is not optional decoration: tests/test_ssrf_tls_pinning.py builds
+# a real certificate and opens a real socket with it, so that gate can see SNI
+# and peer verification actually happen. Without this, CI cannot import it and
+# the whole test file errors out — which is how the TLS pinning gate shipped
+# without ever having run in CI. It deliberately does not skip on ImportError.
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "python-pptx>=0.6.23", "cryptography>=41.0"]
 packaging = ["pyinstaller>=6.0,<7"]
 pptx = ["python-pptx>=0.6.23"]
 
