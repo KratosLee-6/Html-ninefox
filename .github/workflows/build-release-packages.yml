@@ -107,9 +107,34 @@ jobs:
         run: >-
           docker run --rm "htmlninefox:${{ github.ref_name }}"
           python -c "import os, playwright; assert os.path.isfile('/usr/bin/chromium'); print('export runtime ready')"
+  package-payload:
+    name: Package payload gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      # 只需要能导入本包（tests/conftest.py 会 import server.app）与能跑 pytest。
+      # wheel 是在临时目录里从源码现打的，不复用 pip 缓存里的任何产物。
+      - run: python -m pip install ".[dev]" "setuptools>=68" "wheel"
+      - name: Verify the real wheel payload
+        # static/ 进包靠的是 pyproject.toml 里手写的 package-data 正则白名单。
+        # 白名单少一条、或被改窄，产物就少文件，而构建 job 与全部测试都照样是绿的。
+        # 这里真的打一个 wheel，打开 zip，逐个文件比对清单与字节。
+        run: python scripts/verify_package_payload.py
+      - name: Package payload gates
+        run: python -m pytest tests/test_package_payload.py -q
+      - name: Mutation-check the package payload gates
+        # 「全过」不是证据。这一步真的把白名单删窄、把 STATIC_FILES 漏登记、
+        # 在打包期静默丢弃文件与替换内容各做一遍，门禁必须每一条都变红。
+        # 变异没生效记为 HARD FAIL 并让 job 非零退出——绝不记成 MISSED。
+        run: python scripts/verify_package_payload.py --mutate
   publish-release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [windows, linux, macos, docker]
+    needs: [windows, linux, macos, docker, package-payload]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
