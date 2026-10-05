@@ -166,6 +166,33 @@ jobs:
       - name: Mutation check — the layer must fail on a top-level side effect
         run: python scripts/mutate_c7_gates.py
 
+  # Three releases in a row went out with assets that had never been downloaded
+  # on the machine that built them; "verified" meant the digest file's name
+  # matched the asset's name. Deep verification of a 100MB archive does not
+  # belong on every push, but the part that is cheap and always true — the
+  # release is *checkable* — does.
+  #
+  # GH_TOKEN is not optional here. The gate fails rather than skips when it
+  # cannot reach the API, because a gate that quietly does nothing in CI is the
+  # exact failure mode this repository keeps having to fix after the fact.
+  release-metadata:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Release asset metadata
+        run: >
+          python -m pytest tests/test_release_asset_metadata.py
+          -q -p no:cacheprovider --tb=short -rf
+
   # Does what the product actually ships carry the front end? A file can be
   # written, committed, referenced by the page and still be absent from the
   # wheel, because setuptools package-data is a hand-written allowlist. That is
