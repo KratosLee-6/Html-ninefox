@@ -137,6 +137,35 @@ jobs:
       - name: Mutation check — the kernel gates must fail on broken code
         run: python scripts/mutate_frontend_kernel_gates.py
 
+  # workbench-features.js used to execute thirteen statements at load time, so
+  # it could not be loaded on its own and index.html's script order was a hard
+  # constraint. It now has declarations only, which is what lets its pure
+  # functions be unit tested by feeding them a fake state in node.
+  #
+  # The mutation step matters more here than usual: the first run of this
+  # mutation script came back 6/10, and two of the four misses were gates that
+  # looked fine and asserted nothing about the property they claimed.
+  c7-extension-layer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]" setuptools wheel cryptography
+      - name: Extension layer gates
+        run: >
+          python -m pytest tests/test_workbench_features_pure.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the layer must fail on a top-level side effect
+        run: python scripts/mutate_c7_gates.py
+
   # Does what the product actually ships carry the front end? A file can be
   # written, committed, referenced by the page and still be absent from the
   # wheel, because setuptools package-data is a hand-written allowlist. That is

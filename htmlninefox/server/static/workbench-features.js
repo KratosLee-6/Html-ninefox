@@ -84,11 +84,33 @@ async function deleteUserGallery(itemId) {
   }
 }
 
-$('#import-html-button').addEventListener('click', () => $('#import-html-input').click());
-$('#import-folder-button').addEventListener('click', () => $('#import-folder-input').click());
-$('#import-html-input').addEventListener('change', event => importTemplateFiles(event.target.files, false));
-$('#import-folder-input').addEventListener('change', event => importTemplateFiles(event.target.files, true));
-updateTemplateImportVisibility();
+/* C7 · 本文件不再在顶层碰 DOM，也不再在顶层改内核的对象。
+
+   之前下面这七行、后面的三处 PALETTE 赋值、以及 create-modal / ai-modal 的
+   pointerdown 绑定都直接写在文件顶层。classic script 的顶层语句在**解析时**
+   就执行，于是这份文件既没法被单独加载来测试，也把 index.html 里的加载
+   顺序变成了硬约束：把 workbench-features.js 提到 fox-core.js 之前，
+   PALETTE 是 undefined，DOM 元素也还没建。
+
+   现在顶层只剩声明。真正需要外部对象的两件事收进 bindWorkbenchDom() 与
+   registerWorkbenchPalette()，由 fox-core 的 init() 在恰当的时机调用。
+   加载顺序由此变成无关紧要——这也让 Node 侧可以只喂一个假 state 就测
+   本文件的纯函数，见 tests/test_workbench_features_pure.py。 */
+function bindWorkbenchDom() {
+  $('#import-html-button').addEventListener('click', () => $('#import-html-input').click());
+  $('#import-folder-button').addEventListener('click', () => $('#import-folder-input').click());
+  $('#import-html-input').addEventListener('change', event => importTemplateFiles(event.target.files, false));
+  $('#import-folder-input').addEventListener('change', event => importTemplateFiles(event.target.files, true));
+  updateTemplateImportVisibility();
+
+  $('#memory-template-intent')?.addEventListener('change', () => {
+    const presets = state.memory?.profile?.preferred_preset_by_intent || {};
+    $('#memory-template').value = presets[$('#memory-template-intent').value] || '';
+  });
+  $('#creation-files').addEventListener('change', event => uploadCreationFiles([...event.target.files]));
+  $('#create-modal').addEventListener('pointerdown', event => { if (event.target === $('#create-modal')) closeCreatePanel(); });
+  $('#ai-modal').addEventListener('pointerdown', event => { if (event.target === $('#ai-modal')) closeAISettings(); });
+}
 
 function galleryTemplateData(item) {
   return {
@@ -118,7 +140,16 @@ function galleryPageData(item, page) {
   };
 }
 
-PALETTE.layouts = () => {
+/* C7 · 把三个调色板贡献者注册到内核的 PALETTE 上。
+
+   原来是三行顶层赋值，而 PALETTE 是 fox-core 的 const，值在解析 workbench-features.js
+   时还没建——所以这两份文件的先后顺序曾是硬约束。现在改由内核在 init() 里调用，
+   PALETTE 作为一个参数进来：谁调用、什么时候调用，都变成显式的。
+
+   刻意保持「保存原实现再叠加」的语义：originalStylesPalette 必须先抓下来，
+   因为 PALETTE.styles 会被这份文件整体替换掉，而替换后的实现末尾还要把
+   非分组的原生项拼回来。把 PALETTE 冻结成只读会让这段静默失效。 */
+function workbenchPaletteLayouts() {
   const privateItems = state.gallery.filter(item => item.source === 'user');
   const builtInItems = state.gallery.filter(item => item.source !== 'user');
   const cards = items => items.map(item => ({
@@ -141,9 +172,9 @@ PALETTE.layouts = () => {
     { group:'内置真实 HTML 模板 · 放大查看全部页面' },
     ...cards(builtInItems),
   ];
-};
+}
 
-PALETTE.blocks = () => {
+function workbenchPaletteBlocks() {
   const pages = state.gallery.flatMap(item => item.pages.map(page => ({
     id:'gallery-page-' + item.id + '-' + page.id,
     t:page.name,
@@ -166,10 +197,9 @@ PALETTE.blocks = () => {
   }));
   return [{ group:'可抽取的真实页面 · 单页加入工作区' }, ...pages,
           { group:'基础内容区块 · 快速补充' }, ...primitives];
-};
+}
 
-const originalStylesPalette = PALETTE.styles;
-PALETTE.styles = () => {
+function workbenchPaletteShowcases() {
   const showcases = state.gallery.map(item => ({
     id:'gallery-style-' + item.id,
     t:item.name,
@@ -189,9 +219,23 @@ PALETTE.styles = () => {
       origin:item.origin,
     } },
   }));
-  return [{ group:'真实风格作品 · 看完整页面节奏' }, ...showcases,
-          { group:'设计 Token 与色彩预设' }, ...originalStylesPalette().filter(item => !item.group)];
-};
+  return showcases;
+}
+
+/* 真正做注册的那一步。originalStylesPalette 在这里抓，是因为
+   PALETTE.styles 马上就要被整体替换掉，而 workbenchPaletteStyles() 末尾
+   还要把原生实现里非分组的那些项拼回来。 */
+function registerWorkbenchPalette(PALETTE) {
+  const originalStylesPalette = PALETTE.styles;
+  PALETTE.layouts = workbenchPaletteLayouts;
+  PALETTE.blocks = workbenchPaletteBlocks;
+  PALETTE.styles = () => [
+    { group:'真实风格作品 · 看完整页面节奏' },
+    ...workbenchPaletteShowcases(),
+    { group:'设计 Token 与色彩预设' },
+    ...originalStylesPalette().filter(item => !item.group),
+  ];
+}
 
 function activeOrCreateWorkspace() {
   return activeWorkspace() || addWorkspace();
@@ -468,11 +512,6 @@ async function adoptProject(nodeId) {
   }
 }
 
-$('#memory-template-intent')?.addEventListener('change', () => {
-  const presets = state.memory?.profile?.preferred_preset_by_intent || {};
-  $('#memory-template').value = presets[$('#memory-template-intent').value] || '';
-});
-
 function openCreatePanel(requirementId = null) {
   creationDraft.requirementId = requirementId;
   creationDraft.analysis = null;
@@ -531,8 +570,6 @@ async function uploadCreationFiles(files) {
   window.FoxInteraction?.setBusy(button, false);
   $('#creation-files').value = '';
 }
-
-$('#creation-files').addEventListener('change', event => uploadCreationFiles([...event.target.files]));
 
 async function analyzeCreation() {
   const prompt = $('#creation-prompt').value.trim();
@@ -623,6 +660,3 @@ function sendToCustomWorkspace() {
   select(requirement.id);
   flash('需求已进入工作区：现在可从版式、内容、风格、文件、技能中自由组合，再点“推进生成”', true);
 }
-
-$('#create-modal').addEventListener('pointerdown', event => { if (event.target === $('#create-modal')) closeCreatePanel(); });
-$('#ai-modal').addEventListener('pointerdown', event => { if (event.target === $('#ai-modal')) closeAISettings(); });

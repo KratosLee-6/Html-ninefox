@@ -1,7 +1,7 @@
 # C7 第二步：把 2 个裸奔文件变成可注入
 
-状态：设计已定，尚未实现。本文基于对 13 个脚本的词法作用域分析
-（`docs/DESIGN-c7-front-end-kernel.md` 是第一步，已落地）。
+状态：**已实现**（第一步，见 [`DESIGN-c7-front-end-kernel.md`](DESIGN-c7-front-end-kernel.md)）。
+本文记录第二步的决策与实现结果，并订正计划阶段的两处高估。
 
 ## 最重要的一件事：范围比以为的小一半
 
@@ -118,18 +118,148 @@
    可能是为未来预留，也可能是死代码。C7 第二步**不要顺手删**——先确认有没有
    E2E 测试或动态字符串引用。
 
-## 交付标准
+## 计划阶段的两处高估，实现时订正
 
-C7 第二步完成的判据，与前几步同形——**不是「改完了」，是「能证明」**：
+这一节是本文最有用的部分。上面那份分析读起来很有说服力，实现时发现两处判断错了。
 
-- `workbench-features.js` 那 8 个纯函数有 Node 单测，喂假 `state` 就能测
-- 三条硬顺序依赖各自有一条门禁证明「它不再依赖加载顺序」：
-  把 `workbench-features.js` 提到 `fox-core.js` 之前加载，页面仍然正常
-- 改造后的门禁必须被变异验证：故意删掉一个注册项、把一个 provider 改成返回空、
-  让 `state` 某个键晚于消费者初始化——每一条都要变红
-- 全量回归 + `e2e_verify.py` 22/22 不退化
-- 涉及 `fox-core.js` 的任何改动，都要连带重跑
-  `scripts/mutate_frontend_kernel_gates.py`（10/10）
+### 高估一：可单测的纯函数是 6 个，不是 8 个
+
+`applyRecommendedRecipe` 与 `ensureCreationRequirement` 被算进了「纯函数」。读完实现
+才看清：它们改工作区内容，依赖 `membersOf` / `addMaterialToWorkspace` / `nodes` / DOM。
+喂一个假 `state` 救不了它们。
+
+真正只依赖 `state`（外加 `esc`）的是六个：
+
+| 函数 | 依赖 | 本轮可单测 |
+|---|---|---|
+| `galleryItem` | `state.gallery` | ✅ |
+| `galleryTemplateData` | 仅入参 | ✅ |
+| `galleryPageData` | 仅入参 | ✅ |
+| `memoryValueText` | 无 | ✅ |
+| `memorySummaryMarkup` | `esc` + `MEMORY_FIELD_LABELS` | ✅ |
+| `isProjectAdopted` | `state.memory` | ✅ |
+| `applyRecommendedRecipe` | `membersOf` / `addMaterialToWorkspace` | ❌ 改工作区 |
+| `ensureCreationRequirement` | `nodes` / DOM / 建节点 | ❌ 改工作区 |
+
+后两个要变成可测，得先把 `membersOf` 与 `addMaterialToWorkspace` 也变成可注入的——
+那是比本轮更大的一步，不该混在一起做。
+
+### 高估二：`state` 本身并不需要改造
+
+计划说「把 `const state` 换成可注入的 `ctx.state`」。实际读代码发现**不需要**：
+那些纯函数以裸标识符 `state` 引用它，而裸标识符会一路回落到全局对象。
+只要测试在沙箱里先放一个 `state`，它们就直接吃到了。
+
+真正挡住测试的不是 `state` 怎么声明，而是**这个文件在加载时就在动手**：
+13 行顶层语句（7 处 DOM 绑定、1 处 DOM 调用、3 处对内核 `PALETTE` 的赋值，
+外加 1 个在求值时就读 `PALETTE` 的顶层 const）。classic script 的顶层语句在解析时
+执行，于是这个文件既装不进空沙箱，也把 `index.html` 的加载顺序变成硬约束。
+
+所以本轮实际做的是**清空顶层**，而不是重写状态模型。`state` 一个字没改。
+
+## 实际做了什么
+
+### workbench-features.js：顶层只剩声明
+
+13 行顶层语句收进两个函数：
+
+- `bindWorkbenchDom()` — 全部 8 处 DOM 绑定
+- `registerWorkbenchPalette(PALETTE)` — 三个调色板贡献者
+
+三个调色板 provider 从 `PALETTE.layouts = () => {...}` 改成命名函数声明
+（`workbenchPaletteLayouts` / `workbenchPaletteBlocks` / `workbenchPaletteShowcases`），
+由注册函数负责赋值。
+
+**刻意保留「保存原实现再叠加」的语义。** 原来的
+`const originalStylesPalette = PALETTE.styles;` 必须在赋值前抓到，因为
+`PALETTE.styles` 会被整体替换，而替换后的实现末尾还要把原生实现里非分组的
+那些项拼回来。把 `PALETTE` 冻结成只读会让这段静默失效——这是设计阶段就写进
+风险表的第 2 条，实现时它原样保留。
+
+### fox-core.js：内核显式装扩展层
+
+`init()` 的**最前面**加两行：
+
+```js
+registerWorkbenchPalette?.(PALETTE);
+bindWorkbenchDom?.();
+```
+
+放在 `init()` 里面而不是文件顶层，是被门禁抓出来的，不是想出来的。classic script
+的顶层语句在解析时执行，那时 `workbench-features.js` 还没被解析，名字根本不存在；
+而 `registerWorkbenchPalette?.(PALETTE)` 里的 `?.` **只挡 null/undefined，
+挡不住「标识符未声明」的 ReferenceError**。
+
+> 第一版把这两行放在 `fox-core.js` 文件末尾（`addEventListener` 之前），
+> `test_the_file_loads_before_the_kernel` 立刻报
+> `LOAD_ERROR:fox-core.js :: registerWorkbenchPalette is not defined`。
+> 门禁在提交之前抓住了我自己引入的缺陷。
+
+放最前面还有一个理由：`loadGallery()` 稍后会在 `Promise.all` 里触发
+`renderPalette()`，那时调色板必须已经注册好。
+
+## 门禁：14 条，变异 9/9
+
+`tests/test_workbench_features_pure.py`。加载器只给一个假 `state` 和 `esc`——
+少给一个，报错会指名道姓说是哪个名字找不到。
+
+**行为断言**（在空沙箱里真跑文件、真调函数、断言真实返回值）：
+
+- 文件装得上，且六个纯函数都还是函数
+- `galleryItem` 读注入的 state；找不到返回 `undefined`
+- `galleryTemplateData` 的拖拽数据带全 `gallery_id` / `preset` / `intent` / `preview_url`
+- `galleryPageData` 同时带住 item 与 page 两层来源
+- `memoryValueText` 数组拼接、字符串原样、空值不炸
+- `isProjectAdopted` 依 `evidence` 判定；memory 没加载过也不算采用过
+- `memorySummaryMarkup` **把值转义**（`&lt;img` 在、`<img` 不在）——漏掉 `esc`
+  就是一条注入路径，而它对仓库里其他任何门禁都不可见
+- 三个调色板槽位**全部**被替换（探针比身份，不调用 provider）
+- 内核**真的调用了**注册函数（装探针替换 callee，跑 init，看有没有被叫到）
+
+**结构性断言**（各一条，都说明为什么它不是文本形状的替代品）：
+
+- 顶层零副作用：逐行累计花括号深度，深度为 0 的行只允许是声明
+- 整条链在两种顺序下都装得上：index.html 的真实顺序，以及把扩展层提到最前
+
+### 两条门禁是被变异逼出来的
+
+第一轮变异是 **6/10**。四个 MISSED 里，两条是我的变异写错了，两条是**真的缺门禁**：
+
+| 变异 | 当时结果 | 真实原因 |
+|---|---|---|
+| C1 顶层又去改 PALETTE | MISSED | 变异只在函数内减了两格缩进，深度仍是 1，根本没搬到顶层 |
+| C2 顶层又去绑 DOM | MISSED | 同上 |
+| C5 三个槽只注册两个 | MISSED | **缺门禁**：没有任何一条检查「三个都注册了」 |
+| C3 内核不再注册 | MISSED | **门禁无效**：它是文本断言，变异删的是注释里那一份，代码行还在 |
+
+C3 那一处最值得记：我原本的门禁写的是
+`assert "registerWorkbenchPalette?.(PALETTE)" in core`，而同一串字符也出现在我自己
+写的解释性注释里。删掉代码行之后，断言照样成立。**文本断言验证的是字符串出现过，
+不是代码跑过。** 换成探针之后才真的抓住。
+
+C5 补的那条门禁也说明了另一件事：少注册一个槽位是**半坏的形状**——版式页看起来完全
+正常，只有内容区和风格区悄悄退回内置实现。布尔式检查最容易漏掉这种。
+
+## 一条我选择不补的门禁
+
+「注册时机够早」这条性质——也就是 `registerWorkbenchPalette` 若被挪到
+`Promise.all` 之后，版式页会丢掉真实模板——我**没有**给它加门禁。
+
+能想到的只有两种：读 `fox-core.js` 断言两行的先后（文本形状的顺序断言，正是本文
+刚证伪的那种），或者在 node 里真的把整个应用 boot 起来再看调色板（试过了，
+`init()` 在沙箱里会抛，代价远超收益）。
+
+按本仓库一贯的纪律，**宁可留一条「未覆盖」，也不交付一条冒充覆盖的弱门禁**。
+这条性质目前只由 e2e 的版式页断言守着。
+
+## 本轮没做
+
+- `nodes` / `edges` 仍有跨文件**整体替换**（`fox-core.js:184`、`:1081`、
+  `lifecycle-projects.js:58`），仍然不能改成注入。要动它必须先改成「永不整体替换」，
+  那是一次真正的行为重构。
+- `applyRecommendedRecipe` / `ensureCreationRequirement` 仍不可单测（见上文高估一）。
+- `window.FoxWorkbenchUI` 仍无消费者，本轮没有顺手删。
+- 命名碰撞 `selected`（`fox-core.js:104` 全局 vs `lifecycle-intake.js:10` 局部）未处理。
 
 ## 未确认
 

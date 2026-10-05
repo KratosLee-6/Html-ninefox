@@ -50,6 +50,18 @@ def _self_signed(tmp: Path, common_name: str = "pinned.example"):
 
     `openssl` is not present on every Windows host, and a gate that quietly
     skips where a tool is missing is a gate that stops guarding.
+
+    The certificate is cached on disk so the RSA key is not regenerated on every
+    run — and that cache is why the validity window is checked rather than
+    assumed. The first version wrote ±1 day and skipped regeneration whenever
+    the file existed, so the gate began failing with
+    `CERTIFICATE_VERIFY_FAILED: certificate has expired` exactly one day after
+    it was first run. Read as a product bug it was pure noise; the actual fault
+    was a fixture that rotted. Anything shorter than a month would do it again.
+
+    The window is also wide on purpose: a narrow one turns "my clock is off" or
+    "this ran a while ago" into a red gate that has nothing to say about the
+    code under test.
     """
     import datetime
 
@@ -59,19 +71,29 @@ def _self_signed(tmp: Path, common_name: str = "pinned.example"):
     from cryptography.x509.oid import NameOID
 
     cert, key = tmp / f"cert-{common_name}.pem", tmp / "key.pem"
-    if not cert.exists():
+    now = datetime.datetime.now(datetime.timezone.utc)
+    # Re-sign if the cached one is missing, unreadable, or has less than a day
+    # of life left.
+    fresh = False
+    if cert.exists() and key.exists():
+        try:
+            existing = x509.load_pem_x509_certificate(cert.read_bytes())
+            fresh = existing.not_valid_after_utc - now > datetime.timedelta(days=1)
+        except Exception:  # noqa: BLE001 - a corrupt cache is just a cache miss
+            fresh = False
+
+    if not fresh:
         key_obj = rsa.generate_private_key(public_exponent=65537,
                                            key_size=2048)
         name = x509.Name(
             [x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
-        now = datetime.datetime.now(datetime.timezone.utc)
         cert_obj = (
             x509.CertificateBuilder()
             .subject_name(name).issuer_name(name)
             .public_key(key_obj.public_key())
             .serial_number(x509.random_serial_number())
             .not_valid_before(now - datetime.timedelta(days=1))
-            .not_valid_after(now + datetime.timedelta(days=1))
+            .not_valid_after(now + datetime.timedelta(days=365))
             .add_extension(
                 # Name only. If the certificate also covered 127.0.0.1 then a
                 # fetcher that lost the hostname would still validate against

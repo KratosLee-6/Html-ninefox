@@ -1258,6 +1258,24 @@ async function loadTemplates() {
   if (activeTab === 'styles') renderPalette();
 }
 async function init() {
+  /* C7 · 先装上工作台扩展层，再做别的。
+
+     workbench-features.js 现在顶层只有声明：它的三个调色板贡献者与全部 DOM
+     绑定都由下面这两行装进来。必须放在 init() 里面而不是文件顶层——classic
+     script 的顶层语句在解析时执行，那时 workbench-features.js 还没被解析，
+     名字根本不存在；而 `registerWorkbenchPalette?.(PALETTE)` 里的 `?.` 只挡
+     null/undefined，挡不住「标识符未声明」的 ReferenceError。
+     这一点是被 tests/test_workbench_features_pure.py 抓出来的，不是想出来的。
+
+     由内核显式调用、而不是让 workbench-features.js 自己在顶层改 PALETTE，
+     是因为 PALETTE 是本文件的 const，它的值在另一个文件被解析时尚未建好——
+     那正是 index.html 里加载顺序曾是硬约束的原因。现在顺序无关紧要，那份文件
+     也可以被 Node 单独加载来测纯函数。
+
+     放在最前面，是因为 loadGallery() 稍后会在 Promise.all 里触发
+     renderPalette()，那时调色板必须已经注册好。 */
+  registerWorkbenchPalette?.(PALETTE);
+  bindWorkbenchDom?.();
   window.FoxInteraction?.initialize();
   window.FoxInteraction?.registerDialog('#preview-modal', { onRequestClose:closeTemplatePreview, initialFocus:'#preview-close' });
   window.FoxInteraction?.registerDialog('#export-modal', { onRequestClose:closeExportCenter, initialFocus:'#export-format' });

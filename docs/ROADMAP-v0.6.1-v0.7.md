@@ -166,7 +166,7 @@ Word 导出是加格式，桌面版是换打包方式，后两者是打磨。按
 
 | 项 | 性质 | 备注 |
 |---|---|---|
-| **C7** 前端共享顶层作用域 | 🔄 **第一步已落地，第二步已设计** | 范围比原估小一半：13 个脚本里**只有 2 个**是裸的（`fox-core.js`、`workbench-features.js`），其余 11 个已是箭头 IIFE。见下 |
+| **C7** 前端共享顶层作用域 | ✅ **两步都已落地** | 范围比原估小一半：13 个脚本里**只有 2 个**是裸的（`fox-core.js`、`workbench-features.js`），其余 11 个已是箭头 IIFE。见下 |
 | ~~P1-6 SSRF 连接级 IP 绑定~~ | ✅ **已于 v0.6.2 关闭** | 见下方 |
 | C1 Project 锁三种写法并存 | 结构性 | 根因：`RestoreRunner` 的 Interface 未声明「被调方持有 Project 锁」 |
 | C5 错误码三处硬编码 | 易漏 | 忘加映射表就静默变 500 |
@@ -180,12 +180,22 @@ Word 导出是加格式，桌面版是换打包方式，后两者是打磨。按
 > 工作台全白而所有门禁全绿。门禁 4 条全部执行真实代码，变异 10/10 CAUGHT。
 > 见 [`DESIGN-c7-front-end-kernel.md`](DESIGN-c7-front-end-kernel.md)。
 >
-> **第二步 · 依赖注入，设计已定**：见
-> [`DESIGN-c7-step2-injectable-state.md`](DESIGN-c7-step2-injectable-state.md)。
-> 选定切口是 `state` + `PALETTE`（不是 `nodes`），一次改动解锁
-> `workbench-features.js` 里 8 个目前完全无法单测的纯函数，
-> 并顺带拆掉三条「顶层立即读」造成的硬加载顺序依赖。
-> 9 个真正的共享可变状态里，`nodes`/`edges` 有跨文件**整体替换**，必须留到下一阶段。
+> **第二步 · 依赖注入，已完成**（详见
+> [`DESIGN-c7-step2-injectable-state.md`](DESIGN-c7-step2-injectable-state.md)）：
+> `workbench-features.js` 清空顶层——13 行「加载即执行」的语句（8 处 DOM 绑定、
+> 1 处 DOM 调用、3 处对内核 `PALETTE` 的赋值，外加 1 个在求值时就读 `PALETTE`
+> 的顶层 const）收进 `bindWorkbenchDom()` 与 `registerWorkbenchPalette(PALETTE)`，
+> 由内核 `init()` 显式装配。由此：文件可被 Node 单独加载，6 个纯函数有了单测
+> （喂一个假 `state`），**`index.html` 的加载顺序不再是硬约束**。
+> 门禁 14 条，变异 9/9。
+>
+> **计划阶段有两处高估，实现时订正**：可单测的纯函数是 6 个不是 8 个
+> （`applyRecommendedRecipe` / `ensureCreationRequirement` 改工作区内容）；
+> `state` 本身**不需要**改成注入式——裸标识符会回落到全局对象，测试放一个进去
+> 就已经是注入了。真正挡住测试的是加载时的副作用，不是状态的声明方式。
+>
+> **仍未做**：`nodes` / `edges` 仍有跨文件**整体替换**，改它要先改成「永不整体
+> 替换」，那是一次真正的行为重构；上面那两个改工作区的函数仍不可单测。
 
 > ### P1-6 实测结论（2026-10-04）：**已关闭，随 v0.6.2 安全补丁发布**
 >
