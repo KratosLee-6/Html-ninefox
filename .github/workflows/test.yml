@@ -199,6 +199,34 @@ jobs:
           python -m pytest tests/test_release_asset_metadata.py
           -q -p no:cacheprovider --tb=short -rf
 
+  # The two node-removal sites reassign `nodes = nodes.filter(...)` rather than
+  # deleting in place. That is correct today, and C7's next step is to change
+  # it. These gates are the thing the change has to fail against: after a
+  # removal, `nodes`, `edges` and the persisted snapshot must all agree. If one
+  # of them keeps the old array the views diverge silently — deleted nodes still
+  # counted, still persisted, still drawn — and nothing throws.
+  node-removal:
+    name: Node removal observers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]" setuptools wheel cryptography
+      - name: Node removal gates
+        run: >
+          python -m pytest tests/test_nodes_removal_observers.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — every holder must be able to disagree
+        run: python scripts/mutate_nodes_removal_gates.py
+
   # Does what the product actually ships carry the front end? A file can be
   # written, committed, referenced by the page and still be absent from the
   # wheel, because setuptools package-data is a hand-written allowlist. That is
