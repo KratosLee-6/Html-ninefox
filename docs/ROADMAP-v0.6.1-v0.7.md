@@ -230,6 +230,12 @@ Word 导出是加格式，桌面版是换打包方式，后两者是打磨。按
 > | `HtmlNineFox-Setup-0.6.3.exe` | 摘要一致 |
 > | `HtmlNineFox-macOS-arm64-0.6.3.zip` | 摘要一致，22 个静态文件齐全 |
 > | `HtmlNineFox-Linux-0.6.3.tar.gz` | 摘要一致（**前三轮都超时的那一个**），前端在归档自带的 wheel 里，22 个文件齐全 |
+> | `HtmlNineFox-Linux-0.6.3.run` | 摘要一致，22 个文件齐全（AppImage，108.8MB，也是曾经下不下来的） |
+>
+> **v0.6.3 的六个二进制附件至此全部经过真实验证**，从 v0.6.1 挂到现在的缺口关闭。
+> 剩下没做的是「把这件事接进发布流程」——目前 `verify_release_assets.py` 仍需
+> 手动跑；`build-release-packages.yml` 里可以加一步在 `publish` 之前调它，
+> 但那要下载 250MB+，CI 时间与带宽的取舍还没定。
 >
 > **Windows 便携包能启动**这一条最要紧：v0.6.0 的事故形状正是「构建全绿、装完一启动就崩」。
 >
