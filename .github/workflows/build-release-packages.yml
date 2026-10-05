@@ -132,7 +132,17 @@ jobs:
         # 在打包期静默丢弃文件与替换内容各做一遍，门禁必须每一条都变红。
         # 变异没生效记为 HARD FAIL 并让 job 非零退出——绝不记成 MISSED。
         run: python scripts/verify_package_payload.py --mutate
-  publish-release:
+  # 建草稿 → 回读验证 → 转正式，分成三步。
+  #
+  # 之前是「建发布 + 上传」一步做完，然后就没有然后了。三个版本过去，产物从未在
+  # 真正上传之后被读回过一次：v0.6.0 的便携包通过了四个构建 job 与全部测试，
+  # 然后一启动就崩。构建 job 绿，只说明构建没坏，不说明**用户拿到的东西**没坏。
+  #
+  # 唯一的分法是草稿：草稿对用户不可见，所以验证失败时坏包从来没有出过门。
+  # 代价说清楚：验证 job 若是网络抖动而非真缺陷，发布会卡在草稿，需要人工确认
+  # 之后重跑或删掉草稿。这比悄悄发出去一个坏包便宜。
+  publish-draft:
+    name: Publish draft (invisible)
     if: startsWith(github.ref, 'refs/tags/')
     needs: [windows, linux, macos, docker, package-payload]
     runs-on: ubuntu-24.04
@@ -143,7 +153,7 @@ jobs:
           pattern: htmlninefox-*
           path: release-assets
           merge-multiple: true
-      - name: Create or update GitHub Release
+      - name: Create or update the release as a DRAFT
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -179,9 +189,65 @@ jobs:
               release_flags+=(--prerelease)
             fi
             if [ -f "$notes" ]; then
-              gh release create "$tag" --title "Html九尾狐 $tag" --notes-file "$notes" "${release_flags[@]}"
+              gh release create "$tag" --draft --title "Html九尾狐 $tag" --notes-file "$notes" "${release_flags[@]}"
             else
-              gh release create "$tag" --title "Html九尾狐 $tag" --generate-notes "${release_flags[@]}"
+              gh release create "$tag" --draft --title "Html九尾狐 $tag" --generate-notes "${release_flags[@]}"
             fi
           fi
           find release-assets -type f -print0 | xargs -0 gh release upload "$tag" --clobber
+          echo "draft ready; verifying next"
+
+  # Read every installable asset back off the release and check the bytes.
+  #
+  # This is deliberately against the *uploaded* copy rather than the build job's
+  # output: what it proves is that the thing a user will download is intact, has
+  # the front end inside it, and is the artifact the digest describes. Checking
+  # the build output instead would be cheaper and would prove less.
+  #
+  # No --boot-windows here: this runs on ubuntu, and the portable is verified on
+  # Windows by packaging/verify_portable.py. The boot check is a local concern.
+  verify-release-assets:
+    name: Verify uploaded release assets
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [publish-draft]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Download and check every installable asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          python scripts/verify_release_assets.py
+          "${{ github.ref_name }}"
+          --asset "*.exe" --asset "*.zip" --asset "*.tar.gz"
+          --asset "*.run" --asset "*.whl" --keep
+      - name: Keep the evidence
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: htmlninefox-release-asset-evidence
+          path: ${{ runner.temp }}/fox-release-*/
+          if-no-files-found: ignore
+
+  # Only reached when the bytes checked out. A failed verification leaves a
+  # draft, which nobody can see, and a red job that says why.
+  publish-finalize:
+    name: Publish the verified release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [verify-release-assets]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Flip the draft to published
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ github.ref_name }}"
+          gh release edit "$tag" --draft=false
+          gh release view "$tag" --json isDraft,tagName,assets \
+            --jq '"published \(.tagName), \(.assets | length) assets"'

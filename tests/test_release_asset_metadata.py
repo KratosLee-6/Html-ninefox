@@ -38,6 +38,7 @@ import re
 import subprocess
 import sys
 import urllib.request
+from pathlib import Path
 
 import pytest
 
@@ -47,6 +48,7 @@ except Exception:
     pass
 
 REPO = "KratosLee-6/Html-ninefox"
+ROOT = Path(__file__).resolve().parents[1]
 RELEASES = ("v0.6.0", "v0.6.1", "v0.6.2", "v0.6.3")
 
 # Installable payloads, as opposed to screenshots, videos and the digest files.
@@ -210,3 +212,101 @@ def test_the_checker_notices_each_way_a_release_can_be_unverifiable(
                           mutate_sidecars(_ok_sidecars()))
     assert any(expect in f for f in found), (
         f"这一条变异（{name}）没有被看见，problems_with 返回 {found}")
+
+
+# ------------------------------------------- the draft-release lookup path
+
+def test_the_release_lookup_falls_back_to_listing_for_a_draft() -> None:
+    """`releases/tags/<tag>` returns 404 for a draft; the script must still find it.
+
+    This is the path the whole draft-gated publish depends on. If it did not
+    work, verify-release-assets would report "no assets match" against a draft
+    that is full of them, and the gate would pass for the wrong reason — or fail
+    every release and get switched off.
+
+    It cannot be exercised against a real draft without creating one on a public
+    repository, so the two HTTP answers it depends on are stubbed here instead:
+    404 on the by-tag lookup, then a listing that contains the draft.
+    """
+    import importlib.util
+    import urllib.error
+    import urllib.request
+
+    spec = importlib.util.spec_from_file_location(
+        "fox_verify_release_assets", ROOT / "scripts" / "verify_release_assets.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    draft = {"tag_name": "v9.9.9", "draft": True, "assets": [
+        {"name": "HtmlNineFox-Windows-x64-9.9.9.zip", "url": "u", "size": 1},
+        {"name": "HtmlNineFox-Windows-x64-9.9.9.zip.sha256.txt", "url": "u", "size": 1},
+    ]}
+    other = {"tag_name": "v9.9.8", "draft": True, "assets": []}
+    seen: list[str] = []
+
+    class _Resp:
+        def __init__(self, payload): self._payload = json.dumps(payload).encode()
+        def read(self): return self._payload
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
+    class _NotFound(Exception):
+        pass
+
+    def fake_urlopen(request, timeout=None):
+        url = request.full_url
+        seen.append(url)
+        if "/releases/tags/" in url:
+            raise urllib.error.HTTPError(url, 404, "Not Found", None, None)
+        return _Resp([other, draft])          # the listing, draft not first
+
+    real_urlopen = urllib.request.urlopen
+    real_token = mod.token
+    mod.token = lambda: "stub"
+    urllib.request.urlopen = fake_urlopen
+    try:
+        found = mod._release_payload("v9.9.9")
+    finally:
+        urllib.request.urlopen = real_urlopen
+        mod.token = real_token
+
+    assert any("/releases/tags/" in u for u in seen), "没有先试 by-tag 端点"
+    assert any(u.endswith("/releases?per_page=100") for u in seen), \
+        "404 之后没有回退到列举发布"
+    assert found["draft"] is True and found["assets"], \
+        f"回退没有找到那个草稿，返回了 {found}"
+
+
+def test_the_release_lookup_raises_when_the_tag_is_gone_entirely() -> None:
+    """If neither the tag nor the listing has it, that is an error, not an empty
+    result. An empty result would read as "nothing to verify", which is exactly
+    the kind of quiet pass this file exists to prevent."""
+    import importlib.util
+    import urllib.error
+    import urllib.request
+
+    spec = importlib.util.spec_from_file_location(
+        "fox_verify_release_assets2", ROOT / "scripts" / "verify_release_assets.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    class _Resp:
+        def __init__(self, payload): self._payload = json.dumps(payload).encode()
+        def read(self): return self._payload
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+
+    def fake_urlopen(request, timeout=None):
+        url = request.full_url
+        if "/releases/tags/" in url:
+            raise urllib.error.HTTPError(url, 404, "Not Found", None, None)
+        return _Resp([{"tag_name": "v0.0.1", "assets": []}])
+
+    real_urlopen, real_token = urllib.request.urlopen, mod.token
+    mod.token = lambda: "stub"
+    urllib.request.urlopen = fake_urlopen
+    try:
+        with pytest.raises(RuntimeError, match="没有 tag 为"):
+            mod._release_payload("v9.9.9")
+    finally:
+        urllib.request.urlopen, mod.token = real_urlopen, real_token

@@ -75,13 +75,38 @@ def digest_of(path: Path) -> str:
     return h.hexdigest()
 
 
-def asset_url(repo: str, tag: str, name: str) -> str:
+def _release_payload(tag: str, repo: str = "KratosLee-6/Html-ninefox") -> dict:
+    """The release for this tag, draft or not.
+
+    `releases/tags/<tag>` returns 404 for a draft — the API will not resolve a
+    tag that has no ref yet, and a draft has no ref until it is published. Since
+    the whole point of running this against a draft is to check the upload
+    before anyone can see it, "404 for a draft" is a detail of the design, not a
+    reason to skip. Fall back to listing and matching on tag_name.
+    """
     api = f"https://api.github.com/repos/{repo}/releases/tags/{tag}"
-    data = json.loads(urllib.request.urlopen(
-        urllib.request.Request(api, headers={
-            "Authorization": f"Bearer {token()}",
-            "Accept": "application/vnd.github+json"}), timeout=60).read())
-    for a in data["assets"]:
+    tok = token()
+    try:
+        with urllib.request.urlopen(urllib.request.Request(
+                api, headers={"Authorization": f"Bearer {tok}",
+                              "Accept": "application/vnd.github+json"}),
+                timeout=60) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as exc:
+        if exc.code != 404:
+            raise
+    listed = json.loads(urllib.request.urlopen(urllib.request.Request(
+        f"https://api.github.com/repos/{repo}/releases?per_page=100",
+        headers={"Authorization": f"Bearer {tok}",
+                 "Accept": "application/vnd.github+json"}), timeout=60).read())
+    for r in listed:
+        if r.get("tag_name") == tag:
+            return r
+    raise RuntimeError(f"仓库 {repo} 里没有 tag 为 {tag} 的发布（正式或草稿）")
+
+
+def asset_url(repo: str, tag: str, name: str) -> tuple[str, int]:
+    for a in _release_payload(tag, repo)["assets"]:
         if a["name"] == name:
             return a["url"], a["size"]
     raise RuntimeError(f"发布 {tag} 里没有附件 {name}")
@@ -113,12 +138,21 @@ def download(repo: str, tag: str, name: str, dest: Path) -> Path:
         try:
             with urllib.request.urlopen(req, timeout=120) as r:
                 mode = "ab" if (have and r.status == 206) else "wb"
+                last_report = 0.0
                 with part.open(mode) as fh:
                     while True:
                         block = r.read(CHUNK)
                         if not block:
                             break
                         fh.write(block)
+                        got_now = part.stat().st_size
+                        # Report progress. A 100MB download with no output reads
+                        # as a hung job; with it, a stall is distinguishable from
+                        # a slow link at a glance.
+                        if size and got_now - last_report > 10 * 1024 * 1024:
+                            last_report = got_now
+                            print(f"    {got_now / 1e6:.0f}/{size / 1e6:.0f} MB",
+                                  flush=True)
         except Exception as exc:  # noqa: BLE001 - the point is to keep going
             now = part.stat().st_size if part.exists() else 0
             print(f"    第 {attempt}/{RETRIES} 次中断于 {now / 1e6:.1f}MB"
@@ -136,12 +170,9 @@ def download(repo: str, tag: str, name: str, dest: Path) -> Path:
 
 
 def published_digest(repo: str, tag: str, name: str, into: Path) -> str | None:
-    """The digest the release published alongside the asset, if any."""
-    try:
-        text = gh("api", f"repos/{repo}/releases/tags/{tag}")
-    except RuntimeError:
-        return None
-    for a in json.loads(text)["assets"]:
+    """The digest published alongside the asset, if any."""
+    out: dict[str, str] = {}
+    for a in _release_payload(tag, repo)["assets"]:
         if a["name"] in (name + ".sha256.txt", f"{name}.sha256"):
             blob = urllib.request.urlopen(urllib.request.Request(
                 a["url"], headers={"Authorization": f"Bearer {token()}",
@@ -306,19 +337,23 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("tag")
     ap.add_argument("--repo", default="KratosLee-6/Html-ninefox")
-    ap.add_argument("--asset", default=DEFAULT_GLOB,
-                    help="附件名或 glob，默认 *.zip")
+    ap.add_argument("--asset", action="append", default=None,
+                    metavar="GLOB",
+                    help="可重复。附件名或 glob；不传则默认 *.zip。"
+                         "发布流水线用多个 --asset 覆盖 .exe/.zip/.tar.gz/.run/.whl")
     ap.add_argument("--dir", default=None)
     ap.add_argument("--keep", action="store_true", help="保留下载的附件")
     ap.add_argument("--boot-windows", action="store_true",
-                    help="额外把 Windows 便携包真的启动一次")
+                    help="额外把 Windows 便携包真的启动一次（只能在 Windows 上做）")
     args = ap.parse_args()
 
-    assets = [a for a in json.loads(
-        gh("api", f"repos/{args.repo}/releases/tags/{args.tag}"))["assets"]
-        if fnmatch(a["name"], args.asset)]
+    # The release is looked up through _release_payload, which also finds drafts —
+    # this is meant to run against a draft that nobody can see yet.
+    patterns = args.asset or [DEFAULT_GLOB]
+    assets = [a for a in _release_payload(args.tag, args.repo)["assets"]
+              if any(fnmatch(a["name"], p) for p in patterns)]
     if not assets:
-        print(f"没有附件匹配 {args.asset}")
+        print(f"没有附件匹配 {patterns}")
         return 2
 
     into = Path(args.dir) if args.dir else Path(
@@ -332,7 +367,10 @@ def main() -> int:
         if name.endswith(".sha256.txt") or name.endswith(".sha256"):
             continue
         size_mb = a["size"] / 1e6
-        print(f"── {name}  ({size_mb:.1f} MB)")
+        # flush everywhere: stdout is block-buffered when piped or captured by
+        # CI, so without this a 100MB download looks like a hung job and you
+        # cannot tell progress from a stall.
+        print(f"── {name}  ({size_mb:.1f} MB)", flush=True)
         try:
             local = download(args.repo, args.tag, name, into / name)
         except RuntimeError as exc:
