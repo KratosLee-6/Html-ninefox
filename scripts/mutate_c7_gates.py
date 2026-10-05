@@ -160,6 +160,26 @@ def m_break_the_load_order_again(feat: str, core: str, index: str):
         old + '\n<script src="/canvas-engine.js"></script>', 1)
 
 
+def m_register_too_late(feat: str, core: str, index: str):
+    """Move the palette registration to after the data load.
+
+    This is the ordering property the gate
+    test_the_palette_is_registered_before_the_first_render exists for. The
+    registration is still called, so the "did the kernel call it" gate stays
+    green; what changes is that loadGallery has already rendered the layouts tab
+    with the built-in templates by then.
+    """
+    call = "  registerWorkbenchPalette?.(PALETTE);\n"
+    if call not in core:
+        raise MutationFailure("没找到独立成行的 registerWorkbenchPalette?.(PALETTE);")
+    stripped = core.replace(call, "", 1)
+    anchor = ("  await Promise.all([loadTemplates(), loadGallery(), loadProjects(),"
+              " loadAlliance(), loadAISettings(), loadProjectMemory()]);\n")
+    if anchor not in stripped:
+        raise MutationFailure("没找到 init() 里的 Promise.all 那一行")
+    return feat, stripped.replace(anchor, anchor + call, 1), index
+
+
 MUTATIONS = [
     ("C1 顶层又去改 PALETTE（顺序重新变硬约束）",
      m_restore_top_level_palette_patch,
@@ -188,6 +208,9 @@ MUTATIONS = [
     ("C9 纯函数被改名",
      m_rename_a_pure_helper,
      "test_the_pure_helpers_all_exist_as_functions"),
+    ("C10 调色板注册被挪到第一次渲染之后",
+     m_register_too_late,
+     "test_the_palette_is_registered_before_the_first_render"),
 ]
 
 

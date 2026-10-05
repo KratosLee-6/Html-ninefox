@@ -156,6 +156,38 @@ console.log('LOADED');
 """
 
 
+# Responses shaped the way the loaders actually destructure them. An earlier
+# version answered `{}` to everything, and init() died on the first `.enabled` —
+# which looked like proof that booting the app in a sandbox was hopeless. It
+# was proof that the stub was wrong.
+_RESPONSES = r"""
+const RESPONSES = {
+  '/api/health': { ok: true, version: '0.6.3', api_version: 'v1' },
+  '/api/templates': { items: [] },
+  '/api/gallery': { items: [] },
+  '/api/alliance': { items: [] },
+  '/api/projects': { items: [] },
+  '/api/memory': { memory: { enabled: false, profile: { preferred_preset_by_intent: {} },
+                              stats: {}, evidence: [], updated_at: null } },
+  '/api/ai/settings': { enabled: false, provider: 'openai-compatible', model: '',
+                        base_url: '', api_key_set: false },
+};
+"""
+
+# Collect the DOMContentLoaded handlers so init() can be fired on demand, and
+# leave a place to put the call log.
+_ARM_INIT = r"""
+(() => {
+  window.__log = [];
+  window.__ready = [];
+  window.addEventListener = (ev, fn) => {
+    if (ev === 'DOMContentLoaded') window.__ready.push(fn);
+  };
+  return 'armed';
+})()
+"""
+
+
 def _chain_from_index() -> list[str]:
     """The script chain index.html actually loads, read from index.html.
 
@@ -416,6 +448,78 @@ def test_the_kernel_actually_calls_into_the_extension_layer():
         "版式页会悄悄退回内置模板（内核源码里可能还留着这几个字，但代码没跑）")
     assert "dom" in called, (
         "init() 没有调用 bindWorkbenchDom——本文件的 DOM 绑定全部装不上")
+
+
+@needs_node
+def test_the_palette_is_registered_before_the_first_render():
+    """注册必须赶在第一次 renderPalette 之前，否则调色板是空的。
+
+    这条门禁本来是被有意留白的。理由是：能想到的验证方式只有两种，都不成立——
+    读 fox-core.js 断言两行的先后，是刚刚在这个文件里证伪过的那种文本形状断言；
+    在 node 里 boot 整个应用，第一次尝试也确实死了，死在 stub 返回的响应形状不对
+    （`{}` 没有 `.enabled`），看起来这条路走不通。
+
+    错的是 stub，不是这条路。把响应形状修对之后 init() 一路跑到
+    `["register", "renderPalette", "renderPalette"]`，顺序属性直接可观测。所以
+    这里断言的是**实际发生的调用顺序**：把 register / renderPalette 换成记录器，
+    跑一次 init()，然后看 register 是不是排在第一个 renderPalette 前面。
+
+    两次返工都是这条门禁自己教的：
+
+    1. 第一版把 fetch 一律答成 `{}`，init() 第一步就抛，看起来「boot 不了」。
+    2. 第二版把 `loadGallery` 也换成了记录器，于是**真实的那次早期渲染消失了**
+       ——只剩 init() 末尾那次，注册排在它前面，变异挪位后门禁照样绿。
+       必须让真的 loadGallery 跑：activeTab 默认就是 `layouts`，它会调
+       renderPalette，那才是「注册太晚会出事」的那一次。
+
+    变异 C10 专门把注册挪到 Promise.all 之后，它必须变红。
+    """
+    responses = _RESPONSES
+    loader = (_CHAIN_LOADER
+              .replace("  fetch: () => __stub('fetch()'),",
+                       "  fetch: (u) => Promise.resolve({ ok: true, status: 200,"
+                       " json: () => Promise.resolve(RESPONSES[String(u).split('?')[0]] ?? {}),"
+                       " text: () => Promise.resolve('') }),")
+              .replace("vm.createContext(sandbox);",
+                       responses + "\nvm.createContext(sandbox);\n"
+                       "  vm.runInContext(" + json.dumps(_ARM_INIT) + ", sandbox);")
+              + """
+vm.runInContext(
+  "registerWorkbenchPalette = function () { __log.push('register'); };"
+  + "renderPalette = function () { __log.push('renderPalette'); };"
+  + "loadTemplates = function () { return Promise.resolve([]); };"
+  + "loadProjects = function () { return Promise.resolve([]); };"
+  + "loadAlliance = function () { return Promise.resolve([]); };"
+  + "loadAISettings = function () { return Promise.resolve({}); };"
+  + "loadProjectMemory = function () { return Promise.resolve({}); };"
+  + "loadSaved = function () { return null; };"
+  + "loadRemoteWorkspace = function () { return Promise.resolve(null); };", sandbox);
+(async () => {
+  for (const fn of (sandbox.__ready || [])) { try { await fn(); } catch (e) { break; } }
+  console.log('LOG:' + JSON.stringify(sandbox.__log));
+})();
+""")
+    d = Path(tempfile.mkdtemp())
+    js = d / "order.js"
+    js.write_text(loader, encoding="utf-8")
+    proc = subprocess.run(
+        ["node", str(js), str(STATIC), json.dumps(_chain_from_index())],
+        capture_output=True, text=True, timeout=120,
+        encoding="utf-8", errors="replace")
+    line = next((l for l in proc.stdout.splitlines() if l.startswith("LOG:")), None)
+    assert line, (
+        "没观测到 init() 的调用顺序，这条门禁在这种情况下等于不存在：\n"
+        + (proc.stdout[-600:] or proc.stderr[-600:]))
+    log = json.loads(line[4:])
+    assert "register" in log, (
+        f"init() 期间没有注册调色板，观测到的顺序是 {log}")
+    assert "renderPalette" in log, (
+        f"这次 init() 根本没走到 renderPalette，顺序无从断言：{log}。"
+        f"门禁在这种情况下会假绿——它应该报出来，而不是安静通过。")
+    first_render = log.index("renderPalette")
+    assert log.index("register") < first_render, (
+        f"调色板注册排在第一次 renderPalette 之后（顺序 {log}）——"
+        f"版式页会先按内置模板渲染一次，真实模板要等下一次才出现")
 
 
 def test_index_still_loads_the_extension_file():
