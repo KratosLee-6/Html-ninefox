@@ -119,23 +119,48 @@ Word 导出是加格式，桌面版是换打包方式，后两者是打磨。按
 
 这是 v0.6「设计吸收」的**镜像**：`设计 → 素材` 的下一步是 `活网站 → 结构`。原来做不到的事，现在做得到。
 
-### 可行性（已核实）
+### 可行性 —— ⚠️ 原「已核实」表**作废**，2026-10-05 重新核实
 
-`htmlninefox/intake.py`（37KB）已具备：
+这张表里的每一个行号都指向**本仓库中不存在的版本**（既不匹配当前 `intake.py`，
+也不匹配 `.codex_tmp/committed/` 那份快照）。因此下面这张表只能当作
+「当初大概以为是这样」，**不能作为工作量依据**。原表：
 
-| 能力 | 位置 |
+| 能力 | 声称位置 | 实际位置 |
+|---|---|---|
+| SSRF 安全 URL 校验 | `validate_url` L127 | `intake.py:134` |
+| 逐跳重定向过门抓取 | `fetch_reference` L173 | `intake.py:420` |
+| HTML 骨架解析器 | `_SkeletonParser` L309 | `intake.py:560` |
+| 区块标签体系 | `SECTION_TAGS` L306 | `intake.py:557` |
+| 颜色 / 字体令牌抽取 | `COLOR_PATTERN` / `FONT_PATTERN` L284-285 | `intake.py:535-536` |
+| 证据落盘 | `save_evidence` L233 | `intake.py:484` |
+| 三档许可强制 | `LICENSE_CLASSES` L33 | `intake.py:40` |
+
+**「复用约 80% 现有代码」这个结论同样没有可核验出处**，已标记为未确认。
+
+#### 重新核实后的真实结论（2026-10-05）
+
+| 那一半 | 现状 |
 |---|---|
-| SSRF 安全 URL 校验 | `validate_url` L127 |
-| 逐跳重定向过门抓取 | `fetch_reference` L173 |
-| HTML 骨架解析器 | `_SkeletonParser` L309 |
-| 区块标签体系 | `SECTION_TAGS` L306 |
-| 颜色 / 字体令牌抽取 | `COLOR_PATTERN` / `FONT_PATTERN` L284-285 |
-| 证据落盘 | `save_evidence` L233 |
-| 三档许可强制 | `LICENSE_CLASSES` L33 |
+| **抓取** | 接近完整。SSRF 逐跳校验、**连接级 IP 绑定**、大小/类型/频率限制、原始整页落盘并可回读，都在（`fetch_reference` `intake.py:420`、`_PinnedHTTPSHandler` `intake.py:236`、`save_evidence` `intake.py:484`、`CandidateStore.body` `intake.py:705`） |
+| **拆解** | **基本不存在。** `intake.py` 的产物是 `skeleton{headings, semantic:{tag:次数}, links:数字, images:数字}` —— 一个**扁平计数器 + 无序 token 列表**，不是一棵可编辑的结构树 |
+| **生成侧消费** | **没有任何渲染器能吃「一整页结构」。** `generators/__init__.py:18-25` 的 6 个渲染器契约统一是 `render(brief, style, assets)`，`assets` 只被读出一个 **id 词表**（`rules.py:135-141` 的 `_INTENT_BLOCKS`），正文全是硬编码（`landing.py:96-116` 的价格表、`doc.py:71-100` 的三段话） |
 
-而 `SOURCE_KINDS = ("gallery", "components", "motion", "typography")`（L34）**没有"整页"这一类**。
+**所以 v0.7 不是「加一个 `page` 源类型」，而是「加一条新流水线 + 一套新的内容承载模型」。**
 
-因此 v0.7 主要是**加一个 `page` 源类型 + 一个粘贴入口**，复用约 80% 现有代码。
+两处最容易误判的地方，值得单独记下来：
+
+1. **「节点」在仓库里有两套互不相干的概念，没有一套能装页面内容。**
+   - 生成侧的 `blocks` 是每个 intent 的**固定 id 词表**，不是内容块；
+   - 画布的 `nodes` 是工作流/项目图节点（`storage.py:260-267`），且服务端
+     `storage.py:268-272` **原样透传不逐字段校验**。
+   「把网页分块还原成节点」没有可对接的既有概念，必须新建，并让至少一个生成器学会消费它。
+2. **有一份被忽略的现成能力**：`user_gallery.py:119-135` 已经在按 `DATA_PAGE_RE` /
+   `PAGE_CLASS_RE` 切「页」，而 `server/app.py:248-251` **今天就已经把整页原样 HTML
+   导入素材库**。也就是说**「整页当模板收进来」现在就能做，缺的只是「拆成结构」**。
+   另外 `intake.py` 与 `user_gallery.py` 是**两套互不调用的抽取器**，职责重叠。
+
+结论：**抓取与 SSRF 是最便宜的一半，「拆成结构 + 让生成器消费」才是真正的新建工作。**
+在这两项落地前，任何排期都只是猜测。
 
 ### 为什么这条最强
 
