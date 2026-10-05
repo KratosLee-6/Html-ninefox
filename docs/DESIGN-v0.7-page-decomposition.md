@@ -242,6 +242,48 @@ v0.7 更细：几乎任何页面都可以合法地学**结构、排版、配色�
 - **既有行为不变**：6 个渲染器的 34 处分支在改动后**行为不变**（快照对比）
 - 全量回归 + `e2e_verify.py` 22/22 不退化
 
+## 「桥」查清了：样式那一半有，内容那一半没有
+
+这一条原本是「未确认」，现已查实（`server/app.py` 的 intake 路由逐条读过）：
+
+一个候选的出口只有五条——
+`approve`（整页 HTML 进素材库）、`components/import`、`motion/import`、
+`style-presets/create`、`analyze`。**没有一条通向 `composition`、`assets`
+或生成链路。**
+
+但其中两条是真桥：
+
+### 样式：桥已存在，缺的是「角色归因」
+
+`intake.py:1047-1067` 的 `build_style_preset(candidate)` 把候选的 tokens 变成
+一个用户风格预设，`app.py:305` 落盘，`pipeline.py:278` 作为 `preset_id` 进生成。
+**这条路今天就能走通。**
+
+它粗在两处（`intake.py:1052-1054`）：
+
+```python
+primary = _hex_solid(colors[0]) if colors else "#173C8F"
+accent  = _hex_solid(colors[1]) if len(colors) > 1 else "#49B894"
+font_stack = fonts[0] if fonts else "Inter"     # heading 与 body 用同一个
+```
+
+**「第 1 个颜色是主色、第 2 个是强调、字体不分 heading/body」**——
+这正是缺口表里「配色需角色归因」与「字体需区分 display/body」两条的所在地。
+**修的位置是 `build_style_preset` 本身，不是新建。**
+
+### 内容：没有桥，这是 v0.7 真正的新建部分
+
+`extract_components`（`intake.py:730-748`）**已经**产出结构化 section 切片
+`{tag, class, text_head, snippet}`（`intake.py:740-745`），落进候选目录与组件库
+（`intake.py:675-680`、`intake.py:783`）。**但它到不了生成链路。**
+
+所以 v0.7 的形状现在很明确：
+
+| 半边 | 桥 | 要做的 |
+|---|---|---|
+| 配色 / 字体 | ✅ 已有（`build_style_preset` → `preset_id`） | 在 `intake.py:1047-1067` 加角色归因 |
+| **分块 / 内容** | ❌ 没有 | **新建**：从候选的 section 切片 → `composition`/`assets` → 一个渲染器 |
+
 ## 明确不在 v0.7 范围内
 
 - **跟随外部样式表**（`<link rel="stylesheet">`）。抓 CSS 会显著放大 SSRF 暴露面，
@@ -252,12 +294,11 @@ v0.7 更细：几乎任何页面都可以合法地学**结构、排版、配色�
 
 ## 未确认
 
-- **`intake.py` 的 section 切片有没有接到生成链路的桥？** 这是 v0.7 最可能有现成抓手的
-  接入点。`extract_components`（`intake.py:730-748`）**已经**产出结构化 section 切片
-  `{tag, class, text_head, snippet}`（`intake.py:740-745`），候选目录与组件库也各有落点
-  （`intake.py:675-680`、`intake.py:783`）——但**没有找到任何代码路径把它们送进
-  `composition` 或 `assets`**。这需要进一步查 `server/app.py` 的 intake 路由才能定论。
-  **如果存在这样的桥，v0.7 的工作量会显著下降。**
+- **`intake.py` 的 section 切片有没有接到生成链路的桥？** —— **已查实：没有。**
+  `server/app.py` 的 intake 路由逐条读过，候选的出口只有 approve / components /
+  motion / style-presets / analyze，**没有一条通向 `composition` 或 `assets`**。
+  唯一通向生成的是 `build_style_preset` 那条（见正文「桥查清了」一节），它只带走
+  颜色与字体，不带内容。
 - `LICENSE_CLASSES` 三档的确切语义（`intake.py:40`）
 - 部署环境是否安装 jinja2。本机 `.venv` 与默认 `python` 都没有，但打包环境未确认。
   这个不确定性本身就是「别拿 landing 开刀」的理由。
