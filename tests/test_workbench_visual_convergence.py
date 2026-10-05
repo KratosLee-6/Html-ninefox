@@ -52,12 +52,29 @@ def test_workbench_convergence_layout_icons_and_semantic_zoom(workbench_server):
         assert page.evaluate("document.querySelector('.topbar').scrollWidth <= document.querySelector('.topbar').clientWidth")
         assert not _visible_overflow(page, ".topbar-actions button,.topbar-tools > button,.topbar-more > summary")
 
+        # The density switch animates, and getComputedStyle during a transition
+        # returns the *interpolated* value, not the settled one. Asserting once
+        # immediately after applyCamera read 'block' on a slow CI runner and
+        # passed locally — a gate that fails at random teaches people to ignore
+        # red, which is worse than not having it. So: wait for the settled value
+        # with a bounded timeout.
         page.evaluate("camera.z=.7; applyCamera(false,false)")
-        assert page.locator(".canvas-wrap").get_attribute("data-canvas-density") == "overview"
-        assert page.locator("#node-2 .node-body").evaluate("element => getComputedStyle(element).display") == "none"
+        page.wait_for_function(
+            "document.querySelector('.canvas-wrap')"
+            "?.getAttribute('data-canvas-density') === 'overview'",
+            timeout=10000)
+        page.wait_for_function(
+            "getComputedStyle(document.querySelector('#node-2 .node-body'))"
+            ".display === 'none'", timeout=10000)
+
         page.evaluate("camera.z=1; applyCamera(false,false)")
-        assert page.locator(".canvas-wrap").get_attribute("data-canvas-density") == "detail"
-        assert page.locator("#node-2 .node-body").evaluate("element => getComputedStyle(element).display") != "none"
+        page.wait_for_function(
+            "document.querySelector('.canvas-wrap')"
+            "?.getAttribute('data-canvas-density') === 'detail'",
+            timeout=10000)
+        page.wait_for_function(
+            "getComputedStyle(document.querySelector('#node-2 .node-body'))"
+            ".display !== 'none'", timeout=10000)
 
         page.set_viewport_size({"width": 768, "height": 1024})
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
