@@ -70,8 +70,17 @@ CONTENT_EXPECTATIONS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("/workbench-system.css", ("--fs-", "--fw-", "--space-")),
     # 夜蓝主题主按钮对比度修复引入的语义令牌
     ("/", ("--on-accent",)),
-    # 导出中心的 PPTX 选项（此前根本没登记）、动作派发表、批量抓取转发函数
-    ("/", ("export-format", "PPTX", "FoxActions", "intakeFetchBatch")),
+    # 导出中心的 PPTX 选项（此前根本没登记）
+    ("/", ("export-format", "PPTX")),
+    # 动作派发表，以及批量抓取这个动作的实现。
+    #
+    # 两者**都不在 index.html 里了**。C7 抽离后 81,375 字符的内核整块搬进了
+    # static/fox-core.js（index.html:879 引用它），`window.FoxActions` 与
+    # `intakeFetchBatch: () => window.FoxIntake.fetchBatch()` 都在那里。
+    #
+    # 断言还留在 `/` 上时，v0.6.4 的 Windows 构建就是被这一条判失败的：它守的
+    # 是一个标记已经不在的位置，于是拒绝认证一个完全正确的产物。
+    ("/fox-core.js", ("window.FoxActions", "intakeFetchBatch")),
     # 幻灯片写回的并发保护、吸收批量的入口、revision 写回的唯一拥有者
     ("/lifecycle-slides.js", ("expected_revision",)),
     ("/lifecycle-intake.js", ("fetchBatch",)),
