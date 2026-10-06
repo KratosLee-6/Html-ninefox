@@ -49,7 +49,34 @@ except Exception:
 
 REPO = "KratosLee-6/Html-ninefox"
 ROOT = Path(__file__).resolve().parents[1]
-RELEASES = ("v0.6.0", "v0.6.1", "v0.6.2", "v0.6.3")
+# How many releases to check, newest first. The list used to be a hard-coded
+# tuple of tags, which meant every new release shipped unexamined until someone
+# remembered to edit the test — the same silent-rot shape as the three copies
+# of the block vocabulary. Now it is derived, and the check is "the newest N
+# releases satisfy this", so a new release is covered the moment it exists.
+RECENT = 4
+
+
+def _recent_releases() -> list[str]:
+    try:
+        proc = subprocess.run(
+            ["gh", "api", f"repos/{REPO}/releases?per_page={RECENT}"],
+            capture_output=True, text=True, encoding="utf-8", errors="replace")
+    except OSError as exc:  # noqa: BLE001
+        if os.environ.get("CI"):
+            pytest.fail(f"CI 里无法调用 gh：{exc}")
+        pytest.skip(f"gh 不可用：{exc}")
+    if proc.returncode != 0:
+        if os.environ.get("CI"):
+            pytest.fail("CI 里拿不到发布列表，"
+                        f"给这个 job 加上 GH_TOKEN 再跑。（{proc.stderr.strip()[:140]}）")
+        pytest.skip(f"拿不到发布列表：{proc.stderr.strip()[:120]}")
+    releases = json.loads(proc.stdout)
+    return [r["tag_name"] for r in releases
+            if not r.get("draft") and r.get("tag_name", "").startswith("v")]
+
+
+RELEASES = _recent_releases()
 
 # Installable payloads, as opposed to screenshots, videos and the digest files.
 BINARY = re.compile(r"\.(exe|zip|tar\.gz|run|whl)$", re.I)
@@ -119,6 +146,17 @@ def _fetch_release(tag: str) -> dict:
 
 
 def _sidecars(release: dict) -> dict[str, str]:
+    """Read every digest file, retrying, and never silently substituting "".
+
+    An unreadable sidecar and an empty sidecar must not look alike. The first is
+    this machine's network; the second is a broken release that leaves users
+    with nothing to check their download against. This function once recorded ""
+    on a transient hiccup, and the gate reported "the digest file contains no
+    64-hex digest" — pointing at the release when the fault was here. A gate that
+    fails at random teaches people to ignore red, which is the one thing the
+    rest of this suite exists to prevent.
+    """
+    import time
     try:
         tok = subprocess.run(["gh", "auth", "token"], capture_output=True,
                              text=True, encoding="utf-8", check=True).stdout.strip()
@@ -126,15 +164,29 @@ def _sidecars(release: dict) -> dict[str, str]:
         return {}
     out: dict[str, str] = {}
     for a in release.get("assets", []):
-        if a["name"].endswith(DIGEST_SUFFIXES):
+        if not a["name"].endswith(DIGEST_SUFFIXES):
+            continue
+        last = ""
+        for attempt in range(3):
             try:
                 with urllib.request.urlopen(urllib.request.Request(
                         a["url"], headers={"Authorization": f"Bearer {tok}",
                                            "Accept": "application/octet-stream"}),
                         timeout=60) as r:
-                    out[a["name"]] = r.read().decode("utf-8", "replace")
-            except Exception:  # noqa: BLE001 - reported as a problem below
-                out[a["name"]] = ""
+                    body = r.read().decode("utf-8", "replace")
+                if body.strip():
+                    out[a["name"]] = body
+                    last = ""
+                    break
+                last = "空响应"
+            except Exception as exc:  # noqa: BLE001
+                last = f"{type(exc).__name__}: {exc}"
+            time.sleep(1.5 * (attempt + 1))
+        if last:
+            pytest.fail(
+                f"取不到 {a['name']} 的内容（重试 3 次，最后一次：{last}）。"
+                f"这是**门禁自己**的网络问题，不代表发布有问题——请重跑，"
+                f"不要把它读成「摘要缺失」。")
     return out
 
 
