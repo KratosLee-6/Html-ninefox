@@ -227,6 +227,36 @@ jobs:
       - name: Mutation check — every holder must be able to disagree
         run: python scripts/mutate_nodes_removal_gates.py
 
+  # Three things the v0.7 groundwork found, each of which was a live problem:
+  # the block vocabulary is written down three times with nothing keeping them
+  # in sync; a page's palette never reached the page the user generates; and
+  # composition["blocks"] flattened any structured block into its repr.
+  page-foundation:
+    name: Page decomposition foundation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]" setuptools wheel cryptography
+      - name: Page foundation gates
+        run: >
+          python -m pytest
+          tests/test_block_vocabulary_copies.py
+          tests/test_user_template_style_reaches_page.py
+          tests/test_page_sections_reach_output.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the block vocabulary must not drift
+        run: python scripts/mutate_block_vocabulary_gates.py
+      - name: Mutation check — a page's palette must reach the page
+        run: python scripts/mutate_user_template_style_gates.py
+      - name: Mutation check — a page's sections must survive the pipeline
+        run: python scripts/mutate_page_sections_gates.py
+
   # Does what the product actually ships carry the front end? A file can be
   # written, committed, referenced by the page and still be absent from the
   # wheel, because setuptools package-data is a hand-written allowlist. That is

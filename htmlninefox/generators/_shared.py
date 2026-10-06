@@ -130,10 +130,38 @@ def content_of(brief: dict, key: str, default: str = "") -> str:
 
 
 def blocks_of(assets: dict) -> list:
-    """资产规划的区块列表（asset_expert 输出），兜底空。"""
+    """The ids of the selected sections, whatever shape the blocks arrived in.
+
+    Still "a list of ids" — all six renderers branch on membership, and that is
+    not changing. What is new is that a block may carry content alongside its
+    id, so a dict is reduced to its id here. Use `sections_of` when the content
+    is what you want; using this for anything but membership would throw the
+    content away.
+    """
     if not isinstance(assets, dict):
         return []
-    return list(assets.get("blocks") or [])
+    out = []
+    for block in (assets.get("blocks") or []):
+        if isinstance(block, str):
+            out.append(block)
+        elif isinstance(block, dict) and block.get("id"):
+            out.append(str(block["id"]))
+    return out
+
+
+def sections_of(assets: dict) -> list:
+    """The blocks that carry content of their own, as dicts.
+
+    Parallel to `blocks_of` rather than a change to it: the six renderers depend
+    on `blocks_of` meaning ids, and a page's sections must be able to arrive
+    without that shifting underneath them. String blocks — which is everything
+    every existing project has — simply produce an empty list here, and the
+    renderer falls back to its own copy.
+    """
+    if not isinstance(assets, dict):
+        return []
+    return [b for b in (assets.get("blocks") or [])
+            if isinstance(b, dict) and b.get("content")]
 
 
 def brand_of(brief: dict) -> str:

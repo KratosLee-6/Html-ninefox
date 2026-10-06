@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import base_css, blocks_of, brand_of, content_of, esc, html_shell
+from ._shared import (base_css, blocks_of, brand_of, content_of, esc, html_shell,
+                      sections_of)
 
 _EXTRA = """
 .doc { max-width:860px; margin:0 auto; padding:60px 40px 90px; }
@@ -67,19 +68,38 @@ def render(brief: dict, style: dict, assets: dict) -> str:
 <div class="summary card"><h2>摘要</h2>
 <p>{esc(content_of(brief, "hero_sub", "本文档说明项目的背景、要点与结论，供相关方评审与执行。"))}</p></div>""")
 
+    # Sections that came from a real page carry their own content. They replace
+    # the built-in copy when present; when they are absent — which is every
+    # existing project, since blocks have always been plain ids — the built-in
+    # copy is used unchanged. Two paths, not a rewritten renderer.
+    page_sections = [s for s in sections_of(assets) if s.get("kind") == "sections"]
+
     if "sections" in blocks:
-        secs = "".join(f"""
+        if page_sections:
+            secs = "".join(
+                f'<section class="sec"><h2>{esc(s.get("heading") or "")}</h2>'
+                f'<p>{esc(s.get("content") or "")}</p></section>'
+                for s in page_sections)
+        else:
+            secs = "".join(f"""
 <section class="sec"><h2>{esc(t)}</h2><p>{esc(d)}</p>
 <ul><li>{esc(a)}</li><li>{esc(b2)}</li></ul></section>"""
-                       for t, d, a, b2 in [
-                           ("背景与目标", "说明项目发起的背景与要达成的目标。", "现状与痛点已确认", "目标可量化、可验收"),
-                           ("方案与路径", "给出整体思路与分阶段实施路径。", "分三阶段推进，里程碑明确", "每阶段有明确交付物"),
-                           ("风险与对策", "列出主要风险与对应预案。", "识别高风险项并指派负责人", "设置检查点与回退方案")])
+                           for t, d, a, b2 in [
+                               ("背景与目标", "说明项目发起的背景与要达成的目标。", "现状与痛点已确认", "目标可量化、可验收"),
+                               ("方案与路径", "给出整体思路与分阶段实施路径。", "分三阶段推进，里程碑明确", "每阶段有明确交付物"),
+                               ("风险与对策", "列出主要风险与对应预案。", "识别高风险项并指派负责人", "设置检查点与回退方案")])
         parts.append(secs)
 
+    page_points = [s for s in sections_of(assets) if s.get("kind") == "key_points"]
     if "key_points" in blocks:
-        kps = "".join(f'<div class="kp card"><div class="v">{esc(v)}</div><div class="l">{esc(l)}</div></div>'
-                      for v, l in [("3 阶段", "实施路径"), ("8 周", "整体周期"), ("5 项", "关键交付物")])
+        if page_points:
+            kps = "".join(
+                f'<div class="kp card"><div class="v">{esc(s.get("heading") or "")}</div>'
+                f'<div class="l">{esc(s.get("content") or "")}</div></div>'
+                for s in page_points)
+        else:
+            kps = "".join(f'<div class="kp card"><div class="v">{esc(v)}</div><div class="l">{esc(l)}</div></div>'
+                          for v, l in [("3 阶段", "实施路径"), ("8 周", "整体周期"), ("5 项", "关键交付物")])
         parts.append(f'<h2 style="font-size:1.3rem;margin-bottom:4px">关键数字</h2><div class="kps">{kps}</div>')
 
     if "table" in blocks:

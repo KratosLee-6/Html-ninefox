@@ -200,7 +200,7 @@ def _run_expert_into(work: Path, project_name: str, ts: str, prompt: str, skill:
             {"brief": brief_result, "intent": intent, "allow_llm": not quiet_llm})
         preset = style_result["preset"]
         if template:
-            preset = {**_tokens.get_preset(template), "_matched_by": f"user-template:{template}"}
+            preset = dict(_resolve_template_preset(template))
             preset["tokens"] = dict(preset["tokens"])
 
         if style_overrides:
@@ -221,11 +221,9 @@ def _run_expert_into(work: Path, project_name: str, ts: str, prompt: str, skill:
 
         assets_result = asset_expert.AssetExpert().execute({"brief": brief_result, "intent": intent})
         composition = dict(composition or {})
-        selected_blocks = [
-            str(block).strip() for block in composition.get("blocks", []) if str(block).strip()
-        ]
+        selected_blocks = _normalize_blocks(composition.get("blocks", []))
         if selected_blocks:
-            assets_result["blocks"] = list(dict.fromkeys(selected_blocks))
+            assets_result["blocks"] = selected_blocks
             assets_result["block_notes"] = "用户从模板作品或素材库中选择的页面配方"
         assets_result["composition"] = composition
         tracker.complete("compose", {
@@ -473,6 +471,91 @@ def _render_state(state: dict, preset: dict) -> str:
     from . import generators
     return generators.render(state.get("intent", "landing"), state.get("brief", {}),
                              preset, state.get("assets", {}))
+
+
+def _normalize_blocks(raw_blocks: Any) -> list:
+    """Carry a page's sections through without flattening them.
+
+    This used to be `[str(block).strip() for block in ...]`, which is where the
+    structure died: a block like `{"id": "s3", "kind": "features", "heading":
+    "...", "content": "..."}` arrived downstream as its Python repr string.
+    `GenerationBlock` (application.py) is explicitly a container for arbitrary
+    JSON and the HTTP layer wraps whatever the client sent, so structured
+    blocks are legal at this boundary — the coercion destroyed them.
+
+    Both shapes are accepted, and both are load-bearing:
+
+      * a plain string is the id of a section the renderer already has written
+        out. This is what every existing project on disk contains, and there is
+        no version field on .foxstate.json and no migration in load_state, so
+        dropping string support would silently empty every existing project.
+      * a dict is a section with content. Its `id` is what `blocks_of` still
+        matches on, so the 34 membership checks across the six renderers keep
+        working unchanged.
+
+    Deduplication is on the rendered id, so a page that names the same section
+    twice still renders once. Anything that is neither a string nor a dict is
+    dropped rather than str()'d into something a renderer will silently ignore.
+    """
+    if not isinstance(raw_blocks, (list, tuple)):
+        return []
+    out: list = []
+    seen: set = set()
+    for block in raw_blocks:
+        if isinstance(block, str):
+            value = block.strip()
+            key = value
+        elif isinstance(block, dict):
+            value = {k: v for k, v in block.items() if k != "id"} or None
+            if value is None:
+                continue
+            identifier = str(block.get("id") or "").strip()
+            if not identifier:
+                continue
+            # keep the id inside the payload so downstream readers do not have
+            # to reach back into the enclosing structure
+            value = {"id": identifier, **value}
+            key = identifier
+        else:
+            continue
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(value)
+    return out
+
+
+def _resolve_template_preset(preset_id: str) -> Dict[str, Any]:
+    """Resolve a template id to a preset, user templates included.
+
+    This used to be `_tokens.get_preset(preset_id)`, which is a lookup in the
+    built-in table with a silent fallback to the default. A user template is
+    not in that table, so importing a page as a style preset produced a page in
+    the *default* palette — while `render_template_preview`, a few lines away
+    in the same file, resolved user templates correctly. The user previewed one
+    thing and generated another, and nothing reported it.
+
+    Both paths now come through here so they cannot drift apart again. A user
+    template's tokens are merged over the defaults rather than replacing them:
+    a page's palette rarely covers every token the generators emit.
+    """
+    builtin = _tokens.PRESETS.get(preset_id)
+    if builtin is not None:
+        return {**builtin, "_matched_by": f"builtin:{preset_id}"}
+
+    user = next((item for item in list_templates() if item["id"] == preset_id), None)
+    if user is None:
+        raise ValueError(f"模板不存在：{preset_id}")
+    default = _tokens.get_preset(_tokens.DEFAULT_PRESET)
+    return {
+        "id": user["id"],
+        "name": user["name"],
+        "dark": user["dark"],
+        "visual_system": user.get("visual_system", "user"),
+        "origin": user.get("origin", "用户模板"),
+        "tokens": {**default["tokens"], **user.get("tokens", {})},
+        "_matched_by": f"user-template:{preset_id}",
+    }
 
 
 def list_templates() -> list:

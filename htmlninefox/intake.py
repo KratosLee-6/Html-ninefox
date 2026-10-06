@@ -1044,24 +1044,142 @@ def _hex_solid(color: str) -> str:
     return "#173C8F"
 
 
+def _color_chroma(hex_color: str) -> int:
+    """How colourful a solid hex is: max channel minus min channel."""
+    value = hex_color.lstrip("#")
+    if len(value) == 3:
+        value = "".join(ch * 2 for ch in value)
+    try:
+        r, g, b = (int(value[i:i + 2], 16) for i in (0, 2, 4))
+    except (ValueError, IndexError):
+        return 0
+    return max(r, g, b) - min(r, g, b)
+
+
+def _color_luminance(hex_color: str) -> float:
+    value = hex_color.lstrip("#")
+    if len(value) == 3:
+        value = "".join(ch * 2 for ch in value)
+    try:
+        r, g, b = (int(value[i:i + 2], 16) for i in (0, 2, 4))
+    except (ValueError, IndexError):
+        return 0.0
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _attribute_colors(colors: list[str]) -> dict:
+    """Give a page's colours roles instead of taking them in document order.
+
+    Taking colors[0] as the brand colour looks reasonable and is not: the
+    extracted list is in the order the colours appear in the CSS, and the first
+    two are very often the page's background and its body text. A page whose
+    first colours are #FFFFFF and #000000 produced a white "brand" colour, and
+    the result was a page that looked broken with nothing reporting it.
+
+    The rules are deliberately crude and use only two numbers:
+
+      * near-white and near-black are background and text, never a brand
+      * among what is left, the most colourful is the brand colour and the
+        second most colourful is the accent
+
+    When a page yields no brand candidate at all — a greyscale page, or two
+    near-neutral colours — the positional fallback is kept rather than inventing
+    a colour the page never used.
+    """
+    solid: list[str] = []
+    for color in colors:
+        if not isinstance(color, str) or not color.strip():
+            continue
+        hex_value = _hex_solid(color.strip())
+        if hex_value not in solid:
+            solid.append(hex_value)
+    if not solid:
+        return {}
+
+    brands = [c for c in solid
+              if 24 < _color_luminance(c) < 232]
+    brands.sort(key=_color_chroma, reverse=True)
+    lightest = max(solid, key=_color_luminance)
+    darkest = min(solid, key=_color_luminance)
+
+    roles: dict = {}
+    if brands:
+        roles["primary"] = brands[0]
+        if len(brands) > 1:
+            roles["accent"] = brands[1]
+    elif len(solid) > 1:
+        # Nothing saturated enough to be a brand colour; keep the old behaviour
+        # rather than making one up.
+        roles["primary"] = solid[0]
+        roles["accent"] = solid[1]
+
+    if _color_luminance(lightest) > 200:
+        roles["bg"] = lightest
+        roles["text"] = darkest
+    return roles
+
+
+def _attribute_fonts(fonts: list[str]) -> dict:
+    """Split the declared families into a display face and a body face.
+
+    One family serves both, which is honest: that is all the page declared.
+    With more than one, the first is taken as the display face — it is the one
+    that appears first and, in practice, the more prominent declaration — and
+    the last distinct one as the body face.
+    """
+    names = [f.strip() for f in fonts if isinstance(f, str) and f.strip()]
+    unique = list(dict.fromkeys(names))
+    if not unique:
+        return {}
+    if len(unique) == 1:
+        return {"display": unique[0], "body": unique[0]}
+    return {"display": unique[0], "body": unique[-1]}
+
+
 def build_style_preset(candidate: dict) -> dict:
-    """Turn an approved candidate's tokens into a user style preset."""
+    """Turn an approved candidate's tokens into a user style preset.
+
+    The `tokens` key is not decoration. Every consumer reads it:
+    `list_templates` exposes `data.get("tokens", {})`, `render_template_preview`
+    merges those tokens over the defaults, and the generators turn
+    `preset["tokens"]` into `--fox-*` variables.
+
+    The first version returned `colors` and `fonts` instead, so the page's
+    palette was written to disk under two keys that nothing reads and every
+    consumer silently fell back to the default preset — a user could preview
+    their template in the page's colours and then generate a page that did not
+    match it.
+    """
     colors = [color for color in (candidate.get("tokens") or {}).get("colors", [])
-              if color.startswith("#")]
+              if isinstance(color, str) and color.startswith("#")]
     fonts = (candidate.get("tokens") or {}).get("fonts", [])
-    primary = _hex_solid(colors[0]) if colors else "#173C8F"
-    accent = _hex_solid(colors[1]) if len(colors) > 1 else "#49B894"
-    font_stack = fonts[0] if fonts else "Inter"
-    name = (candidate.get("title") or "Intake Style")[:60]
+
+    roles = _attribute_colors(colors)
+    faces = _attribute_fonts(fonts)
+
+    primary = roles.get("primary", "#173C8F")
+    accent = roles.get("accent", "#49B894")
+    font_body = faces.get("body") or "Inter"
+    font_display = faces.get("display") or font_body
+    background = roles.get("bg", "#FFFDF6")
     return {
         "schema": STYLE_PRESET_SCHEMA,
         "preset_id": candidate["candidate_id"],
-        "name": name,
+        "name": (candidate.get("title") or "Intake Style")[:60],
         "dark": False,
         "visual_system": "intake",
         "origin": f"设计吸收 · {candidate.get('source') or '手动导入'}",
-        "fonts": {"heading": font_stack, "body": font_stack},
-        "colors": {"primary": primary, "accent": accent, "bg": "#FFFDF6"},
+        "fonts": {"heading": font_display, "body": font_body},
+        "colors": {"primary": primary, "accent": accent, "bg": background},
+        # the key every consumer actually reads
+        "tokens": {
+            "primary": primary,
+            "accent": accent,
+            "bg": background,
+            "text": roles.get("text", "#1A1A1A"),
+            "font_display": font_display,
+            "font_body": font_body,
+        },
         "candidate": candidate["candidate_id"],
         "license_class": candidate.get("license_class", "reference"),
     }

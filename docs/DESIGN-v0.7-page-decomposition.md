@@ -242,47 +242,55 @@ v0.7 更细：几乎任何页面都可以合法地学**结构、排版、配色�
 - **既有行为不变**：6 个渲染器的 34 处分支在改动后**行为不变**（快照对比）
 - 全量回归 + `e2e_verify.py` 22/22 不退化
 
-## 「桥」查清了：样式那一半有，内容那一半没有
+## 「桥」查清了：**样式那一半的桥是断的**
 
-这一条原本是「未确认」，现已查实（`server/app.py` 的 intake 路由逐条读过）：
+这一条原本写的是「样式那一半已经有桥」。**实测之后这句话是错的**，两处缺陷叠加：
 
-一个候选的出口只有五条——
-`approve`（整页 HTML 进素材库）、`components/import`、`motion/import`、
-`style-presets/create`、`analyze`。**没有一条通向 `composition`、`assets`
-或生成链路。**
+**缺陷一 · 生成路径不解析用户模板。** `pipeline.py:203` 用
+`_tokens.get_preset(template)` 解析模板，而那是**内置表的查找加静默回落**。
+用户模板不在表里，于是**生成时用的是默认预设**。而同一个文件里的预览路径
+`render_template_preview`（`pipeline.py:510-518`）**正确地解析了用户模板**。
 
-但其中两条是真桥：
+实测（`tests/test_user_template_style_reaches_page.py`）：同一个模板，
+**预览里 `--fox-primary` 是页面自己的颜色，生成出来是默认预设的颜色**，
+全程无任何报错。用户预览一个东西、生成出另一个东西。
 
-### 样式：桥已存在，缺的是「角色归因」
+**缺陷二 · 预设的键名和消费方对不上。** `build_style_preset`
+（`intake.py:1047`）产出 `colors` 与 `fonts`，**根本没有 `tokens` 键**；
+而每一个消费方读的都是 `tokens`（`list_templates` 做
+`data.get("tokens", {})`，生成器读 `preset["tokens"]`）。所以页面的配色
+**躺在文件里两个没人读的键下面**，连预览都拿不到。
 
-`intake.py:1047-1067` 的 `build_style_preset(candidate)` 把候选的 tokens 变成
-一个用户风格预设，`app.py:305` 落盘，`pipeline.py:278` 作为 `preset_id` 进生成。
-**这条路今天就能走通。**
+两处叠加的后果：**页面配色完全没有到生成结果**。
 
-它粗在两处（`intake.py:1052-1054`）：
+**已修**（`9ac603b` 之后的那笔）：`build_style_preset` 产出 `tokens` 并做角色归因
+（不再按 CSS 里的文档顺序取色，见 `intake.py` 的 `_attribute_colors`）；
+新增 `pipeline._resolve_template_preset` 供生成与预览共用，两条路径不会再各写一份。
+门禁 9 条、变异 6/6。
 
-```python
-primary = _hex_solid(colors[0]) if colors else "#173C8F"
-accent  = _hex_solid(colors[1]) if len(colors) > 1 else "#49B894"
-font_stack = fonts[0] if fonts else "Inter"     # heading 与 body 用同一个
-```
+**但真正的教训是那句「已经有桥」**：它读起来很有道理，因为 `build_style_preset`
+确实存在、`preset_id` 确实进了 `pipeline.py:278`、预览路径确实处理用户模板。
+**三个环节各自看着都对，接起来是断的。** 引用「某条链路已经存在」之前，
+要真的把它跑通一次并读产物，而不是沿着调用链读代码。
 
-**「第 1 个颜色是主色、第 2 个是强调、字体不分 heading/body」**——
-这正是缺口表里「配色需角色归因」与「字体需区分 display/body」两条的所在地。
-**修的位置是 `build_style_preset` 本身，不是新建。**
-
-### 内容：没有桥，这是 v0.7 真正的新建部分
+### 内容：也没有桥，这是 v0.7 真正的新建部分
 
 `extract_components`（`intake.py:730-748`）**已经**产出结构化 section 切片
 `{tag, class, text_head, snippet}`（`intake.py:740-745`），落进候选目录与组件库
-（`intake.py:675-680`、`intake.py:783`）。**但它到不了生成链路。**
+（`intake.py:675-680`、`intake.py:783`）。但**它到不了生成链路**。
 
-所以 v0.7 的形状现在很明确：
+## 已落地的第一段：分块通道
 
-| 半边 | 桥 | 要做的 |
-|---|---|---|
-| 配色 / 字体 | ✅ 已有（`build_style_preset` → `preset_id`） | 在 `intake.py:1047-1067` 加角色归因 |
-| **分块 / 内容** | ❌ 没有 | **新建**：从候选的 section 切片 → `composition`/`assets` → 一个渲染器 |
+`pipeline._normalize_blocks` 不再把 block 压成字符串；`blocks_of` 仍然是
+「id 列表」（6 个渲染器的 34 处成员判断依赖它），新增 `sections_of` 旁挂读取内容；
+`doc.py` 在有页面分块时渲染它们，没有时用回自己的文案。
+
+关键约束仍然成立：**两种形态都要吃**。`.foxstate.json` 没有版本迁移
+（`version` 字段没有读侧，`load_state` 只校验 `revision`），而用户手上的
+`blocks` 已经是 `list[str]`，不兼容就是旧项目静默变空。
+
+门禁 9 条、变异 6/6，其中 P5 那一轮我改过两次才让它真能咬人——详见
+「变更记录」。
 
 ## 明确不在 v0.7 范围内
 
