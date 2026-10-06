@@ -56,20 +56,25 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
   Revise with natural language feedback, keeping rev history
 ```
 
-## Current release and latest progress (v0.6.3, released)
+## Current release and latest progress (v0.6.4, released)
 
-The application version is `0.6.3`, shipped under the tag `v0.6.3` on 2026-10-04. **v0.6.3 repairs defects in v0.6.2**:
+The application version is `0.6.4`, shipped under the tag `v0.6.4` on 2026-10-06. **v0.6.4 adds no user-visible feature.** It makes a green build mean something, and in the process fixes two real defects:
 
-- **Design-intake fetching was broken in v0.6.2.** After upgrading, every fetch raised `TypeError` and the feature was unusable. Three causes: `conn.request()` passed headers in the `body` slot; `do_open` did not accept the `context` keyword urllib always supplies; and `conn.host = host` sent the TLS connect target back through DNS.
-- **Why nothing caught it**: all six gates were *rejection* tests, and not one let a fetch complete and assert on the body — so "correctly refused" and "completely broken" looked identical. Restoring the vulnerable code left all six green.
-- **Fixed here**, and the gates grew from 6 to 11 with a real success path and an end-to-end TLS case. A mutation run then broke the implementation five ways; **all five were caught.**
+- **A page's colours never reached the page you generate.** Import a page from design intake as a style preset and the **preview** shows that page's own palette; press generate and you get the **default** palette, with nothing logged anywhere. Two defects compounded: the generation path resolved templates through a built-in table with a silent fallback (user templates are not in that table), and the preset emitted `colors`/`fonts` while **every consumer reads a `tokens` key that did not exist**.
+- **`composition["blocks"]` flattened any structured block into its repr**, so a page's sections could not pass through the pipeline.
 
-> The SSRF pinning design in v0.6.2 was sound; its implementation was not. v0.6.1 (slide-editor race fix, real operating recordings) and v0.6.0 (the design-intake and editable-PPTX pillars) are unaffected — see their [release notes](docs/RELEASE-NOTES-v0.6.0.md). **Upgrading from v0.6.1 or v0.6.0 straight to v0.6.3 is recommended; skip v0.6.2.**
+Three things that turn "verified" into a fact:
+
+- **Release artefacts are verified for the first time.** For three releases the two 103.75MB Linux attachments were never actually downloaded — "verified" meant the metadata matched. The release pipeline now **downloads every artefact back and re-hashes it**, and only then flips the draft to published, so a broken package has never left the building.
+- **Two gates that should have been red long ago were not.** An SSRF TLS gate depended on `cryptography`, which was never declared, so **it had never once run in CI** — it was green locally only because this machine happens to have it. Another cached a self-signed certificate with a one-day validity, so it began failing 24 hours after first run.
+- **C7, the shared front-end kernel, in two steps.** The 81,375-character kernel moved out of `index.html` into its own file, and the extension layer's thirteen load-time statements were replaced by explicit assembly from the kernel — six pure functions became unit-testable for the first time, and the script order in `index.html` stopped being a hard constraint.
+
+> Design-intake fetching was broken in v0.6.2 — **skip v0.6.2**. v0.6.1 (slide-editor race fix, real operating recordings) and v0.6.0 (the design-intake and editable-PPTX pillars) are unaffected — see their [release notes](docs/RELEASE-NOTES-v0.6.0.md). **Upgrading from v0.6.1 or v0.6.3 straight to v0.6.4 is recommended.**
 
 | Track | Current state | Evidence |
 |---|---|---|
-| Application release | `v0.6.3`, released 2026-10-04 | [release page](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3) · [previous, v0.6.2](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.2) |
-| Release verification | Full suite `414 passed, 1 skipped`; mutation run `5/5` caught; release metadata consistent | [v0.6.3 release notes](docs/RELEASE-NOTES-v0.6.3.md) · [design doc](docs/DESIGN-v0.6.2-ssrf-pinning.md) |
+| Application release | `v0.6.4`, released 2026-10-06 | [release page](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.4) · [previous, v0.6.3](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3) |
+| Release verification | Full suite `499 passed, 1 skipped`; **67 mutations across 8 scripts, all caught**; artefacts re-hashed after upload | [v0.6.4 release notes](docs/RELEASE-NOTES-v0.6.4.md) · [C7 step-two design](docs/DESIGN-c7-step2-injectable-state.md) |
 
 
 | DeepSeek Harness plugin | `0.1.0-preview.1`, versioned separately from the app | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |

@@ -11,6 +11,7 @@ up declaring a gate invalid when nothing was actually tested.
 """
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import sys
@@ -123,11 +124,21 @@ def cleanup(keep: Path) -> None:
 
 
 def run(work: Path) -> tuple[int, str]:
+    # encoding must be explicit. Without it Python decodes the child's output
+    # with the console codepage, which on this machine is GBK, and any Chinese
+    # in a test's failure message raises UnicodeDecodeError — after which
+    # proc.stdout is None and the next line dies on None.splitlines(). That is
+    # not a subtle degradation: the harness crashes instead of reporting, and a
+    # crashed harness that previously printed "9/9 caught" is worse than a red
+    # one, because it looks like it ran.
     proc = subprocess.run(
         [sys.executable, "-m", "pytest", str(work / GATE), "-q",
          "-p", "no:cacheprovider"],
-        capture_output=True, text=True, cwd=str(work), timeout=1200)
-    tail = [l for l in proc.stdout.splitlines()
+        capture_output=True, text=True, cwd=str(work), timeout=1200,
+        encoding="utf-8", errors="replace",
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+    out = proc.stdout or ""
+    tail = [l for l in out.splitlines()
             if "passed" in l or "failed" in l or "error" in l]
     return proc.returncode, (tail[-1] if tail else "?")
 
