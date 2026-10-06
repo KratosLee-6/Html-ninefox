@@ -323,3 +323,14 @@ jobs:
           -q -p no:cacheprovider --tb=short -rf
       - name: Mutation check — the UI gates must fail on a dead control
         run: python scripts/mutate_ui_gates.py
+      # e2e_verify.py used to mkdir and overwrite assets/screenshots/v<version>/
+      # on every run — a published release directory that README links to. A
+      # plain "run the acceptance script" would silently rewrite shipped assets
+      # in the working tree. These gates import the real module in a subprocess
+      # and assert where RELEASE_SHOTS actually resolves to.
+      - name: Running the e2e must not rewrite published release screenshots
+        run: >
+          python -m pytest tests/test_e2e_release_shots_are_opt_in.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the opt-in must be load-bearing
+        run: python scripts/mutate_e2e_release_shots_gates.py

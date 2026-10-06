@@ -2,6 +2,10 @@
 
 运行：python e2e_verify.py
 输出：e2e-shots/*.png + 控制台验收结果
+
+默认**不**写 assets/screenshots/v<version>/。那是已发布版本的发布物目录，
+每次跑验收都往里覆盖截图会让「跑过一次测试」悄悄改掉仓库里的发布资源。
+需要重拍发布截图时显式开启：HTMLNINEFOX_E2E_RELEASE_SHOTS=1
 """
 
 from __future__ import annotations
@@ -20,8 +24,14 @@ from htmlninefox.server import app as server_app
 HERE = Path(__file__).resolve().parent
 SHOTS = HERE / "e2e-shots"
 SHOTS.mkdir(exist_ok=True)
-RELEASE_SHOTS = HERE / "assets" / "screenshots" / f"v{__version__}"
-RELEASE_SHOTS.mkdir(parents=True, exist_ok=True)
+# 发布截图只在校验脚本里、且显式开启时才落盘。默认空字符串表示「本次不重拍」，
+# 于是 RELEASE_SHOTS 下的写入是 no-op —— 用一个不存在的目录比 mkdir 更安全。
+_WRITE_RELEASE_SHOTS = bool(os.environ.get("HTMLNINEFOX_E2E_RELEASE_SHOTS"))
+RELEASE_SHOTS = (
+    HERE / "assets" / "screenshots" / f"v{__version__}"
+    if _WRITE_RELEASE_SHOTS
+    else HERE / "e2e-shots" / ".release-disabled"
+)
 OUT = HERE / "e2e-output"
 
 PROMPTS = [
@@ -171,10 +181,12 @@ async def main():
             stored_theme = await page.evaluate("localStorage.getItem('fox-ui-theme')")
             check("像素花园双主题", theme_before == "pixel-paper" and theme_after == "pixel-night" and stored_theme == "pixel-night", f"{theme_before} -> {theme_after}")
             await page.screenshot(path=SHOTS / f"workbench-v{__version__}-night.png")
-            await page.screenshot(path=RELEASE_SHOTS / "workbench-night.png")
+            if _WRITE_RELEASE_SHOTS:
+                await page.screenshot(path=RELEASE_SHOTS / "workbench-night.png")
             await page.click("#btn-theme")
             await page.screenshot(path=SHOTS / f"workbench-v{__version__}-paper.png")
-            await page.screenshot(path=RELEASE_SHOTS / "workbench-overview.png")
+            if _WRITE_RELEASE_SHOTS:
+                await page.screenshot(path=RELEASE_SHOTS / "workbench-overview.png")
 
             export_node = await page.evaluate("""() => {
                 const ws = activeWorkspace();
@@ -197,7 +209,8 @@ async def main():
             report = list((workbench_root / "export-deck" / "exports").glob("*/export-report.json"))
             check("工作台 PNG 导出与报告", bool(exported and report), f"files={len(exported)}")
             await page.screenshot(path=SHOTS / f"export-center-v{__version__}.png")
-            await page.screenshot(path=RELEASE_SHOTS / "export-center.png")
+            if _WRITE_RELEASE_SHOTS:
+                await page.screenshot(path=RELEASE_SHOTS / "export-center.png")
             check("工作台无 JS 错误", not page_errors, "; ".join(page_errors[:3]))
         finally:
             srv.shutdown()
