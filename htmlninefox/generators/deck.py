@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import base_css, blocks_of, brand_of, content_of, esc, html_shell
+from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
+                      page_sections_html, page_sections_of)
 
 _EXTRA = """
 html, body { height:100%; overflow:hidden; }
@@ -61,12 +62,22 @@ def render(brief: dict, style: dict, assets: dict) -> str:
     preset = style
     brand = brand_of(brief)
     core = content_of(brief, "core_message", "重新定义团队的创作方式")
-    blocks = blocks_of(assets) or ["cover", "problem", "solution", "demo", "metrics", "roadmap", "ending"]
+    blocks = block_ids_of(assets, ["cover", "problem", "solution", "demo", "metrics", "roadmap", "ending"])
 
     def slide(no: str, inner: str) -> str:
         return f'<section class="slide">{inner}</section>'
 
     slides = []
+    # One page section per slide — that is the shape a deck already has, so
+    # the page's prose needs no new concept here.
+    page_sections = page_sections_of(assets)
+    for i, sec in enumerate(page_sections, start=1):
+        slides.append(slide(f"{i:02d}", page_sections_html(
+            [sec], section_cls="", item_cls="card")))
+    if page_sections:
+        # Nothing below may also run: a page's slides replace the keynote.
+        return _finish(brand, preset, slides)
+
     if "cover" in blocks:
         slides.append(slide("01", f"""
   <div class="cover-tag">{esc(brand)} · 发布会 2026</div>
@@ -116,6 +127,11 @@ def render(brief: dict, style: dict, assets: dict) -> str:
   <p class="sub">Html九尾狐 · 让设计师/前端用「Brief + 审美模板 + 一轮轮反馈」做出能交付的 HTML</p>
   <p class="sub"><b>{esc(brand)}</b> · MIT Open Source</p>"""))
 
+    return _finish(brand, preset, slides)
+
+
+def _finish(brand: str, preset: dict, slides: list) -> str:
+    """Wrap slides in the deck shell, with the pager. Shared by both paths."""
     n = len(slides)
     dots = "".join(f'<span class="dot{" on" if i == 0 else ""}" data-i="{i}"></span>'
                    for i in range(n))

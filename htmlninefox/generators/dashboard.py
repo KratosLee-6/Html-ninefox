@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import base_css, blocks_of, brand_of, content_of, esc, html_shell
+from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
+                      page_sections_html, page_sections_of)
 
 _EXTRA = """
 .shell { display:grid; grid-template-columns:220px 1fr; min-height:100vh; }
@@ -99,7 +100,15 @@ _ACTS = [
 def render(brief: dict, style: dict, assets: dict) -> str:
     preset = style
     brand = brand_of(brief)
-    blocks = blocks_of(assets) or ["topbar", "kpi_row", "charts", "table", "activity"]
+    blocks = block_ids_of(assets, ["topbar", "kpi_row", "charts", "table", "activity"])
+
+    # A page's sections are the project's content: they replace the built-in
+    # copy. Clearing `blocks` is what makes every vocabulary branch below skip
+    # — a page's ids match none of them, so without this the dashboard would
+    # render the built-in KPIs while silently dropping the page.
+    page_sections = page_sections_of(assets)
+    if page_sections:
+        blocks = []
 
     parts = ['<div class="shell">',
              '<aside class="side"><div class="logo">▦ ' + esc(brand) + '</div>']
@@ -155,6 +164,10 @@ def render(brief: dict, style: dict, assets: dict) -> str:
                        f'<span><b>{esc(kind)}</b> · {esc(msg)}</span></div>'
                        for t, kind, msg in _ACTS)
         parts.append(f'<section class="activity card"><h3>动态</h3>{acts}</section>')
+
+    if page_sections:
+        parts.append(page_sections_html(page_sections, section_cls="charts",
+                                        item_cls="card"))
 
     parts.append("</main></div>")
     return html_shell(f"{brand} · 数据概览", preset, "\n".join(parts), _EXTRA,

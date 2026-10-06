@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import base_css, blocks_of, brand_of, content_of, esc, html_shell
+from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
+                      page_sections_html, page_sections_of)
 
 _EXTRA = """
 .nav { display:flex; align-items:center; justify-content:space-between; padding:20px 0; }
@@ -115,9 +116,24 @@ def render(brief: dict, style: dict, assets: dict) -> str:
     faq_html = "".join(f"""
       <details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>""" for q, a in faqs)
 
-    blocks = blocks_of(assets) or ["nav", "hero", "features", "showcase", "pricing", "faq", "cta_footer"]
+    blocks = block_ids_of(assets, ["nav", "hero", "features", "showcase", "pricing", "faq", "cta_footer"])
+
+    # A page's own sections are the project's content, so they replace the
+    # built-in copy rather than joining it. Neutralising `blocks` here is what
+    # makes every vocabulary branch below skip — without it a page's ids match
+    # none of them and the whole landing page renders empty.
+    page_sections = page_sections_of(assets)
+    if page_sections:
+        blocks = []
 
     parts = []
+    if page_sections:
+        parts.append(
+            '<header class="wrap nav">'
+            f'<div class="logo">🦊 {esc(brand)}</div>'
+            f'<h1>{esc(headline)}</h1></header>'
+            + page_sections_html(page_sections, section_cls="wrap block",
+                                 item_cls="card"))
     if "nav" in blocks:
         parts.append(f"""
 <header class="wrap nav">

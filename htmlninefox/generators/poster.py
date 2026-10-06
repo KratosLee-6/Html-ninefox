@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import base_css, blocks_of, brand_of, content_of, esc, html_shell
+from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
+                      page_sections_html, page_sections_of)
 
 _EXTRA = """
 .stage { min-height:100vh; display:flex; flex-direction:column;
@@ -47,7 +48,15 @@ def render(brief: dict, style: dict, assets: dict) -> str:
     preset = style
     brand = brand_of(brief)
     core = content_of(brief, "core_message", "一场关于创造力的聚会")
-    blocks = blocks_of(assets) or ["headline", "key_info", "details", "action_bar"]
+    blocks = block_ids_of(assets, ["headline", "key_info", "details", "action_bar"])
+
+    # A page's sections are the project's content: they replace the built-in
+    # copy. Clearing `blocks` makes every vocabulary branch below skip — a
+    # page's ids match none of them, so without this the poster would keep its
+    # own date and venue while silently dropping the page's own text.
+    page_sections = page_sections_of(assets)
+    if page_sections:
+        blocks = []
 
     parts = [f"""
 <div class="stage">
@@ -76,6 +85,10 @@ def render(brief: dict, style: dict, assets: dict) -> str:
     <span class="qr">{esc(brand.lower())}.dev/live · 席位有限</span>
   </div>
 </div>""")
+
+    if page_sections:
+        parts.append(page_sections_html(page_sections, section_cls="",
+                                        item_cls="card"))
 
     return html_shell(f"{brand} · 海报", preset, "\n".join(parts), _EXTRA,
                       generator="htmlninefox-v0.2/poster")

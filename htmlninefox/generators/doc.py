@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import (base_css, blocks_of, brand_of, content_of, esc, html_shell,
+from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
                       sections_of)
 
 _EXTRA = """
@@ -52,7 +52,7 @@ def render(brief: dict, style: dict, assets: dict) -> str:
     preset = style
     brand = brand_of(brief)
     headline = content_of(brief, "headline", "项目说明文档")
-    blocks = blocks_of(assets) or ["title", "summary", "sections", "key_points", "table", "conclusion"]
+    blocks = block_ids_of(assets, ["title", "summary", "sections", "key_points", "table", "conclusion"])
 
     parts = ['<main class="doc">']
     if "title" in blocks:

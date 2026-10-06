@@ -164,5 +164,63 @@ def sections_of(assets: dict) -> list:
             if isinstance(b, dict) and b.get("content")]
 
 
+def page_sections_of(assets: dict) -> list:
+    """The sections a page contributed, as dicts.
+
+    Only `kind == "sections"` blocks count, and only those that actually carry
+    prose — `sections_of` has already dropped the rest.
+
+    A structure-only page returns [] and every renderer falls back to its
+    built-in copy, which is the point: the licence decides, not the channel.
+
+    Two bugs this one helper exists to prevent, both measured, not reasoned
+    about:
+
+    * A page's ids ("page-section-3", …) match none of a renderer's
+      vocabulary, so `blocks_of` returning them skipped every branch and the
+      project rendered blank — landing 0 body characters, archdoc 26.
+    * `sections_of` drops a content-less section, but `blocks_of` still
+      returned its id, which then displaced the default vocabulary. A
+      structure-only page rendered blank for all six intents. That is every
+      reference-licensed page, so this was the more common of the two.
+    """
+    return [s for s in sections_of(assets) if s.get("kind") == "sections"]
+
+
+def block_ids_of(assets: dict, vocabulary: list) -> list:
+    """Which vocabulary entries to render, given the blocks a project carries.
+
+    Drops any id the renderer does not recognise. A block list made entirely of
+    page ids used to shadow the vocabulary and blank the page; falling back to
+    the built-in copy when nothing matches is both the old behaviour for empty
+    projects and the correct outcome for a structure-only page.
+
+    `blocks_of` keeps its meaning — the ids present — because six renderers
+    branch on membership and that contract must not shift underneath them.
+    This is the decision built on top of it.
+    """
+    present = blocks_of(assets)
+    return [v for v in vocabulary if v in present] or vocabulary
+
+
+def page_sections_html(
+    sections: list,
+    *,
+    section_cls: str,
+    item_cls: str = "card",
+    heading_tag: str = "h2",
+) -> str:
+    """Render a page's sections using a renderer's own existing CSS classes.
+
+    Each renderer passes the classes it already styles, so the page's prose
+    lands in the look the project already has rather than in a second,
+    unstyled markup dialect that would have to be styled six more times.
+    """
+    return "".join(
+        f'<section class="{section_cls}"><{heading_tag}>{esc(s.get("heading") or "")}</{heading_tag}>'
+        f'<div class="{item_cls}"><p>{esc(s.get("content") or "")}</p></div></section>'
+        for s in sections)
+
+
 def brand_of(brief: dict) -> str:
     return content_of(brief, "brand", "Your Product") or "Your Product"

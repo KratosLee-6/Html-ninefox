@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import base_css, blocks_of, brand_of, content_of, esc, html_shell
+from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
+                      page_sections_html, page_sections_of)
 
 _EXTRA = """
 .doc { max-width:960px; margin:0 auto; padding:56px 32px 80px; }
@@ -93,7 +94,15 @@ def render(brief: dict, style: dict, assets: dict) -> str:
     preset = style
     brand = brand_of(brief)
     core = content_of(brief, "core_message", "系统架构与关键决策")
-    blocks = blocks_of(assets) or ["title", "layer_diagram", "flow", "component_table", "decisions"]
+    blocks = block_ids_of(assets, ["title", "layer_diagram", "flow", "component_table", "decisions"])
+
+    # A page's sections are the project's content: they replace the built-in
+    # copy. Clearing `blocks` makes every vocabulary branch below skip — a
+    # page's ids match none of them, and this generator's shell alone is 26
+    # characters, so without this the page renders as an empty document.
+    page_sections = page_sections_of(assets)
+    if page_sections:
+        blocks = []
 
     parts = ['<main class="doc">']
     if "title" in blocks:
@@ -135,6 +144,10 @@ def render(brief: dict, style: dict, assets: dict) -> str:
   <div class="decision card"><h4>Q：{esc(q)}</h4><p>{esc(a)}</p></div>"""
                        for q, a in _DECISIONS)
         parts.append(f'<h2><span class="idx">04</span>关键决策</h2>{decs}')
+
+    if page_sections:
+        parts.append(page_sections_html(page_sections, section_cls="",
+                                        item_cls="card"))
 
     parts.append("</main>")
     return html_shell(f"{brand} · 架构文档", preset, "\n".join(parts), _EXTRA,
