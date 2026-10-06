@@ -345,3 +345,25 @@ jobs:
           -q -p no:cacheprovider --tb=short -rf
       - name: Mutation check — the opt-in must be load-bearing
         run: python scripts/mutate_e2e_release_shots_gates.py
+      # This one shipped a real incident: the push script read each file from
+      # the working tree, so a dirty tree published the NEXT commit's CI change
+      # inside the PREVIOUS one. Six of seven files were correct, so nothing
+      # looked wrong until the following push refused with a message about
+      # history. The gates drive the real code against a repo whose tree is
+      # deliberately dirtier than the commit being pushed.
+      - name: A push must publish the commit, not the working tree
+        run: >
+          python -m pytest tests/test_push_via_api.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the commit-object read must be load-bearing
+        run: python scripts/mutate_push_via_api_gates.py
+      # A bare `PermissionError: [WinError 5]` from staging.rename cost a round
+      # of investigation before it was classified as a same-second name
+      # collision rather than a transient. Publishing now re-derives a free
+      # name and retries, and gives up with a message that says why.
+      - name: Two runs in the same second must not fight over one directory
+        run: >
+          python -m pytest tests/test_publish_name_collision.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the retry must be load-bearing
+        run: python scripts/mutate_publish_collision_gates.py

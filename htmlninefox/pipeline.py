@@ -19,6 +19,11 @@ from typing import Any, Callable, Dict, Optional
 
 from . import recipe_run, revisions
 from .alliance.router import AllianceRouter
+
+# How many times publishing will re-derive a free name before giving up. Each
+# attempt costs one rename; the bound only exists so a pathological directory
+# cannot spin forever.
+_PUBLISH_ATTEMPTS = 8
 from .experts import asset_expert, brief_expert, generate_expert, style_expert
 from .experts import feedback_expert as feedback_expert_mod
 from .generators import _tokens
@@ -138,6 +143,14 @@ def run_expert(prompt: str, skill: Optional[str] = None, template: Optional[str]
 
 
 def _next_project_name(out_dir: Path, ts: str) -> str:
+    """A free project directory name for this timestamp.
+
+    Existence-check-then-name is a check-then-use gap: two runs in the same
+    second both get `html9n-<ts>`, and the loser used to die in `rename` with a
+    bare `PermissionError: [WinError 5]` that named neither the collision nor a
+    retry. The publish step retries, so the loop here is the reservation, not
+    the guarantee — `_publish_project` is what actually has to cope.
+    """
     name = f"html9n-{ts}"
     suffix = 1
     while (out_dir / name).exists():
@@ -146,12 +159,51 @@ def _next_project_name(out_dir: Path, ts: str) -> str:
     return name
 
 
+def _free_project_name(out_dir: Path, name: str) -> str:
+    """The first name derived from `name` that is not taken.
+
+    The base is kept whole and a counter is appended to it. Passing the full
+    `html9n-<ts>` back into `_next_project_name` treated it as a timestamp and
+    produced `html9n-html9n-2026-10-07-012829-2` — a real directory, on disk,
+    with a doubled prefix nobody would recognise as a project.
+
+    Splitting on the last `-` is not the inverse of that: the timestamp itself
+    ends in digits, so `html9n-2026-10-07-012829` parsed as stem
+    `html9n-2026-10-07-01` plus counter `2829`, and the "free" name came out
+    `html9n-2026-10-07-12830` — which is both a different timestamp and
+    silently wrong. Count from 2 and never try to parse what came before.
+    """
+    if not (out_dir / name).exists():
+        return name
+    counter = 2
+    candidate = f"{name}-{counter}"
+    while (out_dir / candidate).exists():
+        counter += 1
+        candidate = f"{name}-{counter}"
+    return candidate
+
+
 def _publish_project(out_dir: Path, name: str, staging: Path) -> Path:
+    """Move the staging directory into place, taking a free name if needed.
+
+    The rename is the only atomic claim on the final name, so the retry lives
+    here rather than in the caller: on Windows `Path.rename` will not replace an
+    existing directory, and the exception it raises says nothing about why.
+    """
     target = out_dir / name
-    if target.exists():
-        target = out_dir / _next_project_name(out_dir, name)
-    staging.rename(target)
-    return target
+    for _ in range(_PUBLISH_ATTEMPTS):
+        if target.exists():
+            target = out_dir / _free_project_name(out_dir, target.name)
+        try:
+            staging.rename(target)
+            return target
+        except PermissionError:
+            # Someone else took the name between the check and the rename.
+            # Re-derive and try again rather than surfacing a bare WinError 5.
+            continue
+    raise FileExistsError(
+        f"could not claim a free project name under {out_dir} "
+        f"after {_PUBLISH_ATTEMPTS} attempts (last tried {target.name})")
 
 
 def _run_expert_into(work: Path, project_name: str, ts: str, prompt: str, skill: Optional[str] = None,
