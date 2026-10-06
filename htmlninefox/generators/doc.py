@@ -70,11 +70,17 @@ def render(brief: dict, style: dict, assets: dict) -> str:
 
     # Sections that came from a real page carry their own content. They replace
     # the built-in copy when present; when they are absent — which is every
-    # existing project, since blocks have always been plain ids — the built-in
-    # copy is used unchanged. Two paths, not a rewritten renderer.
+    # existing project, since blocks have always been plain ids, and also any
+    # page whose licence does not permit carrying its prose — the built-in copy
+    # is used unchanged. Two paths, not a rewritten renderer.
+    #
+    # Note the gate is `id present OR a page section exists`, not just the id.
+    # A page contributes N sections with ids like "page-section-3", not one
+    # entry literally called "sections", so matching on the vocabulary id alone
+    # rendered an empty document.
     page_sections = [s for s in sections_of(assets) if s.get("kind") == "sections"]
 
-    if "sections" in blocks:
+    if "sections" in blocks or page_sections:
         if page_sections:
             secs = "".join(
                 f'<section class="sec"><h2>{esc(s.get("heading") or "")}</h2>'

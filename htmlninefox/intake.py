@@ -727,25 +727,113 @@ FONT_SIZE = re.compile(r"font-size\s*:\s*([^;}]+)", re.I)
 LINE_HEIGHT = re.compile(r"line-height\s*:\s*([^;}]+)", re.I)
 
 
+# The backreference is "\\1" in a *non-raw* string. Written as r"\\1" it becomes
+# two backslashes, matches nothing, and the extractor silently returns zero
+# sections — which is exactly what happened the first time.
+_SECTION_PATTERN = re.compile(
+    r"<(" + "|".join(SECTION_TAGS) + r")([^>]*)>(.*?)" + chr(60) + "/" + "\\1" + chr(62),
+    re.S | re.I)
+_MAX_NESTING = 4
+_MAX_SECTIONS = 12
+
+
+def _section_record(match: re.Match) -> dict:
+    tag, attrs, inner = match.group(1).lower(), match.group(2), match.group(3)
+    class_match = re.search(r'class="([^"]*)"', attrs)
+    return {
+        "tag": tag,
+        "class": class_match.group(1)[:120] if class_match else "",
+        "text_head": " ".join(re.sub(r"<[^>]+>", " ", inner).split())[:160],
+        "snippet": match.group(0)[:4000],
+    }
+
+
+def _innermost_sections(html_text: str, depth: int = 0) -> list[dict]:
+    """Section tags, preferring the innermost one where sections nest.
+
+    A flat `finditer` stops at `<main>` and swallows every `<section>` inside it,
+    because the match runs to the first `</main>`. That is fine when you want the
+    page's shell, and useless for decomposition: `<main>` becomes one section
+    whose text is its own first 160 characters. So a tag that contains other
+    section tags is replaced by what it contains.
+
+    Depth is bounded so a pathological document cannot make this recurse
+    forever.
+    """
+    if depth >= _MAX_NESTING or not html_text:
+        return []
+    records: list[dict] = []
+    for match in _SECTION_PATTERN.finditer(html_text):
+        nested = _innermost_sections(match.group(3), depth + 1)
+        records.extend(nested or [_section_record(match)])
+    return records
+
+
 def extract_components(evidence: dict, html_text: str, style_blob: str = "") -> dict:
-    """Section-level component candidates: each semantic section as a bounded snippet."""
-    sections: list[dict] = []
-    closing = chr(60) + chr(47) + "\\1" + chr(62)
-    pattern = re.compile(
-        r"<(" + "|".join(SECTION_TAGS) + r")([^>]*)>(.*?)" + closing, re.S | re.I)
-    for match in pattern.finditer(html_text):
-        tag, attrs, inner = match.group(1).lower(), match.group(2), match.group(3)
-        class_match = re.search(r'class="([^"]*)"', attrs)
-        text_head = " ".join(re.sub(r"<[^>]+>", " ", inner).split())[:160]
-        sections.append({
-            "tag": tag,
-            "class": class_match.group(1)[:120] if class_match else "",
-            "text_head": text_head,
-            "snippet": match.group(0)[:4000],
-        })
-        if len(sections) >= 12:
-            break
+    """Section-level component candidates: each semantic section as a bounded snippet.
+
+    Nested sections are yielded individually rather than as their outermost
+    wrapper — see `_innermost_sections` for why the flat version was not enough.
+    """
+    sections = _innermost_sections(html_text)[:_MAX_SECTIONS]
     return {"components": sections}
+
+
+def page_blocks_from_candidate(candidate: dict, body_html: str) -> list[dict]:
+    """Turn a fetched page's own sections into blocks the pipeline can carry.
+
+    The block channel already exists — composition["blocks"] survives to
+    assets["blocks"] and doc.py renders the structured ones — but nothing fed it.
+    extract_components has produced exactly this shape all along, only for
+    candidates whose source kind is "components", one of thirteen built-in
+    sources. The stored body is always there and the extractor only reads
+    html_text, so the slices are re-derived here instead of being written into
+    every candidate.json.
+
+    Copyright is the part that has to be right. Structure, ordering and palette
+    are learnable from almost any page; the prose is not, and LICENSE_CLASSES
+    already says so in three values. So the rule is per field, not per page:
+
+      * an "open" source may carry its own text, marked ``verbatim``
+      * anything else yields the same structure with **no content**, marked
+        ``structure_only``
+
+    That asymmetry is deliberate on both sides. An inspiration-only page is not
+    refused — the existing rule refuses it a place in the template gallery
+    outright, which is a coarser instrument and it costs us the structure too.
+    And a structure-only block renders as nothing, because sections_of only
+    returns blocks that carry content, so the renderer falls back to its own
+    copy. That is the right outcome rather than a document full of empty
+    headings.
+    """
+    if not isinstance(body_html, str) or not body_html.strip():
+        return []
+    sections = extract_components(candidate, body_html).get("components") or []
+    licence = str((candidate or {}).get("license_class") or "reference")
+    may_carry_text = licence == "open"
+    source_url = str((candidate or {}).get("final_url")
+                     or (candidate or {}).get("url") or "")
+
+    blocks: list[dict] = []
+    for ordinal, section in enumerate(sections):
+        if not isinstance(section, dict):
+            continue
+        heading = " ".join(str(section.get("text_head") or "").split())
+        if not heading:
+            # no visible text at all: not a section a document can use
+            continue
+        blocks.append({
+            "id": f"page-section-{ordinal + 1}",
+            "kind": "sections",
+            "heading": heading[:160],
+            "content": heading[:2000] if may_carry_text else "",
+            "provenance": "verbatim" if may_carry_text else "structure_only",
+            "source_tag": str(section.get("tag") or ""),
+            "source_class": str(section.get("class") or "")[:120],
+            "source_url": source_url,
+            "ordinal": ordinal,
+        })
+    return blocks
 
 
 def extract_motion(evidence: dict, html_text: str, style_blob: str) -> dict:

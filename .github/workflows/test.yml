@@ -249,6 +249,7 @@ jobs:
           tests/test_block_vocabulary_copies.py
           tests/test_user_template_style_reaches_page.py
           tests/test_page_sections_reach_output.py
+          tests/test_page_blocks_from_candidate.py
           -q -p no:cacheprovider --tb=short -rf
       - name: Mutation check — the block vocabulary must not drift
         run: python scripts/mutate_block_vocabulary_gates.py
@@ -258,6 +259,8 @@ jobs:
           -q -p no:cacheprovider --tb=short -rf
       - name: Mutation check — each past list-drift incident replayed
         run: python scripts/mutate_hand_maintained_lists_gates.py
+      - name: Mutation check — a page's sections must survive to the document
+        run: python scripts/mutate_page_blocks_gates.py
       - name: Mutation check — a page's palette must reach the page
         run: python scripts/mutate_user_template_style_gates.py
       - name: Mutation check — a page's sections must survive the pipeline

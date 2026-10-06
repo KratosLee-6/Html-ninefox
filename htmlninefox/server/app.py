@@ -305,6 +305,37 @@ class _Handler(BaseHTTPRequestHandler):
         preset = intake.build_style_preset(candidate)
         return {"ok": True, "preset": self._intake_style_presets().save(preset)}
 
+    def _api_intake_page_blocks(self, body: dict) -> dict:
+        """Cut an approved candidate's own sections into blocks the pipeline can carry.
+
+        Same shape as the style-preset endpoint next to it: read the approved
+        candidate, derive one thing from its stored body, hand it back. The
+        blocks are *not* saved into the candidate — the user decides whether to
+        keep them by starting a generation with them, and that decision is the
+        one place where copying a page's text has to be deliberate.
+
+        Copyright is applied inside `page_blocks_from_candidate`, per field and
+        per source licence, and the response says which provenance each block
+        carries so the caller is not guessing.
+        """
+        candidate_id = str(body.get("candidate_id") or "")
+        store = self._intake_candidates()
+        candidate = store.get(candidate_id)
+        if candidate.get("status") != "approved":
+            raise StoreError("intake_candidate_not_approved",
+                             "只有已采纳的候选才能拆成分区", 409)
+        raw = store.body(candidate_id)
+        blocks = intake.page_blocks_from_candidate(
+            candidate, raw.decode("utf-8", "replace"))
+        return {
+            "ok": True,
+            "candidate": candidate,
+            "blocks": blocks,
+            "license_class": candidate.get("license_class", "reference"),
+            "carries_text": any(b.get("provenance") == "verbatim" for b in blocks),
+            "block_notes": "从页面拆出的分区；结构与顺序可用，正文仅在开放许可时随行",
+        }
+
     def _api_intake_ai_analyze(self, body: dict) -> dict:
         candidate_id = str(body.get("candidate_id") or "")
         candidate = self._intake_candidates().get(candidate_id)
@@ -693,6 +724,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json(self._api_intake_ai_analyze(body))
         if path == "/api/intake/style-presets/create":
             return self._json(self._api_intake_style_preset_create(body))
+        if path == "/api/intake/page-blocks":
+            return self._json(self._api_intake_page_blocks(body))
         if path.startswith("/api/intake/style-presets/") and path.endswith("/apply"):
             preset_id = path[len("/api/intake/style-presets/"):-len("/apply")]
             applied = self._intake_style_presets().apply(
