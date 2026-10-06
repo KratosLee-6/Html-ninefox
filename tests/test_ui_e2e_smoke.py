@@ -185,12 +185,24 @@ def test_ui_generate_click_lands_a_real_artifact_and_a_readable_preview(workbenc
         assert state["revision"] == 0, f"首次生成的 revision 应为 0，实际 {state['revision']}"
         assert (project / "revisions").is_dir(), "产物没有版本目录，版本历史无从谈起"
 
-        heading = page.evaluate(
+        # Wait for the preview iframe to finish parsing rather than sampling it
+        # once. Reading it immediately after generation returns '' whenever the
+        # frame has not parsed yet, and the failure then names the product
+        # ("the preview rendered no heading") when the fault is the read. Same
+        # class as the density assertion: an unbounded temporal assumption in a
+        # UI gate. Bounded, so a genuinely blank preview still fails.
+        page.wait_for_function(
             """id => {
                 const frame = document.getElementById('frame-' + id);
                 const doc = frame && frame.contentDocument;
-                const node = doc && doc.querySelector('h1, h2');
-                return node ? node.textContent.trim() : '';
+                if (!doc) return false;
+                const node = doc.querySelector('h1, h2');
+                return !!(node && node.textContent.trim());
+            }""", arg=node_id, timeout=30000)
+        heading = page.evaluate(
+            """id => {
+                const doc = document.getElementById('frame-' + id).contentDocument;
+                return doc.querySelector('h1, h2').textContent.trim();
             }""", node_id)
         assert heading, "产物节点的预览框没有渲染出任何标题"
         on_disk = (project / "output.html").read_text(encoding="utf-8")
