@@ -121,8 +121,8 @@ PDF / 逐页 PNG / 完整长图三种真实导出 + 兼容性评分报告；deck
 
 <table>
 <tr>
+<td width="50%"><img src="assets/screenshots/v0.7.0/png-export-result.png" alt="PNG 长图导出完成"><br><b>PNG 长图导出完成</b><br>兼容性 100 分；full-page.png 与 export-report.json 双下载项（真实导出实拍）。</td>
 <td width="50%"><img src="assets/screenshots/v0.6.3/export-ready.png" alt="导出分析就绪"><br><b>导出分析就绪</b><br>兼容性评分、分页模型、动态特性与本地引擎状态。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.3/pptx-export-report.png" alt="PPTX 导出报告"><br><b>PPTX 导出报告</b><br>可编辑元素与降级清单如实列出。</td>
 </tr>
 </table>
 
