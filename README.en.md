@@ -21,6 +21,9 @@
 
 ---
 
+![HtmlNineFox workbench (captured on v0.7.0)](assets/screenshots/v0.7.0/workbench-paper-1440.png)
+<p align="center"><b>HtmlNineFox workbench · Pixel Garden UI</b> (v0.7.0 capture: library · infinite canvas · inspector)</p>
+
 ## Video
 
 GitHub does not inline-play repository mp4 files: the narrated cut plays on the **release page**, the screen-recording cut is a direct file link.

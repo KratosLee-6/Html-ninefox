@@ -24,6 +24,9 @@
 
 ---
 
+![Html九尾狐 工作台主界面（v0.7.0 实拍）](assets/screenshots/v0.7.0/workbench-paper-1440.png)
+<p align="center"><b>Html九尾狐 工作台 · Pixel Garden 界面</b>（v0.7.0 实拍：素材库 · 无限画布工作区 · 检查器）</p>
+
 ## ▶ 视频
 
 > GitHub 不直接内联播放仓库里的 mp4：解说版在 **Release 页在线播放**，录屏版是原文件直链。
