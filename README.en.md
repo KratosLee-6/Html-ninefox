@@ -8,18 +8,18 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.6.3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3)
+[![App Release](https://img.shields.io/badge/app-v0.7.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-414%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
-[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/TEST-REPORT-v0.6.0.md)
+[![Tests](https://img.shields.io/badge/pytest-596%20passed%20%7C%202%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.7.0.md)
+[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![HtmlNineFox Pixel Garden workbench (captured on v0.6.0)](assets/screenshots/v0.6.3/workbench-overview.png)
+![HtmlNineFox Pixel Garden workbench (captured on v0.7.0)](assets/screenshots/v0.7.0/workbench-overview.png)
 
 ## Watch HtmlNineFox work in 53 seconds
 
@@ -56,25 +56,21 @@ B. Open the infinite canvas and compose layouts / content / styles / files / ski
   Revise with natural language feedback, keeping rev history
 ```
 
-## Current release and latest progress (v0.6.4, released)
+## Current release and latest progress (v0.7.0, released)
 
-The application version is `0.6.4`, shipped under the tag `v0.6.4` on 2026-10-06. **v0.6.4 adds no user-visible feature.** It makes a green build mean something, and in the process fixes two real defects:
+The application version is `0.7.0`, shipped under the tag `v0.7.0` on 2026-10-07. **v0.7.0 is a milestone: reverse-decompose a web page — turn an existing page's sections into a structurally editable project.** Until now you could "generate a page from a description"; now you can bring in the section structure of a page that already exists, with the prose included or not, decided by licence:
 
-- **A page's colours never reached the page you generate.** Import a page from design intake as a style preset and the **preview** shows that page's own palette; press generate and you get the **default** palette, with nothing logged anywhere. Two defects compounded: the generation path resolved templates through a built-in table with a silent fallback (user templates are not in that table), and the preset emitted `colors`/`fonts` while **every consumer reads a `tokens` key that did not exist**.
-- **`composition["blocks"]` flattened any structured block into its repr**, so a page's sections could not pass through the pipeline.
+- **The whole chain works.** `POST /api/intake/page-blocks` re-cuts an approved candidate's stored body into blocks the generation channel understands, and **all six content types consume them** (v0.6.4 had one — the other five silently dropped the page's content, and landing rendered a blank page). The endpoint is **read-only**: carrying a page's prose must be the user's decision, never a side effect of fetching.
+- **Copyright is decided per field.** Only an `open` licence carries prose (`verbatim`); `reference` / `inspiration-only` contribute structure and order only (`structure_only`, the output falls back to its own copy). The block path and the approve path that imports a whole page into the template gallery now ask **one shared rule function** — this release also removes an existing contradiction where a `reference` page was told "structure only" on one path while its whole HTML was copied verbatim into the gallery on the other.
+- **Three more green-but-broken defects, found by release verification against real data:**
+  ① a production-shaped fetch **crashed the instant it succeeded** (`resolver=None` reached the post-fetch rebinding check — shipped in v0.6.2, v0.6.3 and v0.6.4, because every test injects a resolver); ② the real endpoint emitted `heading == content`, so **every page's prose rendered twice in all six intents** (the "exactly once" gate's fixture had a heading different from its content, so it could not see its own endpoint's shape); ③ a section directly inside a section was still swallowed into one summary (the non-greedy regex ended the outer match at the inner close — only the siblings-inside-a-container shape had been fixed). Each fix carries a gate that must go red when the fix is removed, plus mutations.
 
-Three things that turn "verified" into a fact:
-
-- **Release artefacts are verified for the first time.** For three releases the two 103.75MB Linux attachments were never actually downloaded — "verified" meant the metadata matched. The release pipeline now **downloads every artefact back and re-hashes it**, and only then flips the draft to published, so a broken package has never left the building.
-- **Two gates that should have been red long ago were not.** An SSRF TLS gate depended on `cryptography`, which was never declared, so **it had never once run in CI** — it was green locally only because this machine happens to have it. Another cached a self-signed certificate with a one-day validity, so it began failing 24 hours after first run.
-- **C7, the shared front-end kernel, in two steps.** The 81,375-character kernel moved out of `index.html` into its own file, and the extension layer's thirteen load-time statements were replaced by explicit assembly from the kernel — six pure functions became unit-testable for the first time, and the script order in `index.html` stopped being a hard constraint.
-
-> Design-intake fetching was broken in v0.6.2 — **skip v0.6.2**. v0.6.1 (slide-editor race fix, real operating recordings) and v0.6.0 (the design-intake and editable-PPTX pillars) are unaffected — see their [release notes](docs/RELEASE-NOTES-v0.6.0.md). **Upgrading from v0.6.1 or v0.6.3 straight to v0.6.4 is recommended.**
+> Design-intake fetching was broken in v0.6.2 — **skip v0.6.2**. v0.6.1 (slide-editor race fix, real operating recordings), v0.6.0 (the design-intake and editable-PPTX pillars) and v0.6.3 / v0.6.4 (gate hardening) are unaffected — see their [release notes](docs/RELEASE-NOTES-v0.6.0.md). **Upgrading from v0.6.1 / v0.6.3 / v0.6.4 straight to v0.7.0 is recommended.**
 
 | Track | Current state | Evidence |
 |---|---|---|
-| Application release | `v0.6.4`, released 2026-10-06 | [release page](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.4) · [previous, v0.6.3](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3) |
-| Release verification | Full suite `499 passed, 1 skipped`; **67 mutations across 8 scripts, all caught**; artefacts re-hashed after upload | [v0.6.4 release notes](docs/RELEASE-NOTES-v0.6.4.md) · [C7 step-two design](docs/DESIGN-c7-step2-injectable-state.md) |
+| Application release | `v0.7.0`, released 2026-10-07 | [release page](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0) · [previous, v0.6.4](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.4) |
+| Release verification | Full suite `596 passed, 2 skipped` on Windows (`597 passed, 1 skipped` on Linux CI); **16 mutation scripts, all caught**; real-chain verification `15/15`; artefacts re-hashed after upload | [v0.7.0 release notes](docs/RELEASE-NOTES-v0.7.0.md) · [v0.7 design](docs/DESIGN-v0.7-page-decomposition.md) |
 
 
 | DeepSeek Harness plugin | `0.1.0-preview.1`, versioned separately from the app | [plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
@@ -152,7 +148,8 @@ Full set of 24 (including 6 real generated outputs) lives in [assets/screenshots
 
 | Directory | Count | Contents |
 |---|---:|---|
-| `assets/screenshots/v0.6.3/` | **23** | Current build: 7 workbench, 4 input & inspectors, 4 memory/revision/cancel/classic, 3 design intake, 3 slide editor / PPTX, 1 mobile library, 1 report |
+| `assets/screenshots/v0.7.0/` | **11** | Current build: 6 workbench + 5 page-decomposition real-chain shots (review workbench / approved / page sections in output / doc output / adoption loop) |
+| `assets/screenshots/v0.6.3/` | **23** | v0.6.3 build: 7 workbench, 4 input & inspectors, 4 memory/revision/cancel/classic, 3 design intake, 3 slide editor / PPTX, 1 mobile library, 1 report |
 | `assets/screenshots/v0.5.0/` | 24 | Full v0.5.0 set, including 6 real generated-output shots |
 | `assets/screenshots/v0.4.0/` | 5 | Historical: Pixel Garden, LLM config, Docker, Export Center |
 
@@ -190,6 +187,25 @@ Turn the world's best designs into your own assets across six layers — templat
 - **🤖 AI analysis**: candidates get design descriptions, tags, layout notes and content recipes from your configured LLM (optional; everything works without a key)
 
 Every asset passes a **review workbench** (CSP-sandboxed preview + three-tier license governance: open / reference / inspiration-only) before entering the library — with batch adopt/reject, per-source filtering, and an intake metrics panel tracking candidates and ingested assets. Styles appear in the style panel, components drag onto the canvas to feed generation, motion styles land in the motion lab, all honoring motion preferences and budgets. All six layers (templates, styles, components, decorations, motion, content) share the same absorb → review → ingest → use path.
+
+## Page decomposition (new in v0.7)
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.7.0/intake-page-blocks-pending.png" alt="Review workbench with a real candidate"><br><b>Review workbench · candidate with a licence tag</b><br>Paste a public URL and the page lands in the review workbench; since v0.7 an approved candidate's sections can be cut into generation blocks.</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/output-landing-with-page-sections.png" alt="Page sections inside the generated output"><br><b>The sections you took · really in the output</b><br>For an open-licensed page the headings and prose travel with the generation; all six content types consume the channel.</td>
+</tr>
+</table>
+
+v0.7 extends "absorb" past the template gallery into **generation**: `POST /api/intake/page-blocks` re-cuts an approved candidate's sections into blocks the generation channel understands (nested sections included), and all six content types consume them — with copyright decided per field:
+
+| Licence | Blocks carry prose | Whole page enters the template gallery |
+|---|---|---|
+| `open` | ✅ `verbatim` | ✅ |
+| `reference` | ❌ `structure_only` (generation falls back to its own copy) | ❌ |
+| `inspiration-only` | ❌ `structure_only` | ❌ |
+
+Carrying a page's prose must be the user's decision: the endpoint is read-only and never writes back. The real-chain acceptance script ships with the repository (`scripts/verify_page_blocks_chain.py`); the release notes document the three green-but-broken defects this chain's verification found and fixed — including one where a production-shaped fetch crashed the instant it succeeded, shipped in v0.6.2–v0.6.4.
 
 ## Editable PPTX (new in v0.6)
 
@@ -240,7 +256,7 @@ Every asset passes a **review workbench** (CSP-sandboxed preview + three-tier li
 
 ### Six real output types
 
-Generated by the e2e acceptance flow of the released `v0.5.0` (the artifact structure of all six generators is unchanged in v0.6.0):
+Generated by the e2e acceptance flow of the released `v0.5.0` (the artifact structure of all six generators is unchanged through v0.7.0 without page blocks):
 
 | Landing | Dashboard | Deck |
 |---|---|---|
@@ -252,21 +268,21 @@ Generated by the e2e acceptance flow of the released `v0.5.0` (the artifact stru
 
 ## Download & Install
 
-v0.6.3 was released on 2026-10-04; packages ship from the [v0.6.3 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3). v0.6.0 and v0.6.1 users can upgrade in place — the project schema and data directory are unchanged. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
+v0.7.0 was released on 2026-10-07; packages ship from the [v0.7.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0). v0.6.1 / v0.6.3 / v0.6.4 users can upgrade in place (**skip v0.6.2**) — the project schema and data directory are unchanged; v0.7 adds page-block capability to existing projects while old projects keep their id-only `blocks` and behave exactly as before. The [DeepSeek Harness plugin preview](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) is versioned separately.
 
-Package naming is unchanged and the version segment follows the release. The filenames below are listed for `v0.6.3` and correspond one-to-one with the Release attachments:
+Package naming is unchanged and the version segment follows the release. The filenames below are listed for `v0.7.0` and correspond one-to-one with the Release attachments:
 
 | Platform | Recommended file | Usage |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.6.3.exe` | Per-user installer with a Start menu entry |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.6.3.zip` | Extract and run `HtmlNineFox.exe`, no install needed (73.8 MB, verified locally) |
-| Linux | `HtmlNineFox-Linux-0.6.3.run` | `chmod +x` and run; installs to user directory |
-| Linux / audit | `HtmlNineFox-Linux-0.6.3.tar.gz` | Inspectable full installation contents |
-| macOS 14+ (Apple Silicon) | `HtmlNineFox-macOS-arm64-0.6.3.zip` | Extract, then right-click HtmlNineFox.app → Open to bypass Gatekeeper (unsigned) |
-| Python 3.10+ | `htmlninefox-0.6.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.6.0-py3-none-any.whl` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.7.0.exe` | Per-user installer with a Start menu entry |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.7.0.zip` | Extract and run `HtmlNineFox.exe`, no install needed |
+| Linux | `HtmlNineFox-Linux-0.7.0.run` | `chmod +x` and run; installs to user directory |
+| Linux / audit | `HtmlNineFox-Linux-0.7.0.tar.gz` | Inspectable full installation contents |
+| macOS 14+ (Apple Silicon) | `HtmlNineFox-macOS-arm64-0.7.0.zip` | Extract, then right-click HtmlNineFox.app → Open to bypass Gatekeeper (unsigned) |
+| Python 3.10+ | `htmlninefox-0.7.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.7.0-py3-none-any.whl` |
 | Docker | Build from source | `docker compose up --build`; tag CI verifies but does not publish the image |
 
-> **What was actually verified**: the Windows portable package was really launched on this machine (`/api/health` reports `0.6.0 / windows-portable`, the home page and all six static assets load, the process exits cleanly). The Linux and macOS artifacts were **only verified as builds plus SHA-256, never executed** — the machine used here is Windows, so they could not be. The installer (`Setup.exe`) was likewise built but its install flow was not exercised.
+> **What was actually verified**: since v0.6.4 every release artifact is **downloaded back and re-hashed byte-for-byte** by the release pipeline before the draft flips to published, and the Windows portable package is really launched in CI with a content-level check. Installers and the Linux / macOS artifacts are not exercised on this (Windows) machine; their verification is what CI runs, stated as such.
 
 ### Quick start
 
@@ -299,10 +315,15 @@ htmlninefox export ./output/ACTUAL-PROJECT --format png --scope pages --pages 1-
 
 ## Version history
 
-RC3-A through E completed the architecture hardening following the [`mattpocock/skills`](https://github.com/mattpocock/skills) research, domain-modeling, codebase-design, TDD, and code-review methods, and shipped as the stable `v0.5.0`; v0.6 builds on it with the design intake pipeline and editable PPTX.
+RC3-A through E completed the architecture hardening following the [`mattpocock/skills`](https://github.com/mattpocock/skills) research, domain-modeling, codebase-design, TDD, and code-review methods, and shipped as the stable `v0.5.0`; v0.6 builds on it with the design intake pipeline and editable PPTX; v0.7 turns an absorbed page into an editable project.
 
 | Version | Date | Delivered | Record |
 |---|---|---|---|
+| **v0.7.0** | 2026-10-07 | **Page decomposition**: a page's own sections become a project's (`page_blocks_from_candidate` + `POST /api/intake/page-blocks`), all six content types consume the block channel, copyright decided per field across three licence tiers; `archive` branch added. Release verification against real data found and fixed three green-but-broken defects (a production-shaped fetch that crashed the instant it succeeded — shipped in v0.6.2–v0.6.4; the real endpoint's blocks rendered every page's prose twice; directly nested sections swallowed into one summary); gates `596 passed, 2 skipped` on Windows, 16 mutation scripts all caught, Chromium `22/22`, real-chain `15/15` | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0) · [release notes](docs/RELEASE-NOTES-v0.7.0.md) · [design doc](docs/DESIGN-v0.7-page-decomposition.md) |
+| v0.6.4 | 2026-10-06 | Gate hardening: release artefacts downloaded back and re-hashed byte-for-byte before publishing; fixed a page's palette never reaching the output and `blocks` flattened to strings; C7 front-end kernel in two steps; gates `499 passed, 1 skipped`, 8 mutation scripts / 67 mutations all caught | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.4) · [release notes](docs/RELEASE-NOTES-v0.6.4.md) |
+| v0.6.3 | 2026-10-04 | Fixed v0.6.2's outbound fetch failing 100% of the time (headers landing in the body slot, missing `context`, SNI falling back to DNS); mutation testing exposed five lying gates; gates `414 passed, 1 skipped` | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3) · [release notes](docs/RELEASE-NOTES-v0.6.3.md) |
+| v0.6.2 | 2026-10-04 | Connection-level IP pinning for design-intake fetches (the security direction was right; the implementation broke every fetch — **skip this release**) | [release notes](docs/RELEASE-NOTES-v0.6.2.md) |
+| v0.6.1 | 2026-10-03 | Slide-editor race fix; 50s Chinese/English real-operation recordings (Playwright driving the real service); gates `403 passed` | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.1) · [release notes](docs/RELEASE-NOTES-v0.6.1.md) |
 | **v0.6.0** | 2026-10-01 | Design intake pipeline (multi-URL / ZIP import, 12 built-in design sources, three license tiers, CSP-sandboxed review workbench, AI design analysis, intake metrics); editable PPTX export plus the in-workbench slide editor; pre-release design convergence (7 font sizes / 4 weights / spacing scale tokens, first-paint canvas fit 0.33→0.80, contrast up to AA); fixed the Windows portable package crashing on startup and took artifact verification down to the content level; gates `387 passed, 1 skipped`, Chromium / WebKit `22/22` each | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) · [release notes](docs/RELEASE-NOTES-v0.6.0.md) · [gate evidence](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | **v0.5.0 stable** | 2026-09-25 | RC3 wrap-up; Windows / Linux / wheel / Docker attachments with SHA-256 | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) · [test report](docs/TEST-REPORT-v0.5.0.md) |
 | RC3-E | 2026-09-25 | Browser lifecycle modules, generation cancel, export race guards | [iteration record](docs/ITERATION-RC3-E-20260925.md) |
@@ -327,6 +348,20 @@ Real evidence screenshots from historical releases:
 </table>
 
 ## Testing & Trust Evidence
+
+All release gates for v0.7.0 were verified on October 7, 2026:
+
+| Check | Result | Evidence |
+|---|---:|---|
+| Python + browser test suite (Windows local) | **596 passed, 2 skipped** (68 test files; Linux CI expected 597 passed / 1 skipped) | [v0.7.0 release notes · Verification](docs/RELEASE-NOTES-v0.7.0.md#验证) |
+| Mutation testing | **16 scripts, all CAUGHT** (87 mutations, zero missed; P1/P4 rewritten, F1 added) | [same](docs/RELEASE-NOTES-v0.7.0.md#验证) |
+| Browser end-to-end (bundled Chromium) | **22 / 22** | `e2e_verify.py` (verified 2026-10-07) |
+| Real-chain verification | **15 / 15**: real public fetch → SSRF rejects private hosts → block cutting → six intents, each prose exactly once → feedback keeps the blocks → reference licence carries no prose | [acceptance script](scripts/verify_page_blocks_chain.py) (ships with the repo) |
+| Release metadata consistency (`check_release_version.py`) | **consistent (v0.7.0)** | verified locally |
+| Production-shaped fetch gate | `fetch_reference` called the way production calls it; mutation F1 locks it | [test_design_intake.py](tests/test_design_intake.py) |
+| LLM integration | MiniMax-M3 / Claude / GPT-4o with env auto-config | [install docs](docs/INSTALL.md) |
+
+> **How these gates were built this round**: the reverse-verification discipline stayed — remove the fix and the gate must go red. v0.7.0's additional lesson is that **the fixture's shape must look like real data**: the "exactly once" gate blocked double rendering but was bypassed by its own endpoint's heading == content shape. Calling the production shape once beats calling the fixture shape a hundred times. See the [release notes](docs/RELEASE-NOTES-v0.7.0.md).
 
 All release gates for v0.6.0 were re-verified on September 29, 2026:
 

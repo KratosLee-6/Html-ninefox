@@ -8,18 +8,18 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.6.3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3)
+[![App Release](https://img.shields.io/badge/app-v0.7.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-414%20passed%20%7C%201%20skipped-1F8A70)](docs/TEST-REPORT-v0.6.0.md)
-[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/TEST-REPORT-v0.6.0.md)
+[![Tests](https://img.shields.io/badge/pytest-596%20passed%20%7C%202%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.7.0.md)
+[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
 </div>
 
-![Html九尾狐 Pixel Garden 工作台（v0.6.0 实拍）](assets/screenshots/v0.6.3/workbench-overview.png)
+![Html九尾狐 Pixel Garden 工作台（v0.7.0 实拍）](assets/screenshots/v0.7.0/workbench-overview.png)
 
 ## 50 秒看完 Html九尾狐怎么干活
 
@@ -65,38 +65,40 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
   用自然语言反馈，按版本继续迭代
 ```
 
-## 当前版本与最新进展（v0.6.4 已发布）
+## 当前版本与最新进展（v0.7.0 已发布）
 
-当前应用包版本为 `0.6.4`，发布标签 `v0.6.4`。**v0.6.4 是门禁收口版，不新增用户可见功能**，
-它做的是把「绿灯」变成可信的，并因此修掉两处真实缺陷：
+当前应用包版本为 `0.7.0`，发布标签 `v0.7.0`。**v0.7.0 是里程碑版本：网页反向拆解——
+把一个真实网页的分区，变成一个结构可编辑的项目。** 之前只能「用一段描述生成一个页面」；
+现在可以把一个已存在页面的分区结构带进来，正文按许可决定带不带：
 
-- **页面的配色从来没有到达生成的页面**。从设计吸收导入一个页面作为风格预设，用户
-  **预览**里看到的是页面自己的颜色，**点生成**出来的却是默认预设的颜色，**全程无任何
-  报错**。两处缺陷叠加：生成路径用内置表查找解析模板（用户模板不在表里，静默回落），
-  而预设产出的是 `colors`/`fonts`——**每个消费方读的都是 `tokens` 键，而它根本不存在**。
-- **`composition["blocks"]` 会把结构化分块压成字符串**，页面分块无法穿过流水线。
-
-这一版还做了三件把「已验证」变成事实的事：
-
-- **发布物第一次被真正验证**。此前三轮里两个 103.75MB 的 Linux 附件从未真正下载过，
-  「已验证」只意味着元数据对得上。现在发布流水线会把每个产物**下载回来核对字节**，
-  通过之后才把草稿转正式——**坏包从来没出过门**。
-- **两条本该早就红却一直没红的门禁**。一条 SSRF TLS 安全门禁因为 `cryptography`
-  从未声明，**在 CI 上一次都没跑过**（本机全绿只是因为这台机器恰好装了）；另一条
-  把有效期 ±1 天的自签证书缓存下来，**从第一次运行起 24 小时后就开始失败**。
-- **C7 前端共享内核两步完成**：81,375 字符的内核从 `index.html` 抽成独立文件，
-  扩展层的 13 行顶层语句清空由内核显式装配——6 个纯函数**第一次可以单测**，
-  `index.html` 的加载顺序不再是硬约束。
+- **全链路打通**：`POST /api/intake/page-blocks` 把已采纳候选的分区重新切成生成通道
+  认识的分块，**六个内容类型全部消费**（v0.6.4 只有 doc 一个——其余五个静默丢弃页面
+  内容，landing 甚至渲染空白页）。端点**只读不写回**：携带页面正文必须由用户决定，
+  不能成为一次抓取的副作用。
+- **版权按字段判断**：`open` 许可才随行正文（verbatim），`reference` /
+  `inspiration-only` 只带结构与顺序（structure_only，产物回落自带文案）。
+  分块路径与整页进模板库的批准路径问**同一个规则函数**——本版同时修掉了一个
+  既存矛盾：`reference` 许可曾一边被判「只给结构不给正文」，一边整页 HTML 被原样
+  复制进模板库。
+- **发布前实测翻出并修复三个「全绿但坏了」**（真实数据才看得见）：
+  ① 生产形态的抓取**每次成功都在成功的瞬间崩**（`resolver=None` 进了重绑定检查，
+  自 v0.6 抓取地基起随 v0.6.2 / v0.6.3 / v0.6.4 三次发布出门——所有测试都显式注入
+  resolver，所以全绿）；② 真实端点产出的分块 heading == content，**每段正文在
+  六个 intent 里渲染两遍**（「恰好一次」门禁的夹具 heading ≠ content，看不见自己
+  端点的形状）；③ section 直接嵌套 section 仍被吞成一个摘要（非贪婪正则在内层
+  闭合处截断，已修的只是「main 里放平级 section」一种形状）。三处各配
+  「去掉修复必须变红」的门禁与变异。
 
 > v0.6.2 的设计吸收抓取是坏的，**请跳过 v0.6.2**。
-> v0.6.1（幻灯片编辑器竞态修复 + 真实操作录屏）与 v0.6.0（设计吸收 + 可编辑 PPTX
-> 两条主线）的内容不受影响，内容见各自的[发布说明](docs/RELEASE-NOTES-v0.6.0.md)。
-> **建议从 v0.6.1 或 v0.6.3 直接升级到 v0.6.4**。
+> v0.6.1（幻灯片编辑器竞态修复 + 真实操作录屏）、v0.6.0（设计吸收 + 可编辑 PPTX
+> 两条主线）与 v0.6.3 / v0.6.4（门禁收口）的内容不受影响，
+> 内容见各自的[发布说明](docs/RELEASE-NOTES-v0.6.0.md)。
+> **建议从 v0.6.1 / v0.6.3 / v0.6.4 直接升级到 v0.7.0**。
 
 | 轨道 | 当前状态 | 查看 |
 |---|---|---|
-| 应用 Release | `v0.6.4` 已发布（2026-10-06） | [发布页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.4) · [上一版 v0.6.3](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3) |
-| 发布验证 | 全量测试 `499 passed, 1 skipped`；**8 个变异脚本共 67 个变异全部捕获**；发布物字节级回读 | [v0.6.4 发布说明](docs/RELEASE-NOTES-v0.6.4.md) · [C7 第二步设计](docs/DESIGN-c7-step2-injectable-state.md) |
+| 应用 Release | `v0.7.0` 已发布（2026-10-07） | [发布页](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0) · [上一版 v0.6.4](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.4) |
+| 发布验证 | 全量测试 Windows 本地 `596 passed, 2 skipped`（Linux CI `597 passed, 1 skipped`）；**16 个变异脚本全部捕获**；真实链路实测 `15/15`；发布物字节级回读 | [v0.7.0 发布说明](docs/RELEASE-NOTES-v0.7.0.md) · [v0.7 设计文档](docs/DESIGN-v0.7-page-decomposition.md) |
 | DeepSeek Harness 插件 | `0.1.0-preview.1`，独立于应用版本 | [插件预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1) |
 
 
@@ -160,13 +162,14 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 | 目录 | 张数 | 内容 |
 |---|---:|---|
-| `assets/screenshots/v0.6.3/` | **23** | 当前版本实拍：工作台与画布 7 张、输入与检查器 4 张、Project Memory / 版本 / 取消 / 经典模式 4 张、设计吸收 3 张、幻灯片编辑与 PPTX 导出 3 张、移动端素材库 1 张 |
+| `assets/screenshots/v0.7.0/` | **11** | 当前版本实拍：工作台 6 张 + 网页反向拆解真实链路 5 张（审核台 / 采纳 / 分区进成品 / 文档成品 / 入库闭环） |
+| `assets/screenshots/v0.6.3/` | **23** | v0.6.3 版实拍：工作台与画布 7 张、输入与检查器 4 张、Project Memory / 版本 / 取消 / 经典模式 4 张、设计吸收 3 张、幻灯片编辑与 PPTX 导出 3 张、移动端素材库 1 张 |
 | `assets/screenshots/v0.5.0/` | 24 | v0.5.0 完整实拍集（含 6 张真实产物输出图） |
 | `assets/screenshots/v0.4.0/` | 5 | Pixel Garden、LLM、Docker、Export Center 的历史记录 |
 
 > v0.6.0 的 23 张全部由可复跑的门禁产出（`tests/test_v060_visual_evidence_states.py` 与
 > `tests/test_v061_visual_evidence_states.py`），不是手工截图；清单与重采命令见[截图说明](assets/screenshots/README.md)。
-> 仍引用 `v0.5.0/` 的只有**六类生成器产物**——它们由生成器实跑产出而非 UI 截图，产物结构在 v0.6.0 未变。
+> 仍引用 `v0.5.0/` 的只有**六类生成器产物**——它们由生成器实跑产出而非 UI 截图，产物结构在 v0.7.0 未变。
 
 ## v0.5.0 稳定版核心能力（历史）
 
@@ -200,6 +203,28 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 - **🤖 AI 分析**：候选自动生成设计描述、标签、布局说明与内容配方（复用你的 AI 设置，无 Key 不影响其他功能）
 
 所有素材经**审核台**人工确认后入库（沙箱预览 + 许可三档治理：开放可入库 / 仅参考重写 / 仅灵感板），审核台支持批量采用 / 拒绝与按来源筛选，吸收指标面板记录候选与入库情况；风格进面板、组件可拖拽参与生成、动效进 motion-lab——且全部尊重动效偏好与预算。六个层面（模板、风格、组件、装饰、动效、内容）都走同一条「吸收 → 审核 → 入库 → 使用」通路。
+
+## 网页反向拆解（v0.7 新增）
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.7.0/intake-page-blocks-pending.png" alt="审核台中的真实候选"><br><b>审核台 · 候选带许可标签</b><br>贴一个公开网址，页面落进审核台等你过目；v0.7 起可以把候选的分区直接拆成生成分块。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/output-landing-with-page-sections.png" alt="页面分区出现在生成的成品里"><br><b>拆下来的分区 · 真的出现在成品里</b><br>开放许可的页面，标题与正文随生成带走；六类内容全部消费这条通道。</td>
+</tr>
+</table>
+
+v0.7 把「吸收」的终点从模板库延伸到了**生成**：`POST /api/intake/page-blocks` 把已采纳候选的
+分区重新切成生成通道认识的分块（含嵌套小节），六个内容类型全部消费——版权按字段判断：
+
+| 许可 | 分块携带正文 | 整页进入模板库 |
+|---|---|---|
+| `open` | ✅ `verbatim` | ✅ |
+| `reference` | ❌ `structure_only`（生成回落自带文案） | ❌ |
+| `inspiration-only` | ❌ `structure_only` | ❌ |
+
+携带页面正文必须由用户决定：该端点只读不写回。真实链路验收脚本随仓库发布
+（`scripts/verify_page_blocks_chain.py`），发布说明里有这条链路翻出并修掉的三个缺陷——
+包括一个在 v0.6.2–v0.6.4 三个发布版本里「全绿却每次抓取成功即崩」的真问题。
 
 ## 可编辑 PPTX（v0.6 新增）
 
@@ -249,7 +274,7 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ### 六类真实产物
 
-以下产物图由 `v0.5.0` 发布版的 e2e 验收流程真实生成（六类生成器的产物结构在 v0.6.0 未变；这 6 张由生成器实跑产出而非 UI 截图，因此仍是 v0.5.0 版式）：
+以下产物图由 `v0.5.0` 发布版的 e2e 验收流程真实生成（六类生成器的产物结构在 v0.7.0 未变；这 6 张由生成器实跑产出而非 UI 截图，因此仍是 v0.5.0 版式；v0.7.0 的页面分块产物见[网页反向拆解](#网页反向拆解v07-新增)一节）：
 
 | 落地页 | 数据看板 | 发布会 PPT |
 |---|---|---|
@@ -265,6 +290,11 @@ RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 re
 
 | 版本 | 日期 | 交付 | 记录 |
 |---|---|---|---|
+| **v0.7.0** | 2026-10-07 | **网页反向拆解**：页面分区变成项目分区（`page_blocks_from_candidate` + `POST /api/intake/page-blocks`），六个内容类型全部消费分块通道，版权按字段三档；归档分支 `archive`。发布前实测翻出并修复三个「全绿但坏了」（生产形态抓取成功即崩——随 v0.6.2–v0.6.4 出门；真实端点分块正文渲染两遍；嵌套分区被吞）；门禁 Windows 本地 `596 passed, 2 skipped`、16 个变异脚本全部 CAUGHT、Chromium `22/22`、真实链路 `15/15` | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0) · [发布说明](docs/RELEASE-NOTES-v0.7.0.md) · [设计文档](docs/DESIGN-v0.7-page-decomposition.md) |
+| v0.6.4 | 2026-10-06 | 门禁收口：发布物字节级回读（下载 250MB 逐字节核对后才转正式）；修页面配色从未到达成品、`blocks` 被压平；C7 前端内核两步完成；门禁 `499 passed, 1 skipped`、8 个变异脚本 67 个变异全捕获 | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.4) · [发布说明](docs/RELEASE-NOTES-v0.6.4.md) |
+| v0.6.3 | 2026-10-04 | 修复 v0.6.2 的出站抓取 100% 失败（headers 落 body 位、缺 `context`、SNI 回退 DNS）；变异测试翻出五条「门禁自己说谎」；门禁 `414 passed, 1 skipped` | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3) · [发布说明](docs/RELEASE-NOTES-v0.6.3.md) |
+| v0.6.2 | 2026-10-04 | 设计吸收 SSRF 连接级 IP 绑定（安全补丁方向正确，实现有缺陷致抓取不可用，**请跳过**） | [发布说明](docs/RELEASE-NOTES-v0.6.2.md) |
+| v0.6.1 | 2026-10-03 | 幻灯片编辑器竞态修复；50s 中英双语真实操作录屏（Playwright 驱动真实服务）；门禁 `403 passed` | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.1) · [发布说明](docs/RELEASE-NOTES-v0.6.1.md) |
 | **v0.6.0** | 2026-10-01 | 设计吸收流水线（多 URL / ZIP 导入、12 个内置设计源、三档许可、CSP 沙箱审核台、AI 设计分析、吸收指标）；可编辑 PPTX 导出 + 工作台内幻灯片编辑器；发布前设计收口（字号 7 档 / 字重 4 档 / 间距尺度 token、首屏画布缩放 0.33→0.80、对比度达 AA）；修 Windows 便携包启动即崩，并把产物验证加到内容级；门禁 `387 passed, 1 skipped`、Chromium / WebKit 各 `22/22` | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.0) · [发布说明](docs/RELEASE-NOTES-v0.6.0.md) · [门禁证据](docs/test-evidence/v0.6.0-s17-20260929/README.md) |
 | **v0.5.0 稳定版** | 2026-09-25 | RC3 收口，发布 Windows / Linux / wheel / Docker 附件与 SHA-256 | [Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.5.0) · [测试报告](docs/TEST-REPORT-v0.5.0.md) |
 | RC3-E | 2026-09-25 | 浏览器生命周期 Module 拆分、生成取消、导出竞态守卫 | [迭代记录](docs/ITERATION-RC3-E-20260925.md) |
@@ -290,21 +320,21 @@ RC3-A～E 按 [`mattpocock/skills`](https://github.com/mattpocock/skills) 的 re
 
 ## 下载与安装
 
-v0.6.3 已于 2026-10-04 发布，安装包随 [v0.6.3 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.6.3) 提供。v0.6.0 / v0.6.1 用户可直接升级，项目 schema 与数据目录不变。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
+v0.7.0 已于 2026-10-07 发布，安装包随 [v0.7.0 Release](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0) 提供。v0.6.1 / v0.6.3 / v0.6.4 用户可直接升级（**请跳过 v0.6.2**），项目 schema 与数据目录不变；v0.7 为既有项目新增页面分块能力，旧项目的 `blocks` 仍是 id 列表，行为不变。DeepSeek Harness 插件使用[独立预览版](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)，不要把插件版本当成应用版本。
 
-包体命名规则保持不变，版本号随发布版本推进。下列文件名按 `v0.6.3` 列出，与 Release 附件逐一对应：
+包体命名规则保持不变，版本号随发布版本推进。下列文件名按 `v0.7.0` 列出，与 Release 附件逐一对应：
 
 | 平台 | 推荐文件 | 使用方式 |
 |---|---|---|
-| Windows 10/11 | `HtmlNineFox-Setup-0.6.3.exe` | 安装到当前用户，创建开始菜单入口 |
-| Windows 10/11 | `HtmlNineFox-Windows-x64-0.6.3.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
-| Linux | `HtmlNineFox-Linux-0.6.3.run` | `chmod +x` 后运行，安装到当前用户目录 |
-| Linux/审计 | `HtmlNineFox-Linux-0.6.3.tar.gz` | 可查看完整安装内容 |
-| macOS 14+（Apple Silicon） | `HtmlNineFox-macOS-arm64-0.6.3.zip` | 解压后右键 HtmlNineFox.app →「打开」绕过 Gatekeeper（未做公证） |
-| Python 3.10+ | `htmlninefox-0.6.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.6.0-py3-none-any.whl` |
+| Windows 10/11 | `HtmlNineFox-Setup-0.7.0.exe` | 安装到当前用户，创建开始菜单入口 |
+| Windows 10/11 | `HtmlNineFox-Windows-x64-0.7.0.zip` | 解压后运行 `HtmlNineFox.exe`，免安装 |
+| Linux | `HtmlNineFox-Linux-0.7.0.run` | `chmod +x` 后运行，安装到当前用户目录 |
+| Linux/审计 | `HtmlNineFox-Linux-0.7.0.tar.gz` | 可查看完整安装内容 |
+| macOS 14+（Apple Silicon） | `HtmlNineFox-macOS-arm64-0.7.0.zip` | 解压后右键 HtmlNineFox.app →「打开」绕过 Gatekeeper（未做公证） |
+| Python 3.10+ | `htmlninefox-0.7.0-py3-none-any.whl` | `python -m pip install ./htmlninefox-0.7.0-py3-none-any.whl` |
 | Docker | 源码构建 | `docker compose up --build`；标签 CI 验证镜像但不上传镜像仓库 |
 
-> **已验证范围**：Windows 便携包已在本机真实启动验证（`/api/health` 回报 `0.6.0 / windows-portable`，首页与六项静态资源正常，进程干净退出）。Linux 与 macOS 产物在 CI 中**只验证了构建成功与 SHA-256，未实跑**——本机是 Windows，无法在此验证。安装器（`Setup.exe`）同样只验证了构建，未实跑安装流程。
+> **已验证范围**：每个发布产物在转正式前都会被发布流水线**下载回来逐字节核对**（v0.6.4 起）；Windows 便携包在 CI 中真实启动并核对内容版本。安装器与 Linux / macOS 产物在本机（Windows）不做实跑安装，如实以 CI 验证为准。
 
 ### 快速开始
 
@@ -395,6 +425,23 @@ htmlninefox export output/html9n-<时间戳> --format png --scope long
 
 ## 测试与信任证据
 
+v0.7.0 的门禁已在 2026-10-07 实测通过：
+
+| 验证项 | 结果 | 证据 |
+|---|---:|---|
+| Python + 浏览器测试套件（Windows 本机） | **596 passed, 2 skipped**（68 个测试文件；Linux CI 预期 597 passed / 1 skipped） | [v0.7.0 发布说明 · 验证](docs/RELEASE-NOTES-v0.7.0.md#验证) |
+| 变异测试 | **16 个脚本全部 CAUGHT**（87 个变异零漏网；P1/P4 重写、新增 F1） | [同上](docs/RELEASE-NOTES-v0.7.0.md#验证) |
+| 浏览器端到端（bundled Chromium） | **22 / 22** | `e2e_verify.py`（2026-10-07 实测） |
+| 真实链路实测 | **15 / 15**：真实公网抓取 → SSRF 拒内网 → 拆块 → 六类 intent 各恰好一次 → 反馈迭代不丢 → 仅参考许可零正文 | [验收脚本](scripts/verify_page_blocks_chain.py)（已随仓库发布） |
+| 发布元数据一致性（`check_release_version.py`） | **一致（v0.7.0）** | 本地实测 |
+| 生产形态抓取门禁 | 按生产形状调用 `fetch_reference`，变异 F1 锁定 | [test_design_intake.py](tests/test_design_intake.py) |
+| LLM 接入 | MiniMax-M3 / Claude / GPT-4o 环境变量自动配置 | [配置文档](docs/INSTALL.md) |
+
+> **本轮门禁的做法**：延续「每一条新门禁都做反向验证——把对应修复去掉，测试必须变红」。
+> v0.7.0 的额外教训是**夹具的形状也要像真实数据**：「恰好渲染一次」的门禁挡住了重复渲染，
+> 却被自己端点 heading == content 的产出形状绕过；「按生产形态调用一次」胜过「按夹具形态
+> 调用一百次」。详见[发布说明](docs/RELEASE-NOTES-v0.7.0.md)。
+
 v0.6.0 的全部门禁已在 2026-09-29 复验通过：
 
 | 验证项 | 结果 | 证据 |
@@ -440,7 +487,7 @@ output/html9n-<时间戳>/
 
 ## 当前状态与路线
 
-当前仓库版本为 `v0.6.3`（已于 2026-10-04 发布）：**纯安全补丁**，关闭设计吸收出站抓取的 SSRF TOCTOU 窗口——socket 现连到已校验的地址，TLS 的 SNI 与证书校验仍用真实主机名。门禁 `409 passed / 1 skipped`，新增 6 条走真实 socket 的用例并做过反向验证。`v0.6.1` 是上一稳定版（幻灯片编辑器竞态修复 + 真实操作录屏），`v0.6.0` 交付设计吸收与可编辑 PPTX 两条主线。下一阶段按 [ROADMAP-v0.6.1-v0.7](docs/ROADMAP-v0.6.1-v0.7.md) 推进：网页反向拆解。
+当前仓库版本为 `v0.7.0`（已于 2026-10-07 发布）：**网页反向拆解**——把一个真实网页的分区变成一个结构可编辑的项目，六个内容类型全部消费分块通道，版权按字段三档；发布前实测翻出并修复三个「全绿但坏了」的缺陷（其中一个随 v0.6.2–v0.6.4 三次发布出门）。门禁 Windows 本地 `596 passed / 2 skipped`，16 个变异脚本全部 CAUGHT。`v0.6.4` 是上一稳定版（门禁收口 + 发布物字节级回读），`v0.6.0` 交付设计吸收与可编辑 PPTX 两条主线。下一阶段方向（桌面版 / Word 导出 / 拆解更聪明 / 生成效果打磨）按 [ROADMAP](docs/ROADMAP.md) 与社区反馈推进。
 
 查看完整路线：[ROADMAP](docs/ROADMAP.md) · 查看变更：[CHANGELOG](CHANGELOG.md)
 

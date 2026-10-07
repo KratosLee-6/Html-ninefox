@@ -14,8 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.0] — 2026-10-07 · 网页反向拆解：把一个页面的分区变成一个项目
 
 > 里程碑版本。产品 schema 与 HTTP 接口有新增，既有项目行为不变。
-> 门禁：**589 passed / 2 skipped**（68 个测试文件）；**15 个变异脚本全部 CAUGHT**；
-> CI **10 个 job**。
+> 门禁：Windows 本地 **596 passed / 2 skipped**（68 个测试文件；符号链接那条
+> skip 仅 Windows，Linux CI 为 597 passed / 1 skipped）；**16 个变异脚本全部
+> CAUGHT**；浏览器端到端 **22/22**；CI（Test **9 个 job**）在发布提交上全绿。
 > 证据：[设计文档](docs/DESIGN-v0.7-page-decomposition.md)、
 > [发布说明](docs/RELEASE-NOTES-v0.7.0.md)。
 
@@ -29,6 +30,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   另加 `TIMELINE.md` 记录完整迭代时间线与三次「绿灯但功能是坏的」。
 
 **Fixed**
+- **生产形态的抓取，每次成功都在成功的瞬间崩**（发布阻断级，且随 v0.6.2 /
+  v0.6.3 / v0.6.4 三次发布出门）。
+  `_api_intake_fetch` 只传 `headers`，`fetch_reference` 的 `resolver` 形参留在
+  `None`；取回成功后的重绑定检查直接调用 `_resolve(host, resolver)`
+  ——`None(host, 443)`，`TypeError`。而 `test_design_intake.py` 里其余每一条
+  用例都**显式注入 resolver**，所以全绿。发布前实测不带 resolver 真抓
+  `example.com` 才翻出来。修法与 `validate_url` 同一默认；新增
+  「按生产形态调用」的门禁与变异脚本（F1，已接入 CI）。
+- **真实端点产出的分块，每段正文在六个 intent 里都渲染两遍**（发布阻断级）。
+  `page_blocks_from_candidate` 的 `heading` 与 `content` 是同一串 `text_head`，
+  而渲染器把 heading 放进 `<h2>`、content 放进 `<p>`。「恰好一次」的门禁
+  看不见这个形状，因为它的手工夹具 heading ≠ content——夹具证明了自己，
+  没证明端点。现在 heading 取分区自己的标题标签、content 取其余正文；
+  端到端门禁改用抽取器自己的产物数数（变异 P7）。
+- **section 直接嵌套 section 时，外层仍把内层吞成一个摘要**。
+  `_innermost_sections` 的非贪婪正则在外层区块内**第一个** `</section>`
+  （即内层的闭合）处截断，递归拿到的是半个标签、什么也配不上——已修的
+  只是「main 里放平级 section」这一种形状，而真实页面两种都有。配对交给
+  栈：闭标签弹到最近同名开标签，容纳了其他分区的容器被它包含的叶子取代，
+  任意深度成立（P1 / P4 变异重写后 7/7 CAUGHT）。
 - **landing 渲染出空白页，archdoc 只有外壳**（发布阻断级）。
   实测：landing 的 body 是 **0 字符**，archdoc 26 字符（仅外壳），
   dashboard / deck / poster 渲染自己的文案并**静默丢弃**页面内容。
@@ -61,20 +82,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   会得到 `html9n-2026-10-07-12830`，一个看起来完全合法的**不同时间戳**。
   现在基名整体保留，只在末尾追加计数。
 
-**门禁基建：新增 5 组测试（67 条）+ 2 个变异脚本**
+**门禁基建：新增 5 组测试（67 条）+ 2 个变异脚本；
+发布前实测再补 9 条门禁 + 1 个变异脚本（F1），重写 P1 / P4**
 - 新增「页面分区必须到达每一个 intent」，用**计数**而非存在性
   （`body.count(ALPHA) == 1`），并双向断言：「该出现的出现」与
   「不该出现的没出现」缺一不可。只断言存在的话，重复渲染两次照样通过。
+  发布前实测证明只有它还不够：夹具的 heading ≠ content，端点自己产出的
+  heading == content 形状照样漏过——于是再加一条**用抽取器自己的产物**
+  喂给全部六个 intent 数数的门禁。
+- 新增「生产形态抓取必须成功」：不注入 resolver、按 `_api_intake_fetch`
+  的真实形态调用 `fetch_reference`。同文件其余用例全部显式注入，
+  这一条是唯一按生产形状看它的门禁（F1 变异锁定，接入 pytest-and-browser）。
 - 新增许可规则的 11 条门禁，断言**两条路径的答案相同**而不是各自断言，
   这样加第四档许可时会暴露分歧，而不是把两份拷贝一起放宽。
 - 新增推送路径与发布冲突的门禁（14 条 + 5 条），它们跑的是真实代码：
   推送门禁在工作区故意比提交更脏的临时仓库里驱动 `blob_bytes`，
   因为扫源码会找到写着 `git cat-file` 的注释而放过仍在调 `read_bytes` 的代码。
+- P1 / P4 曾锁定旧正则实现的那一行；切分器改成栈式配对后旧目标不存在，
+  变异必须跟着改打新实现（叶子过滤、闭标签分支），并各配新门禁收口。
 - 两条反向验证脚本自身修过三处失效：回退片段取自修复后的源码、
   函数式构造器定义在使用之后、闸门在写入行的**上一行**而非同一行。
 - 第三处曾把「变异没生效」报成 MISSED：去掉 `for` 循环后 `continue` 悬空，
   pytest 在收集阶段就中断（exit code = 2，零条 FAILED），
   只看退出码会以为门禁没抓到。现在回退文本先 `ast.parse` 再跑。
+  F1 第一版也打过偏：同一默认值在 `validate_url` 里还有一份，
+  `replace(..., 1)` 删掉了先出现的那份，门禁照样绿——
+  打偏的变异必须报 HARD FAIL，不能记成 CAUGHT。
 
 **Removed**
 - **远端 `master` 分支**：停在 2026-08-29 的 v0.2.0，落后 162 个提交，

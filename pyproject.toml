@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "htmlninefox"
-version = "0.6.4"
-description = "Html九尾狐 · 本地优先的可视化 HTML 创作工作台（v0.6.0 设计吸收 + 可编辑 PPTX）"
+version = "0.7.0"
+description = "Html九尾狐 · 本地优先的可视化 HTML 创作工作台（v0.7.0 网页反向拆解 + v0.6.0 设计吸收 + 可编辑 PPTX）"
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "KratosLee · Html九尾狐项目组" }]
