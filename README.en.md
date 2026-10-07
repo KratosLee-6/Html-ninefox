@@ -98,8 +98,22 @@ Full log: [CHANGELOG](CHANGELOG.md).
 
 ---
 
-📖 **More**: this homepage is a digest. The full feature-to-screenshot map, intake and PPTX deep dives, the complete trust-evidence table and acknowledgements live in [docs/HOMEPAGE-ARCHIVE.en.md](docs/HOMEPAGE-ARCHIVE.en.md) (Chinese [archive](docs/HOMEPAGE-ARCHIVE.md)).
+## 🙏 Credits & acknowledgements
 
-Design methods inspired by GuiCang, Huashu Design (this explainer film uses the [huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion) engine) and Archify — see [DESIGN-SOURCES](docs/DESIGN-SOURCES.md).
+Parts of this project are built on the following open-source work — credited here per licence requirements and courtesy (full source review in [DESIGN-SOURCES](docs/DESIGN-SOURCES.md)):
+
+| Source | Licence | Used for |
+|---|---|---|
+| [Univer](https://github.com/dream-num/univer) (dream-num) | Apache-2.0 | The in-workbench slide editor (since v0.6) is built on Univer Slides |
+| [python-pptx](https://github.com/scanny/python-pptx) (Steve Canny) | MIT | Server-side controlled mapping behind .pptx export |
+| [huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion) (Huashu) | MIT | The t2 keynote animation engine behind the v0.7.0 explainer film |
+| [Archify](https://github.com/tt-a1i/archify) (tt-a1i) | MIT | The README architecture diagram is generated with Archify |
+| [op7418/guizang-product-video-skill](https://github.com/op7418/guizang-product-video-skill) | AGPL-3.0 (methodology only; SFX are its original synthesized sounds, per its SOURCE.md) | Promo-film methodology; the `film/sfx` sounds originate there |
+| [baoyu-slide-deck](https://github.com/JimLiu/baoyu-skills) (JimLiu) | MIT | Method reference for the v0.3 image-based PPT generator |
+| [frontend-slides / beautiful-html-templates](https://github.com/zarazhangrui) (zarazhangrui) | MIT | The "avoid AI purple gradients, ship reliably" template philosophy |
+| [edge-tts](https://github.com/rany2/edge-tts) | custom (non-standard) | Voice synthesis for the explainer film |
+| GuiCang · Huashu Design · Archify and the wider community | — | Design methods and taste (itemised in [DESIGN-SOURCES](docs/DESIGN-SOURCES.md)) |
+
+The long-form acknowledgements (with original citations) stay in [docs/HOMEPAGE-ARCHIVE.en.md](docs/HOMEPAGE-ARCHIVE.en.md#credits--acknowledgements).
 
 [MIT License](LICENSE) © 2026 **KratosLee · Html九尾狐项目组**

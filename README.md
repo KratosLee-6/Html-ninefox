@@ -154,9 +154,22 @@ Windows / Linux / macOS 安装包与 wheel 见 [**v0.7.0 Release**](https://gith
 
 ---
 
-📖 **更多**：主页只留速览。功能↔截图对照全表、设计吸收与 PPTX 详解、测试与信任证据全表、致谢等完整内容见 [docs/HOMEPAGE-ARCHIVE.md](docs/HOMEPAGE-ARCHIVE.md)（英文 [archive](docs/HOMEPAGE-ARCHIVE.en.md)）·
-[安装指南](docs/INSTALL.md) · [架构](docs/ARCHITECTURE.md) · [路线图](docs/ROADMAP.md)
+## 🙏 致敬与感谢
 
-欢迎提交 Issue 与 PR。设计方法受归藏、花叔 Design（本次解说片引擎 [huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion)）、Archify 等社区工作启发，详见 [DESIGN-SOURCES](docs/DESIGN-SOURCES.md)。
+本项目的部分能力建立在以下开源工作之上——按许可要求与礼节，一并致谢（详细来源与许可审查见 [DESIGN-SOURCES](docs/DESIGN-SOURCES.md)）：
+
+| 来源 | 许可 | 用在哪里 |
+|---|---|---|
+| [Univer](https://github.com/dream-num/univer)（dream-num） | Apache-2.0 | v0.6 起的工作台内幻灯片可视化编辑基于 Univer Slides 构建 |
+| [python-pptx](https://github.com/scanny/python-pptx)（Steve Canny） | MIT | .pptx 导出的服务端受控映射，文本框在 PowerPoint / WPS 里真正可编辑 |
+| [huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion)（花叔） | MIT | v0.7.0 解说视频的 t2 发布会动画引擎（`film/v070-huashu/`） |
+| [Archify](https://github.com/tt-a1i/archify)（tt-a1i） | MIT | README 架构图由 Archify 生成（交互版随仓库发布） |
+| [op7418/guizang-product-video-skill](https://github.com/op7418/guizang-product-video-skill) | AGPL-3.0（仅借鉴方法论；SFX 为其原创合成并附使用声明） | 宣传片工程方法论；`film/sfx` 音效来源 |
+| [宝玉 baoyu-slide-deck](https://github.com/JimLiu/baoyu-skills)（JimLiu） | MIT | v0.3 PPT 生成模块「AI 画图每页 PPT」的方法参考 |
+| [张咋啦 frontend-slides / beautiful-html-templates](https://github.com/zarazhangrui)（zarazhangrui） | MIT | 模板库「避开 AI 紫渐变、稳定出片」的设计哲学来源 |
+| [edge-tts](https://github.com/rany2/edge-tts) | 自定义（非标准许可） | 解说视频的人声合成 |
+| 归藏 · 花叔 Design · Archify 等社区工作 | — | 设计方法与审美启发（逐项来源见 [DESIGN-SOURCES](docs/DESIGN-SOURCES.md)） |
+
+早期版本的完整致敬长文（含引用原文）保留在 [docs/HOMEPAGE-ARCHIVE.md](docs/HOMEPAGE-ARCHIVE.md#致敬与感谢)。
 
 [MIT License](LICENSE) © 2026 **KratosLee · Html九尾狐项目组**
