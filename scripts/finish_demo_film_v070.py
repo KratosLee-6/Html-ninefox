@@ -1,12 +1,16 @@
-"""Finish the v0.7.0 demo recording: captions, H3 opener, music, master.
+# -*- coding: utf-8 -*-
+"""Finish the v0.7.0 demo recording: brand open, captions, brand close, music.
 
 与 finish_demo_film.py 同一条纪律：界面 footage 是真实录屏，本阶段不得重绘
-任何 UI。唯一的合成元素是：
+任何 UI。合成元素只有三类：
 
-  - H3 抽象片头（assets/promo/opener-h3-2k.mp4，文生视频模型只出现在
-    提示词禁止一切文字的抽象氛围里）
-  - 字幕条（Pillow 渲染 PNG 叠加；drawtext 在本机 CJK 会乱码，不可用）
-  - 配乐（assets/promo/brand-bed.mp3）与片头自带的环境音
+  - H3 抽象片头/片尾底版（scripts/generate_h3_clips_v070.py 生成；缺省回退
+    到 assets/promo/opener-h3-2k.mp4）。H3 画面**永远不含文字**——提示词
+    明令禁止，这是文生视频模型唯一可用的形状。
+  - 品牌叠加层：Logo 用官方 SVG 经 Chromium 渲染成透明 PNG，文字用 Pillow
+    渲染成字幕条，全部确定性叠加在 H3 底版上（开头亮出品牌，结尾亮出
+    项目一句话与 GitHub 地址）。
+  - 字幕条（Pillow，drawtext 在本机 CJK 会乱码）与配乐（brand-bed.mp3）。
 
 字幕时间轴来自 record_demo_film_v070.py 落下的 events.json——每条字幕
 对应录制时真实发生的事件，不是事后编的时间表。
@@ -24,15 +28,18 @@ from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8")
 
-from PIL import Image, ImageDraw, ImageFont  # noqa: E402
+from PIL import Image, ImageDraw, ImageFilter, ImageFont  # noqa: E402
 
 FPS = 25
 ROOT = Path(__file__).resolve().parent.parent
 WORK = ROOT / ".tmp/demo-run-video-v070"
 SESSION = WORK / "session.webm"
 EVENTS = WORK / "events.json"
+STATIC = ROOT / "htmlninefox" / "server" / "static"
 PROMO = ROOT / "assets" / "promo"
-OPENER_SRC = PROMO / "opener-h3-2k.mp4"
+OPENER_PLATE = PROMO / "opener-h3-2k.mp4"          # 既有 H3 底版（回退用）
+H3_OPEN = PROMO / "h3-open-v070.mp4"               # 本次 H3 生成的片头（可选）
+H3_CLOSE = PROMO / "h3-close-v070.mp4"             # 本次 H3 生成的片尾（可选）
 MUSIC = PROMO / "brand-bed.mp3"
 OUT = PROMO / "htmlninefox-demo-v070-16x9.mp4"
 POSTER = PROMO / "poster-demo-v070.png"
@@ -41,12 +48,15 @@ W, H = 1920, 1080
 PAPER = (244, 240, 231)
 COBALT = (23, 60, 143)
 MINT = (73, 184, 148)
+TERRA = (229, 122, 63)
+GREY = (122, 132, 148)
 WHITE = (255, 253, 246)
 BOLD = r"C:\Windows\Fonts\msyhbd.ttc"
 
-OPENER_FRAMES = 100          # H3 底版取 4.0s
-OPENER_TAIL = 10             # 末帧定格 0.4s，让交叉溶解落稳
-OPENER_XF = 12               # 0.48s 交叉溶解
+BRAND_LEN = 5.0          # 品牌片头/片尾各 5 秒
+OPENER_FRAMES = 100
+OPENER_TAIL = 10
+XF = 12 / FPS            # 交叉溶解 0.48s
 
 
 def run(cmd: list[str]) -> None:
@@ -78,35 +88,114 @@ def caption_png(text: str, out: Path) -> None:
     img.save(out)
 
 
-def main() -> int:
-    if not SESSION.exists() or not EVENTS.exists():
-        raise SystemExit("先跑 record_demo_film_v070.py")
+def paper_frame() -> Image.Image:
+    """暖纸底 + 网格纹 + 双层钴蓝边框（与配图同一套视觉）。"""
+    img = Image.new("RGB", (W, H), PAPER)
+    d = ImageDraw.Draw(img)
+    for x in range(0, W, 36):
+        d.line([(x, 0), (x, H)], fill=(237, 233, 222), width=1)
+    for y in range(0, H, 36):
+        d.line([(0, y), (W, y)], fill=(237, 233, 222), width=1)
+    d.rectangle([14, 14, W - 15, H - 15], outline=COBALT, width=5)
+    d.rectangle([30, 30, W - 31, H - 31], outline=COBALT, width=1)
+    return img
+
+
+def render_logo_png(out: Path) -> None:
+    """官方横版 SVG → 透明底 PNG（Chromium 渲染，2x 清晰度）。
+
+    SVG 内容直接内联进页面：about:blank 页面加载 file:// 子资源会被拦，
+    外链 img 只会渲染出一个破图框。
+    """
+    svg = (STATIC / "logo-horizontal.svg").resolve()
+    svg_text = svg.read_text(encoding="utf-8")
+    with _playwright() as pw:
+        browser = pw.chromium.launch()
+        page = browser.new_page(viewport={"width": 900, "height": 230},
+                                device_scale_factor=2)
+        page.set_content(
+            '<body style="margin:0;background:transparent">'
+            f'<div style="width:840px">{svg_text}</div>'
+            "</body>")
+        page.wait_for_timeout(600)
+        page.screenshot(path=str(out), omit_background=True)
+        browser.close()
+
+
+def _playwright():
+    from playwright.sync_api import sync_playwright
+    return sync_playwright()
+
+
+def drop_shadow(img: Image.Image, offset: int = 12) -> Image.Image:
+    sh = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rectangle([0, 0, img.width, img.height],
+                                 fill=TERRA + (110,))
+    sh = sh.filter(ImageFilter.GaussianBlur(9))
+    out = Image.new("RGBA", (img.width + offset, img.height + offset),
+                    (0, 0, 0, 0))
+    out.alpha_composite(sh, (offset, offset))
+    out.alpha_composite(img.convert("RGBA"), (0, 0))
+    return out
+
+
+def brand_overlay(logo: Path, lines: list[tuple[str, int, tuple]],
+                  out: Path, logo_y: int) -> Path:
+    """Logo + 文字行合成一张整帧透明 PNG（叠加时整帧同进同出）。"""
+    frame = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    logo_img = Image.open(logo).convert("RGBA")
+    lw = 760
+    lh = int(logo_img.height * lw / logo_img.width)
+    logo_img = logo_img.resize((lw, lh), Image.LANCZOS)
+    frame.alpha_composite(logo_img, ((W - lw) // 2, logo_y))
+    text_img = Image.open(text_png_rgba(lines))
+    frame.alpha_composite(text_img, ((W - text_img.width) // 2,
+                                     logo_y + lh + 40))
+    frame.save(out)
+    return out
+
+
+def text_png_rgba(lines: list[tuple[str, int, tuple]]) -> Path:
+    out = WORK / "_brand-text.png"
+    text_png_rgba_inner(lines, out)
+    return out
+
+
+def text_png_rgba_inner(lines: list[tuple[str, int, tuple]], out: Path) -> None:
+    imgs = []
+    for text, size, colour in lines:
+        f = ImageFont.truetype(BOLD, size)
+        tmp = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+        imgs.append((text, f, colour, int(tmp.textlength(text, font=f))))
+    w = max(w for _, _, _, w in imgs) + 40
+    h = sum(f.size + 30 for _, f, _, _ in imgs) + 16
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    y = 8
+    for text, f, colour, tw in imgs:
+        d.text(((w - tw) // 2, y), text, font=f, fill=colour + (255,))
+        y += f.size + 30
+    out.parent.mkdir(parents=True, exist_ok=True)
+    img.save(out)
+
+
+def captioned_session(work: Path) -> tuple[Path, float]:
     events = json.loads(EVENTS.read_text(encoding="utf-8"))["events"]
-    session_len = probe(SESSION)
+    session_len = probe(SESSION) - 0.6
     print(f"session {session_len:.1f}s, {len(events)} events")
-
-    work = ROOT / ".tmp/demo-film-v070"
-    work.mkdir(parents=True, exist_ok=True)
-
-    # ---- 1. 会话归一化（1920×1080@25，去尾部 0.6s 定格）
     master = work / "session.mp4"
-    run(["ffmpeg", "-y", "-i", str(SESSION),
-         "-t", f"{session_len - 0.6:.2f}",
+    run(["ffmpeg", "-y", "-i", str(SESSION), "-t", f"{session_len:.2f}",
          "-r", str(FPS), "-c:v", "libx264", "-preset", "slow", "-crf", "18",
          "-pix_fmt", "yuv420p", str(master)])
-
-    # ---- 2. 字条 PNG + 一次合成叠加（每个事件显示到下一事件为止）
     inputs = ["-i", str(master)]
+    graph = []
+    prev = "0:v"
     for i, e in enumerate(events):
         png = work / f"cap{i:02d}.png"
         caption_png(e["caption"], png)
         inputs += ["-i", str(png)]
-    # 逐级叠：上一级输出作为下一级 base；enable 窗口取自 events.json 的真实时刻
-    graph = []
-    prev = "0:v"
-    for i, e in enumerate(events):
         end = events[i + 1]["t"] if i + 1 < len(events) else e["t"] + 3.0
-        end = min(end, session_len - 0.6)
+        end = min(end, session_len)
         graph.append(
             f"[{i + 1}:v]format=rgba[c{i}];"
             f"[{prev}][c{i}]overlay=(W-w)/2:H-h-64:"
@@ -117,29 +206,112 @@ def main() -> int:
          "-map", f"[v{len(events) - 1}]", "-r", str(FPS),
          "-c:v", "libx264", "-preset", "slow", "-crf", "18",
          "-pix_fmt", "yuv420p", str(captioned)])
+    return captioned, session_len
 
-    # ---- 3. H3 片头（原生环境音保留）归一化 + 定格
-    opener = work / "opener.mp4"
-    chain_v = (f"tpad=stop_mode=clone:stop_duration={OPENER_TAIL / FPS:.6f},"
-               f"scale={W}:{H}:force_original_aspect_ratio=decrease:flags=lanczos,"
-               f"pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color=0xF4F0E7,fps={FPS}")
-    run(["ffmpeg", "-y", "-i", str(OPENER_SRC), "-vf", chain_v,
-         "-frames:v", str(OPENER_FRAMES + OPENER_TAIL),
-         "-c:a", "aac", "-b:a", "128k", "-ac", "2", "-ar", "48000",
-         "-c:v", "libx264", "-preset", "slow", "-crf", "17",
-         "-pix_fmt", "yuv420p", str(opener)])
 
-    # ---- 4. 片头交叉溶解 + 配乐混音（片头环境音淡出，床乐淡入）
-    xf = OPENER_XF / FPS
-    offset = probe(opener) - xf
-    total = probe(opener) + probe(captioned) - xf
-    run(["ffmpeg", "-y", "-i", str(opener), "-i", str(captioned),
-         "-i", str(MUSIC),
+def has_audio(path: Path) -> bool:
+    r = subprocess.run(
+        ["ffprobe", "-v", "quiet", "-select_streams", "a",
+         "-show_entries", "stream=index", "-of", "csv=p=0", str(path)],
+        capture_output=True, text=True)
+    return bool(r.stdout.strip())
+
+
+def build_brand_clip(backdrop: Path, overlay: Path, out: Path,
+                     keep_audio: bool) -> float:
+    """底版 + 整帧品牌叠加（alpha 淡入淡出）。要求保留音轨而底版没有时补静音。"""
+    chain = (f"[0:v]scale={W}:{H}:force_original_aspect_ratio=decrease:"
+             f"flags=lanczos,pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color=0xF4F0E7,"
+             f"setsar=1[base];"
+             f"[1:v]format=rgba,"
+             f"fade=t=in:st=0.4:d=0.8:alpha=1,"
+             f"fade=t=out:st={BRAND_LEN - 1.1:.2f}:d=0.9:alpha=1[ov];"
+             f"[base][ov]overlay=0:0,"
+             f"fade=t=in:st=0:d=0.4:color=0xF4F0E7,"
+             f"fade=t=out:st={BRAND_LEN - 0.7:.2f}:d=0.7:color=0xF4F0E7,"
+             f"fps={FPS},settb=AVTB,format=yuv420p[v]")
+    cmd = ["ffmpeg", "-y"]
+    if backdrop.suffix.lower() == ".png":
+        cmd += ["-loop", "1"]          # 静帧底版必须循环，否则输出只有一帧
+    cmd += ["-i", str(backdrop), "-loop", "1",
+            "-i", str(overlay)]        # 叠加层同样要循环：单帧会让 fade 只算
+                                       # t=0 的一帧（alpha≈0）然后被 repeat 到结尾
+    want_silent_track = keep_audio and not has_audio(backdrop)
+    if want_silent_track:
+        cmd += ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo"]
+        chain += f";[2:a]atrim=0:{BRAND_LEN + 1:.2f}[a]"
+        maps = ["-map", "[v]", "-map", "[a]", "-shortest"]
+    elif keep_audio:
+        maps = ["-map", "[v]", "-map", "0:a?"]
+    else:
+        maps = ["-map", "[v]"]
+    cmd += ["-filter_complex", chain, *maps,
+            "-t", f"{BRAND_LEN:.2f}", "-r", str(FPS),
+            "-c:v", "libx264", "-preset", "slow", "-crf", "17",
+            "-pix_fmt", "yuv420p"]
+    if keep_audio:
+        cmd += ["-c:a", "aac", "-b:a", "128k"]
+    cmd += [str(out)]
+    run(cmd)
+    return probe(out)
+
+
+def main() -> int:
+    if not SESSION.exists() or not EVENTS.exists():
+        raise SystemExit("先跑 record_demo_film_v070.py")
+    work = ROOT / ".tmp/demo-film-v070"
+    work.mkdir(parents=True, exist_ok=True)
+
+    # ---- 1. 品牌叠加层（官方 SVG → 透明 PNG → 整帧）
+    logo = work / "brand-logo.png"
+    render_logo_png(logo)
+    open_overlay = brand_overlay(
+        logo, [("开源 HTML 创作工作台", 46, COBALT),
+               ("把一句话，变成一个能打开的网页", 34, GREY)],
+        work / "brand-open.png", logo_y=340)
+    close_overlay = brand_overlay(
+        logo, [("把一句话，变成一个能打开的网页", 42, COBALT),
+               ("GitHub: KratosLee-6/Html-ninefox · v0.7.0", 34, GREY)],
+        work / "brand-close.png", logo_y=380)
+
+    # ---- 2. 片头底版：优先本次 H3 生成，缺省回退既有底版
+    open_src = H3_OPEN if H3_OPEN.exists() else OPENER_PLATE
+    print("[stage] brand open"); print(f"opener backdrop: {open_src.name}"
+          + ("（H3 新生成）" if open_src == H3_OPEN else "（既有 H3 底版）"))
+    brand_open = work / "brand-open.mp4"
+    build_brand_clip(open_src, open_overlay, brand_open, keep_audio=True)
+
+    # ---- 3. 片尾底版：优先本次 H3 生成，缺省用暖纸静帧
+    if H3_CLOSE.exists():
+        close_src = H3_CLOSE
+        print("close backdrop: h3-close-v070.mp4（H3 新生成）")
+    else:
+        still = work / "paper-still.png"
+        paper_frame().save(still)
+        close_src = still
+        print("close backdrop: 暖纸静帧（未提供 h3-close-v070.mp4）")
+    brand_close = work / "brand-close.mp4"
+    print("[stage] brand close")
+    build_brand_clip(close_src, close_overlay, brand_close, keep_audio=False)
+
+    # ---- 4. 正片（字幕叠加）
+    print("[stage] captions")
+    captioned, session_len = captioned_session(work)
+
+    # ---- 5. 三段交叉溶解 + 配乐（片头环境音淡出，床乐淡入淡出贯穿全片）
+    print("[stage] final mix")
+    total = BRAND_LEN + session_len + BRAND_LEN
+    run(["ffmpeg", "-y", "-i", str(brand_open), "-i", str(captioned),
+         "-i", str(brand_close), "-i", str(MUSIC),
          "-filter_complex",
-         f"[0:v][1:v]xfade=transition=fade:duration={xf:.2f}:offset={offset:.2f}[v];"
-         f"[0:a]volume=1.0,afade=t=out:st={offset - 1.2:.2f}:d=1.4[a0];"
-         f"[2:a]atrim=0:{total:.2f},volume=0.9,afade=t=in:st={offset:.2f}:d=1.6,"
-         f"afade=t=out:st={max(0.0, total - 2.2):.2f}:d=2.2[a1];"
+         "[0:v]fps=25,settb=AVTB,format=yuv420p[i0];"
+         "[1:v]fps=25,settb=AVTB,format=yuv420p[i1];"
+         "[2:v]fps=25,settb=AVTB,format=yuv420p[i2];"
+         "[i0][i1][i2]concat=n=3:v=1:a=0[v];"
+         f"[0:a]volume=1.0,afade=t=out:st={BRAND_LEN - 1.2:.2f}:d=1.2[a0];"
+         f"[3:a]atrim=0:{total:.2f},volume=0.9,"
+         f"afade=t=in:st={BRAND_LEN - 1.0:.2f}:d=1.5,"
+         f"afade=t=out:st={max(0.0, total - 2.4):.2f}:d=2.4[a1];"
          f"[a0][a1]amix=inputs=2:duration=longest:dropout_transition=0[a]",
          "-map", "[v]", "-map", "[a]",
          "-r", str(FPS), "-c:v", "libx264", "-preset", "slow", "-crf", "17",
@@ -147,16 +319,12 @@ def main() -> int:
          "-movflags", "+faststart", str(OUT)])
     print(f"master {OUT} {probe(OUT):.1f}s")
 
-    # ---- 5. 海报帧（取成品滚动中段的一帧）
-    run(["ffmpeg", "-y", "-ss", f"{offset + probe(captioned) * 0.62:.2f}",
-         "-i", str(OUT), "-frames:v", "1", "-q:v", "2", str(POSTER)])
+    # ---- 6. 海报帧（取成品段中后部的一帧）
+    run(["ffmpeg", "-y",
+         "-ss", f"{BRAND_LEN + session_len * 0.62:.2f}", "-i", str(OUT),
+         "-frames:v", "1", "-q:v", "2", str(POSTER)])
     print(f"poster {POSTER}")
     return 0
-
-
-def tw_of(png: Path) -> int:
-    with Image.open(png) as im:
-        return im.width
 
 
 if __name__ == "__main__":

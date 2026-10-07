@@ -21,26 +21,27 @@
 
 ![Html九尾狐 Pixel Garden 工作台（v0.7.0 实拍）](assets/screenshots/v0.7.0/workbench-overview.png)
 
-## 67 秒看完 v0.7.0 怎么把一个网页变成素材
+## 73 秒看完 v0.7.0 怎么把一个网页变成素材
 
 [![播放 67s 网页反向拆解真实演示（中文版）](assets/promo/poster-demo-v070.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-demo-v070-16x9.mp4)
 
-**真实链路**：贴入 `example.com`（Google Fonts 源 · 开放许可）→ 抓回来落审核台 → 采纳为模板 → 拆成分区并生成 → **页面自己的正文出现在生成的落地页里** → 回到工作台，它在侧栏 REAL HTML 模板库里。全程真实操作录屏，由 [`scripts/record_demo_film_v070.py`](scripts/record_demo_film_v070.py) 驱动 v0.7.0 真实运行服务录下；验收链路可自己重跑：[`scripts/verify_page_blocks_chain.py`](scripts/verify_page_blocks_chain.py)。
+**真实链路**：贴入 `example.com`（Google Fonts 源 · 开放许可）→ 抓回来落审核台 → 采纳为模板 → 拆成分区并生成 → **页面自己的正文出现在生成的落地页里** → 回到工作台，它在侧栏 REAL HTML 模板库里。全程真实操作录屏，由 [`scripts/record_demo_film_v070.py`](scripts/record_demo_film_v070.py) 驱动 v0.7.0 真实运行服务录下；验收链路可自己重跑：[`scripts/verify_page_blocks_chain.py`](scripts/verify_page_blocks_chain.py)。开头 5 秒亮出品牌 Logo，结尾 5 秒收束到项目一句话与 GitHub 地址。
 
 > **这不是动画，是录屏**：光标真的移动、网址真的一个个被敲进去、候选真的落进审核台、成品真的被滚动浏览。字幕条上的每句话对应录制时真实发生的事件（`events.json` 时间轴）。
 >
-> 唯一由 MiniMax-H3 生成的是**开场的 4 秒抽象氛围**（暖纸、方格、钴蓝与薄荷光），它不含任何文字。界面演示**刻意不用**文生视频模型：模型会把中文渲染成乱码、按钮位置随机、连线毫无逻辑，那样的画面恰好与「可正常演示」相反。
+> 由 MiniMax-H3 生成的只有**片头/片尾的抽象氛围底版**（暖纸、方格、钴蓝与薄荷光），提示词明令画面不含任何文字；Logo 与全部文字由官方 SVG 渲染后确定性叠加。界面演示**刻意不用**文生视频模型：模型会把中文渲染成乱码、按钮位置随机、连线毫无逻辑，那样的画面恰好与「可正常演示」相反。底版生成脚本：[`scripts/generate_h3_clips_v070.py`](scripts/generate_h3_clips_v070.py)（提示词内置，提供 API key 即可重生成；当前版本片头使用既有 H3 底版、片尾为暖纸静帧，新底版放入后重跑合成脚本自动替换）。
 
 ### 它演示的完整主线
 
 | 时间 | 真实发生的事 |
 |---|---|
-| 0–4s | H3 抽象氛围开场 |
-| 4–14s | 「⋯」菜单 → 设计吸收，逐字贴入 `example.com`，选 Google Fonts 源（开放许可） |
-| 14–26s | 真实抓取 → 候选「Example Domain」落审核台，带许可标签 |
-| 26–35s | 采纳为模板 → 拆成分区并生成（真实 API） |
-| 35–55s | 打开成品，滚过页面自己的正文；六类内容都能吃这份分块 |
-| 55–67s | 回到工作台：Example Domain 已在侧栏 REAL HTML 模板库 |
+| 0–5s | 品牌开场：H3 氛围底版 + 像素狐 Logo 与品牌句 |
+| 5–15s | 「⋯」菜单 → 设计吸收，逐字贴入 `example.com`，选 Google Fonts 源（开放许可） |
+| 15–26s | 真实抓取 → 候选「Example Domain」落审核台，带许可标签 |
+| 26–36s | 采纳为模板 → 拆成分区并生成（真实 API） |
+| 36–58s | 打开成品，滚过页面自己的正文；六类内容都能吃这份分块 |
+| 58–68s | 回到工作台：Example Domain 已在侧栏 REAL HTML 模板库 |
+| 68–73s | 品牌收尾：Logo + 项目一句话 + GitHub 地址 |
 
 历史宣传片（v0.6.0 输入到导出全流程，50s 中英双语与 34s 静帧版）保留在 [assets/promo](assets/promo)。
 

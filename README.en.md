@@ -21,7 +21,7 @@
 
 ![HtmlNineFox Pixel Garden workbench (captured on v0.7.0)](assets/screenshots/v0.7.0/workbench-overview.png)
 
-## Watch v0.7.0 turn a web page into an asset (67s)
+## Watch v0.7.0 turn a web page into an asset (73s)
 
 [![Play the 67s page-decomposition real demo](assets/promo/poster-demo-v070.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-demo-v070-16x9.mp4)
 
@@ -29,18 +29,19 @@
 
 > **This is not animation, it is a screen recording.** The cursor really moves, the URL is really typed one character at a time, the candidate really lands in the review workbench, and the generated output is really scrolled through. Each caption bar matches an event that actually happened during the recording (the `events.json` timeline).
 >
-> The one generated element is the **4s abstract opener** (warm paper, square grid, cobalt and mint light), which contains no text. A text-to-video model is deliberately **not** used for interface footage: it renders CJK as garbled glyphs, places buttons arbitrarily and draws meaningless edges — the opposite of a working demonstration.
+> The only generated elements are the **abstract open/close backdrops** (warm paper, square grid, cobalt and mint light), whose prompts forbid any text; the logo and every word are overlaid deterministically from the official SVG. Backdrop generator: [`scripts/generate_h3_clips_v070.py`](scripts/generate_h3_clips_v070.py). The opening 5s shows the brand logo, the closing 5s settles on the one-liner and the GitHub address. A text-to-video model is deliberately **not** used for interface footage: it renders CJK as garbled glyphs, places buttons arbitrarily and draws meaningless edges — the opposite of a working demonstration.
 
 ### The full storyline
 
 | Time | What really happens |
 |---|---|
-| 0–4s | H3 abstract opener |
-| 4–14s | The ⋯ menu → design intake; `example.com` typed in; Google Fonts source selected (open licence) |
-| 14–26s | Real fetch → candidate "Example Domain" lands in the review workbench with its licence tag |
-| 26–35s | Adopt as template → cut into sections and generate (real API) |
-| 35–55s | Open the output and scroll past the page's own prose; all six content types consume these blocks |
-| 55–67s | Back at the workbench: Example Domain sits in the sidebar REAL HTML library |
+| 0–5s | Brand open: H3 backdrop + pixel-fox logo and the brand line |
+| 5–15s | The ⋯ menu → design intake; `example.com` typed in; Google Fonts source selected (open licence) |
+| 15–26s | Real fetch → candidate "Example Domain" lands in the review workbench with its licence tag |
+| 26–36s | Adopt as template → cut into sections and generate (real API) |
+| 36–58s | Open the output and scroll past the page's own prose; all six content types consume these blocks |
+| 58–68s | Back at the workbench: Example Domain sits in the sidebar REAL HTML library |
+| 68–73s | Brand close: logo + one-liner + GitHub address |
 
 The historical promo (v0.6.0 input-to-export flow, 50s/53s bilingual and 34s stills cuts) stays in [assets/promo](assets/promo).
 
