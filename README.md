@@ -72,12 +72,20 @@
 
 ### 🖼 无限画布工作台
 
-文字、文件、图片、HTML 模板放上画布，自由组合、推进生成；三栏层级 + 夜蓝双主题，平板 / 手机各有一套可读布局。
+文字、文件、图片、HTML 模板放上画布，自由组合、推进生成；三栏层级 + 夜蓝双主题，桌面 / 平板 / 手机各有一套可读布局。
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台</b><br>素材库 · 无限画布工作区 · 检查器。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台（Web 端）</b><br>素材库 · 无限画布工作区 · 检查器。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题（Web 端）</b><br>同一层级的完整暗色主题，对比度达 WCAG AA。</td>
+</tr>
+<tr>
 <td width="50%"><img src="assets/screenshots/v0.7.0/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>导航卡并存，检查器直接改名与配色。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/sidebar-templates.png" alt="REAL HTML 模板库"><br><b>REAL HTML 模板库</b><br>采纳的网页与模板卡，直接可复用。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动 390 任务视图</b><br>工作区动作与节点卡片替代缩小画布，进度只留关键步骤。</td>
 </tr>
 </table>
 
@@ -103,7 +111,7 @@ deck 产物导出标准 .pptx，PowerPoint / WPS 里文本框真正可编辑；�
 <table>
 <tr>
 <td width="50%"><img src="assets/screenshots/v0.6.3/slide-editor-dialog.png" alt="工作台内幻灯片编辑"><br><b>工作台内幻灯片编辑</b><br>逐页列出可编辑文本节点，保存即新版本。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.3/export-center-pptx.png" alt="导出中心 PPTX"><br><b>导出中心 · PPTX</b><br>pptx 与降级报告两个下载项，能改的都改了。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/pptx-export-report.png" alt="PPTX 导出与报告"><br><b>导出中心 · PPTX 真实导出</b><br>兼容性 100 分 · 7 页 · 24 个可编辑元素 · 0 降级；报告与 pptx 双下载项（本图来自真实导出）。</td>
 </tr>
 </table>
 
@@ -129,7 +137,21 @@ PDF / 逐页 PNG / 完整长图三种真实导出 + 兼容性评分报告；deck
 </tr>
 </table>
 
-各板块的完整图文对照（含命令面板、输入入口、经典模式、移动端等 23 张实拍）见 [docs/HOMEPAGE-ARCHIVE.md](docs/HOMEPAGE-ARCHIVE.md)。
+各板块的完整图文对照（含命令面板、输入入口、经典模式等 23 张实拍）见 [docs/HOMEPAGE-ARCHIVE.md](docs/HOMEPAGE-ARCHIVE.md)。
+
+## 🧰 能力清单
+
+| 能力 | 说明 |
+|---|---|
+| ✅ 六类内容一句话生成 | 落地页 / 数据看板 / 发布会 PPT / 海报 / 架构文档 / 文档；离线规则引擎兜底，不需要 API Key |
+| ✅ 真实 LLM 接入 | MiniMax-M3 / Claude / GPT-4o 与 OpenAI 兼容接口，环境变量自动配置 |
+| ✅ 设计吸收 + 网页反向拆解 | 12 个内置源安全抓取；采纳的网页拆成分区直接进生成，许可三档逐字段判定 |
+| ✅ 口语化反馈迭代 | 「颜色深一点、标题大一点」改的是设计令牌；`rev1 / rev2 / …` 历史可恢复 |
+| ✅ 可编辑 PPTX + 多格式导出 | 标准 .pptx 真可编辑；PDF / 逐页 PNG / 长图 + 兼容性评分报告 |
+| ✅ 项目记忆 | 明确采用才学习：品牌、受众、语气、模板本地复用，可查看、关闭、清空 |
+| ✅ 命令面板与多端布局 | Ctrl+K 直达；桌面 / 平板 / 移动各有一套可读排版 |
+| ✅ 隐私边界 | API Key、附件正文、反馈原文不写入记忆与诊断包；导出在本机完成不上传 |
+| ✅ 全平台交付 | Windows 安装版 / 便携版、Linux .run、macOS Apple Silicon、pip wheel、Docker |
 
 ## 🚀 快速开始
 
