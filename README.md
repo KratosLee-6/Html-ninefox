@@ -106,22 +106,22 @@ B. 进入无限画布，自定义组合版式 / 内容 / 风格 / 文件 / Skill
 
 ### 功能 ↔ 截图对照
 
-#### 工作台与画布（v0.6.0 实拍，6 张）
+#### 工作台与画布（v0.7.0 实拍，6 张）
 
-以下 6 张拍摄自 `v0.6.0` 当前代码（顶栏版本徽标为 `v0.6.0`），包含本轮设计收敛后的字号、字重、间距与画布适配：
+以下 6 张拍摄自 `v0.7.0` 当前代码；1440 宽的桌面截图顶栏版本徽标为 `v0.7.0`：
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台</b><br>三栏层级：素材库 · 无限画布工作区 · 检查器。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题桌面工作台</b><br>同一组件层级的完整暗色主题；主按钮与弱化文字均已提到 WCAG AA 以上。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台</b><br>三栏层级：素材库 · 无限画布工作区 · 检查器。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题桌面工作台</b><br>同一组件层级的完整暗色主题；主按钮与弱化文字均已提到 WCAG AA 以上。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>工作区导航卡按真实几何参与画布避让，首屏缩放 81%，不再把内容缩成一团。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>新建第二个工作区后的真实状态：导航卡并存、按真实几何参与画布避让，检查器直接改名与配色。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动任务视图</b><br>以工作区动作和节点卡片替代不可读的缩小画布；进度条只显示当前与失败步骤。</td>
-<td width="50%"><img src="assets/screenshots/v0.6.3/sidebar-templates.png" alt="侧栏 REAL HTML 模板库"><br><b>侧栏 REAL HTML 模板库</b><br>模板名与描述上下堆叠、各夹 2 行，同屏比收敛前多露出一张卡。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动任务视图</b><br>以工作区动作和节点卡片替代不可读的缩小画布；进度条只显示当前与失败步骤。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/sidebar-templates.png" alt="侧栏 REAL HTML 模板库"><br><b>侧栏 REAL HTML 模板库</b><br>模板名与描述上下堆叠、各夹 2 行，同屏比收敛前多露出一张卡。</td>
 </tr>
 </table>
 

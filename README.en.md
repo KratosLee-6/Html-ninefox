@@ -90,20 +90,20 @@ The application version is `0.7.0`, shipped under the tag `v0.7.0` on 2026-10-07
 
 #### Workbench and canvas (v0.6.0 captures, 6 shots)
 
-The six shots below were taken from the current `v0.6.0` code (the topbar badge reads `v0.6.0`) and reflect this round's typography, weight, spacing, and canvas-fit convergence:
+The six shots below were taken from the current `v0.7.0` code; the desktop captures carry the `v0.7.0` topbar badge:
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-paper-1440.png" alt="Desktop workbench (Pixel Paper)"><br><b>Desktop workbench (Pixel Paper)</b><br>Three-column hierarchy: library · infinite-canvas workspaces · inspector.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-night-1440.png" alt="Desktop workbench (Pixel Night)"><br><b>Desktop workbench (Pixel Night)</b><br>Full dark theme on the same hierarchy; primary button and weak foreground text now clear WCAG AA.</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-paper-1440.png" alt="Desktop workbench (Pixel Paper)"><br><b>Desktop workbench (Pixel Paper)</b><br>Three-column hierarchy: library · infinite-canvas workspaces · inspector.</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-night-1440.png" alt="Desktop workbench (Pixel Night)"><br><b>Desktop workbench (Pixel Night)</b><br>Full dark theme on the same hierarchy; primary button and weak foreground text now clear WCAG AA.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-overview.png" alt="Workspace management"><br><b>Workspace management</b><br>The workspace nav card now participates in canvas insets by its real geometry — first-paint fit is 81% instead of shrinking content into a corner.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-tablet-768.png" alt="Tablet 768 layout"><br><b>Tablet 768 layout</b><br>Sidebar folds into topbar drawers; canvas keeps semantic zoom.</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-overview.png" alt="Workspace management"><br><b>Workspace management</b><br>Real state after creating a second workspace: nav cards side by side, and the inspector renames and recolors a workspace in place.</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-tablet-768.png" alt="Tablet 768 layout"><br><b>Tablet 768 layout</b><br>Sidebar folds into topbar drawers; canvas keeps semantic zoom.</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.6.3/workbench-mobile-390.png" alt="Mobile task view (390px)"><br><b>Mobile task view (390px)</b><br>Workspace actions and node cards replace an unreadable scaled canvas; the progress strip shows only the current and failed steps.</td>
-<td width="50%"><img src="assets/screenshots/v0.6.3/sidebar-templates.png" alt="Sidebar REAL HTML template library"><br><b>Sidebar REAL HTML template library</b><br>Template name and description stack vertically, each clamped to 2 lines, revealing one more card per screen.</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-mobile-390.png" alt="Mobile task view (390px)"><br><b>Mobile task view (390px)</b><br>Workspace actions and node cards replace an unreadable scaled canvas; the progress strip shows only the current and failed steps.</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/sidebar-templates.png" alt="Sidebar REAL HTML template library"><br><b>Sidebar REAL HTML template library</b><br>Template name and description stack vertically, each clamped to 2 lines, revealing one more card per screen.</td>
 </tr>
 </table>
 

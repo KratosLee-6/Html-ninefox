@@ -54,19 +54,42 @@ def main() -> int:
         page.goto(BASE, wait_until="networkidle")
         assert page.inner_text("#ver").strip() == EXPECTED, "wrong version"
 
-        # paper (the default theme)
-        snap(page, "workbench-paper-1440")
-        snap(page, "workbench-overview")
+        # 恢复提示 toast 会进画面；画布若停在散乱状态，飞线和屏幕外的产物节点
+        # 会让「多工作区管理」读起来像一堆 bug（v0.7.0 的 overview 实拍就翻过车）。
+        # 所以每一拍之前：清 toast；overview 之前：真实新建第二个工作区 + 适配全部。
+        def clear_toasts() -> None:
+            page.evaluate(
+                "() => document.querySelectorAll('.fox-toast').forEach(t => t.remove())")
+
+        def composed_shot(name: str, setup=None) -> None:
+            if setup:
+                setup()
+            page.evaluate("fitAll()")
+            page.wait_for_timeout(900)
+            clear_toasts()
+            snap(page, name)
+
+        # paper (the default theme) — 适配后的默认工作区
+        composed_shot("workbench-paper-1440")
+
+        def multi_workspace() -> None:
+            page.evaluate("addWorkspace()")
+            page.wait_for_timeout(1200)
+
+        # 多工作区总览：两个导航卡并存 + 检查器工作区设置
+        composed_shot("workbench-overview", multi_workspace)
 
         # template library — the first sidebar tab is 版式
         page.click('.tabs button:has-text("版式")') if page.is_visible(
             '.tabs button:has-text("版式")') else None
         page.wait_for_timeout(700)
+        clear_toasts()
         snap(page, "sidebar-templates")
 
         # night theme via the real toggle, not by injecting a class
         page.click("#btn-theme")
         page.wait_for_timeout(900)
+        clear_toasts()
         snap(page, "workbench-night-1440")
         page.click("#btn-theme")
         page.wait_for_timeout(700)
@@ -76,6 +99,7 @@ def main() -> int:
                            (390, 844, "workbench-mobile-390")):
             page.set_viewport_size({"width": w, "height": h})
             page.wait_for_timeout(1100)
+            clear_toasts()
             snap(page, name)
 
         browser.close()
