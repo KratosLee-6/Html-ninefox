@@ -29,10 +29,9 @@
 
 ## ▶ 视频
 
-> GitHub 不直接内联播放仓库里的 mp4：解说版在 **Release 页在线播放**，录屏版是原文件直链。
+> 解说版随 v0.7.0 Release 发布，在 Release 页在线播放。
 
 - **[解说版 · 75 秒（v0.7.0 Release 页）](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0)** — 人声解说 + 发布会式动画 + 真实操作录屏：贴入 example.com → 审核台 → 采纳 → 拆块生成 → 页面自己的正文出现在成品里。由 [huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion) 引擎的 t2 发布会语法驱动，工程在 `film/v070-huashu/`（随仓库外的工作区维护）。
-- [真实录屏版 · 73 秒（原文件）](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-demo-v070-16x9.mp4) — 无解说，光标逐帧真实操作，片头/片尾为品牌帧。
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 

@@ -26,10 +26,9 @@
 
 ## Video
 
-GitHub does not inline-play repository mp4 files: the narrated cut plays on the **release page**, the screen-recording cut is a direct file link.
+The narrated cut ships with the v0.7.0 release and plays on the **release page**.
 
 - **[Narrated cut · 75s (v0.7.0 release page)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0)** — voice-over + keynote-style motion graphics + a real operating recording: paste example.com → review → adopt → decompose and generate → the page's own prose shows up in the output. Driven by the t2 keynote grammar of [huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion).
-- [Screen-recording cut · 73s (raw file)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-demo-v070-16x9.mp4)
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
