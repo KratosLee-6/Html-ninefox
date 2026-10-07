@@ -87,6 +87,23 @@ def test_fetch_returns_evidence():
     assert calls == ["https://example.com/page"]
 
 
+def test_fetch_succeeds_in_the_production_shape(monkeypatch):
+    """`_api_intake_fetch` 只传 headers，resolver 留在默认 None。
+
+    取回成功后的重绑定检查直接调用 `_resolve(host, resolver)`——resolver
+    是 None 时那一行就是 `None(host, 443)`，**每一次成功的抓取都在成功的
+    瞬间崩成 TypeError**。文件里其余用例全部显式注入 resolver，因此全绿；
+    这条按生产形态调用：不传 resolver，让 fetch_reference 自己落到
+    socket.getaddrinfo（monkeypatch 成这张表）。去掉那个默认值，本条必须变红。
+    """
+    monkeypatch.setattr("socket.getaddrinfo", resolver)
+    evidence = fetch_reference("https://example.com/page",
+                               transport=ok_transport(b"<html>production shape</html>"))
+    assert evidence["status"] == 200
+    assert evidence["body"] == b"<html>production shape</html>"
+    assert len(evidence["body_sha256"]) == 64
+
+
 def test_fetch_follows_redirects_within_public_hosts():
     def transport(url, headers, timeout, max_bytes):
         if url == "https://example.com/old":

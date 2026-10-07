@@ -260,3 +260,63 @@ def test_blocks_survive_the_pipeline_and_reach_the_page() -> None:
             assert wanted in html, f"页面自己的分区「{wanted}」没出现在产物里——通道通了但没人消费"
         at = [html.index(w) for w in ("季度报告", "本期要点", "定价", "常见问题")]
         assert at == sorted(at), f"产物里分区的顺序和页面上的不一样：{at}"
+
+
+# ------------------------------------------------- real-page shapes (v0.7.0)
+
+
+NESTED_PAGE = """
+<html><body><main>
+  <section class="hero"><h1>狐构·把想法变成可交付的成果</h1>
+    <p>PAGE_PROSE_ALPHA 独有的产品说明文字，必须出现在成品里。</p>
+  </section>
+  <section class="features"><h2>为什么选我们</h2>
+    <p>容器自己的说明文字。</p>
+    <section class="nested"><h3>怎么开始</h3>
+      <p>PAGE_PROSE_BETA 独有的上手步骤说明，同样必须出现在成品里。</p>
+    </section>
+  </section>
+</main></body></html>
+"""
+
+
+def test_sections_directly_nested_are_yielded_as_leaves() -> None:
+    """`<section>` inside `<section>` is the shape the old regex could not see.
+
+    The non-greedy `(.*?)</section>` ended the outer match at the INNER close,
+    so the recursion was handed an unterminated tag and found nothing — the
+    outer section swallowed the inner one's prose, and "decomposition" produced
+    a summary instead. A container that contains a section must be replaced by
+    what it contains, at any depth, exactly like `<main>` already is.
+    """
+    blocks = intake.page_blocks_from_candidate(
+        {**CANDIDATE, "license_class": "open"}, NESTED_PAGE)
+    classes = [b["source_class"] for b in blocks]
+    assert "nested" in classes, \
+        f"嵌套分区被外层吞掉，切出来的是 {classes}"
+    assert "features" not in classes, \
+        f"容器 section 自己也成了分区，说明内层没有被翻出来：{classes}"
+    beta = next(b for b in blocks if b["source_class"] == "nested")
+    assert "PAGE_PROSE_BETA" in beta["content"], "内层分区的正文丢了"
+
+
+def test_heading_and_content_are_not_the_same_string() -> None:
+    """The endpoint's own shape must not double-render every page.
+
+    heading 与 content 曾是同一串 text_head：渲染器把 heading 放进 <h2>、
+    content 放进 <p>，于是页面每段正文在产物里出现两遍。手工造的夹具
+    heading ≠ content，看不见这个形状——这里用抽取器自己的产物来断言。
+    """
+    blocks = intake.page_blocks_from_candidate(
+        {**CANDIDATE, "license_class": "open"}, NESTED_PAGE)
+    assert blocks
+    for block in blocks:
+        heading, content = block["heading"], block["content"]
+        assert heading != content, \
+            f"{block['source_class']}: heading 与 content 相同，正文必然渲染两遍"
+        assert heading not in content, \
+            f"{block['source_class']}: content 里仍含整段 heading（{heading!r}）"
+    hero = next(b for b in blocks if b["source_class"] == "hero")
+    assert hero["heading"] == "狐构·把想法变成可交付的成果", \
+        f"heading 应取分区自己的标题标签，得到 {hero['heading']!r}"
+    assert "PAGE_PROSE_ALPHA" in hero["content"], "标题之外的正文丢了"

@@ -166,3 +166,48 @@ def test_no_blocks_at_all_keeps_every_built_in_marker(intent):
     body = body_of(render(intent, BRIEF, PRESET, {}))
     for marker in _BUILTIN_MARKERS[intent]:
         assert marker in body, f"{intent} lost {marker!r} with no blocks at all"
+
+
+# ------------------------------------------------------ the endpoint's shape
+
+_ENDPOINT_PAGE = """
+<html><body><main>
+  <section class="hero"><h1>狐构·把想法变成可交付的成果</h1>
+    <p>PAGE_PROSE_ALPHA 独有的产品说明文字，必须出现在成品里。</p>
+  </section>
+  <section class="features"><h2>为什么选我们</h2>
+    <p>容器自己的说明文字。</p>
+    <section class="nested"><h3>怎么开始</h3>
+      <p>PAGE_PROSE_BETA 独有的上手步骤说明，同样必须出现在成品里。</p>
+    </section>
+  </section>
+</main></body></html>
+"""
+
+
+@pytest.mark.parametrize("intent", INTENTS)
+def test_blocks_from_the_real_endpoint_render_each_prose_once(intent):
+    """The blocks must arrive the way `/api/intake/page-blocks` actually builds
+    them — heading from the section's own heading tag, content the prose below
+    it — and the prose must appear exactly once per document.
+
+    The hand-made fixture above cannot see the shape this one covers: the real
+    endpoint used to set heading = content = the section's text head, so every
+    renderer printed each page's prose twice (once in the <h2>, once in the
+    <p>) while these gates stayed green on blocks whose heading differed from
+    their content. Same lesson as ever: exercise the producer's real shape, or
+    the gate certifies a fixture instead of the feature.
+    """
+    from htmlninefox import intake
+
+    candidate = {"candidate_id": "c-e2e", "title": "实测页",
+                 "url": "https://example.com/page",
+                 "final_url": "https://example.com/page",
+                 "license_class": "open", "kind": "gallery"}
+    blocks = intake.page_blocks_from_candidate(candidate, _ENDPOINT_PAGE)
+    assert len(blocks) >= 2, f"端点形状的页面只切出 {len(blocks)} 个分区"
+    body = body_of(render(intent, BRIEF, PRESET, {"blocks": blocks}))
+    assert body.count("PAGE_PROSE_ALPHA") == 1, \
+        f"{intent}: 第一段正文出现了 {body.count('PAGE_PROSE_ALPHA')} 次"
+    assert body.count("PAGE_PROSE_BETA") == 1, \
+        f"{intent}: 嵌套分区的正文出现了 {body.count('PAGE_PROSE_BETA')} 次"

@@ -429,6 +429,10 @@ def fetch_reference(
 ) -> dict:
     """Fetch a public reference page safely; returns evidence, never auto-follows blindly."""
     transport = transport or _default_transport
+    # 生产形态只传 headers（见 server/_api_intake_fetch），resolver 留在 None。
+    # 取回成功后的重绑定检查直接调用 _resolve(host, resolver)，None 在这里
+    # 就是 TypeError —— 传输成功的那一刻必崩。与 validate_url 同一默认。
+    resolver = resolver or socket.getaddrinfo
     current_url = url
     followed: list[str] = [url]
     for _ in range(max_hops + 1):
@@ -727,28 +731,59 @@ FONT_SIZE = re.compile(r"font-size\s*:\s*([^;}]+)", re.I)
 LINE_HEIGHT = re.compile(r"line-height\s*:\s*([^;}]+)", re.I)
 
 
-# The backreference is "\\1" in a *non-raw* string. Written as r"\\1" it becomes
-# two backslashes, matches nothing, and the extractor silently returns zero
-# sections — which is exactly what happened the first time.
-_SECTION_PATTERN = re.compile(
-    r"<(" + "|".join(SECTION_TAGS) + r")([^>]*)>(.*?)" + chr(60) + "/" + "\\1" + chr(62),
-    re.S | re.I)
-_MAX_NESTING = 4
+# 区块开/闭标签 token。配对交给 _section_spans 的栈，正则只负责找 token——
+# 旧实现用 `(.*?)</\1>` 直接找配对，非贪婪会在**内层**同名闭合标签处截断：
+# section 套 section 时，外层记录在内层闭合处结束、内层标签在递归里永远
+# 配不上对，外层把内层文字整个吞掉。这是平面 finditer 的第二个形状。
+_SECTION_TOKEN = re.compile(
+    r"<(/?)(" + "|".join(SECTION_TAGS) + r")(?=[\s/>])[^>]*>", re.I)
 _MAX_SECTIONS = 12
 
 
-def _section_record(match: re.Match) -> dict:
-    tag, attrs, inner = match.group(1).lower(), match.group(2), match.group(3)
-    class_match = re.search(r'class="([^"]*)"', attrs)
+def _section_spans(html_text: str) -> list[dict]:
+    """每个区块标签从它的开标签到**与它配对**的闭标签的跨度。
+
+    栈式配对：遇到闭标签时弹到最近一个同名开标签，其间未闭合的更深标签
+    在同一点隐式闭合。畸形 HTML（多余闭标签、未闭合到底）不抛错。
+    """
+    spans: list[dict] = []
+    stack: list[tuple[str, str, int, int]] = []  # tag, raw, start, inner_start
+    for match in _SECTION_TOKEN.finditer(html_text):
+        raw, tag = match.group(0), match.group(2).lower()
+        if match.group(1):  # 闭标签
+            for i in range(len(stack) - 1, -1, -1):
+                if stack[i][0] == tag:
+                    open_raw, start, inner_start = stack[i][1], stack[i][2], stack[i][3]
+                    end = match.end()
+                    spans.append({"tag": tag, "raw": open_raw, "start": start,
+                                  "inner": html_text[inner_start:end - len(match.group(0))],
+                                  "snippet": html_text[start:end]})
+                    # 比它更深、始终未闭合的标签在此一并视为闭合（畸形标记）
+                    del stack[i:]
+                    break
+        elif raw.endswith("/>"):
+            spans.append({"tag": tag, "raw": raw, "start": match.start(),
+                          "inner": "", "snippet": raw})
+        else:
+            stack.append((tag, raw, match.start(), match.end()))
+    for tag, raw, start, inner_start in stack:  # 到 EOF 仍未闭合：就地闭合
+        spans.append({"tag": tag, "raw": raw, "start": start,
+                      "inner": html_text[inner_start:], "snippet": html_text[start:]})
+    spans.sort(key=lambda s: s["start"])
+    return spans
+
+
+def _section_record(span: dict) -> dict:
+    class_match = re.search(r'class="([^"]*)"', span["raw"])
     return {
-        "tag": tag,
+        "tag": span["tag"],
         "class": class_match.group(1)[:120] if class_match else "",
-        "text_head": " ".join(re.sub(r"<[^>]+>", " ", inner).split())[:160],
-        "snippet": match.group(0)[:4000],
+        "text_head": " ".join(re.sub(r"<[^>]+>", " ", span["inner"]).split())[:160],
+        "snippet": span["snippet"][:4000],
     }
 
 
-def _innermost_sections(html_text: str, depth: int = 0) -> list[dict]:
+def _innermost_sections(html_text: str) -> list[dict]:
     """Section tags, preferring the innermost one where sections nest.
 
     A flat `finditer` stops at `<main>` and swallows every `<section>` inside it,
@@ -757,16 +792,22 @@ def _innermost_sections(html_text: str, depth: int = 0) -> list[dict]:
     whose text is its own first 160 characters. So a tag that contains other
     section tags is replaced by what it contains.
 
-    Depth is bounded so a pathological document cannot make this recurse
-    forever.
+    "Innermost" is a leaf test over the paired spans: a span that strictly
+    contains another span is dropped, whatever the nesting depth — the old
+    recursion capped out and, worse, never saw a directly nested section at
+    all, because its regex ended the outer match at the inner `</section>`.
     """
-    if depth >= _MAX_NESTING or not html_text:
+    if not html_text:
         return []
-    records: list[dict] = []
-    for match in _SECTION_PATTERN.finditer(html_text):
-        nested = _innermost_sections(match.group(3), depth + 1)
-        records.extend(nested or [_section_record(match)])
-    return records
+    spans = _section_spans(html_text)
+    leaves = []
+    for i, span in enumerate(spans):
+        start, end = span["start"], span["start"] + len(span["snippet"])
+        if any(o["start"] > start and o["start"] + len(o["snippet"]) <= end
+               for j, o in enumerate(spans) if j != i):
+            continue
+        leaves.append(_section_record(span))
+    return leaves[:_MAX_SECTIONS]
 
 
 def extract_components(evidence: dict, html_text: str, style_blob: str = "") -> dict:
@@ -794,6 +835,28 @@ def may_carry_verbatim_text(license_class: str | None) -> bool:
     LICENSE_CLASSES exists to express.
     """
     return str(license_class or "") == "open"
+
+
+_HEADING_IN_SNIPPET = re.compile(r"<h[1-6][^>]*>(.*?)</h[1-6]>", re.S | re.I)
+
+
+def _split_heading(snippet: str, text_head: str) -> tuple[str, str]:
+    """A section's heading and its remaining prose, from the raw snippet.
+
+    heading 与 content 曾是同一串 text_head —— 渲染器把 heading 放进 <h2>、
+    content 放进 <p>，真实端点产出的块于是把每一段正文渲染两遍。手工造的
+    门禁夹具 heading ≠ content，看不见这个形状。
+    """
+    text = " ".join(re.sub(r"<[^>]+>", " ", snippet).split())
+    if not text:
+        text = text_head
+    found = _HEADING_IN_SNIPPET.search(snippet)
+    if found:
+        heading = " ".join(re.sub(r"<[^>]+>", " ", found.group(1)).split())
+        if heading:
+            remainder = text.replace(heading, " ", 1).strip()
+            return heading[:160], (remainder or text)[:2000]
+    return text[:80], text[:2000]
 
 
 def page_blocks_from_candidate(candidate: dict, body_html: str) -> list[dict]:
@@ -835,15 +898,16 @@ def page_blocks_from_candidate(candidate: dict, body_html: str) -> list[dict]:
     for ordinal, section in enumerate(sections):
         if not isinstance(section, dict):
             continue
-        heading = " ".join(str(section.get("text_head") or "").split())
+        heading, content_text = _split_heading(
+            str(section.get("snippet") or ""), str(section.get("text_head") or ""))
         if not heading:
             # no visible text at all: not a section a document can use
             continue
         blocks.append({
             "id": f"page-section-{ordinal + 1}",
             "kind": "sections",
-            "heading": heading[:160],
-            "content": heading[:2000] if may_carry_text else "",
+            "heading": heading,
+            "content": content_text if may_carry_text else "",
             "provenance": "verbatim" if may_carry_text else "structure_only",
             "source_tag": str(section.get("tag") or ""),
             "source_class": str(section.get("class") or "")[:120],

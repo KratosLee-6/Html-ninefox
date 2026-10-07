@@ -52,12 +52,21 @@ def _run(extra: list[str]) -> subprocess.CompletedProcess:
 def m_back_to_a_flat_regex(intake: str, core: str, feat: str, doc: str, shared: str):
     """The first version: a flat finditer, where <main> swallows every <section>
     inside it. The feature still "works" — it returns blocks — and delivers one
-    useless summary instead of a decomposition."""
-    old = "        nested = _innermost_sections(match.group(3), depth + 1)\n        records.extend(nested or [_section_record(match)])"
+    useless summary instead of a decomposition.
+
+    The implementation is now span-based (`_section_spans` + a leaf test), so
+    the old revert of the recursion line no longer exists. The equivalent
+    regression is dropping the leaf test: every span becomes a "section",
+    containers swallow their contents, and a section directly inside a section
+    is one summary again.
+    """
+    old = ('        if any(o["start"] > start and o["start"] + len(o["snippet"]) <= end\n'
+           '               for j, o in enumerate(spans) if j != i):\n'
+           '            continue\n')
     if old not in intake:
-        raise MutationFailure("没找到 _innermost_sections 里的递归那一行")
-    new = "        records.append(_section_record(match))"
-    return intake.replace(old, new, 1), core, feat, doc, shared
+        raise MutationFailure(
+            "没找到 _innermost_sections 的叶子过滤（切分器改形状了？）\n" + old)
+    return intake.replace(old, "", 1), core, feat, doc, shared
 
 
 def m_carry_text_regardless_of_licence(intake: str, core: str, feat: str, doc: str,
@@ -92,14 +101,37 @@ def m_mislabel_the_provenance(intake: str, core: str, feat: str, doc: str,
     return intake.replace(old, '            "provenance": "structure_only",', 1), core, feat, doc, shared
 
 
-def m_break_the_section_regex(intake: str, core: str, feat: str, doc: str,
+def m_break_the_section_pairing(intake: str, core: str, feat: str, doc: str,
                                shared: str):
-    """The backreference written as a raw string — two backslashes, matches
-    nothing, and the extractor returns zero sections with no error at all."""
-    old = 'chr(60) + "/" + "\\\\1" + chr(62)'
+    """Section tags never close: pairing is gone, so every span runs to EOF and
+    the only leaf left is the last tag on the page.
+
+    This used to break the regex backreference — the extractor returned zero
+    sections, and the failure was at least total. The pairing now lives in
+    `_section_spans`'s stack, and the silent shape is worse: records still come
+    back, just one whole-page summary instead of the page's sections.
+    """
+    old = "        if match.group(1):  # 闭标签"
     if old not in intake:
-        raise MutationFailure("没找到反向引用那一段")
-    return intake.replace(old, 'chr(60) + "/" + r"\\\\1" + chr(62)', 1), core, feat, doc, shared
+        raise MutationFailure("没找到 _section_spans 的闭标签分支（配对改形状了？）")
+    return intake.replace(old, "        if False:  # 闭标签", 1), core, feat, doc, shared
+
+
+def m_heading_becomes_the_whole_text_again(intake: str, core: str, feat: str,
+                                           doc: str, shared: str):
+    """heading = content = the section's text head — the endpoint's own shape
+    that made every renderer print each page's prose twice.
+
+    The hand-made fixtures cannot see this: their heading differs from their
+    content. Only the gates fed by `page_blocks_from_candidate` itself go red.
+    """
+    old = ('        heading, content_text = _split_heading(\n'
+           '            str(section.get("snippet") or ""), str(section.get("text_head") or ""))\n')
+    if old not in intake:
+        raise MutationFailure("没找到 _split_heading 的调用（标题拆分改形状了？）")
+    new = ('        heading = " ".join(str(section.get("text_head") or "").split())\n'
+           '        content_text = heading\n')
+    return intake.replace(old, new, 1), core, feat, doc, shared
 
 
 def m_drop_the_ordinal(intake: str, core: str, feat: str, doc: str, shared: str):
@@ -149,15 +181,15 @@ def m_pipeline_flattens_blocks_again(pipeline_like: str = "", core: str = "",
 
 MUTATIONS = [
     ("P1 退回平面正则（<main> 把内部 section 全吞掉）",
-     m_back_to_a_flat_regex, "test_slices_can_be_re_derived_from_the_stored_body"),
+     m_back_to_a_flat_regex, "test_sections_directly_nested_are_yielded_as_leaves"),
     ("P2 不论许可都带正文（版权规则失效）",
      m_carry_text_regardless_of_licence,
      "test_text_is_carried_verbatim_only_for_an_open_licensed_page"),
     ("P3 正文照带但谎称 structure_only",
      m_mislabel_the_provenance,
      "test_text_is_carried_verbatim_only_for_an_open_licensed_page"),
-    ("P4 反向引用写成 raw 字符串（静默切不出任何分区）",
-     m_break_the_section_regex,
+    ("P4 配对失效（闭标签被无视，整页只剩一条摘要）",
+     m_break_the_section_pairing,
      "test_slices_can_be_re_derived_from_the_stored_body"),
     ("P5 序号全置 0（顺序丢失）",
      m_drop_the_ordinal, "test_blocks_carry_what_a_renderer_needs_and_where_they_came_from"),
@@ -170,6 +202,9 @@ MUTATIONS = [
      # written for had gone. The every-intent gate counts the page's PROSE and
      # asserts it appears exactly once, which is the property P6 removes.
      "test_structure_only_page_falls_back_to_the_built_in_copy"),
+    ("P7 heading 重新等于整段正文（每个 intent 渲染两遍）",
+     m_heading_becomes_the_whole_text_again,
+     "test_blocks_from_the_real_endpoint_render_each_prose_once"),
 ]
 
 

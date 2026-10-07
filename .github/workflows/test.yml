@@ -46,6 +46,12 @@ jobs:
       - run: python -m playwright install --with-deps chromium
       - name: Python and browser test suite
         run: python -m pytest tests -q -p no:cacheprovider --tb=short -rf --junitxml=pytest-report.xml
+      # The fetcher's production shape — no resolver injected — shipped broken
+      # from v0.6.2 through v0.6.4 while every test that injected a resolver
+      # stayed green. The gate drives the shape _api_intake_fetch actually
+      # calls; this mutation proves removing the default turns it red.
+      - name: Mutation check — the fetch must succeed as production calls it
+        run: python scripts/mutate_fetch_production_gates.py
       - name: JavaScript syntax
         run: |
           node --check htmlninefox/server/static/canvas-engine.js
