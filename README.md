@@ -21,26 +21,28 @@
 
 ![Html九尾狐 Pixel Garden 工作台（v0.7.0 实拍）](assets/screenshots/v0.7.0/workbench-overview.png)
 
-## 50 秒看完 Html九尾狐怎么干活
+## 67 秒看完 v0.7.0 怎么把一个网页变成素材
 
-[![播放 50s 真实操作演示（中文版）](assets/promo/poster-demo-zh.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-demo-50s-16x9.mp4)
+[![播放 67s 网页反向拆解真实演示（中文版）](assets/promo/poster-demo-v070.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-demo-v070-16x9.mp4)
 
-**中文版** 1920×1080 · 50s · 带配乐 · [**English cut · 53s**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-demo-53s-16x9-en.mp4) · [34s 静帧速览版](assets/promo/htmlninefox-brand-film-34s-16x9.mp4) · [34s English](assets/promo/htmlninefox-brand-film-34s-16x9-en.mp4) · [全部文件](assets/promo)
+**真实链路**：贴入 `example.com`（Google Fonts 源 · 开放许可）→ 抓回来落审核台 → 采纳为模板 → 拆成分区并生成 → **页面自己的正文出现在生成的落地页里** → 回到工作台，它在侧栏 REAL HTML 模板库里。全程真实操作录屏，由 [`scripts/record_demo_film_v070.py`](scripts/record_demo_film_v070.py) 驱动 v0.7.0 真实运行服务录下；验收链路可自己重跑：[`scripts/verify_page_blocks_chain.py`](scripts/verify_page_blocks_chain.py)。
 
-> **这不是动画，是录屏**：光标真的移动、27 个字真的一个个被敲进去、节点真的一个个长出来、导出中心真的被点开。片子由 [`scripts/record_demo_film.py`](scripts/record_demo_film.py) 驱动 **v0.6.0 的真实运行服务**录下，全部画面来自真实操作，字幕里的数字也是产品当场报出来的——置信度 67%、需求分析 8ms、保存交付 40ms、兼容性 100 分、「未发现阻塞性兼容问题」。没有一帧是画的，也没有一帧是生成的。
+> **这不是动画，是录屏**：光标真的移动、网址真的一个个被敲进去、候选真的落进审核台、成品真的被滚动浏览。字幕条上的每句话对应录制时真实发生的事件（`events.json` 时间轴）。
 >
-> 唯一由 MiniMax-H3 生成的是**开场的 3.5 秒抽象氛围**（暖纸、方格、钴蓝与薄荷光），它不含任何文字。界面演示**刻意不用**文生视频模型：模型会把中文渲染成乱码、按钮位置随机、连线毫无逻辑，那样的画面恰好与「可正常演示」相反。
+> 唯一由 MiniMax-H3 生成的是**开场的 4 秒抽象氛围**（暖纸、方格、钴蓝与薄荷光），它不含任何文字。界面演示**刻意不用**文生视频模型：模型会把中文渲染成乱码、按钮位置随机、连线毫无逻辑，那样的画面恰好与「可正常演示」相反。
 
 ### 它演示的完整主线
 
 | 时间 | 真实发生的事 |
 |---|---|
-| 0–3.5s | H3 抽象氛围开场 |
-| 3.5–12s | 光标点开「输入需求」，**逐字打出**一句真实需求 |
-| 12–19s | 「AI 分析并推荐」返回**置信度 67%** 与推荐模板（实时渲染的预览） |
-| 19–28s | 「采用推荐并生成」→ 节点与连线**逐个长出**，底部实时计时 8ms → 40ms |
-| 28–38s | 六个真实内容区块落到画布，点开产物节点看 `rev0` |
-| 38–50s | 导出中心：**兼容性 100**、11 KB 单文件、「未发现阻塞性兼容问题」 |
+| 0–4s | H3 抽象氛围开场 |
+| 4–14s | 「⋯」菜单 → 设计吸收，逐字贴入 `example.com`，选 Google Fonts 源（开放许可） |
+| 14–26s | 真实抓取 → 候选「Example Domain」落审核台，带许可标签 |
+| 26–35s | 采纳为模板 → 拆成分区并生成（真实 API） |
+| 35–55s | 打开成品，滚过页面自己的正文；六类内容都能吃这份分块 |
+| 55–67s | 回到工作台：Example Domain 已在侧栏 REAL HTML 模板库 |
+
+历史宣传片（v0.6.0 输入到导出全流程，50s 中英双语与 34s 静帧版）保留在 [assets/promo](assets/promo)。
 
 ## 它解决什么问题
 

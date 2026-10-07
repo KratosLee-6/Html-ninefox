@@ -21,19 +21,28 @@
 
 ![HtmlNineFox Pixel Garden workbench (captured on v0.7.0)](assets/screenshots/v0.7.0/workbench-overview.png)
 
-## Watch HtmlNineFox work in 53 seconds
+## Watch v0.7.0 turn a web page into an asset (67s)
 
-[![Play the 53s real-operating demo (English cut)](assets/promo/poster-demo-en.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-demo-53s-16x9-en.mp4)
+[![Play the 67s page-decomposition real demo](assets/promo/poster-demo-v070.png)](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-demo-v070-16x9.mp4)
 
-**English** 1920×1080 · 53s · instrumental score · [**中文版 · 50s 真实操作演示**](https://raw.githubusercontent.com/KratosLee-6/Html-ninefox/main/assets/promo/htmlninefox-brand-demo-50s-16x9.mp4) · [34s stills cut](assets/promo/htmlninefox-brand-film-34s-16x9-en.mp4) · [all files](assets/promo)
+**The real chain**: paste `example.com` (Google Fonts source · open licence) → the page lands in the review workbench → adopt as a template → cut into sections and generate → **the page's own prose appears inside the generated landing** → back at the workbench, it sits in the sidebar REAL HTML library. Every frame is a real recording: [`scripts/record_demo_film_v070.py`](scripts/record_demo_film_v070.py) drives the real v0.7.0 service; you can rerun the acceptance chain yourself via [`scripts/verify_page_blocks_chain.py`](scripts/verify_page_blocks_chain.py).
 
-> **This is not animation, it is a screen recording.** The cursor really moves, the 95 characters of the requirement are really typed one at a time, nodes really appear one by one, and the export centre is really opened. [`scripts/record_demo_film.py`](scripts/record_demo_film.py) drives the **real v0.6.0 server** and records it; every frame is real operation, and the numbers in the captions are what the product reported on the spot.
+> **This is not animation, it is a screen recording.** The cursor really moves, the URL is really typed one character at a time, the candidate really lands in the review workbench, and the generated output is really scrolled through. Each caption bar matches an event that actually happened during the recording (the `events.json` timeline).
 >
-> The English cut is a **separate recording, not a translation**: the requirement is typed in English and analysed for real, which is why it reports **72%** confidence where the Chinese cut reports 67%. Nothing is carried over between the two sessions.
->
-> The interface stays Chinese in both cuts, because the workbench ships in Chinese by default. The chips the analysis returns (落地页, 首页 Hero) are the product's own output and are not rewritten.
->
-> The one generated element is the **3.5s abstract opener** (warm paper, square grid, cobalt and mint light), which contains no text. A text-to-video model is deliberately **not** used for interface footage: it renders CJK as garbled glyphs, places buttons arbitrarily and draws meaningless edges — the opposite of a working demonstration.
+> The one generated element is the **4s abstract opener** (warm paper, square grid, cobalt and mint light), which contains no text. A text-to-video model is deliberately **not** used for interface footage: it renders CJK as garbled glyphs, places buttons arbitrarily and draws meaningless edges — the opposite of a working demonstration.
+
+### The full storyline
+
+| Time | What really happens |
+|---|---|
+| 0–4s | H3 abstract opener |
+| 4–14s | The ⋯ menu → design intake; `example.com` typed in; Google Fonts source selected (open licence) |
+| 14–26s | Real fetch → candidate "Example Domain" lands in the review workbench with its licence tag |
+| 26–35s | Adopt as template → cut into sections and generate (real API) |
+| 35–55s | Open the output and scroll past the page's own prose; all six content types consume these blocks |
+| 55–67s | Back at the workbench: Example Domain sits in the sidebar REAL HTML library |
+
+The historical promo (v0.6.0 input-to-export flow, 50s/53s bilingual and 34s stills cuts) stays in [assets/promo](assets/promo).
 
 ## What it solves
 
