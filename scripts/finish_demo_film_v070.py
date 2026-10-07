@@ -41,6 +41,11 @@ OPENER_PLATE = PROMO / "opener-h3-2k.mp4"          # 既有 H3 底版（回退�
 H3_OPEN = PROMO / "h3-open-v070.mp4"               # 本次 H3 生成的片头（可选）
 H3_CLOSE = PROMO / "h3-close-v070.mp4"             # 本次 H3 生成的片尾（可选）
 MUSIC = PROMO / "brand-bed.mp3"
+
+# H3's native ambience, used for the opening card ONLY. Letting it
+# ride inside the brand clip carried it under the music all the way
+# through, which is what 'two copies of the audio' sounds like.
+OPENING_AMBIENCE = ROOT / ".tmp" / "demo-film-v070" / "opening-ambience.wav"
 OUT = PROMO / "htmlninefox-demo-v070-16x9.mp4"
 POSTER = PROMO / "poster-demo-v070.png"
 
@@ -279,7 +284,13 @@ def main() -> int:
     print("[stage] brand open"); print(f"opener backdrop: {open_src.name}"
           + ("（H3 新生成）" if open_src == H3_OPEN else "（既有 H3 底版）"))
     brand_open = work / "brand-open.mp4"
-    build_brand_clip(open_src, open_overlay, brand_open, keep_audio=True)
+    build_brand_clip(open_src, open_overlay, brand_open, keep_audio=False)
+
+    if has_audio(open_src):
+        run(["ffmpeg", "-y", "-i", str(open_src), "-vn",
+             "-t", f"{BRAND_LEN:.2f}", "-ar", "48000", "-ac", "2",
+             "-c:a", "pcm_s16le", str(OPENING_AMBIENCE)])
+        print(f"opening ambience: {probe(OPENING_AMBIENCE):.1f}s")
 
     # ---- 3. 片尾底版：优先本次 H3 生成，缺省用暖纸静帧
     if H3_CLOSE.exists():
@@ -298,21 +309,56 @@ def main() -> int:
     print("[stage] captions")
     captioned, session_len = captioned_session(work)
 
-    # ---- 5. 三段交叉溶解 + 配乐（片头环境音淡出，床乐淡入淡出贯穿全片）
+    # ---- 4b. 旁白轨：由 scripts/build_narration_track.py 直接写 PCM。
+    # 三版 ffmpeg filtergraph 都报成功而产出不可听。
+    print("[stage] narration")
+    narration = ROOT / ".tmp" / "demo-film-v070" / "narration.wav"
+    if not narration.exists():
+        print("  没有 narration.wav，先跑 build_narration_track.py")
+        narration = None
+
+    # ---- 5. 三段交叉溶解 + 配乐 + 旁白
     print("[stage] final mix")
     total = BRAND_LEN + session_len + BRAND_LEN
+
+    # Three sources with three jobs: the ambience for the card, the bed under
+    # the body, the voice over it.
+    have_amb = OPENING_AMBIENCE.exists()
+    vo_input = (["-i", str(OPENING_AMBIENCE)] if have_amb else []) + \
+               (["-i", str(narration)] if narration is not None else [])
+    amb_i, vo_i = 4, (5 if have_amb else 4)
+
+    # adelay takes one delay PER CHANNEL. A bare `adelay=5000` delays the LEFT
+    # channel only and leaves the right where it was, which put one voice at
+    # t+5s in the left speaker and the same voice at t in the right — "two
+    # narrations, offset from each other". Measured by splitting the master:
+    # left's first speech at 7.62s, right's at 2.62s, exactly BRAND_LEN apart.
+    delay = f"{int(BRAND_LEN * 1000)}|{int(BRAND_LEN * 1000)}"
+
+    parts = [
+        f"[{amb_i}:a]afade=t=out:st={BRAND_LEN - 1.5:.2f}:d=1.5,"
+        f"volume=2.8[amb];" if have_amb else None,
+        # 0.16 puts the bed roughly 16 dB under the voice. At 0.5 the master
+        # measured 12 of 13 lines 5 to 11 dB BELOW the music.
+        f"[3:a]atrim=0:{total:.2f},volume=0.16,"
+        f"afade=t=in:st={BRAND_LEN:.2f}:d=1.8,"
+        f"afade=t=out:st={max(0.0, total - 2.6):.2f}:d=2.6[bed];",
+        f"[{vo_i}:a]adelay={delay},highpass=f=90,volume=1.4[vo];",
+    ]
+    vo_graph = "".join(p for p in parts if p)
+    sources = (["[amb]"] if have_amb else []) + ["[bed]"] + \
+              (["[vo]"] if narration is not None else [])
+    vo_mix = "".join(sources) + \
+        f"amix=inputs={len(sources)}:duration=longest:dropout_transition=0[a];"
+
     run(["ffmpeg", "-y", "-i", str(brand_open), "-i", str(captioned),
-         "-i", str(brand_close), "-i", str(MUSIC),
+         "-i", str(brand_close), "-i", str(MUSIC), *vo_input,
          "-filter_complex",
          "[0:v]fps=25,settb=AVTB,format=yuv420p[i0];"
          "[1:v]fps=25,settb=AVTB,format=yuv420p[i1];"
          "[2:v]fps=25,settb=AVTB,format=yuv420p[i2];"
          "[i0][i1][i2]concat=n=3:v=1:a=0[v];"
-         f"[0:a]volume=1.0,afade=t=out:st={BRAND_LEN - 1.2:.2f}:d=1.2[a0];"
-         f"[3:a]atrim=0:{total:.2f},volume=0.9,"
-         f"afade=t=in:st={BRAND_LEN - 1.0:.2f}:d=1.5,"
-         f"afade=t=out:st={max(0.0, total - 2.4):.2f}:d=2.4[a1];"
-         f"[a0][a1]amix=inputs=2:duration=longest:dropout_transition=0[a]",
+         + vo_graph + vo_mix,
          "-map", "[v]", "-map", "[a]",
          "-r", str(FPS), "-c:v", "libx264", "-preset", "slow", "-crf", "17",
          "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k",
