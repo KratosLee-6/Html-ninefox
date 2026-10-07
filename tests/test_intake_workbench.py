@@ -56,11 +56,23 @@ def test_intake_review_flow_end_to_end(tmp_path: Path, monkeypatch) -> None:
         approved, _ = api_request(base, f"/api/intake/candidates/{candidate['candidate_id']}/approve",
                                   "POST", {})
         assert approved["candidate"]["status"] == "approved"
-        gallery_name = approved["gallery_item"]["name"]
-        assert gallery_name == "Inspo Landing"
+
+        # `reference` 的定义写在 data/sources/design-galleries.yaml 里：
+        # 「可参考结构与风格，只提取令牌/骨架，产出必须原创重渲染」。
+        # 所以批准它是对的——令牌与骨架已被上面的断言确认提取到了——
+        # 但把它的整页 HTML 复制进模板库是违反这条声明的，那等于照搬。
+        #
+        # 这条断言过去写的是 gallery_item 非空，固化的正是那个错误行为：
+        # 字段级的分块规则已经说 reference 只给结构不给正文，批准路径却
+        # 整页放行，同一份许可在两条路径上得到相反结论。
+        assert approved["gallery_item"] is None, \
+            "reference 许可不得整页进入模板库"
+        assert "reference" in (approved["gallery_skipped"] or ""), \
+            f"跳过原因应说明是哪一档许可：{approved['gallery_skipped']!r}"
 
         gallery, _ = api_request(base, "/api/gallery")
-        assert any(item["name"] == gallery_name for item in gallery["items"])
+        assert not any(item["name"] == "Inspo Landing" for item in gallery["items"]), \
+            "reference 页面被写进了模板库"
 
         empty, _ = api_request(base, "/api/intake/candidates?status=pending")
         assert empty["candidates"] == []

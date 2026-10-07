@@ -263,6 +263,18 @@ jobs:
         run: python scripts/mutate_page_blocks_gates.py
       - name: Mutation check — a page's palette must reach the page
         run: python scripts/mutate_user_template_style_gates.py
+      # The licence rule existed in two copies and they disagreed about
+      # `reference`: structure-only on the block path, whole body copied into the
+      # template gallery on the approve path. A licence meaning "reference it,
+      # do not copy it" was being copied. The gates assert the two answers match
+      # rather than asserting each path separately, so a fourth licence exposes
+      # the disagreement instead of widening both copies.
+      - name: The licence rule must be one rule
+        run: >
+          python -m pytest tests/test_licence_rule_is_one_rule.py
+          -q -p no:cacheprovider --tb=short -rf
+      - name: Mutation check — the two paths must not drift apart
+        run: python scripts/mutate_licence_rule_gates.py
       - name: Mutation check — a page's sections must survive the pipeline
         run: python scripts/mutate_page_sections_gates.py
       # Only `doc` consumed the block channel. Measured before this gate: a

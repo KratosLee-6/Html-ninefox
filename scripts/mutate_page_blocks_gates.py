@@ -62,11 +62,24 @@ def m_back_to_a_flat_regex(intake: str, core: str, feat: str, doc: str, shared: 
 
 def m_carry_text_regardless_of_licence(intake: str, core: str, feat: str, doc: str,
                                         shared: str):
-    """The copyright rule undone: every page hands over its prose."""
-    old = '    may_carry_text = licence == "open"'
+    """The copyright rule undone: every page hands over its prose.
+
+    This used to rewrite `may_carry_text = licence == "open"` in
+    page_blocks_from_candidate. That line is gone — the rule moved into the
+    shared `may_carry_verbatim_text`, so both paths now ask one function and
+    cannot drift apart. Reverting the old line silently matched nothing and
+    the case reported HARD FAIL, which is what it should have said: a mutation
+    that never applied is not evidence that a gate let something through.
+
+    It attacks the shared rule instead, which is where the decision lives now.
+    """
+    old = '    return str(license_class or "") == "open"'
     if old not in intake:
-        raise MutationFailure("没找到 may_carry_text 的判定")
-    return intake.replace(old, "    may_carry_text = True", 1), core, feat, doc, shared
+        raise MutationFailure(
+            "没找到 intake.may_carry_verbatim_text 的判定"
+            f"（许可规则改形状了？）\n{old}")
+    return (intake.replace(old, '    return str(license_class or "") != ""', 1),
+            core, feat, doc, shared)
 
 
 def m_mislabel_the_provenance(intake: str, core: str, feat: str, doc: str,

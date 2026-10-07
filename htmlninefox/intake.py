@@ -779,6 +779,23 @@ def extract_components(evidence: dict, html_text: str, style_blob: str = "") -> 
     return {"components": sections}
 
 
+def may_carry_verbatim_text(license_class: str | None) -> bool:
+    """Whether this licence permits carrying the page's own prose.
+
+    One place, because the answer was being decided twice and the two copies
+    disagreed. `page_blocks_from_candidate` allowed verbatim text only for
+    `open`, while the approve path imported the entire stored HTML for anything
+    that was not `inspiration-only` — so a `reference` page was told "structure
+    only" on one path and had its whole body copied into the template gallery
+    on the other.
+
+    `reference` is not `open`: structure, ordering and palette are learnable
+    from almost any page; the prose is not. That distinction is what
+    LICENSE_CLASSES exists to express.
+    """
+    return str(license_class or "") == "open"
+
+
 def page_blocks_from_candidate(candidate: dict, body_html: str) -> list[dict]:
     """Turn a fetched page's own sections into blocks the pipeline can carry.
 
@@ -810,7 +827,7 @@ def page_blocks_from_candidate(candidate: dict, body_html: str) -> list[dict]:
         return []
     sections = extract_components(candidate, body_html).get("components") or []
     licence = str((candidate or {}).get("license_class") or "reference")
-    may_carry_text = licence == "open"
+    may_carry_text = may_carry_verbatim_text(licence)
     source_url = str((candidate or {}).get("final_url")
                      or (candidate or {}).get("url") or "")
 

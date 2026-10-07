@@ -233,13 +233,24 @@ class _Handler(BaseHTTPRequestHandler):
         store = self._intake_candidates()
         candidate = store.set_status(candidate_id, "approved" if action == "approve" else "rejected")
         gallery_item = None
+        # Always returned so the response shape does not change with the
+        # licence; the only value it can take is set on the early return above.
         gallery_skipped = None
         if action == "approve":
-            # 许可治理：灵感板来源只允许原创重渲染路径（风格预设/动效吸收），
-            # 不允许整页代码进入模板库。
-            if candidate.get("license_class") == "inspiration-only":
+            # 许可治理：只有 open 许可允许整页代码进入模板库。
+            #
+            # 这一行过去是 `if license_class == "inspiration-only"`，也就是
+            # 「除它以外都放行」。而分块通道问的是另一个问题
+            # （intake.may_carry_verbatim_text：只有 open 才带正文），两个
+            # 答案不一致：reference 许可在分块路径上被判为「只给结构不给
+            # 正文」，却在批准路径上被整页复制进模板库。同一份许可在两条
+            # 路径上得到相反结论，而后者把别人的正文留了下来。
+            #
+            # 现在两条路径问同一个问题，答案只有一处。
+            if not intake.may_carry_verbatim_text(candidate.get("license_class")):
+                licence = candidate.get("license_class") or "reference"
                 return {"ok": True, "candidate": candidate, "gallery_item": None,
-                        "gallery_skipped": "inspiration-only：仅作灵感板，不做代码导入"}
+                        "gallery_skipped": f"{licence}：仅作灵感板，不做代码导入"}
             safe_name = re.sub(r"[^\w.-]+", "-", candidate["title"]).strip("-")[:60] or "intake-candidate"
             tags = ["intake"]
             if candidate.get("source"):

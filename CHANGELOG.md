@@ -11,6 +11,76 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-10-07 · 网页反向拆解：把一个页面的分区变成一个项目
+
+> 里程碑版本。产品 schema 与 HTTP 接口有新增，既有项目行为不变。
+> 门禁：**589 passed / 2 skipped**（68 个测试文件）；**15 个变异脚本全部 CAUGHT**；
+> CI **10 个 job**。
+> 证据：[设计文档](docs/DESIGN-v0.7-page-decomposition.md)、
+> [发布说明](docs/RELEASE-NOTES-v0.7.0.md)。
+
+**Added**
+- **页面分区可以成为项目分区**。`intake.page_blocks_from_candidate(candidate, body_html)`
+  把候选已存的 body 重新切成通道认识的 block；`POST /api/intake/page-blocks`
+  供工作台读取。**该端点不写回候选**——携带页面正文必须由用户决定，
+  不能成为一次抓取的副作用。
+- **六个内容类型全部消费分块通道**（v0.6.4 只有一个）。
+- **归档分支 `archive`**：从 v0.2.0 的 `0026665` 切出，保留当时的全部文件，
+  另加 `TIMELINE.md` 记录完整迭代时间线与三次「绿灯但功能是坏的」。
+
+**Fixed**
+- **landing 渲染出空白页，archdoc 只有外壳**（发布阻断级）。
+  实测：landing 的 body 是 **0 字符**，archdoc 26 字符（仅外壳），
+  dashboard / deck / poster 渲染自己的文案并**静默丢弃**页面内容。
+  根因是 `blocks_of(assets) or [词汇表]`——当 blocks 非空但全是页面 id 时，
+  `or` 不触发，每个分支都落空。**而当时全量 526 条测试全绿**：
+  测试全绿证明的是「没有回归」，不是「功能可用」。
+- **`structure_only` 页面渲染空白**（更常见的一条路径）。
+  `sections_of` 丢掉了无内容的 block，但 `blocks_of` 仍返回那些 id，
+  把默认词汇表挤掉了。而 reference / inspiration-only 许可产出的**正是**
+  structure_only——这是许可规则的主路径，不是边缘情况。
+  现在共享层 `block_ids_of()` 只保留认识的 id，一个都不认识时回落到词汇表。
+- **修 `_innermost_sections`：平面 `finditer` 把嵌套 section 全吞掉**。
+  `<main>...</main>` 会把内部每个 `<section>` 吃掉，而真实页面绝大多数就是
+  `<main><section>`。不改这一处，「拆解」只产出一个 main 摘要。
+- **许可规则曾是两份，且互相矛盾**。`page_blocks_from_candidate` 只允许 `open`
+  携带正文，而 `app.py` 的批准路径写的是「除 inspiration-only 外都放行」，
+  于是 **`reference` 许可的页面被判为「只给结构不给正文」的同时，
+  整页 HTML 被原样复制进模板库**。一份意为「可参考、不可照搬」的许可被照搬了。
+  现在两条路径问同一个 `intake.may_carry_verbatim_text()`。
+- **验收脚本改写已发布的发布资源**。`e2e_verify.py` 在模块顶层无条件 `mkdir`
+  `assets/screenshots/v<version>/` 并覆盖三张截图——README 与发布说明
+  直接引用那些文件，于是「跑一遍验收」就静默改掉了 git 里已发布的图片。
+  现改为显式 opt-in（`HTMLNINEFOX_E2E_RELEASE_SHOTS=1`）。
+- **同秒两次运行抢同一个项目目录**。`_next_project_name` 先查存在再取名，
+  同一秒内两次运行拿到同一个 `html9n-<ts>`，后者在 `rename` 上抛
+  裸 `PermissionError: [WinError 5]`，消息既不提冲突也不提重试。
+  重试现在在发布侧，因为 `rename` 是对最终名字唯一的原子声明。
+- **`html9n-html9n-...` 畸形目录名**。发布时把完整目录名当时间戳传回
+  命名函数。按最后一段 `-` 拆分并不能还原——时间戳本身含 `-` 且末段是纯数字，
+  会得到 `html9n-2026-10-07-12830`，一个看起来完全合法的**不同时间戳**。
+  现在基名整体保留，只在末尾追加计数。
+
+**门禁基建：新增 5 组测试（67 条）+ 2 个变异脚本**
+- 新增「页面分区必须到达每一个 intent」，用**计数**而非存在性
+  （`body.count(ALPHA) == 1`），并双向断言：「该出现的出现」与
+  「不该出现的没出现」缺一不可。只断言存在的话，重复渲染两次照样通过。
+- 新增许可规则的 11 条门禁，断言**两条路径的答案相同**而不是各自断言，
+  这样加第四档许可时会暴露分歧，而不是把两份拷贝一起放宽。
+- 新增推送路径与发布冲突的门禁（14 条 + 5 条），它们跑的是真实代码：
+  推送门禁在工作区故意比提交更脏的临时仓库里驱动 `blob_bytes`，
+  因为扫源码会找到写着 `git cat-file` 的注释而放过仍在调 `read_bytes` 的代码。
+- 两条反向验证脚本自身修过三处失效：回退片段取自修复后的源码、
+  函数式构造器定义在使用之后、闸门在写入行的**上一行**而非同一行。
+- 第三处曾把「变异没生效」报成 MISSED：去掉 `for` 循环后 `continue` 悬空，
+  pytest 在收集阶段就中断（exit code = 2，零条 FAILED），
+  只看退出码会以为门禁没抓到。现在回退文本先 `ast.parse` 再跑。
+
+**Removed**
+- **远端 `master` 分支**：停在 2026-08-29 的 v0.2.0，落后 162 个提交，
+  其上的桌面端 workflow 在当前仓库任何分支都已不存在。
+  内容由 `archive` 分支与 9 个 tag 完整覆盖，无任何链接指向它。
+
 ## [0.6.3] — 2026-10-04 · 修复 v0.6.2 的发布阻断缺陷
 
 > 补丁版本。产品行为、界面、项目 schema、HTTP 接口与 Revision 历史**均未改变**。
