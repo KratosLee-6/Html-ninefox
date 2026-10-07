@@ -47,19 +47,11 @@ GitHub does not inline-play repository mp4 files: the narrated cut plays on the 
 
 ## Architecture
 
-```text
-Design intake (12 sources / URL / ZIP)     Page decomposition (new in v0.7)
-        ↓ review · three licence tiers              ↓ cut into blocks
-        └────────────┬──────────────────────────────┘
-                     ↓
-  text / files / images / HTML → AI or offline rules → content type + template + sections
-                     ↓
-     infinite-canvas workspaces (compose / feedback / revisions)
-                     ↓
-              single-file HTML (six content types)
-                     ↓
-    export PDF / paginated PNG / long image / editable PPTX + report
-```
+Generated with [Archify](https://github.com/tt-a1i/archify) — the interactive HTML ships with the repo: [docs/architecture-v070.html](docs/architecture-v070.html) (download and open locally to explore nodes, routes and the legend):
+
+![HtmlNineFox architecture (generated with Archify)](assets/architecture-v070.png)
+
+Screenshots for every module live on the [Chinese homepage](README.md) and in the [full archive](docs/HOMEPAGE-ARCHIVE.en.md).
 
 | Module | Role |
 |---|---|

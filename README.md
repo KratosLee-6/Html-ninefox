@@ -51,19 +51,9 @@
 
 ## 🏗 整体架构
 
-```text
-设计吸收（12 源抓取 / URL / ZIP）        网页反向拆解（v0.7 新增）
-        ↓ 审核台 · 三档许可                      ↓ 拆成分区
-        └────────────┬───────────────────────────┘
-                     ↓
-   文字 / 文件 / 图片 / HTML  →  AI 或离线规则分析  →  推荐内容类型 + 模板 + 分区
-                     ↓
-        无限画布工作区（自由组合 / 反馈迭代 / 版本历史）
-                     ↓
-              生成单文件 HTML（六类内容）
-                     ↓
-       导出 PDF / 逐页 PNG / 长图 / 可编辑 PPTX + 兼容性报告
-```
+架构图由 [Archify](https://github.com/tt-a1i/archify) 生成（交互式 HTML 随仓库提供：[docs/architecture-v070.html](docs/architecture-v070.html)，下载后本地打开可探索节点、路径与图例）：
+
+![Html九尾狐整体架构（Archify 生成）](assets/architecture-v070.png)
 
 **重要后端模块**
 
@@ -80,14 +70,66 @@
 
 ## 🧩 功能板块
 
-| 板块 | 一句话 | 详情 |
-|---|---|---|
-| 🖼 无限画布工作台 | 文字、文件、图片、HTML 模板放上画布，自由组合、推进生成 | [UI 手册](docs/UI-GUIDE.md) |
-| 🕸 设计吸收 | 12 个内置源 + URL、ZIP 抓取，审核台人工确认，三档许可代码级强制 | [v0.6.0 发布说明](docs/RELEASE-NOTES-v0.6.0.md) |
-| 🔎 网页反向拆解（新） | 采纳的候选拆成分区直接进生成，六类内容全消费 | [v0.7.0 发布说明](docs/RELEASE-NOTES-v0.7.0.md) |
-| 📊 可编辑 PPTX | deck 导出标准 .pptx，PowerPoint 里真能改；工作台内幻灯片编辑闭环 | [导出中心](docs/EXPORT-CENTER.md) |
-| 📤 导出中心 | PDF / 逐页 PNG / 长图 + 兼容性评分报告 | [导出中心](docs/EXPORT-CENTER.md) |
-| 🧠 项目记忆 + 版本 | 明确采用才学习；反馈、重跑、恢复全留快照 | [归档·完整版](docs/HOMEPAGE-ARCHIVE.md) |
+### 🖼 无限画布工作台
+
+文字、文件、图片、HTML 模板放上画布，自由组合、推进生成；三栏层级 + 夜蓝双主题，平板 / 手机各有一套可读布局。
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台</b><br>素材库 · 无限画布工作区 · 检查器。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>导航卡并存，检查器直接改名与配色。</td>
+</tr>
+</table>
+
+### 🕸 设计吸收
+
+12 个内置源 + URL、ZIP 抓取（SSRF 防护：拒私网、防重绑定、限速），候选先落审核台人工确认；许可三档是代码里强制的，不是标签。
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.3/intake-review-pending.png" alt="素材审核台"><br><b>素材审核台 · 待审核</b><br>许可徽标、令牌色板、骨架大纲与吸收指标。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/intake-approved-absorption.png" alt="已采纳与六层入库"><br><b>已采纳 · 六层入库</b><br>风格预设 / 组件 / 动效 / 内容，吸收指标同步更新。</td>
+</tr>
+</table>
+
+### 🔎 网页反向拆解（v0.7 新增）
+
+见上方「v0.7.0 最新功能」。真实链路验收脚本随仓库发布：[scripts/verify_page_blocks_chain.py](scripts/verify_page_blocks_chain.py)。
+
+### 📊 可编辑 PPTX
+
+deck 产物导出标准 .pptx，PowerPoint / WPS 里文本框真正可编辑；工作台内逐页改写，写回带版本冲突保护。
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.3/slide-editor-dialog.png" alt="工作台内幻灯片编辑"><br><b>工作台内幻灯片编辑</b><br>逐页列出可编辑文本节点，保存即新版本。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/export-center-pptx.png" alt="导出中心 PPTX"><br><b>导出中心 · PPTX</b><br>pptx 与降级报告两个下载项，能改的都改了。</td>
+</tr>
+</table>
+
+### 📤 导出中心
+
+PDF / 逐页 PNG / 完整长图三种真实导出 + 兼容性评分报告；deck 产物额外放开 PPTX。
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.3/export-ready.png" alt="导出分析就绪"><br><b>导出分析就绪</b><br>兼容性评分、分页模型、动态特性与本地引擎状态。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/pptx-export-report.png" alt="PPTX 导出报告"><br><b>PPTX 导出报告</b><br>可编辑元素与降级清单如实列出。</td>
+</tr>
+</table>
+
+### 🧠 项目记忆 + 版本历史
+
+明确点击「采用此版本并学习」才进入长期记忆，测试稿不污染偏好；反馈、重跑、恢复全留快照，恢复生成新版本、不覆盖历史。
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.6.3/project-memory.png" alt="项目记忆"><br><b>项目记忆</b><br>品牌、受众、语气、禁忌、模板本地保存复用。</td>
+<td width="50%"><img src="assets/screenshots/v0.6.3/revision-restore.png" alt="版本历史与恢复"><br><b>版本历史与恢复</b><br>命名、行级差异，恢复不覆盖历史。</td>
+</tr>
+</table>
+
+各板块的完整图文对照（含命令面板、输入入口、经典模式、移动端等 23 张实拍）见 [docs/HOMEPAGE-ARCHIVE.md](docs/HOMEPAGE-ARCHIVE.md)。
 
 ## 🚀 快速开始
 
