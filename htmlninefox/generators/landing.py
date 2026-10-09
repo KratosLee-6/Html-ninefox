@@ -81,17 +81,29 @@ def render(brief: dict, style: dict, assets: dict) -> str:
         if isinstance(brief, dict) else []
 
     feats = (must_have + ["一键上手，5 分钟完成配置", "私有化部署，数据不出内网", "开放 API，接入现有流程"])[:6]
+    # 六张卡的正文各不相同，且不复述卡片标题——旧版把「f」原样嵌进正文
+    # （「围绕『f』设计的完整能力」）并让后三张共用一句填充语，成片读起来
+    # 像没写完。离线规则没有理解能力，所以变化来自按位轮换的句式，
+    # 而不是假装看懂了 must_have。
+    feature_bodies = [
+        "开箱即用，配置一次长期复用，团队上手没有额外成本。",
+        "与现有工作流无缝衔接，导入即可开始，不需要迁移旧数据。",
+        "关键路径全程可回溯：改动留痕，随时回到任一版本。",
+        "性能与稳定优先，高频操作全部本地完成，数据不出你的环境。",
+        "开放集成能力，API 与模板体系随团队规模一起成长。",
+        "文档与示例齐备，先查示例再提问，常见问题都有现成答案。",
+    ]
     f_blocks = [f"""
       <div class="feature card">
         <div class="ico">0{i + 1}</div>
         <h3>{esc(f)}</h3>
-        <p>围绕「{esc(f)}」设计的完整能力，与工作流无缝衔接。</p>
+        <p>{esc(feature_bodies[i])}</p>
       </div>""" for i, f in enumerate(feats[:3])]
     f_blocks2 = [f"""
       <div class="feature card">
         <div class="ico">0{i + 4}</div>
         <h3>{esc(f)}</h3>
-        <p>稳定可靠，开箱即用。</p>
+        <p>{esc(feature_bodies[i + 3])}</p>
       </div>""" for i, f in enumerate(feats[3:6])]
 
     plans = [

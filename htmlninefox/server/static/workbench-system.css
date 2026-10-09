@@ -294,7 +294,9 @@
 }
 
 @media (max-width:420px) {
-  .ver { display:none; }
+  /* 版本徽标在窄屏也要可见：它是发布证据（README 实拍与 capture 脚本都
+     断言它），整只藏掉会让移动端截图无法自证版本。改用更小字号保留。 */
+  .ver { display:inline-block; font-size:10px; letter-spacing:0; padding:0 2px; }
   .mobile-library-toggle,.mobile-inspector-toggle { width:38px !important; }
   #btn-go { min-width:76px; }
 }

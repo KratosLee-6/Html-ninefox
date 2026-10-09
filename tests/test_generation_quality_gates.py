@@ -110,6 +110,27 @@ class TestGenerationQuality:
         """
         assert TOPIC in _render(intent), f"{intent} 产物里找不到需求主题「{TOPIC}」"
 
+    def test_landing_feature_cards_do_not_echo_their_title(self):
+        """v0.7.1：六张 feature 卡的正文不复述卡片标题，且互不相同。
+
+        旧版把标题原样嵌进正文（「围绕『X』设计的完整能力」）并让后三张
+        共用同一句「稳定可靠，开箱即用」——成片读起来像没写完。此处按
+        渲染结果断言：正文彼此不同、任何一张都不含整句标题。
+        """
+        import re as _re
+        html = _render("landing")
+        cards = _re.findall(
+            r'<div class="feature card">.*?<h3>(.*?)</h3>\s*<p>(.*?)</p>',
+            html, _re.S)
+        assert len(cards) >= 6, f"feature 卡少于 6 张：{len(cards)}"
+        bodies = []
+        for title, body in cards:
+            title_clean, body_clean = title.strip(), body.strip()
+            assert body_clean != title_clean,                 f"卡片「{title_clean}」正文与标题相同（回显缺陷复发）"
+            assert title_clean not in body_clean,                 f"卡片「{title_clean}」正文里复述了整句标题：{body_clean[:60]}"
+            bodies.append(body_clean)
+        assert len(set(bodies)) == len(bodies), "多张卡片共用同一句正文"
+
     @pytest.mark.parametrize("intent", list(PROMPTS))
     def test_no_placeholder_residue(self, intent):
         found = PLACEHOLDER.search(_render(intent))

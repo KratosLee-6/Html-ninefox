@@ -424,6 +424,15 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   .inspector { display:flex; position:fixed; top:46px; right:0; bottom:58px; width:min(88vw,320px); z-index:80;
     box-shadow:-18px 0 44px rgba(0,0,0,.45); transform:translateX(105%); transition:transform .2s ease; }
   .inspector.mobile-open { transform:translateX(0); }
+  /* 平板宽度下五个步骤名加标题放不进一行：收成圆点进度条，只保留
+     当前 / 失败步骤的文字。不做这一步，768 实拍里最后一步会被右缘截断
+     （v0.7.0 主页实拍翻过车）。≤760 的同名规则在下方另行生效。 */
+  .timeline { padding:0 12px; }
+  .tl-title, .tl-status { display:none; }
+  .tl-stage { min-width:0; flex:0 0 auto; }
+  .tl-stage .tl-label { display:none; }
+  .tl-stage.active .tl-label, .tl-stage.failed .tl-label { display:inline; font-size:var(--fs-md); }
+  .tl-line { margin:0 5px; min-width:8px; }
 }
 @media (max-width:760px) {
   .app { height:100dvh; grid-template-rows:52px 1fr 50px; grid-template-columns:minmax(0,1fr);

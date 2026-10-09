@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.7.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0)
+[![App Release](https://img.shields.io/badge/app-v0.7.1-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.1)
 [![Tests](https://img.shields.io/badge/pytest-596%20passed%20%7C%202%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
@@ -17,7 +17,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.7.0`（2026-10-07 发布）· 完整功能与架构见下。
+> 当前应用包版本为 `0.7.1`（2026-10-08 发布）· 完整功能与架构见下。
 
 ---
 

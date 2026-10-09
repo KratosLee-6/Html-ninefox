@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.7.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0)
+[![App Release](https://img.shields.io/badge/app-v0.7.1-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.1)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.7.0`（2026-10-07 发布）· 完整功能与架构见下。
+> 当前应用包版本为 `0.7.1`（2026-10-08 发布）· 完整功能与架构见下。
 
 ---
 
@@ -86,8 +86,8 @@
 <td width="50%"><img src="assets/screenshots/v0.7.0/sidebar-templates.png" alt="REAL HTML 模板库"><br><b>REAL HTML 模板库</b><br>采纳的网页与模板卡，直接可复用。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放。</td>
-<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动 390 任务视图</b><br>工作区动作与节点卡片替代缩小画布，进度只留关键步骤。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.1/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放；步骤条收成圆点不再溢出。</td>
+<td width="50%"><img src="assets/screenshots/v0.7.1/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动 390 任务视图</b><br>版本徽标在窄屏依旧可见，工作区动作与节点卡片替代缩小画布。</td>
 </tr>
 </table>
 
@@ -169,6 +169,7 @@ Windows / Linux / macOS 安装包与 wheel 见 [**v0.7.0 Release**](https://gith
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.7.1** | 2026-10-08 | **体验修复**：平板步骤条溢出、移动徽标隐藏、landing 卡片文案回显——三处都是「修 CSS 断言计算样式」的门禁先把守 |
 | **v0.7.0** | 2026-10-07 | **网页反向拆解**：页面分区 → 项目分区，六类全消费；发布前实测修复三个「全绿但坏了」 |
 | v0.6.4 | 2026-10-06 | 门禁收口：发布物字节级回读；配色与 blocks 两个真缺陷 |
 | v0.6.0 | 2026-10-01 | 设计吸收流水线 + 可编辑 PPTX 两条主线 |

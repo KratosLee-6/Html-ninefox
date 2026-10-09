@@ -11,6 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] — 2026-10-08 · 响应式与文案修复
+
+> 补丁版本。产品 schema、HTTP 接口与项目数据**均未改变**。
+> 三个缺陷都是 v0.7.0 主页实拍里肉眼可见、当时按「如实展示」发布的。
+> 门禁：Windows 本地 **599 passed / 2 skipped**（新增 3 条门禁）；
+> 变异：响应式 2/2、landing 退回同句填充 CAUGHT。
+
+**Fixed**
+- **平板 768：底部进度条横向溢出**。五个步骤（`min-width:120px` × 5 + 标题）
+  一行放不下，右缘把「生成产物」截掉一半。修复：≤1100 收成圆点进度条，
+  只保留当前 / 失败步骤的文字（补上 761–1100 的空档；≤760 的既有规则不变）。
+- **移动 390：版本徽标整只消失**。≤420 规则把 `#ver` 整个 `display:none`，
+  移动端截图无法自证版本。修复：改 10px 小字保留显示。
+- **landing 六张 feature 卡正文回显标题 + 后三卡共用一句填充**。
+  修复：按位轮换六句互不相同的正文，不复述标题。
+
+**门禁**
+- `tests/test_responsive_chrome.py`（2 条）：真实浏览器断言 768 时间线零溢出、
+  390 徽标可见；`scripts/mutate_responsive_gates.py` 验证撤掉修复必变红（2/2）。
+- `test_generation_quality_gates.py` 新增 1 条：六张卡正文互不相同、
+  不复述整句标题；退回同句填充 → failed ✓。
+
 ## [0.7.0] — 2026-10-07 · 网页反向拆解：把一个页面的分区变成一个项目
 
 > 里程碑版本。产品 schema 与 HTTP 接口有新增，既有项目行为不变。
