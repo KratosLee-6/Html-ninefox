@@ -37,16 +37,18 @@ class _RefuseGallery:
 
 
 def _decide(licence: str) -> dict:
+    from htmlninefox.server.intake_service import IntakeService
+
     store = type("S", (), {
         "set_status": lambda self, cid, status: {
             "id": cid, "status": status, "license_class": licence,
             "title": "probe page", "source": "url"},
         "body": lambda self, cid: BODY.encode("utf-8"),
     })()
-    handler = HANDLER.__new__(HANDLER)
-    handler._intake_candidates = lambda: store
-    handler._user_gallery = lambda: _RefuseGallery()
-    return handler._api_intake_decide("c1", "approve")
+    service = object.__new__(IntakeService)
+    service.candidates = lambda: store
+    service.gallery = _RefuseGallery()
+    return service.decide("c1", "approve")
 
 
 def _gallery_imported(licence: str) -> bool:
@@ -105,11 +107,12 @@ def test_the_approve_path_asks_the_shared_rule():
     Not a scan for a comment that mentions the name: the call has to be the one
     that guards the gallery import, and the old inline comparison must be gone.
     """
-    import htmlninefox.server.app as mod
+    import htmlninefox.server.intake_service as service_mod
 
-    source = Path(mod.__file__).read_text(encoding="utf-8")
+    source = Path(service_mod.__file__).read_text(encoding="utf-8")
     assert "intake.may_carry_verbatim_text(" in source, (
         "the approve path must ask intake.may_carry_verbatim_text, not its own "
-        "comparison — that is how the two drifted apart")
+        "comparison — that is how the two drifted apart (P1-7 moved the "
+        "orchestration into intake_service; the guard moved with it)")
     assert 'license_class") == "inspiration-only"' not in source, (
         "the old whole-page rule is back")

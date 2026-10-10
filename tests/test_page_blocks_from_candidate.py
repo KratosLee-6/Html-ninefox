@@ -193,11 +193,18 @@ class _ApprovedCandidate:
 
 
 def _handler(candidate: dict, body: bytes = PAGE.encode("utf-8")):
-    """The request handler with only its two collaborators swapped out."""
+    """The request handler with only its two collaborators swapped out.
+
+    P1-7 之后编排走 IntakeService：handler stub 注入一个 candidates()
+    返回同一份假存储的 service。
+    """
     from htmlninefox.server import app as server_app
+    from htmlninefox.server.intake_service import IntakeService
 
     handler = object.__new__(server_app._Handler)
-    handler._intake_candidates = lambda: _ApprovedCandidate(candidate, body)
+    service = object.__new__(IntakeService)
+    service.candidates = lambda: _ApprovedCandidate(candidate, body)
+    handler._intake_service = lambda: service
     return handler
 
 
