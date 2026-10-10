@@ -21,6 +21,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 GATE = "tests/test_licence_rule_is_one_rule.py"
 APP = "htmlninefox/server/app.py"
+SERVICE = "htmlninefox/server/intake_service.py"
 INTAKE = "htmlninefox/intake.py"
 
 
@@ -40,9 +41,9 @@ def make_skeleton(dest: Path) -> None:
 REGRESSIONS = [
     (
         "退回整页级的旧规则",
-        APP,
-        "if not intake.may_carry_verbatim_text(candidate.get(\"license_class\")):",
-        "if candidate.get(\"license_class\") == \"inspiration-only\":",
+        SERVICE,
+        "            if not intake.may_carry_verbatim_text(licence):",
+        "            if licence == \"inspiration-only\":",
         "test_the_two_paths_never_disagree",
     ),
     (
