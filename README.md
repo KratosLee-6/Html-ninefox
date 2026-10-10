@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.7.1-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.1)
+[![App Release](https://img.shields.io/badge/app-v0.7.2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.2)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.7.1`（2026-10-08 发布）· 完整功能与架构见下。
+> 当前应用包版本为 `0.7.2`（2026-10-09 发布）· 完整功能与架构见下。
 
 ---
 
@@ -169,6 +169,7 @@ Windows / Linux / macOS 安装包与 wheel 见 [**v0.7.0 Release**](https://gith
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.7.2** | 2026-10-09 | **结构补丁**：IntakeService 提取（P1-7）+ 候选键唯一化（C8）；行为零变化 |
 | **v0.7.1** | 2026-10-08 | **体验修复**：平板步骤条溢出、移动徽标隐藏、landing 卡片文案回显——三处都是「修 CSS 断言计算样式」的门禁先把守 |
 | **v0.7.0** | 2026-10-07 | **网页反向拆解**：页面分区 → 项目分区，六类全消费；发布前实测修复三个「全绿但坏了」 |
 | v0.6.4 | 2026-10-06 | 门禁收口：发布物字节级回读；配色与 blocks 两个真缺陷 |

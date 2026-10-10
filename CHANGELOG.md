@@ -11,6 +11,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.2] — 2026-10-09 · IntakeService 提取（结构补丁）
+
+> 结构补丁。HTTP 接口、产品行为、项目数据**均未改变**。
+> 按 ROADMAP 待办 #11 + #16（合并处理）。
+
+**Changed**
+- **IntakeService 提取（P1-7）**：设计吸收的编排（抓取、限速、来源解析、
+  候选存取、许可治理、模板库导入、分块、统计、组件/动效/风格预设导入）
+  从 `app.py` 的 `_Handler` 迁入 `server/intake_service.py` 的
+  `IntakeService`；handler 的 `_api_intake_*` 方法退化为单行委托。
+  限速器唯一实例随迁，app 保留同实例别名（既有测试按别名打补丁仍生效）。
+- **候选键与许可默认值唯一化（C8）**：新增 `intake.CandidateKeys`（15 键
+  常量清单）与 `DEFAULT_LICENCE`；写入端走常量，读取端走
+  `intake.licence_of()` 唯一入口——此前 `license_class` 的默认
+  `"reference"` 散在 5 处，键名写错就静默降级治理强度。
+- `server/app.py` 不再出现任何 `license_class` 裸读取。
+
+**门禁**
+- `tests/test_candidate_keys.py`（9 条）：键集双向一致、`licence_of`
+  行为、server 零裸读取、默认值唯一；变异 3/3 CAUGHT。
+- `tests/test_intake_service_structure.py`（3 条）：handler 零编排原语、
+  纯委托、限速器唯一实例；`scripts/mutate_intake_service_gates.py`
+  2/2 CAUGHT。
+- `tests/test_intake_service.py`（5 条）：IntakeService 直属单测。
+
 ## [0.7.1] — 2026-10-08 · 响应式与文案修复
 
 > 补丁版本。产品 schema、HTTP 接口与项目数据**均未改变**。

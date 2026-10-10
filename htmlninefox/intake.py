@@ -561,6 +561,43 @@ def _normalize_color(value: str) -> str | None:
 SECTION_TAGS = ("nav", "header", "main", "section", "article", "aside", "footer")
 
 
+# ---- C8 · 候选键唯一事实来源 ------------------------------------------------
+# 候选是松散字典，但键名与许可默认值不允许散落：写入（extract_candidate）
+# 与读取（审核台、分块、风格预设、统计）都必须经由这里的常量与 licence_of。
+# 许可档位写错会静默降级治理强度，所以默认值的拥有者只有一个。
+class CandidateKeys:
+    CANDIDATE_ID = "candidate_id"
+    URL = "url"
+    FINAL_URL = "final_url"
+    SOURCE = "source"
+    KIND = "kind"
+    LICENSE_CLASS = "license_class"
+    TITLE = "title"
+    INTENT_GUESS = "intent_guess"
+    TOKENS = "tokens"
+    SKELETON = "skeleton"
+    NOTES = "notes"
+    STATUS = "status"
+    FETCHED_AT = "fetched_at"
+    BODY_SHA256 = "body_sha256"
+    DECORATIONS = "decorations"
+
+    ALL = (CANDIDATE_ID, URL, FINAL_URL, SOURCE, KIND, LICENSE_CLASS, TITLE,
+           INTENT_GUESS, TOKENS, SKELETON, NOTES, STATUS, FETCHED_AT,
+           BODY_SHA256, DECORATIONS)
+
+
+DEFAULT_LICENCE = "reference"
+
+
+def licence_of(candidate: dict | None) -> str:
+    """许可档位的唯一读入口：缺键、空值一律回落默认档。"""
+    return str((candidate or {}).get(CandidateKeys.LICENSE_CLASS) or DEFAULT_LICENCE)
+
+
+# ----------------------------------------------------------------------------
+
+
 class _SkeletonParser(html.parser.HTMLParser):
     def __init__(self) -> None:
         super().__init__()
@@ -636,34 +673,35 @@ def extract_candidate(evidence: dict, *, source: dict | None = None,
         if name and name not in fonts and not name.startswith("-"):
             fonts.append(name)
     candidate = {
-        "candidate_id": _slugify_url(evidence["final_url"]),
-        "url": evidence["url"],
-        "final_url": evidence["final_url"],
-        "source": source["id"] if source else "",
-        "kind": (source.get("kind") if source else "gallery") or "gallery",
-        "license_class": source["license_class"] if source else "reference",
-        "title": parser.title.strip()[:120] or evidence["final_url"],
-        "intent_guess": _guess_intent(parser.title, parser.headings),
-        "tokens": {"colors": colors[:24], "fonts": fonts[:8]},
-        "skeleton": {
+        CandidateKeys.CANDIDATE_ID: _slugify_url(evidence["final_url"]),
+        CandidateKeys.URL: evidence["url"],
+        CandidateKeys.FINAL_URL: evidence["final_url"],
+        CandidateKeys.SOURCE: source["id"] if source else "",
+        CandidateKeys.KIND: (source.get("kind") if source else "gallery") or "gallery",
+        CandidateKeys.LICENSE_CLASS: (source["license_class"] if source
+                                      else DEFAULT_LICENCE),
+        CandidateKeys.TITLE: parser.title.strip()[:120] or evidence["final_url"],
+        CandidateKeys.INTENT_GUESS: _guess_intent(parser.title, parser.headings),
+        CandidateKeys.TOKENS: {"colors": colors[:24], "fonts": fonts[:8]},
+        CandidateKeys.SKELETON: {
             "headings": parser.headings[:24],
             "semantic": parser.semantic,
             "links": parser.links,
             "images": parser.images,
         },
-        "notes": notes,
-        "status": "pending",
-        "fetched_at": evidence["fetched_at"],
-        "body_sha256": evidence["body_sha256"],
+        CandidateKeys.NOTES: notes,
+        CandidateKeys.STATUS: "pending",
+        CandidateKeys.FETCHED_AT: evidence["fetched_at"],
+        CandidateKeys.BODY_SHA256: evidence["body_sha256"],
     }
     extractor = KIND_EXTRACTORS.get(candidate["kind"])
     if extractor is not None:
         candidate.update(extractor(evidence, html_text, style_blob))
-    if candidate["license_class"] == "open":
+    if candidate[CandidateKeys.LICENSE_CLASS] == "open":
         gradients = list(dict.fromkeys(
             gradient.strip() for gradient in
             re.findall(r"(?:linear|radial)-gradient\([^;{}]+\)", style_blob, re.I)))[:8]
-        candidate["decorations"] = gradients
+        candidate[CandidateKeys.DECORATIONS] = gradients
     return candidate
 
 
@@ -889,7 +927,7 @@ def page_blocks_from_candidate(candidate: dict, body_html: str) -> list[dict]:
     if not isinstance(body_html, str) or not body_html.strip():
         return []
     sections = extract_components(candidate, body_html).get("components") or []
-    licence = str((candidate or {}).get("license_class") or "reference")
+    licence = licence_of(candidate)
     may_carry_text = may_carry_verbatim_text(licence)
     source_url = str((candidate or {}).get("final_url")
                      or (candidate or {}).get("url") or "")
@@ -967,7 +1005,7 @@ class ComponentStore:
                 "tag": section.get("tag", "section"),
                 "text": section.get("text_head", ""),
                 "snippet": section.get("snippet", ""),
-                "license_class": candidate.get("license_class", "reference"),
+                "license_class": licence_of(candidate),
                 "source": candidate.get("source", ""),
             }
             path = self.root / f"{component['component_id']}.json"
@@ -1053,7 +1091,7 @@ def build_motion_styles(candidate: dict) -> dict:
         "name": (candidate.get("title") or "Intake Motion")[:60],
         "css": css,
         "patterns": {"durations": durations, "easings": easings},
-        "license_class": candidate.get("license_class", "reference"),
+        "license_class": licence_of(candidate),
         "source": candidate.get("source", ""),
     }
 
@@ -1179,6 +1217,11 @@ def zip_html_entries(data: bytes) -> list[dict]:
     if not members:
         raise IntakeError("intake_zip_empty", "ZIP 中没有 HTML 文件", 400)
     return members
+
+
+def url_host(url: str) -> str:
+    """取 URL 主机名（限速键用）；无主机名返回空串。"""
+    return urllib.parse.urlsplit(url).hostname or ""
 
 
 def batch_urls(raw_urls: list[str]) -> list[str]:
@@ -1350,7 +1393,7 @@ def build_style_preset(candidate: dict) -> dict:
             "font_body": font_body,
         },
         "candidate": candidate["candidate_id"],
-        "license_class": candidate.get("license_class", "reference"),
+        "license_class": licence_of(candidate),
     }
 
 

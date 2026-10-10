@@ -109,7 +109,8 @@ _REVISION_ERROR_STATUSES = {
     "project_busy": 409,
 }
 
-_INTAKE_RATE_LIMITER = intake.RateLimiter(default_interval=6.0)
+from .intake_service import INTAKE_RATE_LIMITER as _INTAKE_RATE_LIMITER  # noqa: E402
+from .intake_service import IntakeService  # noqa: E402
 
 
 def serve(host: str = "127.0.0.1", port: int = 8620, output: str | None = None) -> None:
@@ -164,188 +165,49 @@ class _Handler(BaseHTTPRequestHandler):
     def _user_gallery(self) -> UserGalleryStore:
         return UserGalleryStore(_OUTPUT_ROOT / ".library" / "gallery")
 
+    def _intake_service(self) -> IntakeService:
+        # P1-7：intake 编排收敛到 IntakeService，handler 只剩解析与错误映射。
+        return IntakeService(output_root=_OUTPUT_ROOT,
+                             gallery=self._user_gallery())
+
     def _intake_candidates(self) -> intake.CandidateStore:
-        return intake.CandidateStore(_OUTPUT_ROOT)
-
-    def _api_intake_fetch(self, body: dict) -> dict:
-        url = str(body.get("url") or "").strip()
-        if not url:
-            raise StoreError("intake_url_invalid", "url 不能为空", 400)
-        intake.validate_url(url)   # defense in depth: gate before any transport work
-        source = None
-        source_id = str(body.get("source_id") or "").strip()
-        if source_id:
-            source = intake.find_source(source_id, extra_dir=Path.home() / ".htmlninefox" / "sources")
-            if source is None:
-                raise StoreError("intake_source_missing", f"来源不存在：{source_id}", 404)
-        _INTAKE_RATE_LIMITER.wait(source_id or urlparse(url).hostname or "adhoc")
-        evidence = intake.fetch_reference(url, headers={"Accept": "text/html"})
-        candidate = intake.extract_candidate(evidence, source=source)
-        candidate = self._intake_candidates().save(candidate, evidence)
-        return {"ok": True, "candidate": candidate}
-
-    def _api_intake_fetch_batch(self, body: dict) -> dict:
-        urls = intake.batch_urls(body.get("urls") if isinstance(body.get("urls"), list) else [])
-        source = None
-        source_id = str(body.get("source_id") or "").strip()
-        if source_id:
-            source = intake.find_source(source_id, extra_dir=Path.home() / ".htmlninefox" / "sources")
-            if source is None:
-                raise StoreError("intake_source_missing", f"来源不存在：{source_id}", 404)
-        created: list[dict] = []
-        failed: list[dict] = []
-        for url in urls:
-            key = source_id or urlparse(url).hostname or "adhoc"
-            try:
-                intake.validate_url(url)
-                _INTAKE_RATE_LIMITER.wait(key)
-                evidence = intake.fetch_reference(url, headers={"Accept": "text/html"})
-                candidate = intake.extract_candidate(evidence, source=source)
-                created.append(self._intake_candidates().save(candidate, evidence))
-            except intake.IntakeError as error:
-                failed.append({"url": url, "code": error.code, "message": error.message})
-        return {"ok": True, "created": created, "failed": failed}
-
-    def _api_intake_zip(self, body: dict) -> dict:
-        import base64 as _base64
-        try:
-            data = _base64.b64decode(str(body.get("zip_base64") or ""), validate=True)
-        except (ValueError, TypeError) as exc:
-            raise StoreError("intake_zip_invalid", "ZIP 数据不是合法 Base64", 400) from exc
-        members = intake.zip_html_entries(data)
-        created: list[dict] = []
-        for member in members:
-            evidence = {
-                "url": f"zip://{body.get('name') or 'upload'}/{member['name']}",
-                "final_url": f"zip://{body.get('name') or 'upload'}/{member['name']}",
-                "followed": [], "status": 200,
-                "content_type": "text/html", "body": member["body"],
-                "body_sha256": hashlib.sha256(member["body"]).hexdigest(),
-                "body_bytes": len(member["body"]),
-                "fetched_at": datetime.now().isoformat(timespec="seconds"),
-            }
-            candidate = intake.extract_candidate(evidence, source=None,
-                                                 notes=f"ZIP 手动导入：{body.get('name') or 'upload'}")
-            created.append(self._intake_candidates().save(candidate, evidence))
-        return {"ok": True, "created": created}
-
-    def _api_intake_decide(self, candidate_id: str, action: str) -> dict:
-        store = self._intake_candidates()
-        candidate = store.set_status(candidate_id, "approved" if action == "approve" else "rejected")
-        gallery_item = None
-        # Always returned so the response shape does not change with the
-        # licence; the only value it can take is set on the early return above.
-        gallery_skipped = None
-        if action == "approve":
-            # 许可治理：只有 open 许可允许整页代码进入模板库。
-            #
-            # 这一行过去是 `if license_class == "inspiration-only"`，也就是
-            # 「除它以外都放行」。而分块通道问的是另一个问题
-            # （intake.may_carry_verbatim_text：只有 open 才带正文），两个
-            # 答案不一致：reference 许可在分块路径上被判为「只给结构不给
-            # 正文」，却在批准路径上被整页复制进模板库。同一份许可在两条
-            # 路径上得到相反结论，而后者把别人的正文留了下来。
-            #
-            # 现在两条路径问同一个问题，答案只有一处。
-            if not intake.may_carry_verbatim_text(candidate.get("license_class")):
-                licence = candidate.get("license_class") or "reference"
-                return {"ok": True, "candidate": candidate, "gallery_item": None,
-                        "gallery_skipped": f"{licence}：仅作灵感板，不做代码导入"}
-            safe_name = re.sub(r"[^\w.-]+", "-", candidate["title"]).strip("-")[:60] or "intake-candidate"
-            tags = ["intake"]
-            if candidate.get("source"):
-                tags.append(candidate["source"])
-            try:
-                gallery_item = self._user_gallery().import_files(
-                    [{"name": f"{safe_name}.html",
-                      "data_base64": base64.b64encode(store.body(candidate_id)).decode("ascii")}],
-                    name=candidate["title"], tags=tags)
-            except UserGalleryError as exc:
-                raise StoreError("intake_import_failed", str(exc), 409) from exc
-        return {"ok": True, "candidate": candidate, "gallery_item": gallery_item,
-                "gallery_skipped": gallery_skipped}
-
-    def _intake_style_presets(self) -> intake.StylePresetStore:
-        return intake.StylePresetStore(_OUTPUT_ROOT)
+        return self._intake_service().candidates()
 
     def _intake_components(self) -> intake.ComponentStore:
-        return intake.ComponentStore(_OUTPUT_ROOT)
+        return self._intake_service().components()
 
     def _intake_motion(self) -> intake.MotionStore:
-        return intake.MotionStore(_OUTPUT_ROOT)
+        return self._intake_service().motion()
+
+    def _intake_style_presets(self) -> intake.StylePresetStore:
+        return self._intake_service().style_presets()
+
+    def _api_intake_fetch(self, body: dict) -> dict:
+        return self._intake_service().fetch(body)
+
+    def _api_intake_fetch_batch(self, body: dict) -> dict:
+        return self._intake_service().fetch_batch(body)
+
+    def _api_intake_zip(self, body: dict) -> dict:
+        return self._intake_service().import_zip(body)
+
+    def _api_intake_decide(self, candidate_id: str, action: str) -> dict:
+        return self._intake_service().decide(candidate_id, action)
 
     def _api_intake_motion_import(self, body: dict) -> dict:
-        candidate_id = str(body.get("candidate_id") or "")
-        candidate = self._intake_candidates().get(candidate_id)
-        entry = self._intake_motion().import_from_candidate(candidate)
-        return {"ok": True, "motion": entry}
+        return self._intake_service().motion_import(body)
 
     def _intake_stats(self) -> dict:
-        candidates = self._intake_candidates().list()
-        by_status: dict[str, int] = {}
-        by_source: dict[str, int] = {}
-        by_license: dict[str, int] = {}
-        for item in candidates:
-            status = item.get("status", "pending")
-            by_status[status] = by_status.get(status, 0) + 1
-            source = item.get("source") or "手动导入"
-            by_source[source] = by_source.get(source, 0) + 1
-            lic = item.get("license_class") or "reference"
-            by_license[lic] = by_license.get(lic, 0) + 1
-        return {
-            "total": len(candidates),
-            "by_status": by_status,
-            "by_source": by_source,
-            "by_license": by_license,
-            "components": len(self._intake_components().list()),
-            "motion_styles": len(self._intake_motion().list()),
-            "style_presets": len(self._intake_style_presets().list()),
-        }
+        return self._intake_service().stats()
 
     def _api_intake_components_import(self, body: dict) -> dict:
-        candidate_id = str(body.get("candidate_id") or "")
-        candidate = self._intake_candidates().get(candidate_id)
-        registered = self._intake_components().import_from_candidate(candidate)
-        return {"ok": True, "registered": registered}
+        return self._intake_service().components_import(body)
 
     def _api_intake_style_preset_create(self, body: dict) -> dict:
-        candidate_id = str(body.get("candidate_id") or "")
-        candidate = self._intake_candidates().get(candidate_id)
-        if candidate.get("status") != "approved":
-            raise StoreError("intake_candidate_not_approved", "只有已采纳的候选才能生成风格预设", 409)
-        preset = intake.build_style_preset(candidate)
-        return {"ok": True, "preset": self._intake_style_presets().save(preset)}
+        return self._intake_service().style_preset_create(body)
 
     def _api_intake_page_blocks(self, body: dict) -> dict:
-        """Cut an approved candidate's own sections into blocks the pipeline can carry.
-
-        Same shape as the style-preset endpoint next to it: read the approved
-        candidate, derive one thing from its stored body, hand it back. The
-        blocks are *not* saved into the candidate — the user decides whether to
-        keep them by starting a generation with them, and that decision is the
-        one place where copying a page's text has to be deliberate.
-
-        Copyright is applied inside `page_blocks_from_candidate`, per field and
-        per source licence, and the response says which provenance each block
-        carries so the caller is not guessing.
-        """
-        candidate_id = str(body.get("candidate_id") or "")
-        store = self._intake_candidates()
-        candidate = store.get(candidate_id)
-        if candidate.get("status") != "approved":
-            raise StoreError("intake_candidate_not_approved",
-                             "只有已采纳的候选才能拆成分区", 409)
-        raw = store.body(candidate_id)
-        blocks = intake.page_blocks_from_candidate(
-            candidate, raw.decode("utf-8", "replace"))
-        return {
-            "ok": True,
-            "candidate": candidate,
-            "blocks": blocks,
-            "license_class": candidate.get("license_class", "reference"),
-            "carries_text": any(b.get("provenance") == "verbatim" for b in blocks),
-            "block_notes": "从页面拆出的分区；结构与顺序可用，正文仅在开放许可时随行",
-        }
+        return self._intake_service().page_blocks(body)
 
     def _api_intake_ai_analyze(self, body: dict) -> dict:
         candidate_id = str(body.get("candidate_id") or "")
