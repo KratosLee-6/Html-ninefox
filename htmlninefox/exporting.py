@@ -291,7 +291,29 @@ def _render(html_path: Path, output_dir: Path, manifest: dict[str, Any],
             browser.close()
 
 
+# 环境动效（fox-reveal / fox-ambient）在导出里必须定格到终态：
+# 全页截图与 PDF 的视口外元素尚未被 IntersectionObserver 显形，
+# 不定格就会在导出件上留下空白区块。导出件是终态文档，不是录屏。
+_SETTLE_AMBIENT = """
+() => {
+  document.querySelectorAll('.fox-reveal').forEach(el => el.classList.add('fox-in'));
+  const ambient = document.querySelector('.fox-ambient');
+  if (ambient) ambient.style.animation = 'none';
+  const glow = document.querySelector('.fox-cursor-glow');
+  if (glow) glow.remove();
+}"""
+
+
+def _settle_ambient(page) -> None:
+    try:
+        page.evaluate(_SETTLE_AMBIENT)
+        page.wait_for_timeout(120)
+    except Exception:  # noqa: BLE001 - 页面没有动效层时静默跳过
+        pass
+
+
 def _render_png(page, output_dir: Path, selector: str | None, pages: list[int], scope: str) -> list[Path]:
+    _settle_ambient(page)
     if scope == "pages" and selector:
         files = []
         for page_number in pages:
@@ -307,6 +329,7 @@ def _render_png(page, output_dir: Path, selector: str | None, pages: list[int], 
 
 def _render_pdf(page, output_dir: Path, selector: str | None, pages: list[int], scope: str,
                 request: dict[str, Any]) -> list[Path]:
+    _settle_ambient(page)
     target = output_dir / "document.pdf"
     page.emulate_media(media="print")
     if scope == "pages" and selector:

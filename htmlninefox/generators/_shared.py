@@ -100,9 +100,156 @@ a {{ color: var(--fox-accent); text-decoration: none; }}
   color: var(--fox-primary); font-weight: 600; letter-spacing: .04em;
 }}
 .muted {{ color: var(--fox-muted); }}
+{ambient_motion_css(preset)}
 {extra}
 {visual_system_css(preset)}
 """
+
+
+def ambient_motion_css(preset: Dict[str, Any]) -> str:
+    """「墨水落纸」动效层（六类渲染器共享）。
+
+    thesis 来自 Pixel Garden 世界观本身：暖纸、方格、钴蓝与薄荷光。
+    生成页不再是静态截图——
+
+      1. 光带呼吸：两团钴蓝/薄荷径向渐变在纸面上缓慢漂移（focal
+         moment 的环境部分；只动 background-position，不触发 layout）；
+      2. 墨水标题：hero 主标题一次性落纸（translateY + blur 淡入，
+         700ms，impeccable 的 focal entrance 档）；
+      3. 卡片显形：滚动进入视口时按同级次序 stagger（cap 360ms）；
+      4. 光标辉光：仅 (pointer:fine) 下，光标带着一团薄荷微光——
+         「你的光标在纸上留下光」（借 shaders 的 spotlight 语言，
+         CSS 变量 + 单层渐变实现，无依赖）；
+      5. 键盘焦点环（a11y 审计的缺口补齐）。
+
+    prefers-reduced-motion：不做 0.01ms 全杀——所有元素直接以终态
+    静态呈现（状态变化与层级完整保留，符合 impeccable 审计对
+    motion sensitivity 的要求）。JS 侧由 ambient_motion_js 配合。
+    """
+    t = preset["tokens"]
+    primary = t.get("primary", "#173C8F")
+    accent = t.get("accent", "#49B894")
+    bg = t.get("bg", "#F4F0E7")
+    return f"""
+/* ---- ambient motion · 墨水落纸（htmlninefox） ---- */
+.fox-ambient {{
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(42% 34% at 18% 12%, color-mix(in srgb, {primary} 16%, transparent), transparent 70%),
+    radial-gradient(38% 30% at 84% 22%, color-mix(in srgb, {accent} 20%, transparent), transparent 72%),
+    radial-gradient(30% 26% at 60% 88%, color-mix(in srgb, {primary} 10%, transparent), transparent 70%),
+    {bg};
+  background-size: 200% 200%, 190% 190%, 220% 220%, auto;
+  animation: fox-ambient-drift 26s ease-in-out infinite alternate;
+}}
+@keyframes fox-ambient-drift {{
+  0%   {{ background-position: 0% 0%, 100% 0%, 40% 100%, 0 0; }}
+  100% {{ background-position: 34% 22%, 62% 30%, 76% 62%, 0 0; }}
+}}
+.fox-cursor-glow {{
+  position: fixed; z-index: 0; pointer-events: none; opacity: 0;
+  width: 340px; height: 340px; margin: -170px 0 0 -170px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, {accent} 14%, transparent), transparent 78%);
+  transition: opacity .5s ease;
+}}
+@media (pointer: fine) {{
+  body.fox-glow-on .fox-cursor-glow {{ opacity: 1; }}
+}}
+.fox-ink-in > h1 {{
+  animation: fox-ink-drop .7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}}
+@keyframes fox-ink-drop {{
+  from {{ opacity: 0; transform: translateY(14px); filter: blur(6px); }}
+  to   {{ opacity: 1; transform: none; filter: none; }}
+}}
+.fox-reveal {{
+  opacity: 0; transform: translateY(18px);
+  transition: opacity .6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform .6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--fox-stagger, 0ms);
+}}
+.fox-reveal.fox-in {{ opacity: 1; transform: none; }}
+.card {{ transition: transform .18s ease, box-shadow .18s ease; }}
+.card:hover {{ transform: translateY(-2px); box-shadow: 0 10px 28px color-mix(in srgb, {primary} 12%, transparent); }}
+:focus-visible {{ outline: 3px solid color-mix(in srgb, {accent} 70%, {primary}); outline-offset: 2px; border-radius: 2px; }}
+:focus-visible {{ outline: 3px solid color-mix(in srgb, {accent} 70%, {primary}); outline-offset: 2px; border-radius: 2px; }}
+@media (prefers-reduced-motion: reduce) {{
+  .fox-ambient {{ animation: none; }}
+  .fox-ink-in > h1 {{ animation: none; }}
+  .fox-reveal {{ opacity: 1; transform: none; transition: none; }}
+  .card {{ transition: none; }}
+  .card:hover {{ transform: none; }}
+  .fox-cursor-glow {{ display: none; }}
+}}
+@media print {{
+  .fox-ambient {{ animation: none; }}
+  .fox-reveal {{ opacity: 1 !important; transform: none !important; }}
+  .fox-cursor-glow {{ display: none !important; }}
+}}
+"""
+
+
+def ambient_motion_js() -> str:
+    """动效层的最小 JS：自动标注 + 滚动显形 + 光标辉光。
+
+    自动标注（渐进增强，渲染器零改动）：
+      * 第一个 h1 的父容器加 .fox-ink-in（墨水落纸标题）；
+      * `.card` 加 .fox-reveal（滚动进入视口时按次序 stagger）。
+    reduced-motion 或无 IO 时所有元素直接以终态呈现。
+    """
+    return """<script>
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var firstH1 = document.querySelector('h1');
+  if (firstH1 && firstH1.parentElement) firstH1.parentElement.classList.add('fox-ink-in');
+  var cards = document.querySelectorAll('.card');
+  var targets = [];
+  cards.forEach(function (el) {
+    if (el.closest('nav')) return;
+    el.classList.add('fox-reveal');
+    targets.push(el);
+  });
+  if (reduce || !('IntersectionObserver' in window)) {
+    targets.forEach(function (el) { el.classList.add('fox-in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        el.style.setProperty('--fox-stagger',
+          Math.min(360, (parseInt(el.dataset.foxIndex || '0', 10)) * 60) + 'ms');
+        el.classList.add('fox-in');
+        io.unobserve(el);
+      });
+    }, { threshold: 0.12 });
+    targets.forEach(function (el, i) {
+      el.dataset.foxIndex = i % 7;
+      io.observe(el);
+    });
+    /* 内容安全兜底：任何环境（无滚动事件的截图器、嵌入预览）下
+       超过 1.8s 仍未显形的元素直接以终态呈现——内容永远不可见是
+       比少一段编排更严重的失败。 */
+    setTimeout(function () {
+      targets.forEach(function (el) { el.classList.add('fox-in'); });
+    }, 1800);
+  }
+  if (matchMedia('(pointer: fine)').matches && !reduce) {
+    var glow = document.createElement('div');
+    glow.className = 'fox-cursor-glow';
+    document.body.appendChild(glow);
+    document.body.classList.add('fox-glow-on');
+    var raf = 0, x = 0, y = 0;
+    addEventListener('pointermove', function (e) {
+      x = e.clientX; y = e.clientY;
+      if (!raf) raf = requestAnimationFrame(function () {
+        glow.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+        raf = 0;
+      });
+    }, { passive: true });
+  }
+})();
+</script>"""
 
 
 def html_shell(title: str, preset: Dict[str, Any], body: str, extra_css: str = "",
@@ -117,7 +264,9 @@ def html_shell(title: str, preset: Dict[str, Any], body: str, extra_css: str = "
 <style>{base_css(preset, extra_css)}</style>
 </head>
 <body{body_attrs}>
+<div class="fox-ambient" aria-hidden="true"></div>
 {body}
+{ambient_motion_js()}
 </body>
 </html>"""
 

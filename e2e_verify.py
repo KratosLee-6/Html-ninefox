@@ -102,6 +102,11 @@ async def main():
             await page.wait_for_timeout(600)
             errors = []
             page.on("pageerror", lambda e: errors.append(str(e)))
+            # 环境动效定格：验收截图是终态文档，视口外卡片不留在未显形状态
+            await page.evaluate(
+                "() => document.querySelectorAll('.fox-reveal')"
+                ".forEach(el => el.classList.add('fox-in'))")
+            await page.wait_for_timeout(200)
             await page.screenshot(path=SHOTS / f"{intent}.png")
             check(f"截图 {intent}", not errors and (SHOTS / f"{intent}.png").exists())
             await page.close()
