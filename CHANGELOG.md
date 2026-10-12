@@ -11,7 +11,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.7.4] — 2026-10-11 · ExportError 状态随错误声明（C5）
+## [0.7.4] — 2026-10-11 · C5 + C1 结构修复
+
+> 结构补丁。HTTP 接口、产品行为、项目数据**均未改变**。
+> 按 ROADMAP 待办 C5 + C1。
+
+**Changed**
+- **ExportError 自带 `status: int = 400`**（C5）：HTTP 状态在 raise 处声明。
+- **`_Handler._export_store_error` 拆除 18 条硬编码状态表**：直接消费
+  `error.status`；`StudioApplication._export_error` 转换时从底层
+  StoreError 随行状态，未知意外错误兜底显式 500。
+- **Runner 接口声明 Project 锁拥有权（C1）**：四个 Runner TypeAlias
+  （GenerationRunner / FeedbackRunner / RestoreRunner / ExportRunner）
+  后的字符串声明「运行方持有 Project 锁」，消除了三种锁写法并存的
+  所有权歧义。行为不变——`Studio.restore` 的锁包裹保留（可注入测试
+  替身无需自行加锁）。
+
+**门禁**
+- `tests/test_error_catalogue.py`（6 条）：状态声明与默认、底层状态随行、
+  兜底 500、app.py 无 export 状态表。
+- `tests/test_lock_ownership.py`（3 条）：四接口锁声明存在；并发 restore
+  不损坏状态；Studio.restore 锁包裹存在。
+
+## [0.7.3] — 2026-10-11 · 「墨水落纸」动效层（设计升级）
 
 > 结构补丁。HTTP 接口、产品行为、项目数据**均未改变**。
 > 按 ROADMAP 待办 C5。

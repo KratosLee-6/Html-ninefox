@@ -20,9 +20,16 @@ JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 GenerationRunner: TypeAlias = Callable[..., Mapping[str, object]]
+"""运行方持有 Project 锁（revisions.locked_project / project_lock）；
+调用方不得重复获取外层文件锁（可重入安全，但拥有权必须在接口上声明）。"""
 FeedbackRunner: TypeAlias = Callable[..., Mapping[str, object]]
+"""运行方持有 Project 锁——同 GenerationRunner 的锁拥有权声明。"""
 RestoreRunner: TypeAlias = Callable[..., Mapping[str, object]]
+"""运行方持有 Project 锁——同 GenerationRunner 的锁拥有权声明。
+Studio.restore 的外层 `with project_lock` 是对这条声明的消费：
+可注入的测试替身无需自行加锁。"""
 ExportRunner: TypeAlias = Callable[..., Mapping[str, object]]
+"""运行方持有 Project 锁——同 GenerationRunner 的锁拥有权声明。"""
 
 
 def _json_object(value: object) -> JsonObject:
