@@ -11,6 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.4] — 2026-10-11 · ExportError 状态随错误声明（C5）
+
+> 结构补丁。HTTP 接口、产品行为、项目数据**均未改变**。
+> 按 ROADMAP 待办 C5。
+
+**Changed**
+- **ExportError 自带 `status: int = 400`**：HTTP 状态在 raise 处声明。
+- **`_Handler._export_store_error` 拆除 18 条硬编码状态表**：直接消费
+  `error.status`；`StudioApplication._export_error` 转换时从底层
+  StoreError 随行状态，未知意外错误兜底显式 500。
+- 行为等价：旧表 18 条的状态逐一由 raise 处声明保持。
+
+**门禁**
+- `tests/test_error_catalogue.py`（6 条）：状态声明与默认、底层状态随行、
+  兜底 500、app.py 无状态表。
+
 ## [0.7.3] — 2026-10-11 · 「墨水落纸」动效层（设计升级）
 
 > 设计升级。方法论：[impeccable](https://github.com/pbakaus/impeccable)

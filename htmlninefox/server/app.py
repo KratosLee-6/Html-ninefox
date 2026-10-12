@@ -886,32 +886,11 @@ class _Handler(BaseHTTPRequestHandler):
 
     @staticmethod
     def _export_store_error(error: ExportError) -> StoreError:
-        statuses = {
-            "export_project_required": 400,
-            "export_format_unsupported": 400,
-            "export_scope_invalid": 400,
-            "export_paper_invalid": 400,
-            "export_pages_invalid": 400,
-            "export_width_invalid": 400,
-            "export_height_invalid": 400,
-            "export_scale_invalid": 400,
-            "export_page_out_of_range": 400,
-            "export_page_limit": 413,
-            "export_analysis_failed": 409,
-            "export_source_missing": 409,
-            "export_source_invalid": 409,
-            "export_runtime_missing": 503,
-            "export_browser_unavailable": 503,
-            "project_name_invalid": 400,
-            "project_not_found": 404,
-            "project_state_invalid": 409,
-        }
-        return StoreError(
-            error.code,
-            error.message,
-            statuses.get(error.code, 500),
-            error.details,
-        )
+        # C5：状态随 ExportError 自身声明（raise 处即声明处）。
+        # 18 条硬编码表已拆除——忘登记就静默变 500 的通道不存在了。
+        # export_failed 兜底（无 code 的意外错误）保持 500，与旧表缺省一致。
+        status = error.status if isinstance(getattr(error, "status", None), int) else 500
+        return StoreError(error.code, error.message, status, error.details)
 
     def _api_feedback(self, body: dict):
         try:

@@ -56,7 +56,16 @@ class RestoreError(ApplicationError):
 
 
 class ExportError(ApplicationError):
-    """Stable Export failure independent of transport status codes."""
+    """Stable Export failure independent of transport status codes.
+
+    C5：状态随错误本身声明（raise 处即声明处），不再依赖 adapter 侧的
+    18 条硬编码表——新错误码忘登记就静默变 500 的通道已拆除。
+    """
+
+    def __init__(self, code: str, message: str, details: JsonObject | None = None,
+                 status: int = 400) -> None:
+        super().__init__(code, message, details)
+        self.status = status
 
 
 @dataclass(frozen=True)
@@ -623,12 +632,17 @@ class StudioApplication:
         code = getattr(error, "code", None)
         message = getattr(error, "message", None)
         details = getattr(error, "details", None)
+        status = getattr(error, "status", None)
         if isinstance(code, str) and isinstance(message, str):
-            return ExportError(code, message, _json_object(details))
+            converted = ExportError(code, message, _json_object(details))
+            if isinstance(status, int):
+                converted.status = status
+            return converted
         return ExportError(
             "export_failed",
             "导出失败",
             {"cause": error.__class__.__name__},
+            status=500,
         )
 
     def validate_generation(self, request: GenerationRequest) -> None:
