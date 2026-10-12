@@ -29,24 +29,31 @@ _TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 
 # v0.3 意图→模板别名：把联盟 intent 映射到本地 Jinja2 模板文件名（兜底用）
 # 优先级链：联盟 skill（installed） > 本地 Jinja2 模板 > 原生 generators
+# v0.7.4：landing/infographic 不在表里——它们有一等原生生成器（generators/landing.py），
+# 且是预览面（PREVIEW_INTENTS）的成员，走 Jinja2 兜底会让「预览一个样、生成另一个样」。
 _INTENT_TEMPLATE_ALIAS: Dict[str, str] = {
     "ppt_image":     "baoyu-slide-deck",         # 飞书绝活大会·宝玉
     "ppt_html":      "frontend-slides",          # 飞书绝活大会·张咋啦 PPT
     "html_template": "beautiful-html-templates", # 飞书绝活大会·张咋啦 28 套
-    # 已有映射保留
-    "landing":   "landing",
-    "infographic": "landing",   # 信息图走 huashu 联盟，本地兜底到 landing
 }
 
-# v0.6-S13 修复：deck 不再走 landing 模板。
-# 原因：deck → landing 会把「分页幻灯片」渲染成 hero/features/pricing 落地页结构，
-# 产物里没有 <section class="slide">，导致 PPTX 文件桥（export_deck_pptx）与
+# 意图忠实集合：列在这里的 intent 一律不落 Jinja2 模板兜底，直接走原生 generators。
+# 覆盖两条不变量：①全部可预览意图（PREVIEW_INTENTS）——工作台预览永远走原生
+# 生成器，生成路径必须给出同一种页面；②infographic——v0.3 曾把它别名到 landing
+# 模板。具体事故两例：
+# v0.6-S13 · deck：deck → landing 模板会把「分页幻灯片」渲染成 hero/features/pricing
+# 落地页结构，产物里没有 <section class="slide">，PPTX 文件桥（export_deck_pptx）与
 # 幻灯片编辑 API 全部失去输入——V0.6 的 G4「可编辑 PPTX」在此环境下必然失败。
-# 现在 deck 保持 intent 忠实：templates/deck.html 不存在 → 落到第 3 路径原生
-# generators/deck.py，产出真正的分页结构；guizang-ppt 等 manifest 声明的
-# `fallback: local:deck` 也正是这个语义。
-# 若将来新增 templates/deck.html，只需在此登记别名即可恢复模板优先。
-_INTENT_TEMPLATE_ALIAS_NO_FALLBACK = frozenset({"deck"})
+# v0.7.4 · landing/infographic：templates/landing.html 是 v0.2 遗留页面（--primary
+# 变量制、无 --fox-* 设计令牌、无动效层），而可选依赖 jinja2（extras `templates`）一旦
+# 安装，生成就从原生生成器静默切换到它——工作台预览与成品在同一模板 ID 下给出
+# 两种页面，且只在装了 extras 的机器上发生，CI 完全不可见。
+# 已删除 templates/landing.html；与本集合共同保证这些意图在任何依赖环境下产出
+# 同一种页面。若将来恢复模板优先，两处必须一起改，门禁会同时盯住。
+# （不直接引用 pipeline.PREVIEW_INTENTS 生成，避免 experts → pipeline 环形导入。）
+_INTENT_TEMPLATE_ALIAS_NO_FALLBACK = frozenset({
+    "deck", "landing", "dashboard", "poster", "archdoc", "doc", "infographic",
+})
 
 
 class GenerateExpert(BaseExpert):

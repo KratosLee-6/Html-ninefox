@@ -110,6 +110,11 @@ per-intent 词汇，而内容来自页面。**结构借现有体系，内容才�
 `if tmpl_path.exists() and jinja2 is not None:`，命中即在 `:113` **直接 return**，
 原生渲染器在 `:127`，排在其后。而 `htmlninefox/templates/landing.html` **存在**（182 行）。
 
+> v0.7.4 状态注：`templates/landing.html` 已删除，landing/infographic 与全部可预览
+> 意图登记 `_INTENT_TEMPLATE_ALIAS_NO_FALLBACK`，原生渲染器在任何依赖环境下都是
+> landing 的主路径（见 `tests/test_template_rendering_agreement.py`）。本节描述的
+> 「模板截走」条件已不复存在，此处保留作为当时选型 `doc` 的决策依据。
+
 我逐行核过该模板：它只引用 `brief.brief.content.headline` 与
 `style.tokens.brand_name`，**完全没有引用 `assets` 或 `blocks`**。
 

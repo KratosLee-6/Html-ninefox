@@ -72,9 +72,9 @@ Adapter 负责输入解析、认证或环境适配、响应序列化和错误映
 
 > **可选依赖不得改变主渲染路径。**
 
-历史缺陷正是违反了这一条：`deck` 被别名到 `templates/landing.html`，于是安装可选 `templates` extra（jinja2）的环境会把 deck 请求渲染成 hero/features/pricing 落地页，产物中没有 `<section class="slide">`，导致 PPTX 文件桥、幻灯片编辑 API 与导出中心 pptx 全部失去输入。CI 只装 `.[dev]` 不含该 extra，因此长期未暴露。
+历史缺陷正是违反了这一条，且发生过两次：第一次是 `deck` 被别名到 `templates/landing.html`，安装可选 `templates` extra（jinja2）的环境把 deck 请求渲染成 hero/features/pricing 落地页，产物中没有 `<section class="slide">`，导致 PPTX 文件桥、幻灯片编辑 API 与导出中心 pptx 全部失去输入。第二次（v0.7.4）是 `landing`/`infographic` 自己：`templates/landing.html` 这个 v0.2 遗留页在装了 jinja2 的机器上截走生成，工作台预览（永远走原生生成器）与成品在同一模板 ID 下给出两种页面。两次都因为 CI 只装 `.[dev]` 不含该 extra 而长期不可见。
 
-现在 `_INTENT_TEMPLATE_ALIAS` 不再登记 `deck`（见 `_INTENT_TEMPLATE_ALIAS_NO_FALLBACK`），deck 始终落到原生 `generators/deck.py`，与联盟 manifest 声明的 `fallback: local:deck` 语义一致，并由回归测试 `tests/test_pptx_export.py::test_deck_generation_stays_intent_faithful_with_or_without_jinja2` 锁定。将来若新增 `templates/deck.html`，只需登记别名即可恢复模板优先，但必须保证该模板同样产出分页结构。
+现在 `_INTENT_TEMPLATE_ALIAS` 不再登记 `deck`/`landing`/`infographic`，全部可预览意图登记在 `_INTENT_TEMPLATE_ALIAS_NO_FALLBACK`、`templates/landing.html` 已删除——可预览意图在任何依赖环境下都产出原生生成器页面，由 `tests/test_template_rendering_agreement.py` 与 `tests/test_pptx_export.py` 锁定。将来若新增 `templates/<intent>.html`，只需登记别名即可恢复模板优先，但门禁同时要求：该意图不得在预览面里，除非该模板与原生生成器产出一致。
 
 ### Infrastructure Module
 

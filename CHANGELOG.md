@@ -11,9 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.7.4] — 2026-10-11 · C5 + C1 结构修复
+## [0.7.4] — 2026-10-12 · C5 + C1 结构修复 + 模板渲染一致性
 
-> 结构补丁。HTTP 接口、产品行为、项目数据**均未改变**。
+> 结构补丁。HTTP 接口与项目数据**未改变**。行为变化仅一处且是修复：
+> 装有可选 `templates` extras（jinja2）的环境下，landing/infographic 的
+> 生成不再被 v0.2 遗留模板截走，回归原生生成器——工作台预览与成品
+> 在任何依赖环境下给出同一种页面。
 > 按 ROADMAP 待办 C5 + C1。
 
 **Changed**
@@ -26,28 +29,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   后的字符串声明「运行方持有 Project 锁」，消除了三种锁写法并存的
   所有权歧义。行为不变——`Studio.restore` 的锁包裹保留（可注入测试
   替身无需自行加锁）。
+- **模板渲染一致性**：可选依赖 jinja2 一旦安装，`GenerateExpert` 第 2
+  路径会用 v0.2 遗留的 `templates/landing.html`（`--primary` 变量制、
+  无 `--fox-*` 令牌、无动效层）截走 landing/infographic 生成——同一
+  模板 ID 预览与成品分叉，且只在装了 extras 的机器上发生，CI 不可见。
+  按 v0.6-S13 deck 先例：七个意图忠实意图登记 `_INTENT_TEMPLATE_ALIAS_NO_FALLBACK`
+  （全部可预览意图 + infographic），删除 `templates/landing.html`。
 
 **门禁**
 - `tests/test_error_catalogue.py`（6 条）：状态声明与默认、底层状态随行、
   兜底 500、app.py 无 export 状态表。
 - `tests/test_lock_ownership.py`（3 条）：四接口锁声明存在；并发 restore
   不损坏状态；Studio.restore 锁包裹存在。
-
-## [0.7.3] — 2026-10-11 · 「墨水落纸」动效层（设计升级）
-
-> 结构补丁。HTTP 接口、产品行为、项目数据**均未改变**。
-> 按 ROADMAP 待办 C5。
-
-**Changed**
-- **ExportError 自带 `status: int = 400`**：HTTP 状态在 raise 处声明。
-- **`_Handler._export_store_error` 拆除 18 条硬编码状态表**：直接消费
-  `error.status`；`StudioApplication._export_error` 转换时从底层
-  StoreError 随行状态，未知意外错误兜底显式 500。
-- 行为等价：旧表 18 条的状态逐一由 raise 处声明保持。
-
-**门禁**
-- `tests/test_error_catalogue.py`（6 条）：状态声明与默认、底层状态随行、
-  兜底 500、app.py 无状态表。
+- `tests/test_template_rendering_agreement.py`（3 条）：landing/infographic
+  行为级必走原生栈；可预览意图不得有 Jinja2 别名/模板文件；遗留模板
+  不得回包。变异 `scripts/mutate_template_agreement_gates.py` 3/3 CAUGHT。
 
 ## [0.7.3] — 2026-10-11 · 「墨水落纸」动效层（设计升级）
 
