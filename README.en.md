@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.7.4-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.4)
+[![App Release](https://img.shields.io/badge/app-v0.7.5-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.5)
 [![Tests](https://img.shields.io/badge/pytest-596%20passed%20%7C%202%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
@@ -17,7 +17,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.7.4`（2026-10-11 发布）· 完整功能与架构见下。
+> 当前应用包版本为 `0.7.5`（2026-10-12 发布）· 完整功能与架构见下。
 
 ---
 
@@ -91,6 +91,11 @@ Windows / Linux / macOS packages and the wheel: [**v0.7.0 Release**](https://git
 
 | Version | Date | In one line |
 |---|---|---|
+| **v0.7.5** | 2026-10-12 | **C7 closed**: the workbench's shared `state` gets a seven-key declared schema + read-only `FoxState`, locked by static bidirectional mirror, IIFE scope gate and an execution-level check; the structural backlog is now empty |
+| **v0.7.4** | 2026-10-12 | **Structural patch**: C5 ExportError carries its status, C1 runner interfaces declare lock ownership, plus template rendering agreement (the jinja2 extra no longer hijacks landing generation) |
+| **v0.7.3** | 2026-10-11 | **"Ink on paper" motion layer**: breathing light, ink titles, scroll reveal, cursor glow across all six outputs, with reduced-motion and export-settled paths |
+| **v0.7.2** | 2026-10-09 | **Structural patch**: IntakeService extraction (P1-7) + candidate key unification (C8); zero behaviour change |
+| **v0.7.1** | 2026-10-08 | **Experience fixes**: tablet stepper overflow, mobile badge hidden, landing card copy echo — each gated by CSS computed-style assertions |
 | **v0.7.0** | 2026-10-07 | **Page decomposition**; three green-but-broken defects found by real-chain verification and fixed |
 | v0.6.4 | 2026-10-06 | Gate hardening; artefacts re-hashed byte-for-byte before publishing |
 | v0.6.0 | 2026-10-01 | Design intake pipeline + editable PPTX |

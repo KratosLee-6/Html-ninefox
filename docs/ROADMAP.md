@@ -317,16 +317,25 @@ HTTP Interface 在 v1 内保持兼容；新增字段允许，删除或改义必�
 
 ### 仍然待办（按建议顺序）
 
+> 2026-10-12 清账：本表曾长期滞后于现实——10–17 行在 v0.6.x–v0.7.4 间
+> 陆续关闭但一直没从表里划掉。逐项核实状态如下，唯一真正的结构性剩余
+> C7 已在 v0.7.5 收口；C6 维持有意推迟。
+
+| # | 项 | 状态 | 关闭处 |
+|---|---|---|---|
+| 10 | **P1-6 SSRF 连接级 IP 绑定** | ✅ 已关 | `intake._default_transport` 按 `validate_url` 校验过的地址建 pinned opener，逐跳独立绑定 + 取回后重绑定检查（本机核实于 2026-10-12） |
+| 11 | **P1-7 提取 `IntakeService`** | ✅ 已关 | v0.7.2（`server/intake_service.py`，编排回流 handler 由变异门禁拦截） |
+| 12 | **C3 统一竞态守卫** | ✅ 已关 | slides 补 `draft.request` stale 守卫（与 revisions 守卫同构）+ await 前锁 `draft.nodeId`，串号两侧都堵上（本机核实于 2026-10-12） |
+| 13 | **C4 逐字复制** | ✅ 已关 | `_prepare_generation` 已并入 `_prompt_and_inputs` 单一实现（本机核实于 2026-10-12） |
+| 14 | **C5 错误码三处硬编码** | ✅ 已关 | v0.7.4（ExportError 携带 status，18 条表拆除） |
+| 15 | **C1 Project 锁三种写法并存** | ✅ 已关 | v0.7.4（Runner 接口声明锁拥有权） |
+| 16 | **C8 intake 候选键散落** | ✅ 已关 | v0.7.2（`intake.CandidateKeys` 15 键常量 + `licence_of` 单一读取口） |
+| 17 | **C7 前端 6 个 lifecycle 脚本共享顶层作用域** | ✅ 已关 | v0.7.5（`state` 七键集中声明 + `FoxState` 只读暴露 + 静态双向镜/IIFE 锁/执行级核查；两步内核工作见 v0.6.4） |
+
+唯一维持推迟的项：
+
 | # | 项 | 性质 | 依据 |
 |---|---|---|---|
-| 10 | **P1-6 SSRF 连接级 IP 绑定** | 安全残余风险，已公开披露 | `RELEASE-NOTES-v0.6.0.md` 许可与来源治理 |
-| 11 | **P1-7 提取 `IntakeService`** | 结构性债；`app.py:141` 的 `_Handler` 仍承担 intake 编排 | 架构审计 C8 / ROADMAP §9 |
-| 12 | **C3 统一竞态守卫** | **唯一可复现的前端缺陷**：slides 只有 busy 无 stale 守卫，保存中切换弹窗会把 revision 号写进新 deck 节点 | 架构审计 C3 |
-| 13 | **C4 `_prompt_and_inputs` 与 `_prepare_generation` 逐字复制** | 工作台展示的推荐与实际生成的版式可静默漂移，**无任何断言要求两者一致** | 架构审计 C4 |
-| 14 | **C5 错误码三处硬编码** | 新增错误码忘加表就静默变 500 | 架构审计 C5 |
-| 15 | **C1 Project 锁三种写法并存** | 根因是 `RestoreRunner` 的 Interface 未声明「被调方持有 Project 锁」 | 架构审计 C1 |
-| 16 | **C8 intake 候选键散落** | 键名写错会静默降级许可档位而无测试失败 | 架构审计 C8（与 P1-7 合并处理） |
-| 17 | **C7 前端 6 个 lifecycle 脚本共享顶层作用域** | 收益最大、风险也最高；`state.*` 无声明约束，这些文件目前无法被单元测试 | 架构审计 C7，最后评估 |
 | 18 | **C6 事件委托（止损）** | 44 个手工转发 shim 已收成 `window.FoxActions` 派发表并由 `test_action_registry.py` 锁定；**112 处 `onclick` 迁 `data-action` 仍有意推迟**（`data-*` 取值是字符串而节点 id 是数字，`===` 会失效） | 架构审计 C6 |
 
 ### 关于 C6 的旧注记（已失效）

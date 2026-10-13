@@ -119,7 +119,24 @@ const WORKSPACE_COLORS = [
 ];
 const worldEl = $('#world'), nodesEl = $('#nodes'), edgesEl = $('#edges'), viewport = $('#viewport'), groupsEl = $('#groups');
 const guideX = $('#guide-x'), guideY = $('#guide-y');
-const state = { templates: [], gallery: [], projects: [], alliance: [], ai: { enabled:false }, memory:null };
+/* C7 收口：工作台全局共享状态的**声明**。内核与六个 lifecycle 模块共享这一个
+ * 对象，此前字面量只写了一半——lifecycle-intake 往里塞 intakeComponents，
+ * 字面量里根本没有这个键，palette 的读取方只能写 (state.intakeComponents || [])
+ * 猜形状，运行时才知道对不对。规则从这条注释起生效：任何模块要对 state 读写
+ * 一个键，必须先在这里声明，声明即默认值。tests/test_frontend_state_schema.py
+ * 双向锁死：执行级核查运行时键 == 声明键（FoxState），静态核查源码里每一次
+ * state.<key> 引用都有声明。 */
+const state = {
+  templates: [], gallery: [], projects: [], alliance: [],
+  ai: { enabled: false }, memory: null,
+  intakeComponents: [],
+};
+/* 声明的可执行形态：只读暴露给门禁与扩展层核查。没有写入口——写仍然只经
+ * state 本身，FoxState 不是第二条数据通路。 */
+window.FoxState = Object.freeze({
+  keys: () => Object.keys(state).sort(),
+  value: key => state[key],
+});
 const canvasEngine = FoxCanvasEngine.create({ viewport, getCamera:() => camera, getNodes:() => nodes,
   guideX, guideY, getNodeElement:id => document.getElementById('node-' + id) });
 let deferredInstallPrompt = null;
@@ -1092,7 +1109,7 @@ const PALETTE = {
   blocks: () => [{ group:'内容区块 · 拖进工作区' }].concat(BLOCKS.map(b => ({
     id: b.id, t: b.t, mini: miniOf('block', b.id), name: b.t,
     drag: { kind:'block', data:{ title:b.t, blockId:b.id } } })))
-    .concat((state.intakeComponents || []).length ? [{ group:'设计吸收 · 组件（审核通过）' }].concat(
+    .concat(state.intakeComponents.length ? [{ group:'设计吸收 · 组件（审核通过）' }].concat(
       state.intakeComponents.map(c => ({
         id: 'intake-' + c.component_id, t: c.name, name: c.name, en: c.text.slice(0, 60),
         drag: { kind:'block', data:{ title:c.name, text:c.text } } }))) : []),

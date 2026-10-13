@@ -19,13 +19,13 @@
 |---|---|---|---|
 | 🐛 | `intakeFetchBatch` 未定义，「批量抓取」按钮死链 | — | ✅ **已修**（`0cf99b8`） |
 | C2 | Artifact 写回协议复制 3 份，其中 2 份漏持久化 | Strong | ✅ 已修（写回协议收进单一拥有者） |
-| C1 | 幻灯片编辑用例住在 HTTP Adapter，锁不变量无归属 | Strong | ❌ 未做 |
-| C3 | 竞态守卫 4 份、3 种形状，Slides 完全没写 | Strong | ❌ 未做 |
-| C4 | 「Explicit Requirement + Project Memory → 选定上下文」被实现两次 | Strong | ❌ 未做 |
-| C5 | Export 失败语义在三个 Module 间被翻译三次 | Strong | ❌ 未做 |
+| C1 | 幻灯片编辑用例住在 HTTP Adapter，锁不变量无归属 | Strong | ✅ 已关（v0.7.4：Runner 接口声明锁拥有权） |
+| C3 | 竞态守卫 4 份、3 种形状，Slides 完全没写 | Strong | ✅ 已关（slides 补 `draft.request` 守卫 + await 前锁 nodeId；核实于 2026-10-12） |
+| C4 | 「Explicit Requirement + Project Memory → 选定上下文」被实现两次 | Strong | ✅ 已关（`_prepare_generation` 并入 `_prompt_and_inputs`；核实于 2026-10-12） |
+| C5 | Export 失败语义在三个 Module 间被翻译三次 | Strong | ✅ 已关（v0.7.4：ExportError 携带 status，硬编码表拆除） |
 | C6 | inline `onclick` 动作名无编译期约束，靠 44 个手写 shim 连线 | Worth exploring | ⚠️ **已修一半**（派发表 + 静态门禁；事件委托推迟） |
-| C7 | 真实 Interface 是 `index.html` 的全局可变状态 | Speculative | ❌ 未做 |
-| C8 | 设计吸收 Candidate 是松散字典，许可档位靠默认值兜底 | Worth exploring | ❌ 未做 |
+| C7 | 真实 Interface 是 `index.html` 的全局可变状态 | Speculative | ✅ 已关（v0.6.4 两步内核 + v0.7.5：`state` 七键声明、`FoxState` 只读暴露、静态双向镜/IIFE 锁/执行级核查） |
+| C8 | 设计吸收 Candidate 是松散字典，许可档位靠默认值兜底 | Worth exploring | ✅ 已关（v0.7.2：`CandidateKeys` 常量 + `licence_of` 单一读取口） |
 
 ## 🐛 已修：批量抓取死按钮
 

@@ -11,6 +11,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.5] — 2026-10-12 · C7 收口：全局状态声明约束（ROADMAP 清零）
+
+> 结构补丁。HTTP 接口、产品行为、项目数据**均未改变**。
+> 架构审计结构性待办至此全部关闭（C6 事件委托维持有意推迟）。
+
+**Changed**
+- **工作台全局 `state` 七键集中声明**：审计 C7 的最后一块。此前字面量只声明
+  一半——`intakeComponents` 根本不存在，lifecycle-intake 直接往里塞，
+  palette 的读取方只能写 `(state.intakeComponents || [])` 猜形状。现在
+  声明即默认值，读取方的防御性猜测撤除；以只读 `window.FoxState` 暴露
+  声明的可执行形态（无写入口，不是第二条数据通路）。
+- **作用域锁**：六个 lifecycle 文件单顶层 IIFE 成为不可回退约束。
+
+**门禁**
+- `tests/test_frontend_state_schema.py`（5 条）：静态双向 schema 镜
+  （引用必有声明 / 声明必被引用）、影子清单双向诚实（lifecycle-generation
+  与 workbench-ui 的局部 `state` 显式登记）、IIFE 作用域锁、执行级核查
+  （真实脚本链加载后：运行时键 == 声明键、默认形状正确、FoxState 冻结——
+  宽松态赋值静默失效也按语义判定）。
+- 变异 `scripts/mutate_state_schema_gates.py`：未声明键被引用 / 声明删键 /
+  顶层泄漏 var——**3/3 CAUGHT**。
+
+**ROADMAP 清账**
+- 待办表 10–17 行逐项核实后全部关闭：P1-6（pinned opener 逐跳绑定）、
+  P1-7 与 C8（v0.7.2）、C3（slides request 守卫 + await 前锁 nodeId）、
+  C4（单一实现）、C5 与 C1（v0.7.4）、C7（本版）。审计文档状态列同步订正。
+
 ## [0.7.4] — 2026-10-12 · C5 + C1 结构修复 + 模板渲染一致性
 
 > 结构补丁。HTTP 接口与项目数据**未改变**。行为变化仅一处且是修复：
