@@ -184,6 +184,30 @@ def published_digest(repo: str, tag: str, name: str, into: Path) -> str | None:
     return None
 
 
+def _ar_members(path: Path) -> dict[str, bytes]:
+    """Read a deb's ar container. Python's tarfile cannot read ar, and dpkg-deb
+    does not exist off Linux, so this parses the 60-byte headers directly —
+    which is also what makes the .deb checks testable on any platform.
+    """
+    members: dict[str, bytes] = {}
+    with path.open("rb") as fh:
+        if fh.read(8) != b"!<arch>\n":
+            raise ValueError("不是 ar 归档")
+        while True:
+            header = fh.read(60)
+            if len(header) < 60:
+                break
+            name = header[:16].decode("ascii", "replace").strip()
+            size = int(header[48:58].decode("ascii").strip())
+            data = fh.read(size)
+            if name.endswith("/"):
+                name = name[:-1]
+            members[name] = data
+            if size % 2:
+                fh.read(1)
+    return members
+
+
 def check_archive(path: Path) -> list[str]:
     problems: list[str] = []
     if path.suffix == ".zip":
@@ -205,6 +229,17 @@ def check_archive(path: Path) -> list[str]:
                     problems.append("归档是空的")
         except Exception as exc:  # noqa: BLE001
             problems.append(f"不是有效的 tar.gz：{exc}")
+    elif path.suffix == ".deb":
+        try:
+            members = _ar_members(path)
+        except ValueError as exc:
+            return [f"不是有效的 deb：{exc}"]
+        if "debian-binary" not in members:
+            problems.append("deb 缺少 debian-binary 成员")
+        if not any(name.startswith("control.tar.") for name in members):
+            problems.append("deb 缺少 control.tar.* 成员")
+        if not any(name.startswith("data.tar.") for name in members):
+            problems.append("deb 缺少 data.tar.* 成员")
     return problems
 
 
@@ -261,6 +296,30 @@ def check_static_payload(repo: str, tag: str, path: Path) -> list[str]:
                         if fh is not None:
                             shipped = _inside_wheel(fh.read())
                             print(f"   （前端在归档自带的 {base} 里）", flush=True)
+                            break
+    elif path.suffix == ".deb":
+        import io
+        import tarfile
+        # 构建固定 -Zxz（build_deb.py）：data.tar.xz 是标准库可读的，
+        # 前端整个在包内的 wheel 里——与 Linux tarball 同一形状，深一层。
+        shipped = set()
+        members = _ar_members(path)
+        data_name = next((name for name in members
+                          if name.startswith("data.tar.")), None)
+        if data_name is None:
+            return ["deb 缺少 data.tar.*——包里没有安装内容"]
+        with tarfile.open(fileobj=io.BytesIO(members[data_name])) as data:
+            for n in data.getnames():
+                if "/server/static/" in n:
+                    shipped.add(n.rsplit("/", 1)[-1])
+            if not shipped:
+                for n in data.getnames():
+                    base = n.rsplit("/", 1)[-1]
+                    if base.startswith("htmlninefox-") and base.endswith(".whl"):
+                        fh = data.extractfile(n)
+                        if fh is not None:
+                            shipped = _inside_wheel(fh.read())
+                            print(f"   （前端在 deb 内的 {base} 里）", flush=True)
                             break
     else:
         return problems

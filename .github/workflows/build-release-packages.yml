@@ -63,6 +63,19 @@ jobs:
       - run: python -m pip wheel . --no-deps --wheel-dir dist
       - run: python packaging/linux/download_wheels.py
       - run: python packaging/linux/build_linux.py
+      - run: python packaging/linux/build_deb.py
+      - name: Install the .deb and smoke it
+        # 「构建成功」不等于「能装、能启动」。dpkg 真装一遍（postinst 构建
+        # venv + 离线 wheels），CLI 报版本，verify_unix_portable 真实启动
+        # 服务器并验证健康/首页/内容标记，然后干净卸载。
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ./release/HtmlNineFox-Linux-amd64-*.deb
+          htmlninefox --version
+          python packaging/verify_unix_portable.py --entry htmlninefox-app \
+            --arg=--no-browser --expect-distribution python-app
+          sudo apt-get remove -y htmlninefox
+          sudo test ! -e /usr/bin/htmlninefox-app
       - uses: actions/upload-artifact@v7
         with:
           name: htmlninefox-linux
@@ -84,9 +97,51 @@ jobs:
       - run: python -m pip install ".[packaging]"
       - run: python -m pip install pillow
       - run: python packaging/macos/build_macos.py
+      - name: Run the built app bundle
+        # Apple Silicon 产物必须真的启动一次：health 报版本与发行形态，
+        # 首页与内容标记齐全（与 verify_portable.py 同一纪律）。
+        run: |
+          dest="$RUNNER_TEMP/mac-arm64"
+          mkdir -p "$dest"
+          ditto -x -k release/HtmlNineFox-macOS-arm64-*.zip "$dest"
+          app=$(find "$dest" -name HtmlNineFox -path "*.app/Contents/MacOS/*" | head -1)
+          python packaging/verify_unix_portable.py --entry "$app" \
+            --arg=--no-browser --expect-distribution macos-portable
       - uses: actions/upload-artifact@v7
         with:
           name: htmlninefox-macos
+          path: release/*
+          if-no-files-found: error
+  macos-intel:
+    name: macos-intel
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Release metadata consistency
+        run: python scripts/check_release_version.py
+      - name: Tag matches package version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: python scripts/check_release_version.py --tag "${{ github.ref_name }}"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[packaging]"
+      - run: python -m pip install pillow
+      - run: python packaging/macos/build_macos.py
+      - name: Run the built app bundle
+        # Intel 产物在 Intel runner 上原生构建、原生启动——PyInstaller 不能
+        # 交叉编译，这份包只在 Intel 机器上有效，也只在 Intel 机器上可验证。
+        run: |
+          dest="$RUNNER_TEMP/mac-x64"
+          mkdir -p "$dest"
+          ditto -x -k release/HtmlNineFox-macOS-x64-*.zip "$dest"
+          app=$(find "$dest" -name HtmlNineFox -path "*.app/Contents/MacOS/*" | head -1)
+          python packaging/verify_unix_portable.py --entry "$app" \
+            --arg=--no-browser --expect-distribution macos-portable
+      - uses: actions/upload-artifact@v7
+        with:
+          name: htmlninefox-macos-intel
           path: release/*
           if-no-files-found: error
   docker:
@@ -144,7 +199,7 @@ jobs:
   publish-draft:
     name: Publish draft (invisible)
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [windows, linux, macos, docker, package-payload]
+    needs: [windows, linux, macos, macos-intel, docker, package-payload]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -224,7 +279,7 @@ jobs:
           python scripts/verify_release_assets.py
           "${{ github.ref_name }}"
           --asset "*.exe" --asset "*.zip" --asset "*.tar.gz"
-          --asset "*.run" --asset "*.whl" --keep
+          --asset "*.run" --asset "*.whl" --asset "*.deb" --keep
       - name: Keep the evidence
         if: failure()
         uses: actions/upload-artifact@v7

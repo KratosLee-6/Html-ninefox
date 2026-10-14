@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.7.5-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.5)
+[![App Release](https://img.shields.io/badge/app-v0.7.6-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.6)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.7.5`（2026-10-12 发布）· 完整功能与架构见下。
+> 当前应用包版本为 `0.7.6`（2026-10-12 发布）· 完整功能与架构见下。
 
 ---
 
@@ -169,6 +169,7 @@ Windows / Linux / macOS 安装包与 wheel 见 [**v0.7.0 Release**](https://gith
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.7.6** | 2026-10-12 | **打包矩阵补齐**：新增 macOS Intel 便携包与 Linux .deb，两平台产物真实启动验证、.deb 进字节级回读；应用零变化 |
 | **v0.7.5** | 2026-10-12 | **C7 收口**：工作台全局 `state` 七键集中声明 + `FoxState` 只读暴露，静态双向镜/IIFE 锁/执行级核查三门禁；ROADMAP 结构性待办清零 |
 | **v0.7.4** | 2026-10-12 | **结构补丁**：C5 ExportError 状态随错误声明 + C1 Runner 接口声明锁拥有权 + 模板渲染一致性（jinja2 extras 不再截走 landing 生成） |
 | **v0.7.3** | 2026-10-11 | **「墨水落纸」动效层**：六类产物光带呼吸/墨水标题/滚动显形/光标辉光，reduced-motion 与导出定格三通路 |

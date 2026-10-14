@@ -11,6 +11,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.6] — 2026-10-12 · 打包矩阵补齐：macOS Intel + Linux .deb
+
+> 打包发布升级。**应用本身零变化**——新增的是两个平台缺口的包体与它们
+> 的真实验证。
+
+**Added**
+- **macOS Intel 便携包**（`HtmlNineFox-macOS-x64-<版本>.zip`）：此前只有
+  Apple Silicon 包。新 `macos-intel` job 在最后的 Intel runner（macos-13）
+  上原生构建——PyInstaller 不能交叉编译，Intel 包只能在 Intel 机器上
+  有效，也只有在 Intel 机器上可验证。
+- **Linux .deb**（`HtmlNineFox-Linux-amd64-<版本>.deb`）：Debian/Ubuntu
+  获得升级/卸载语义。装 `/opt/htmlninefox`（离线 wheelhouse，不需联网），
+  postinst 构建 venv，postrm 带升级守卫；入口 `/usr/bin/htmlninefox-app`
+  与 `/usr/bin/htmlninefox`，桌面入口进包而非安装脚本。
+- **`packaging/verify_unix_portable.py`**：unix 版真实启动验证器（health
+  版本/发行形态 → 首页 → 静态资源 → 内容标记 → 干净退出），与 Windows 的
+  verify_portable 同一纪律。macOS 与 .deb 此前只有构建 job 变绿、从不被执行
+  ——desktop.py 缺 import sys 那类事故的盲区在两个平台上原样存在。
+
+**Changed**
+- macOS 两个 job 与 Linux .deb 都在 CI 里**真实启动**：arm64/x64 产物各自
+  在原生 runner 解压、启动、过健康与内容检查；.deb 在 ubuntu runner 上
+  apt 真装、CLI 报版本、启动烟囱、干净卸载。
+- `verify_release_assets.py` 学会读 .deb（自写 ar 解析 + data.tar.xz 内
+  wheel 前端回读；`-Zxz` 构建保证标准库可读），.deb 进字节级回读清单。
+
+**门禁**
+- `tests/test_packaging_matrix.py`（5 条）：.deb 目录树真实构建逐项断言
+  （含 postrm 升级守卫与 Depends 的 python3-venv）；验证器正例（真实产物
+  全链通过）；验证器负例（缺 window.FoxState 标记的假产物必须被拒绝——
+  对验证器自己的变异检验）；workflow 矩阵形状（Intel runner、.deb 回读、
+  publish 前置六 job）；.deb 字节回读分支（手工构造 ar 归档实读）。
+- 变异 `scripts/mutate_packaging_gates.py`：.deb 退出回读清单 / Depends
+  丢 python3-venv / 内容断言放水——**3/3 CAUGHT**。
+
 ## [0.7.5] — 2026-10-12 · C7 收口：全局状态声明约束（ROADMAP 清零）
 
 > 结构补丁。HTTP 接口、产品行为、项目数据**均未改变**。

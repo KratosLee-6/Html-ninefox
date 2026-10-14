@@ -1,7 +1,9 @@
-"""Build the macOS .app portable package (Apple Silicon).
+"""Build the macOS .app portable package (Apple Silicon or Intel).
 
-Runs on macOS only (PyInstaller cannot cross-compile). Produces
-release/HtmlNineFox-macOS-arm64-<version>.zip plus a SHA-256 checksum.
+Runs on macOS only (PyInstaller cannot cross-compile); the runner's own
+architecture decides the bundle. Produces
+release/HtmlNineFox-macOS-arm64-<version>.zip or
+release/HtmlNineFox-macOS-x64-<version>.zip plus a SHA-256 checksum.
 The archive keeps symlinks and executable bits via ditto.
 """
 
@@ -24,6 +26,16 @@ ICON_SOURCE = ROOT / "packaging" / "windows" / "htmlninefox.ico"
 ICNS_SIZES = (16, 32, 64, 128, 256, 512, 1024)
 
 
+def arch_label() -> str:
+    """macos-latest 是 Apple Silicon（arm64），macos-13 是最后的 Intel
+    runner（x64）。命名与 Windows 便携包的 x64 约定对齐。"""
+    return "arm64" if platform.machine() == "arm64" else "x64"
+
+
+def chip_label() -> str:
+    return "Apple Silicon" if platform.machine() == "arm64" else "Intel 芯片"
+
+
 def version() -> str:
     text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     match = re.search(r'^version = "([^"]+)"', text, re.MULTILINE)
@@ -35,8 +47,8 @@ def version() -> str:
 def require_macos() -> None:
     if sys.platform != "darwin":
         raise SystemExit("build_macos.py must run on macOS (PyInstaller cannot cross-compile)")
-    if platform.machine() != "arm64":
-        raise SystemExit("expected an Apple Silicon (arm64) runner")
+    if platform.machine() not in ("arm64", "x86_64"):
+        raise SystemExit(f"unexpected runner architecture: {platform.machine()}")
 
 
 def build_icns(workdir: Path) -> Path:
@@ -82,7 +94,7 @@ def build_app(icns: Path) -> Path:
 
 def write_readme(staging: Path) -> None:
     (staging / "使用说明.txt").write_text(
-        "Html九尾狐 · macOS 便携版（Apple Silicon）\n\n"
+        f"Html九尾狐 · macOS 便携版（{chip_label()}）\n\n"
         "1. 解压后把 HtmlNineFox.app 拖入「应用程序」（或保持在可写位置直接使用）。\n"
         "2. 首次打开：右键 HtmlNineFox.app →「打开」→ 再点「打开」（绕过 Gatekeeper，\n"
         "   本包未做 Apple 公证）。\n"
@@ -96,7 +108,7 @@ def write_readme(staging: Path) -> None:
 
 def package(app: Path, release_version: str) -> Path:
     RELEASE.mkdir(parents=True, exist_ok=True)
-    folder_name = f"HtmlNineFox-macOS-arm64-{release_version}"
+    folder_name = f"HtmlNineFox-macOS-{arch_label()}-{release_version}"
     staging = BUILD / folder_name
     if staging.exists():
         shutil.rmtree(staging)
