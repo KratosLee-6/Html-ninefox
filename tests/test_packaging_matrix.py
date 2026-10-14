@@ -204,8 +204,9 @@ def test_unix_verifier_rejects_a_product_missing_content_markers(
 def test_workflow_covers_the_full_packaging_matrix():
     assert re.search(r"macos-intel:\s*$", WORKFLOW_TEXT, re.M), \
         "workflow 缺 macos-intel job——Intel 用户无包可下"
-    assert "runs-on: macos-13" in WORKFLOW_TEXT, \
-        "macos-intel 必须跑在 Intel runner（PyInstaller 不能交叉编译）"
+    assert re.search(r"runs-on: macos-15-intel", WORKFLOW_TEXT), \
+        "macos-intel 必须跑在现役 Intel runner 上（PyInstaller 不能交叉编译；" \
+        "macos-13 已退役，排队一小时也等不到容量）"
     assert 'name: htmlninefox-macos-intel' in WORKFLOW_TEXT, \
         "Intel 包没有自己的 artifact 名"
     assert 'needs: [windows, linux, macos, macos-intel, docker, package-payload]' \

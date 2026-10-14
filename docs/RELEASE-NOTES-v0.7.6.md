@@ -34,7 +34,8 @@
 ## Added
 
 - **macOS Intel 便携包**：新 `macos-intel` job。PyInstaller 不能交叉编译，
-  Intel 包在最后的 Intel runner（macos-13）上原生构建、原生启动验证。
+  Intel 包在现役 Intel runner（macos-15-intel；上一代 macos-13 已退役）上
+  原生构建、原生启动验证。
 - **Linux .deb**：`HtmlNineFox-Linux-amd64-<版本>.deb`。装 `/opt/htmlninefox`
   （离线 wheelhouse，安装不需联网），postinst 构建 venv，postrm 带升级守卫
   （升级复用 venv、卸载清理）；入口 `/usr/bin/htmlninefox-app`（应用）与

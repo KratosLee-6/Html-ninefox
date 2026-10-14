@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Added**
 - **macOS Intel 便携包**（`HtmlNineFox-macOS-x64-<版本>.zip`）：此前只有
-  Apple Silicon 包。新 `macos-intel` job 在最后的 Intel runner（macos-13）
+  Apple Silicon 包。新 `macos-intel` job 在现役 Intel runner（macos-15-intel）
   上原生构建——PyInstaller 不能交叉编译，Intel 包只能在 Intel 机器上
   有效，也只有在 Intel 机器上可验证。
 - **Linux .deb**（`HtmlNineFox-Linux-amd64-<版本>.deb`）：Debian/Ubuntu

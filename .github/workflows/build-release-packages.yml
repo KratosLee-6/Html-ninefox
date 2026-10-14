@@ -118,7 +118,10 @@ jobs:
           if-no-files-found: error
   macos-intel:
     name: macos-intel
-    runs-on: macos-13
+    # macos-13（上一代 Intel runner）已退役：v0.7.6 首次构建在这里排队
+    # 一小时无容量。现役 Intel 标签是 macos-15-intel / macos-26-intel，
+    # 取前者（更接近 LTS）。
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
