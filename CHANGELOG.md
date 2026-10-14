@@ -38,13 +38,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   wheel 前端回读；`-Zxz` 构建保证标准库可读），.deb 进字节级回读清单。
 
 **门禁**
-- `tests/test_packaging_matrix.py`（5 条）：.deb 目录树真实构建逐项断言
+- `tests/test_packaging_matrix.py`（6 条）：.deb 目录树真实构建逐项断言
   （含 postrm 升级守卫与 Depends 的 python3-venv）；验证器正例（真实产物
   全链通过）；验证器负例（缺 window.FoxState 标记的假产物必须被拒绝——
   对验证器自己的变异检验）；workflow 矩阵形状（Intel runner、.deb 回读、
-  publish 前置六 job）；.deb 字节回读分支（手工构造 ar 归档实读）。
+  publish 前置六 job）；.deb 字节回读分支（手工构造 ar 归档实读）；
+  **烟囱旗子与 CLI 入口一致性**。
 - 变异 `scripts/mutate_packaging_gates.py`：.deb 退出回读清单 / Depends
-  丢 python3-venv / 内容断言放水——**3/3 CAUGHT**。
+  丢 python3-venv / 内容断言放水 / 旗子退回 --no-browser——**4/4 CAUGHT**。
+
+**本版开发中真启动验证的第一次战果**：v0.7.6 首次 CI 构建里，.deb 装好
+之后烟囱起不来——`htmlninefox app` 是 click 入口，旗子是
+`--no-open-browser`，而烟囱传了 desktop 入口的 `--no-browser`。全套单元
+测试全绿，只有真启动能暴露。旗子已修正，并把「workflow 传的旗子必须被
+CLI 入口接受」锁进门禁（本机即可复现，不再依赖 CI 排队一小时才反馈）。
 
 ## [0.7.5] — 2026-10-12 · C7 收口：全局状态声明约束（ROADMAP 清零）
 

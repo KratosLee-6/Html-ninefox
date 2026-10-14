@@ -68,12 +68,16 @@ jobs:
         # 「构建成功」不等于「能装、能启动」。dpkg 真装一遍（postinst 构建
         # venv + 离线 wheels），CLI 报版本，verify_unix_portable 真实启动
         # 服务器并验证健康/首页/内容标记，然后干净卸载。
+        # 注意旗子：`htmlninefox app` 是 click 入口，旗子是 --no-open-browser；
+        # --no-browser 属于 python -m htmlninefox.desktop 入口。两者失配只有
+        # 真启动才暴露（v0.7.6 首次构建即栽在这里），门禁
+        # test_deb_smoke_flag_matches_the_cli_entrypoint 在本机锁死。
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y ./release/HtmlNineFox-Linux-amd64-*.deb
           htmlninefox --version
           python packaging/verify_unix_portable.py --entry htmlninefox-app \
-            --arg=--no-browser --expect-distribution python-app
+            --arg=--no-open-browser --expect-distribution python-app
           sudo apt-get remove -y htmlninefox
           sudo test ! -e /usr/bin/htmlninefox-app
       - uses: actions/upload-artifact@v7

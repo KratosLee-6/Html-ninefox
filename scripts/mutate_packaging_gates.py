@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-"""变异验证：打包矩阵门禁必须拦住三类回归。
+"""变异验证：打包矩阵门禁必须拦住四类回归。
 
   M1 .deb 退出字节级回读清单（坏包可在验证眼皮下溜进发布）
   M2 .deb 依赖声明丢失 python3-venv（装出点不亮的包）
   M3 verify_unix_portable 的内容断言放水（陈旧产物畅通无阻）
+  M4 烟囱旗子退回 --no-browser（入口失配，装好了起不来——v0.7.6 首次
+     构建的真实失败）
 
   python scripts/mutate_packaging_gates.py
 """
@@ -58,6 +60,12 @@ def main() -> int:
                      "    return 1 if bad else 0",
                      "    return 0  # MUTATED: 内容断言放水", 1),
                  encoding="utf-8")),
+            ("M4 烟囱旗子退回 --no-browser（入口失配）",
+             lambda: WORKFLOW.write_text(
+                 originals[WORKFLOW].replace(
+                     "--arg=--no-open-browser --expect-distribution python-app",
+                     "--arg=--no-browser --expect-distribution python-app", 1),
+                 encoding="utf-8")),
         ):
             mutate()
             code = run_gates()
@@ -70,7 +78,8 @@ def main() -> int:
     finally:
         for path, text in originals.items():
             path.write_text(text, encoding="utf-8")
-    print(f"\n{3 - len(bad)}/3 CAUGHT" + (f"；未抓到：{bad}" if bad else ""))
+    total = 4
+    print(f"\n{total - len(bad)}/{total} CAUGHT" + (f"；未抓到：{bad}" if bad else ""))
     return 1 if bad else 0
 
 

@@ -220,6 +220,28 @@ def test_workflow_covers_the_full_packaging_matrix():
         "arm64 与 x64 两个 macOS 包都必须被真实启动验证"
 
 
+def test_deb_smoke_flag_matches_the_cli_entrypoint():
+    """v0.7.6 首次构建的真实缺陷：烟囱把 desktop 入口的 --no-browser 传给了
+    click 入口 `htmlninefox app`（它的旗子是 --no-open-browser），产物装好
+    之后起不来——所有单元测试全绿，只有真启动能暴露。本门禁把「workflow
+    传给 .deb 冒烟的旗子」与「CLI 入口实际接受的旗子」在 CI 之外就锁死：
+    从 workflow 里抽出旗子，去问 `python -m htmlninefox app --help`。"""
+    smoke = re.search(
+        r"verify_unix_portable\.py --entry htmlninefox-app \\\n\s+(--arg=[^\s\\]+)",
+        WORKFLOW_TEXT)
+    assert smoke, "找不到 .deb 烟囱的启动旗子"
+    flag = smoke.group(1)
+    help_text = subprocess.run(
+        [sys.executable, "-m", "htmlninefox", "app", "--help"],
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+        timeout=60)
+    assert help_text.returncode == 0, f"cli app --help 失败：{help_text.stderr[-300:]}"
+    assert flag.replace("--arg=", "") in help_text.stdout, (
+        f"workflow 给 .deb 烟囱传的旗子 {flag} 不被 `htmlninefox app` 接受"
+        f"——入口失配，产物装好了也起不来（这正是 v0.7.6 首次构建的失败）。\n"
+        f"app --help 实际接受：\n{help_text.stdout}")
+
+
 # ----------------------------------------------------- .deb 字节回读读得动
 
 def test_release_asset_reader_understands_deb(tmp_path, monkeypatch):

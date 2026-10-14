@@ -61,8 +61,16 @@
 
 | 门禁 | 拦什么 |
 |---|---|
-| `test_packaging_matrix.py`（5 条） | .deb 目录树逐项断言（postrm 升级守卫、Depends 的 python3-venv）；验证器正例（真实产物全链通过）；**验证器负例**（缺内容标记的假产物必须被拒绝——对验证器自己的变异检验）；workflow 矩阵形状；.deb 字节回读分支实读 |
-| 变异 `mutate_packaging_gates.py` | .deb 退出回读清单 / Depends 丢 python3-venv / 内容断言放水——**3/3 CAUGHT** |
+| `test_packaging_matrix.py`（6 条） | .deb 目录树逐项断言（postrm 升级守卫、Depends 的 python3-venv）；验证器正例（真实产物全链通过）；**验证器负例**（缺内容标记的假产物必须被拒绝——对验证器自己的变异检验）；workflow 矩阵形状；.deb 字节回读分支实读；烟囱旗子与 CLI 入口一致性 |
+| 变异 `mutate_packaging_gates.py` | .deb 退出回读清单 / Depends 丢 python3-venv / 内容断言放水 / 旗子退回 --no-browser——**4/4 CAUGHT** |
+
+## 真启动验证的第一次战果（发生在本版开发中）
+
+v0.7.6 首次 CI 构建：.deb 正确安装（postinst 完成、`htmlninefox --version`
+通过），但烟囱里 `htmlninefox app` 立即退出——它是 click 入口，旗子叫
+`--no-open-browser`，而烟囱传了 desktop 入口的 `--no-browser`。**全套单元
+测试全绿，只有真启动暴露**。这正是这道验证存在的理由；旗子已修正，并把
+「workflow 传的旗子必须被 CLI 入口接受」锁进本机可跑的门禁。
 
 ---
 
