@@ -226,6 +226,13 @@ v0.7 更细：几乎任何页面都可以合法地学**结构、排版、配色�
 因为 `inspiration-only` 的页面拆出来的结构仍然完全可用，拦掉正文不拦结构。
 这和现有规则的差别是：现在是整页进或不进，将来是**字段级**。
 
+> v0.7.6 状态注：落地情况——`structure_only` / `verbatim` 两档已实现且
+> **按字段**标注（`page_blocks_from_candidate` 每块带 provenance；渲染时
+> 无正文的块回落生成器自带文案），采纳路径与块路径统一走
+> `may_carry_verbatim_text` 单一规则（`test_licence_rule_is_one_rule.py`
+> 锁定）。`paraphrased` **未实现**——设计期标记的「改写由谁做（离线规则
+> 引擎还是 LLM）」仍未确认，这是 v0.7 产品线剩余的最后一块（见 ROADMAP）。
+
 **未确认**：`LICENSE_CLASSES` 的三档具体语义（`intake.py:40`）需要读原文，
 以及「改写」由谁做（离线规则引擎还是 LLM）会直接决定 `paraphrased` 能不能自动产生。
 

@@ -153,7 +153,7 @@ PDF / 逐页 PNG / 完整长图三种真实导出 + 兼容性评分报告；deck
 | ✅ 项目记忆 | 明确采用才学习：品牌、受众、语气、模板本地复用，可查看、关闭、清空 |
 | ✅ 命令面板与多端布局 | Ctrl+K 直达；桌面 / 平板 / 移动各有一套可读排版 |
 | ✅ 隐私边界 | API Key、附件正文、反馈原文不写入记忆与诊断包；导出在本机完成不上传 |
-| ✅ 全平台交付 | Windows 安装版 / 便携版、Linux .run、macOS Apple Silicon、pip wheel、Docker |
+| ✅ 全平台交付 | Windows 安装版/便携版、macOS Apple Silicon 与 Intel 双架构、Linux .deb / .tar.gz / .run、pip wheel、Docker——每份产物 CI 真实启动验证 + 发布前逐字节回读 |
 
 ## 🚀 快速开始
 
@@ -163,7 +163,7 @@ htmlninefox app                  # 打开 http://127.0.0.1:8620
 htmlninefox expert "做一个 SaaS 落地页"   # CLI 直接生成
 ```
 
-Windows / Linux / macOS 安装包与 wheel 见 [**v0.7.0 Release**](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0)（全部附 SHA-256）。离线可用，API Key 可选。
+Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双架构 .zip）、Linux（.deb / .tar.gz / .run）、pip wheel 与 Docker 全部在 [**最新 Release**](https://github.com/KratosLee-6/Html-ninefox/releases/latest)（全部附 SHA-256，发布前经真实启动验证与逐字节回读）。离线可用，API Key 可选。
 
 ## 📜 版本迭代
 

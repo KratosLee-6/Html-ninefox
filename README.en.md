@@ -85,7 +85,7 @@ htmlninefox app                   # http://127.0.0.1:8620
 htmlninefox expert "Build a SaaS landing page"
 ```
 
-Windows / Linux / macOS packages and the wheel: [**v0.7.0 Release**](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.0) (SHA-256 included).
+Windows installer & portable (.exe/.zip), macOS Apple Silicon & Intel (.zip), Linux .deb / .tar.gz / .run, the pip wheel and Docker: all on the [**latest release**](https://github.com/KratosLee-6/Html-ninefox/releases/latest) (SHA-256 included; every artefact is booted in CI and byte-read back before publishing).
 
 ## Version history
 

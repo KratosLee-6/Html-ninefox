@@ -79,7 +79,7 @@ v0.7.6 首次 CI 构建：.deb 正确安装（postinst 完成、`htmlninefox --v
 
 | 项 | 结果 |
 |---|---|
-| 全量回归（Windows 本机） | **657 passed / 4 skipped**（含本轮新增 5 条打包门禁：正例在真服务器上跑通，负例抓住缺标记产物） |
+| 全量回归（Windows 本机） | **658 passed / 4 skipped**（含本轮新增 6 条打包门禁：正例在真服务器上跑通，负例抓住缺标记产物，旗子一致性门禁在 CI 之前先红） |
 | 变异验证 | `mutate_packaging_gates.py` 3/3 CAUGHT |
 | 发布元数据 | `check_release_version.py`：v0.7.6 一致 |
 
