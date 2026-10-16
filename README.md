@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.7.6-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.6)
+[![App Release](https://img.shields.io/badge/app-v0.7.7-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.7)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.7.6`（2026-10-12 发布）· 完整功能与架构见下。
+> 当前应用包版本为 `0.7.7`（2026-10-12 发布）· 完整功能与架构见下。
 
 ---
 
@@ -147,7 +147,7 @@ PDF / 逐页 PNG / 完整长图三种真实导出 + 兼容性评分报告；deck
 |---|---|
 | ✅ 六类内容一句话生成 | 落地页 / 数据看板 / 发布会 PPT / 海报 / 架构文档 / 文档；离线规则引擎兜底，不需要 API Key |
 | ✅ 真实 LLM 接入 | MiniMax-M3 / Claude / GPT-4o 与 OpenAI 兼容接口，环境变量自动配置 |
-| ✅ 设计吸收 + 网页反向拆解 | 12 个内置源安全抓取；采纳的网页拆成分区直接进生成，许可三档逐字段判定 |
+| ✅ 设计吸收 + 网页反向拆解 | 12 个内置源安全抓取；采纳的网页拆成分区直接进生成，许可三档逐字段判定；配置 LLM 后参考类正文改写吸收（paraphrased），忠实度门禁防照抄 |
 | ✅ 口语化反馈迭代 | 「颜色深一点、标题大一点」改的是设计令牌；`rev1 / rev2 / …` 历史可恢复 |
 | ✅ 可编辑 PPTX + 多格式导出 | 标准 .pptx 真可编辑；PDF / 逐页 PNG / 长图 + 兼容性评分报告 |
 | ✅ 项目记忆 | 明确采用才学习：品牌、受众、语气、模板本地复用，可查看、关闭、清空 |
@@ -169,6 +169,7 @@ Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.7.7** | 2026-10-12 | **改写吸收（paraphrased）**：配置 LLM 后，参考类网页正文以改写形态进入产物（预览即所得），忠实度门禁防假标签；离线行为不变 |
 | **v0.7.6** | 2026-10-12 | **打包矩阵补齐**：新增 macOS Intel 便携包与 Linux .deb，两平台产物真实启动验证、.deb 进字节级回读；应用零变化 |
 | **v0.7.5** | 2026-10-12 | **C7 收口**：工作台全局 `state` 七键集中声明 + `FoxState` 只读暴露，静态双向镜/IIFE 锁/执行级核查三门禁；ROADMAP 结构性待办清零 |
 | **v0.7.4** | 2026-10-12 | **结构补丁**：C5 ExportError 状态随错误声明 + C1 Runner 接口声明锁拥有权 + 模板渲染一致性（jinja2 extras 不再截走 landing 生成） |

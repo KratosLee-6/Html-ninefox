@@ -204,6 +204,7 @@ def _handler(candidate: dict, body: bytes = PAGE.encode("utf-8")):
     handler = object.__new__(server_app._Handler)
     service = object.__new__(IntakeService)
     service.candidates = lambda: _ApprovedCandidate(candidate, body)
+    service.rewriter = None  # v0.7.7：离线形态；桩只接线被测路径需要的协作者
     handler._intake_service = lambda: service
     return handler
 

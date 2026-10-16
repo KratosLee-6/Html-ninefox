@@ -216,6 +216,13 @@ async function persistWorkspaceNow() {
   return result;
 }
 function save() {
+  /* 初始化未完成（首启种子完成前）不持久化。此刻画布还是空的，任何一次
+   * 过早保存都会把「空工作区」写进本地快照，其 650ms 防抖还会 PUT 到服务端；
+   * 随后 loadSaved/loadRemoteWorkspace 把这个空快照当成「已恢复」，
+   * 首启种子在本次与后续每一次启动都被杀掉——test_v061_mobile_library
+   * 的 READY 超时正是它（alliance 响应慢时几乎必现）。种子/恢复完成后的
+   * boot 尾部会显式 save() 一次，把完整状态落盘。 */
+  if (!allowNodeEnter) return;
   const snapshot = workspaceSnapshot();
   localStorage.setItem('fox-canvas-v3', JSON.stringify(snapshot));
   if (!restoringWorkspace) window.FoxCanvasProductivity?.scheduleHistory();
@@ -1347,6 +1354,10 @@ async function init() {
   applySnapLevel(snapLevel);
   /* 首屏（恢复快照 / 预置工作区）不做入场，只有初始化完成后的新增节点才播 G3 动效 */
   allowNodeEnter = true;
+  /* 初始化完成，立刻把完整状态落盘一次（save() 的 allowNodeEnter 守卫在
+   * 此之前的 boot 期间一直拦着；restore 路径带 restoringWorkspace 时
+   * 只写本地不触发远端）。 */
+  save();
   /* 首屏适配不做相机缓动：缓动期间「渲染位置 ≠ 相机模型」，此刻的指针命中会错位 */
   if (!restored) setTimeout(() => fitAll(false), 120);
 }

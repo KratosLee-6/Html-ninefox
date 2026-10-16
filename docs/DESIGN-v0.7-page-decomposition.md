@@ -232,6 +232,11 @@ v0.7 更细：几乎任何页面都可以合法地学**结构、排版、配色�
 > `may_carry_verbatim_text` 单一规则（`test_licence_rule_is_one_rule.py`
 > 锁定）。`paraphrased` **未实现**——设计期标记的「改写由谁做（离线规则
 > 引擎还是 LLM）」仍未确认，这是 v0.7 产品线剩余的最后一块（见 ROADMAP）。
+>
+> v0.7.7 状态注：`paraphrased` 已落地——配置 LLM 时 reference 正文在
+> page_blocks 改写为原创表述（预览即所得），`paraphrase.is_faithful`
+> 忠实度门禁把守；未配置 LLM 时行为与本节描述的两档形态一致。三档
+> provenance 至此齐备，见 ROADMAP 的决策记录。
 
 **未确认**：`LICENSE_CLASSES` 的三档具体语义（`intake.py:40`）需要读原文，
 以及「改写」由谁做（离线规则引擎还是 LLM）会直接决定 `paraphrased` 能不能自动产生。

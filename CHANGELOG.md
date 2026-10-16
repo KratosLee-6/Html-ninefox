@@ -11,6 +11,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.7] — 2026-10-12 · 改写吸收：provenance 第三档 paraphrased
+
+> 新能力（需 LLM 才升级，离线行为零变化）。HTTP 接口新增 `paraphrased`
+> 响应字段；项目数据格式不变。
+
+**背景**：v0.7 设计文档的 provenance 表列了三档——`structure_only` /
+`paraphrased` / `verbatim`，实现一直只有后两档。reference 类网页的结构
+可以合法吸收，正文按规则整段丢弃、产物回落自带文案；「改写后吸收」从未
+落地，三个前置决策（改写由谁做 / 在哪一步 / 忠实度如何验证）由本版定案。
+
+**决策与实现**
+- **改写由谁做**：配置了的 LLM（`llm.router`，agent=brief_expert /
+  task=paraphrase）。未配置、调用失败、空响应一律归一为 None——
+  **LLM 是能力升级，不是能力依赖**，离线行为与 v0.7.6 完全一致。
+- **改写在哪一步**：page_blocks（审核台预览拆块时）。用户看到并选择的
+  就是改写后的文本——预览即所得（v0.7.4 的教训不允许生成时再变）。
+- **忠实度门禁**：`paraphrase.is_faithful`——与原文的字符三元组包含度
+  ≤ 0.5、长度比例 0.4–1.8、非空非原文。不过关按改写失败处理。
+- **规则单 owner**：运输层（`paraphrase.make_llm_rewriter`）只管调用；
+  忠实度判定与 provenance 标注都在 `intake.page_blocks_from_candidate`，
+  新增可选 `rewriter` 参数。open 路径永不调用改写器（verbatim 语义与
+  开销不变）。
+
+**Changed**
+- `IntakeService` 新增可选 `rewriter`；`page_blocks` 响应新增
+  `paraphrased` 字段，`carries_text` 扩展为 verbatim ∪ paraphrased。
+- app.py 模块级 `_PARAPHRASE_REWRITER`（真链脚本与测试经此注入假改写器）。
+
+**门禁**
+- `tests/test_paraphrase_provenance.py`（8 条）：忠实度门禁自身；忠实
+  改写 → paraphrased；不忠实/失败 → structure_only；open 路径零改写器
+  调用；无改写器 = v0.7.6 行为；service 透出与掉线两态；运输层失败归一。
+- 真链验收 `verify_page_blocks_chain.py` 扩至 **17/17**：假改写器注入
+  server 后，reference 拆块正文以改写形态随行（预览即所得），产物携带
+  改写文本、原文一字不现。
+- 变异 `scripts/mutate_paraphrase_gates.py`：忠实度放水 / 标签污染 /
+  open 路径调用 / service 掉线——**4/4 CAUGHT**。
+
+**Fixed**
+- **首启种子被「过早持久化」杀死（真实用户可触发）**：boot 的六个加载器
+  里 alliance 常常最慢，它完成后的同步延续会在首启种子写入之前触发一次
+  save()——此刻画布是空的，226 字节的「空工作区」写进 localStorage，
+  其 650ms 防抖再 PUT 到服务端；随后 loadSaved/loadRemoteWorkspace 把
+  空快照当成「已恢复」，种子在本次与后续每次启动都被杀掉（用户看到空
+  画布且空态被记住）。修复：`save()` 在 `allowNodeEnter`（初始化完成
+  标记）之前是 no-op，boot 尾部显式落盘一次。`test_v061_mobile_library`
+  的 READY 超时只是此缺陷的症状。
+- 门禁 `tests/test_first_boot_seed.py`：route 延迟把 alliance 钉成最后
+  完成的加载器，确定性打开竞态窗，断言首启种子存活、服务端快照是完整
+  5 节点（非空毒）、二次加载正确恢复。变异
+  `scripts/mutate_first_boot_gates.py` **1/1 CAUGHT**（曾编码「拆 boot
+  尾部落盘」为 M2，验证 MISSED——fitAll 的相机提交也会落盘，不构成
+  回归，变异随之删除，见脚本头注）。
+
 ## [0.7.6] — 2026-10-12 · 打包矩阵补齐：macOS Intel + Linux .deb
 
 > 打包发布升级。**应用本身零变化**——新增的是两个平台缺口的包体与它们

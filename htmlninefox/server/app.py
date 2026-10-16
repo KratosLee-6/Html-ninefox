@@ -111,6 +111,11 @@ _REVISION_ERROR_STATUSES = {
 
 from .intake_service import INTAKE_RATE_LIMITER as _INTAKE_RATE_LIMITER  # noqa: E402
 from .intake_service import IntakeService  # noqa: E402
+from .. import paraphrase as _paraphrase  # noqa: E402
+
+# reference 正文的改写运输层（v0.7.7）。闭包内部失败归一为 None，未配置
+# LLM 时拆块回落 structure_only；真链脚本与测试通过替换此全局注入假改写器。
+_PARAPHRASE_REWRITER = _paraphrase.make_llm_rewriter(llm.router)
 
 
 def serve(host: str = "127.0.0.1", port: int = 8620, output: str | None = None) -> None:
@@ -167,8 +172,12 @@ class _Handler(BaseHTTPRequestHandler):
 
     def _intake_service(self) -> IntakeService:
         # P1-7：intake 编排收敛到 IntakeService，handler 只剩解析与错误映射。
+        # v0.7.7：rewriter = reference 正文的 LLM 改写运输层；未配置 LLM 时
+        # 闭包内部失败归一为 None，拆块回落 structure_only（离线可用不变）。
+        # 模块级间接引用供真链脚本与测试注入假改写器。
         return IntakeService(output_root=_OUTPUT_ROOT,
-                             gallery=self._user_gallery())
+                             gallery=self._user_gallery(),
+                             rewriter=_PARAPHRASE_REWRITER)
 
     def _intake_candidates(self) -> intake.CandidateStore:
         return self._intake_service().candidates()

@@ -7,8 +7,10 @@
 Protocol），handler 退回解析 + 错误映射。
 
 依赖只走构造参数：output_root 与来源注册目录；gallery 由 output_root
-派生。错误沿用 storage.StoreError（handler 已按 code→status 映射），
-不另造错误类型。
+派生。rewriter（v0.7.7）是可选的正文改写运输层（见 paraphrase.py）——
+reference 类候选拆块时尝试把正文改写成 `paraphrased`，未配置或失败回落
+structure_only，离线行为不变。错误沿用 storage.StoreError（handler 已按
+code→status 映射），不另造错误类型。
 """
 from __future__ import annotations
 
@@ -17,6 +19,7 @@ import hashlib
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import Callable, Optional
 
 from .. import intake
 from ..user_gallery import UserGalleryError
@@ -29,12 +32,15 @@ INTAKE_RATE_LIMITER = intake.RateLimiter(default_interval=6.0)
 class IntakeService:
     """候选从抓取到采纳到拆分的全部编排；无 HTTP 概念。"""
 
-    def __init__(self, output_root, gallery, sources_extra_dir=None) -> None:
+    def __init__(self, output_root, gallery, sources_extra_dir=None,
+                 rewriter: Optional[Callable] = None) -> None:
         self.output_root = Path(output_root)
         self.gallery = gallery
         self.sources_extra_dir = (Path(sources_extra_dir) if sources_extra_dir
                                   else Path.home() / ".htmlninefox" / "sources")
         self.rate_limiter = INTAKE_RATE_LIMITER
+        # reference 正文的改写运输层；None = 离线形态（structure_only）。
+        self.rewriter = rewriter
 
     # ---- stores ------------------------------------------------------------
     def candidates(self) -> intake.CandidateStore:
@@ -165,7 +171,11 @@ class IntakeService:
         return {"ok": True, "preset": self.style_presets().save(preset)}
 
     def page_blocks(self, body: dict) -> dict:
-        """把已采纳候选的分区切成生成通道认识的 block。只读不写回。"""
+        """把已采纳候选的分区切成生成通道认识的 block。只读不写回。
+
+        v0.7.7：配置了 rewriter 时，reference 类正文尝试改写为
+        `paraphrased`（预览即所得——用户选择的就是改写后的文本）；否则
+        structure_only。忠实度判定在 intake 层，这里只运输名字。"""
         candidate_id = str(body.get("candidate_id") or "")
         store = self.candidates()
         candidate = store.get(candidate_id)
@@ -174,14 +184,19 @@ class IntakeService:
                              "只有已采纳的候选才能拆成分区", 409)
         raw = store.body(candidate_id)
         blocks = intake.page_blocks_from_candidate(
-            candidate, raw.decode("utf-8", "replace"))
+            candidate, raw.decode("utf-8", "replace"), rewriter=self.rewriter)
         return {
             "ok": True,
             "candidate": candidate,
             "blocks": blocks,
             "license_class": intake.licence_of(candidate),
-            "carries_text": any(b.get("provenance") == "verbatim" for b in blocks),
-            "block_notes": "从页面拆出的分区；结构与顺序可用，正文仅在开放许可时随行",
+            "carries_text": any(b.get("provenance") in ("verbatim", "paraphrased")
+                                for b in blocks),
+            "paraphrased": any(b.get("provenance") == "paraphrased"
+                               for b in blocks),
+            "block_notes": "从页面拆出的分区；结构与顺序可用，正文在开放许可时"
+                           "随行（verbatim），配置改写后参考类正文以改写形态随行"
+                           "（paraphrased），否则仅结构（structure_only）",
         }
 
     # ---- 统计 ----------------------------------------------------------------

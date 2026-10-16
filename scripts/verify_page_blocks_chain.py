@@ -11,6 +11,9 @@ e2e_verify.py 覆盖「描述 → 生成」；本脚本覆盖 v0.7 的另一半�
      的 stub_fetch 同缝）→ approve → /api/intake/page-blocks 拆块
      → /api/generate 六类 intent → 断言页面正文按计数出现 → 反馈迭代不丢。
   3. reference 许可：正文一字不随行（structure_only），整页不进模板库。
+  4. paraphrased（v0.7.7）：给 server 注入假改写器后，reference 拆块的
+     正文以改写形态随行（预览即所得），产物里出现的是改写文本、原文一字
+     不现；忠实度由 intake 层 is_faithful 把关，假改写器只当运输层。
 
 运行：python scripts/verify_page_blocks_chain.py
 除 example.com 外全部请求只发往本机环回固定端口；测试来源 YAML 在 finally 清理。
@@ -117,7 +120,7 @@ def main():
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     time.sleep(0.5)
     try:
-        run(out_root)
+        run(out_root, server_app)
     finally:
         srv.shutdown()
         for path in _cleanup_paths:
@@ -127,7 +130,7 @@ def main():
     return 1 if failed else 0
 
 
-def run(out_root):
+def run(out_root, server_app):
     # ---- 链路 1：真实公网抓取 + SSRF 拒绝环回 ----
     write_source("fox-verify-open", "验收开放许可", "open")
     write_source("fox-verify-ref", "验收参考许可", "reference")
@@ -195,6 +198,34 @@ def run(out_root):
     check("reference 许可：正文一字不出现，产物回落自带文案",
           ALPHA not in html2 and BETA not in html2
           and pb2["carries_text"] is False)
+
+    # ---- 链路 4：paraphrased（v0.7.7，假改写器 = 运输层，忠实度在 intake 层）----
+    REWRITE_A = "九尾狐链路验收：这一句经过重新表述，目的依然是在成品页面中如实出现。"
+    REWRITE_B = "嵌套小节里的内容也拿到了自己的改写版本，同样会抵达最终产物。"
+    fixed = {ALPHA: REWRITE_A, BETA: REWRITE_B}
+    _rewriter_backup = server_app._PARAPHRASE_REWRITER
+
+    def fake_rewriter(source, heading=""):
+        return fixed.get(str(source).strip())
+
+    server_app._PARAPHRASE_REWRITER = fake_rewriter
+    try:
+        cid3 = inject_candidate(out_root, "fox-verify-ref")
+        api("POST", "/api/intake/candidates/" + cid3 + "/approve")
+        pb3 = api("POST", "/api/intake/page-blocks", {"candidate_id": cid3})
+        para = [b for b in pb3["blocks"] if b["provenance"] == "paraphrased"]
+        check("paraphrased：reference 拆块正文以改写形态随行（预览即所得）",
+              pb3["paraphrased"] is True and len(para) >= 2
+              and all(b["content"] in (REWRITE_A, REWRITE_B) for b in para),
+              f"{len(para)} paraphrased / {len(pb3['blocks'])} blocks")
+        gen3 = api("POST", "/api/generate", {
+            "prompt": "做一个狐构品牌的落地页", "intent": "landing",
+            "quiet_llm": True, "blocks": pb3["blocks"]})
+        html3 = (Path(gen3["project"]) / "output.html").read_text(encoding="utf-8")
+        check("paraphrased：产物携带改写文本，原文一字不现",
+              REWRITE_A in html3 and ALPHA not in html3 and BETA not in html3)
+    finally:
+        server_app._PARAPHRASE_REWRITER = _rewriter_backup
 
 
 if __name__ == "__main__":

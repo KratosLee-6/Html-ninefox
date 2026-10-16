@@ -34,6 +34,8 @@ from typing import Callable
 
 import yaml
 
+from . import paraphrase
+
 DATA_SOURCES = Path(__file__).resolve().parent / "data" / "sources"
 USER_SOURCES_SUBDIR = "sources"
 ALLOWED_SCHEMES = ("http", "https")
@@ -897,7 +899,8 @@ def _split_heading(snippet: str, text_head: str) -> tuple[str, str]:
     return text[:80], text[:2000]
 
 
-def page_blocks_from_candidate(candidate: dict, body_html: str) -> list[dict]:
+def page_blocks_from_candidate(candidate: dict, body_html: str,
+                               rewriter: Callable | None = None) -> list[dict]:
     """Turn a fetched page's own sections into blocks the pipeline can carry.
 
     The block channel already exists — composition["blocks"] survives to
@@ -923,6 +926,16 @@ def page_blocks_from_candidate(candidate: dict, body_html: str) -> list[dict]:
     returns blocks that carry content, so the renderer falls back to its own
     copy. That is the right outcome rather than a document full of empty
     headings.
+
+    v0.7.7 adds the third provenance, ``paraphrased``. A caller may hand in a
+    ``rewriter(source, heading) -> str | None`` (the LLM transport from
+    ``paraphrase.make_llm_rewriter``). For a non-open block that would
+    otherwise carry nothing, the rewrite is attempted and admitted only when
+    it passes ``paraphrase.is_faithful`` — the fidelity gate that keeps
+    ``paraphrased`` from degenerating into a mislabelled ``verbatim``. A
+    missing rewriter, a failed call, or an unfaithful rewrite all land on the
+    same structure_only outcome as before; the open path never calls the
+    rewriter, so verbatim semantics (and its cost profile) are untouched.
     """
     if not isinstance(body_html, str) or not body_html.strip():
         return []
@@ -941,12 +954,19 @@ def page_blocks_from_candidate(candidate: dict, body_html: str) -> list[dict]:
         if not heading:
             # no visible text at all: not a section a document can use
             continue
+        provenance, carried = "structure_only", ""
+        if may_carry_text:
+            provenance, carried = "verbatim", content_text
+        elif rewriter is not None and content_text.strip():
+            attempt = rewriter(content_text, heading)
+            if attempt and paraphrase.is_faithful(content_text, attempt):
+                provenance, carried = "paraphrased", attempt.strip()
         blocks.append({
             "id": f"page-section-{ordinal + 1}",
             "kind": "sections",
             "heading": heading,
-            "content": content_text if may_carry_text else "",
-            "provenance": "verbatim" if may_carry_text else "structure_only",
+            "content": carried,
+            "provenance": provenance,
             "source_tag": str(section.get("tag") or ""),
             "source_class": str(section.get("class") or "")[:120],
             "source_url": source_url,
