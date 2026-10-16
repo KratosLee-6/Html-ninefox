@@ -130,8 +130,8 @@ def m_unregister_a_referenced_action(index: str, core: str, app: str) -> tuple:
     dispatch-table entry, so deleting the entry is exactly the defect this gate
     was written for.
     """
-    if "onclick=\"intakeFetchBatch()\"" not in index:
-        raise MutationFailure("index.html 里找不到 onclick=\"intakeFetchBatch()\"")
+    if 'data-action="intakeFetchBatch"' not in index:
+        raise MutationFailure('index.html 里找不到 data-action="intakeFetchBatch"')
     for line in core.splitlines(keepends=True):
         if line.lstrip().startswith("intakeFetchBatch:"):
             return index, core.replace(line, ""), app

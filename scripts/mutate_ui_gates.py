@@ -88,22 +88,23 @@ def m_dead_batch_button(texts: dict[str, str]) -> dict[str, str]:
 
 
 def m_onclick_points_at_nothing(texts: dict[str, str]) -> dict[str, str]:
-    """onclick 指向一个不存在的函数名。"""
+    """动作名指向未登记的名字（v0.7.8 起经 data-action 委托，委托层
+    console.error 且不执行——死按钮形状）。"""
     out = dict(texts)
-    if 'onclick="advanceActive()"' not in out[str(INDEX)]:
-        raise MutationFailure('index.html 里找不到 onclick="advanceActive()"')
+    if 'data-action="advanceActive"' not in out[str(INDEX)]:
+        raise MutationFailure('index.html 里找不到 data-action="advanceActive"')
     out[str(INDEX)] = out[str(INDEX)].replace(
-        'onclick="advanceActive()"', 'onclick="advanceActiveRenamed()"', 1)
+        'data-action="advanceActive"', 'data-action="advanceActiveRenamed"', 1)
     return out
 
 
 def m_onclick_batch_points_at_nothing(texts: dict[str, str]) -> dict[str, str]:
-    """onclick 指向不存在的函数名（批量抓取那一颗）。"""
+    """动作名指向未登记的名字（批量抓取那一颗）。"""
     out = dict(texts)
-    if 'onclick="intakeFetchBatch()"' not in out[str(INDEX)]:
-        raise MutationFailure('index.html 里找不到 onclick="intakeFetchBatch()"')
+    if 'data-action="intakeFetchBatch"' not in out[str(INDEX)]:
+        raise MutationFailure('index.html 里找不到 data-action="intakeFetchBatch"')
     out[str(INDEX)] = out[str(INDEX)].replace(
-        'onclick="intakeFetchBatch()"', 'onclick="intakeFetchBatchRenamed()"', 1)
+        'data-action="intakeFetchBatch"', 'data-action="intakeFetchBatchRenamed"', 1)
     return out
 
 
@@ -160,9 +161,9 @@ MUTATIONS = [
      m_dead_advance_button, "advance_button_really_drives"),
     ("U2 死按钮：派发表删掉 intakeFetchBatch（S20 原型）",
      m_dead_batch_button, "batch_intake_button_really_reaches"),
-    ("U3 onclick 指向不存在的函数（推进按钮）",
+    ("U3 动作名指向未登记的名字（推进按钮）",
      m_onclick_points_at_nothing, "advance_button_really_drives"),
-    ("U4 onclick 指向不存在的函数（批量抓取）",
+    ("U4 动作名指向未登记的名字（批量抓取）",
      m_onclick_batch_points_at_nothing, "batch_intake_button_really_reaches"),
     ("U5 派发表条目不再委托给 FoxExports",
      m_dispatch_entry_becomes_a_noop, "deck_export_writes_a_real_pptx"),
