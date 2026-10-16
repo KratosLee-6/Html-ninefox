@@ -94,11 +94,14 @@ def m_carry_text_regardless_of_licence(intake: str, core: str, feat: str, doc: s
 def m_mislabel_the_provenance(intake: str, core: str, feat: str, doc: str,
                                shared: str):
     """The text is still carried, but the block claims to be structure only —
-    the renderer and any future filter both trust the label."""
-    old = '            "provenance": "verbatim" if may_carry_text else "structure_only",'
+    the renderer and any future filter both trust the label.
+
+    v0.7.7 起赋值改成 if/elif 三态形态（paraphrased 加入）；本变异改为把
+    verbatim 分支的标签谎报为 structure_only，语义与旧目标一致。"""
+    old = '            provenance, carried = "verbatim", content_text'
     if old not in intake:
         raise MutationFailure("没找到 provenance 的赋值")
-    return intake.replace(old, '            "provenance": "structure_only",', 1), core, feat, doc, shared
+    return intake.replace(old, '            provenance, carried = "structure_only", content_text', 1), core, feat, doc, shared
 
 
 def m_break_the_section_pairing(intake: str, core: str, feat: str, doc: str,
