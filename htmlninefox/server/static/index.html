@@ -624,31 +624,31 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     <div class="sp"></div>
     <span class="status-dot" id="status"></span>
     <div class="topbar-tools" aria-label="项目工具">
-      <button class="btn btn-ghost theme-toggle" id="btn-theme" onclick="toggleTheme()" aria-label="切换工作台主题"><span class="theme-glyph" aria-hidden="true"></span><span class="theme-label" id="theme-label">夜蓝</span></button>
-      <button class="btn btn-ghost" id="btn-ai-settings" onclick="openAISettings()"><span class="ui-icon" data-icon="ai" aria-hidden="true"></span><span class="ai-label">AI 模型</span><span class="status-glyph" id="ai-status-glyph">◇</span></button>
-      <button class="btn btn-ghost" id="btn-memory" onclick="openProjectMemory()"><span class="ui-icon" data-icon="memory" aria-hidden="true"></span><span class="memory-label">项目记忆</span><span class="status-glyph" id="memory-status-glyph">◇</span></button>
+      <button class="btn btn-ghost theme-toggle" id="btn-theme" data-action="toggleTheme" aria-label="切换工作台主题"><span class="theme-glyph" aria-hidden="true"></span><span class="theme-label" id="theme-label">夜蓝</span></button>
+      <button class="btn btn-ghost" id="btn-ai-settings" data-action="openAISettings"><span class="ui-icon" data-icon="ai" aria-hidden="true"></span><span class="ai-label">AI 模型</span><span class="status-glyph" id="ai-status-glyph">◇</span></button>
+      <button class="btn btn-ghost" id="btn-memory" data-action="openProjectMemory"><span class="ui-icon" data-icon="memory" aria-hidden="true"></span><span class="memory-label">项目记忆</span><span class="status-glyph" id="memory-status-glyph">◇</span></button>
       <details class="topbar-more">
         <summary class="btn btn-ghost btn-icon" aria-label="更多项目操作" aria-haspopup="menu"><span class="ui-icon" data-icon="more" aria-hidden="true"></span></summary>
         <div class="topbar-menu" role="menu">
-          <button class="menu-mobile-only" type="button" onclick="toggleTheme()"><span class="ui-icon" data-icon="theme" aria-hidden="true"></span>切换纸白 / 夜蓝</button>
-          <button class="menu-mobile-only" type="button" onclick="openAISettings()"><span class="ui-icon" data-icon="ai" aria-hidden="true"></span>AI 模型配置</button>
-          <button class="menu-mobile-only" type="button" onclick="openProjectMemory()"><span class="ui-icon" data-icon="memory" aria-hidden="true"></span>项目记忆</button>
+          <button class="menu-mobile-only" type="button" data-action="toggleTheme"><span class="ui-icon" data-icon="theme" aria-hidden="true"></span>切换纸白 / 夜蓝</button>
+          <button class="menu-mobile-only" type="button" data-action="openAISettings"><span class="ui-icon" data-icon="ai" aria-hidden="true"></span>AI 模型配置</button>
+          <button class="menu-mobile-only" type="button" data-action="openProjectMemory"><span class="ui-icon" data-icon="memory" aria-hidden="true"></span>项目记忆</button>
           <div class="menu-field menu-mobile-only"><span>动效偏好</span><select data-motion-preference aria-label="移动端动效偏好"><option value="system">跟随系统</option><option value="reduced">减少动效</option><option value="off">关闭动效</option></select></div>
           <div class="menu-divider menu-mobile-only"></div>
-          <button type="button" onclick="addWorkspace()"><span class="ui-icon" data-icon="workspace" aria-hidden="true"></span>新建工作区</button>
+          <button type="button" data-action="addWorkspace"><span class="ui-icon" data-icon="workspace" aria-hidden="true"></span>新建工作区</button>
           <button class="install-app" id="btn-install" type="button" hidden><span class="ui-icon" data-icon="install" aria-hidden="true"></span>安装应用</button>
-          <button class="diagnostic-button" id="btn-diagnostic" type="button" onclick="createDiagnostic()"><span class="ui-icon" data-icon="diagnostic" aria-hidden="true"></span>生成诊断包</button>
-          <button class="classic-link" type="button" onclick="window.open('/classic','_blank')"><span class="ui-icon" data-icon="classic" aria-hidden="true"></span>经典表单模式</button>
-          <button type="button" onclick="openIntake()"><span class="ui-icon" data-icon="library" aria-hidden="true"></span>设计吸收</button>
+          <button class="diagnostic-button" id="btn-diagnostic" type="button" data-action="createDiagnostic"><span class="ui-icon" data-icon="diagnostic" aria-hidden="true"></span>生成诊断包</button>
+          <button class="classic-link" type="button" data-action="openClassic"><span class="ui-icon" data-icon="classic" aria-hidden="true"></span>经典表单模式</button>
+          <button type="button" data-action="openIntake"><span class="ui-icon" data-icon="library" aria-hidden="true"></span>设计吸收</button>
         </div>
       </details>
     </div>
     <div class="topbar-actions" aria-label="当前工作区操作">
-      <button class="btn btn-ghost mobile-only mobile-library-toggle" onclick="toggleMobilePanel('sidebar')" aria-controls="sidebar" aria-expanded="false" aria-label="打开素材库"><span class="ui-icon" data-icon="library" aria-hidden="true"></span><span>素材</span></button>
-      <button class="btn btn-ghost mobile-only mobile-inspector-toggle" onclick="toggleMobilePanel('inspector')" aria-controls="inspector" aria-expanded="false" aria-label="打开检查器"><span class="ui-icon" data-icon="inspector" aria-hidden="true"></span><span>检查</span></button>
-      <button class="btn btn-secondary" id="btn-create" onclick="openCreatePanel()" aria-label="输入需求与素材"><span class="ui-icon" data-icon="plus" aria-hidden="true"></span><span class="creation-label">输入需求</span></button>
-      <button class="btn btn-primary" id="btn-go" onclick="advanceActive()" aria-label="推进当前工作区"><span class="ui-icon" data-icon="play" aria-hidden="true"></span><span class="btn-label-long">推进当前工作区</span><span class="btn-label-short">推进</span></button>
-      <button class="btn btn-danger-ghost" id="btn-cancel-gen" onclick="cancelGeneration()" hidden aria-label="取消当前生成">✕ 取消生成</button>
+      <button class="btn btn-ghost mobile-only mobile-library-toggle" data-action="toggleMobilePanel" data-panel="sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="打开素材库"><span class="ui-icon" data-icon="library" aria-hidden="true"></span><span>素材</span></button>
+      <button class="btn btn-ghost mobile-only mobile-inspector-toggle" data-action="toggleMobilePanel" data-panel="inspector" aria-controls="inspector" aria-expanded="false" aria-label="打开检查器"><span class="ui-icon" data-icon="inspector" aria-hidden="true"></span><span>检查</span></button>
+      <button class="btn btn-secondary" id="btn-create" data-action="openCreatePanel" aria-label="输入需求与素材"><span class="ui-icon" data-icon="plus" aria-hidden="true"></span><span class="creation-label">输入需求</span></button>
+      <button class="btn btn-primary" id="btn-go" data-action="advanceActive" aria-label="推进当前工作区"><span class="ui-icon" data-icon="play" aria-hidden="true"></span><span class="btn-label-long">推进当前工作区</span><span class="btn-label-short">推进</span></button>
+      <button class="btn btn-danger-ghost" id="btn-cancel-gen" data-action="cancelGeneration" hidden aria-label="取消当前生成">✕ 取消生成</button>
     </div>
   </header>
 
@@ -673,8 +673,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   <main class="canvas-wrap">
     <section class="workspace-navigator" id="workspace-navigator" aria-label="工作区列表">
       <div class="workspace-nav-head"><strong>工作区</strong><span id="workspace-nav-total">0</span><span class="sp"></span>
-        <button onclick="addWorkspace()" title="新建工作区" aria-label="新建工作区"><span class="ui-icon" data-icon="plus" aria-hidden="true"></span></button>
-        <button onclick="toggleWorkspaceNavigator()" id="workspace-nav-toggle" title="收起工作区列表" aria-label="收起工作区列表"><span class="ui-icon" data-icon="collapse" aria-hidden="true"></span></button></div>
+        <button data-action="addWorkspace" title="新建工作区" aria-label="新建工作区"><span class="ui-icon" data-icon="plus" aria-hidden="true"></span></button>
+        <button data-action="toggleWorkspaceNavigator" id="workspace-nav-toggle" title="收起工作区列表" aria-label="收起工作区列表"><span class="ui-icon" data-icon="collapse" aria-hidden="true"></span></button></div>
       <div class="workspace-list" id="workspace-list"></div>
     </section>
     <section class="mobile-task-view" id="mobile-task-view" aria-label="移动端任务视图"></section>
@@ -695,22 +695,22 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <div style="margin-top:8px"><kbd>拖空白</kbd> 平移　<kbd>Shift+拖</kbd> 框选　<kbd>Alt+拖</kbd> 暂停吸附　<kbd>Ctrl+K</kbd> 命令</div>
     </div>
     <div class="hud" id="hud">
-      <button class="desktop-productivity" id="canvas-undo" onclick="FoxCanvasProductivity.undo()" title="撤销 Ctrl+Z" aria-label="撤销 Ctrl+Z" disabled><span class="ui-icon" data-icon="undo" aria-hidden="true"></span></button>
-      <button class="desktop-productivity" id="canvas-redo" onclick="FoxCanvasProductivity.redo()" title="重做 Ctrl+Y" aria-label="重做 Ctrl+Y" disabled><span class="ui-icon" data-icon="redo" aria-hidden="true"></span></button>
-      <button class="desktop-productivity" id="canvas-select-mode" onclick="FoxCanvasProductivity.toggleSelectionMode()" title="框选模式；也可按 Shift 拖动画布" aria-label="切换框选模式"><span class="ui-icon" data-icon="select" aria-hidden="true"></span></button>
-      <button class="desktop-productivity" id="canvas-group" onclick="FoxCanvasProductivity.groupSelection()" title="组合所选节点" aria-label="组合所选节点" disabled><span class="ui-icon" data-icon="group" aria-hidden="true"></span></button>
-      <button class="desktop-productivity" id="canvas-lock" onclick="FoxCanvasProductivity.toggleLockSelection()" title="锁定所选节点" aria-label="锁定所选节点" disabled><span class="ui-icon" data-icon="lock" aria-hidden="true"></span></button>
-      <button class="desktop-productivity" onclick="FoxCanvasProductivity.openSearch()" title="搜索并定位 Ctrl+K" aria-label="搜索并定位 Ctrl+K"><span class="ui-icon" data-icon="search" aria-hidden="true"></span></button>
-      <button class="desktop-productivity" id="snap-level" onclick="cycleSnapLevel()" title="网格吸附档位（Ctrl+G 循环，Alt 拖动临时关闭）" aria-label="网格吸附档位 16 像素">16</button>
+      <button class="desktop-productivity" id="canvas-undo" data-action="undo" title="撤销 Ctrl+Z" aria-label="撤销 Ctrl+Z" disabled><span class="ui-icon" data-icon="undo" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" id="canvas-redo" data-action="redo" title="重做 Ctrl+Y" aria-label="重做 Ctrl+Y" disabled><span class="ui-icon" data-icon="redo" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" id="canvas-select-mode" data-action="toggleSelectionMode" title="框选模式；也可按 Shift 拖动画布" aria-label="切换框选模式"><span class="ui-icon" data-icon="select" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" id="canvas-group" data-action="groupSelection" title="组合所选节点" aria-label="组合所选节点" disabled><span class="ui-icon" data-icon="group" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" id="canvas-lock" data-action="toggleLockSelection" title="锁定所选节点" aria-label="锁定所选节点" disabled><span class="ui-icon" data-icon="lock" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" data-action="openSearch" title="搜索并定位 Ctrl+K" aria-label="搜索并定位 Ctrl+K"><span class="ui-icon" data-icon="search" aria-hidden="true"></span></button>
+      <button class="desktop-productivity" id="snap-level" data-action="cycleSnapLevel" title="网格吸附档位（Ctrl+G 循环，Alt 拖动临时关闭）" aria-label="网格吸附档位 16 像素">16</button>
       <div class="hud-separator desktop-productivity"></div>
-      <button onclick="zoomBy(1.2)" title="放大" aria-label="放大画布"><span class="ui-icon" data-icon="zoomIn" aria-hidden="true"></span></button>
+      <button data-action="zoomIn" title="放大" aria-label="放大画布"><span class="ui-icon" data-icon="zoomIn" aria-hidden="true"></span></button>
       <div class="zl" id="zoom-label">100%</div>
-      <button onclick="zoomBy(1/1.2)" title="缩小" aria-label="缩小画布"><span class="ui-icon" data-icon="zoomOut" aria-hidden="true"></span></button>
-      <button onclick="fitAll()" title="适配全部（自动缩放）" aria-label="适配全部内容"><span class="ui-icon" data-icon="fit" aria-hidden="true"></span></button>
-      <button onclick="addWorkspace()" title="新建工作区" aria-label="新建工作区"><span class="ui-icon" data-icon="workspace" aria-hidden="true"></span></button>
+      <button data-action="zoomOut" title="缩小" aria-label="缩小画布"><span class="ui-icon" data-icon="zoomOut" aria-hidden="true"></span></button>
+      <button data-action="fitAll" title="适配全部（自动缩放）" aria-label="适配全部内容"><span class="ui-icon" data-icon="fit" aria-hidden="true"></span></button>
+      <button data-action="addWorkspace" title="新建工作区" aria-label="新建工作区"><span class="ui-icon" data-icon="workspace" aria-hidden="true"></span></button>
     </div>
     <select class="motion-preference canvas-motion-preference" id="motion-preference" data-motion-preference aria-label="动效偏好"><option value="system">动效：系统</option><option value="reduced">减少动效</option><option value="off">关闭动效</option></select>
-    <div class="minimap" id="minimap"><svg id="minimap-svg" viewBox="0 0 184 116" role="button" tabindex="0" aria-label="画布小地图，按回车定位中心" onclick="FoxCanvasProductivity.navigateMinimap(event)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();FoxCanvasProductivity.navigateMinimap(event)}"></svg></div>
+    <div class="minimap" id="minimap"><svg id="minimap-svg" viewBox="0 0 184 116" role="button" tabindex="0" aria-label="画布小地图，按回车定位中心" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();FoxCanvasProductivity.navigateMinimap(event)}"></svg></div>
   </main>
 
   <aside class="inspector" id="inspector"><h3>检查器</h3>
@@ -720,7 +720,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     · <b>产物节点</b>：预览 + 反馈迭代</p>
   </aside>
 
-  <div class="mobile-scrim" id="mobile-scrim" onclick="closeMobilePanels()"></div>
+  <div class="mobile-scrim" id="mobile-scrim" data-action="closeMobilePanels"></div>
 
   <footer class="timeline">
     <span class="tl-title" id="tl-title">当前工作区</span>
@@ -744,7 +744,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 
 <div class="preview-modal" id="export-modal" hidden role="dialog" aria-modal="true" aria-labelledby="export-title">
   <div class="export-dialog">
-    <div class="preview-bar"><strong id="export-title">导出中心</strong><span id="export-subtitle">HTML → 可分享文件</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeExportCenter()">关闭</button></div>
+    <div class="preview-bar"><strong id="export-title">导出中心</strong><span id="export-subtitle">HTML → 可分享文件</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeExportCenter">关闭</button></div>
     <div class="export-body">
       <section class="export-panel"><h3>01 · 产物分析与兼容性</h3><div id="export-analysis" class="analysis-empty">正在读取 HTML 结构、分页和动态内容…</div></section>
       <section class="export-panel"><h3>02 · 导出设置</h3>
@@ -759,7 +759,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
           <div class="flow-field wide" id="export-landscape-field"><label><input id="export-landscape" type="checkbox" style="width:auto;height:auto"> 横向 PDF（分页 Deck 会自动使用画布尺寸）</label></div>
         </div>
         <div class="export-runtime" id="export-runtime">导出在本机完成，不上传 HTML、附件或 API Key。</div>
-        <div class="flow-actions" style="margin-top:12px"><button class="btn btn-primary" id="export-start" onclick="startExport()">开始导出</button></div>
+        <div class="flow-actions" style="margin-top:12px"><button class="btn btn-primary" id="export-start" data-action="startExport">开始导出</button></div>
         <div class="status-panel" id="export-status" role="status" aria-live="polite" style="margin-top:10px">等待分析</div><div class="export-result" id="export-result"></div>
       </section>
     </div>
@@ -772,11 +772,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 
 <div class="preview-modal" id="revision-modal" hidden role="dialog" aria-modal="true" aria-labelledby="revision-title">
   <div class="revision-dialog">
-    <div class="preview-bar"><strong id="revision-title">版本差异</strong><div class="sp"></div><button class="btn btn-ghost" id="revision-close" onclick="closeRevisionDiff()">关闭</button></div>
+    <div class="preview-bar"><strong id="revision-title">版本差异</strong><div class="sp"></div><button class="btn btn-ghost" id="revision-close" data-action="closeRevisionDiff">关闭</button></div>
     <div class="revision-body">
       <ol class="revision-history" id="revision-history" aria-label="版本历史与来源"></ol>
-      <div class="revision-controls"><label for="revision-from">对照版本<select id="revision-from"></select></label><label for="revision-to">选中版本<select id="revision-to" onchange="updateRevisionSelection()"></select></label><button class="btn btn-primary" id="revision-compare" onclick="loadRevisionDiff()">比较版本</button></div>
-      <div class="revision-controls"><label for="revision-label">选中版本名称<input id="revision-label" maxlength="80" placeholder="例如：客户确认稿"></label><button class="btn btn-secondary" id="revision-save-label" onclick="saveRevisionLabel()">保存名称</button><button class="btn btn-secondary" id="revision-restore" onclick="restoreSelectedRevision()" aria-describedby="revision-hint">恢复为新版本</button></div>
+      <div class="revision-controls"><label for="revision-from">对照版本<select id="revision-from"></select></label><label for="revision-to">选中版本<select id="revision-to" onchange="updateRevisionSelection()"></select></label><button class="btn btn-primary" id="revision-compare" data-action="loadRevisionDiff">比较版本</button></div>
+      <div class="revision-controls"><label for="revision-label">选中版本名称<input id="revision-label" maxlength="80" placeholder="例如：客户确认稿"></label><button class="btn btn-secondary" id="revision-save-label" data-action="saveRevisionLabel">保存名称</button><button class="btn btn-secondary" id="revision-restore" data-action="restoreSelectedRevision" aria-describedby="revision-hint">恢复为新版本</button></div>
       <p id="revision-hint">恢复会保留现有版本，同时恢复所选版本的内容与生成配置。</p>
       <div id="revision-summary" role="status" aria-live="polite"></div>
       <pre id="revision-code" tabindex="0" aria-label="HTML 源码差异"></pre>
@@ -785,13 +785,13 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 </div>
 
 <div class="preview-modal" id="create-modal" hidden role="dialog" aria-modal="true" aria-labelledby="create-title">
-  <div class="flow-dialog"><div class="preview-bar"><strong id="create-title">输入需求与素材</strong><span>输入 → AI 分析 → 推荐组合 → 生成</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeCreatePanel()">关闭</button></div>
+  <div class="flow-dialog"><div class="preview-bar"><strong id="create-title">输入需求与素材</strong><span>输入 → AI 分析 → 推荐组合 → 生成</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeCreatePanel">关闭</button></div>
     <div class="flow-body"><div class="flow-grid">
       <section class="flow-card"><h3>01 · 文字、文件与图片</h3>
         <div class="flow-field"><label>你希望生成什么？</label><textarea id="creation-prompt" placeholder="例如：做一个 AI 产品发布会 PPT，面向设计团队，重点展示工作流、模板市场和本地数据安全。"></textarea></div>
         <div class="drop-zone"><strong>添加参考文件或图片</strong><small>支持 TXT / Markdown / JSON / CSV / HTML 和常见图片，单个不超过 8MB。文本会提取内容，图片会作为创作上下文记录。</small><input id="creation-files" type="file" multiple accept="image/*,.txt,.md,.json,.csv,.html,.htm,.yaml,.yml"></div>
         <div class="input-list" id="creation-input-list"></div>
-        <div class="flow-actions"><button class="btn btn-primary" id="creation-analyze" onclick="analyzeCreation()">AI 分析并推荐</button><button class="btn btn-secondary" onclick="sendToCustomWorkspace()">先进入工作区自定义</button></div>
+        <div class="flow-actions"><button class="btn btn-primary" id="creation-analyze" data-action="analyzeCreation">AI 分析并推荐</button><button class="btn btn-secondary" data-action="sendToCustomWorkspace">先进入工作区自定义</button></div>
       </section>
       <section class="flow-card"><h3>02 · 推荐组合</h3><div id="creation-analysis" class="analysis-empty">输入需求后，系统会推荐内容类型、真实 HTML 模板、页面组合和视觉风格。你可以直接采用，也可以进入工作区自行调整版式、内容、风格、文件和技能。</div></section>
     </div></div>
@@ -799,7 +799,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 </div>
 
 <div class="preview-modal" id="ai-modal" hidden role="dialog" aria-modal="true" aria-labelledby="ai-title">
-  <div class="flow-dialog" style="width:min(700px,94vw)"><div class="preview-bar"><strong id="ai-title">AI 模型配置</strong><span>本地保存 · Key 不回传</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeAISettings()">关闭</button></div>
+  <div class="flow-dialog" style="width:min(700px,94vw)"><div class="preview-bar"><strong id="ai-title">AI 模型配置</strong><span>本地保存 · Key 不回传</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeAISettings">关闭</button></div>
     <div class="flow-body"><section class="flow-card">
       <div class="flow-field"><label><input type="checkbox" id="ai-enabled" style="width:auto;height:auto"> 启用 AI 增强；关闭时使用离线规则引擎</label></div>
       <div class="flow-grid"><div class="flow-field"><label>接口类型</label><select id="ai-provider"><option value="openai-compatible">OpenAI Compatible</option><option value="ollama">Ollama / 本地模型</option><option value="custom">自定义兼容接口</option></select></div><div class="flow-field"><label>模型名称</label><input id="ai-model" placeholder="例如 gpt-4.1-mini / MiniMax-M2.1 / qwen3"></div></div>
@@ -807,52 +807,52 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <div class="flow-field"><label>API Key</label><input id="ai-api-key" type="password" autocomplete="new-password" placeholder="留空表示保留已保存的 Key"></div>
       <div class="flow-field"><label><input type="checkbox" id="ai-clear-key" style="width:auto;height:auto"> 清除已保存的 API Key</label></div>
       <p class="settings-note">配置保存在当前工作目录的隐藏设置文件中；读取接口只返回“是否已设置”，不会返回 Key 明文。OpenAI-compatible 接口会调用 <code>/chat/completions</code>。</p>
-      <div class="flow-actions" style="margin-top:12px"><button class="btn btn-primary" id="ai-save" onclick="saveAISettings()">保存配置</button><button class="btn btn-secondary" id="ai-test" onclick="testAISettings()">测试连接</button></div><div class="status-panel" id="ai-settings-status" style="margin-top:12px">尚未读取配置</div>
+      <div class="flow-actions" style="margin-top:12px"><button class="btn btn-primary" id="ai-save" data-action="saveAISettings">保存配置</button><button class="btn btn-secondary" id="ai-test" data-action="testAISettings">测试连接</button></div><div class="status-panel" id="ai-settings-status" style="margin-top:12px">尚未读取配置</div>
     </section></div>
   </div>
 </div>
 
 <div class="preview-modal" id="slides-modal" hidden role="dialog" aria-modal="true" aria-labelledby="slides-title">
-  <div class="flow-dialog slides-dialog"><div class="preview-bar"><strong id="slides-title">幻灯片编辑</strong><span>文本原位编辑 · 每次保存生成新版本</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeSlideEditor()">关闭</button></div>
+  <div class="flow-dialog slides-dialog"><div class="preview-bar"><strong id="slides-title">幻灯片编辑</strong><span>文本原位编辑 · 每次保存生成新版本</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeSlideEditor">关闭</button></div>
     <div class="flow-body slides-editor" id="slides-editor"></div>
-    <div class="preview-bar" style="border-top:1px solid var(--border-default)"><div class="intake-status" id="slides-status" role="status">读取后即可编辑文本。</div><div class="sp"></div><button class="btn btn-primary" id="slides-save" onclick="saveSlideEditor()">保存为新版本</button></div>
+    <div class="preview-bar" style="border-top:1px solid var(--border-default)"><div class="intake-status" id="slides-status" role="status">读取后即可编辑文本。</div><div class="sp"></div><button class="btn btn-primary" id="slides-save" data-action="saveSlideEditor">保存为新版本</button></div>
   </div>
 </div>
 <div class="preview-modal" id="intake-modal" hidden role="dialog" aria-modal="true" aria-labelledby="intake-title">
-  <div class="flow-dialog intake-dialog"><div class="preview-bar"><strong id="intake-title">设计吸收</strong><span>全球优秀设计 · 安全抓取 · 审核后入库</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeIntake()">关闭</button></div>
+  <div class="flow-dialog intake-dialog"><div class="preview-bar"><strong id="intake-title">设计吸收</strong><span>全球优秀设计 · 安全抓取 · 审核后入库</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeIntake">关闭</button></div>
     <div class="flow-body">
       <section class="flow-card"><div id="intake-stats" class="intake-stats" aria-live="polite">加载吸收指标…</div></section>
       <section class="flow-card">
         <div class="intake-fetch-row">
           <input id="intake-fetch-url" placeholder="https:// 参考网页地址（仅公网）" aria-label="参考网页地址">
           <select id="intake-source" aria-label="设计来源"></select>
-          <button class="btn btn-primary" id="intake-fetch-btn" onclick="intakeFetch()">抓取为候选</button>
+          <button class="btn btn-primary" id="intake-fetch-btn" data-action="intakeFetch">抓取为候选</button>
         </div>
         <div class="intake-status" id="intake-status" role="status">手动粘贴地址即可抓取；每来源限速，仅访问公网地址。</div>
         <details class="intake-more"><summary class="btn btn-ghost">批量导入</summary>
           <div class="menu-field" style="display:grid;gap:var(--space-1);padding:var(--space-2);min-width:320px">
             <label>多 URL 批量（每行一个，最多 10 个）</label>
             <textarea id="intake-batch-urls" rows="4" placeholder="https://site-a.com&#10;https://site-b.com"></textarea>
-            <button class="btn btn-secondary" id="intake-batch-btn" onclick="intakeFetchBatch()">批量抓取</button>
+            <button class="btn btn-secondary" id="intake-batch-btn" data-action="intakeFetchBatch">批量抓取</button>
             <label>ZIP 模板包（内含 HTML，≤24 个文件）</label>
             <input type="file" id="intake-zip-file" accept=".zip" style="width:auto;height:auto">
-            <button class="btn btn-secondary" id="intake-zip-btn" onclick="openZipPicker()">导入 ZIP</button>
+            <button class="btn btn-secondary" id="intake-zip-btn" data-action="openZipPicker">导入 ZIP</button>
           </div>
         </details>
       </section>
       <section class="flow-card">
         <div class="intake-toolbar" role="tablist" aria-label="候选筛选">
-          <button class="btn btn-secondary" data-intake-filter="pending" aria-pressed="false" onclick="intakeRefresh('pending')">待审核</button>
-          <button class="btn btn-secondary" data-intake-filter="approved" aria-pressed="false" onclick="intakeRefresh('approved')">已采纳</button>
-          <button class="btn btn-secondary" data-intake-filter="rejected" aria-pressed="false" onclick="intakeRefresh('rejected')">已拒绝</button>
-          <button class="btn btn-secondary" data-intake-filter="all" aria-pressed="false" onclick="intakeRefresh('all')">全部</button>
+          <button class="btn btn-secondary" data-intake-filter="pending" aria-pressed="false" data-action="intakeRefresh" data-filter="pending">待审核</button>
+          <button class="btn btn-secondary" data-intake-filter="approved" aria-pressed="false" data-action="intakeRefresh" data-filter="approved">已采纳</button>
+          <button class="btn btn-secondary" data-intake-filter="rejected" aria-pressed="false" data-action="intakeRefresh" data-filter="rejected">已拒绝</button>
+          <button class="btn btn-secondary" data-intake-filter="all" aria-pressed="false" data-action="intakeRefresh" data-filter="all">全部</button>
           <select id="intake-source-filter" onchange="intakeSourceFilter(this.value)" aria-label="按来源筛选"></select>
-          <button class="btn btn-secondary" onclick="intakeSelectAll()">全选待审核</button>
+          <button class="btn btn-secondary" data-action="intakeSelectAll">全选待审核</button>
         </div>
         <div class="intake-toolbar" id="intake-batch-bar" hidden>
           <span id="intake-batch-count" class="intake-badge">已选 0 项</span>
-          <button class="btn btn-primary" onclick="intakeBatch('approve')">批量采纳</button>
-          <button class="btn btn-danger-ghost" onclick="intakeBatch('reject')">批量拒绝</button>
+          <button class="btn btn-primary" data-action="intakeBatch" data-mode="approve">批量采纳</button>
+          <button class="btn btn-danger-ghost" data-action="intakeBatch" data-mode="reject">批量拒绝</button>
         </div>
         <div id="intake-list" class="intake-list" aria-live="polite"></div>
       </section>
@@ -860,7 +860,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   </div>
 </div>
 <div class="preview-modal" id="memory-modal" hidden role="dialog" aria-modal="true" aria-labelledby="memory-title">
-  <div class="flow-dialog memory-dialog"><div class="preview-bar"><strong id="memory-title">项目记忆</strong><span>明确采用后学习 · 本地保存 · 随时关闭</span><div class="sp"></div><button class="btn btn-ghost" onclick="closeProjectMemory()">关闭</button></div>
+  <div class="flow-dialog memory-dialog"><div class="preview-bar"><strong id="memory-title">项目记忆</strong><span>明确采用后学习 · 本地保存 · 随时关闭</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeProjectMemory">关闭</button></div>
     <div class="flow-body"><section class="flow-card">
       <div class="flow-field"><label><input type="checkbox" id="memory-enabled" style="width:auto;height:auto"> 在生成时使用项目记忆；本次明确要求始终优先</label></div>
       <div class="memory-stats"><div class="memory-stat"><strong id="memory-adopted-count">0</strong><span>已采用产物</span></div><div class="memory-stat"><strong id="memory-used-count">0</strong><span>复用记忆生成</span></div><div class="memory-stat"><strong id="memory-last-project">—</strong><span>最近采用项目</span></div></div>
@@ -870,8 +870,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <div class="flow-grid"><div class="flow-field"><label>模板适用类型</label><select id="memory-template-intent"><option value="landing">落地页</option><option value="dashboard">数据看板</option><option value="deck">发布会 PPT</option><option value="poster">海报</option><option value="archdoc">架构文档</option><option value="doc">文档</option></select></div><div class="flow-field"><label>默认模板 ID</label><input id="memory-template" list="memory-template-list" placeholder="fox-pixel-garden"><datalist id="memory-template-list"></datalist></div></div>
       <div class="flow-grid"><div class="flow-field"><label>默认主色</label><input id="memory-primary" placeholder="#173C8F"></div><div class="flow-field"><label>默认字体</label><select id="memory-font"><option value="">自动</option><option value="sans">无衬线</option><option value="serif">衬线</option><option value="mono">等宽</option></select></div></div>
       <div class="flow-field"><label>长期说明</label><textarea id="memory-notes" maxlength="2000" placeholder="仅保存可长期复用的项目说明，不建议粘贴敏感原文。"></textarea></div>
-      <div class="flow-actions"><button class="btn btn-primary" id="memory-save" onclick="saveProjectMemory()">保存记忆</button></div><div class="status-panel" id="memory-status" role="status" aria-live="polite" style="margin-top:12px">尚未读取项目记忆</div>
-      <div class="memory-danger"><p class="settings-note">采用只记录品牌、受众、风格、禁忌、模板与设计决策，不保存 API Key 或附件正文。</p><button class="btn btn-danger-ghost" id="memory-clear" onclick="clearProjectMemory()">清空项目记忆</button></div>
+      <div class="flow-actions"><button class="btn btn-primary" id="memory-save" data-action="saveProjectMemory">保存记忆</button></div><div class="status-panel" id="memory-status" role="status" aria-live="polite" style="margin-top:12px">尚未读取项目记忆</div>
+      <div class="memory-danger"><p class="settings-note">采用只记录品牌、受众、风格、禁忌、模板与设计决策，不保存 API Key 或附件正文。</p><button class="btn btn-danger-ghost" id="memory-clear" data-action="clearProjectMemory">清空项目记忆</button></div>
     </section></div>
   </div>
 </div>

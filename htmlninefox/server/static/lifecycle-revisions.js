@@ -95,7 +95,7 @@
 
   function renderHistory() {
     const kinds = { generate: '首次生成', feedback: '反馈修改', rerun: '重跑生成', restore: '恢复', checkpoint: '历史检查点', legacy: '早期版本' };
-    $('#revision-history').innerHTML = draft.revisions.map(item => `<li><button class="btn btn-secondary" onclick="selectRevision(${item.revision})" ${item.is_current ? 'aria-current="true"' : ''}>rev${item.revision}${item.label ? ' · ' + esc(item.label) : ''}${item.is_current ? ' · 当前' : ''}<small>${kinds[item.kind] || '版本'}${item.parent_revision != null ? ' · 基于 rev' + item.parent_revision : ''}${item.restored_from != null ? ' · 恢复自 rev' + item.restored_from : ''}</small></button></li>`).join('');
+    $('#revision-history').innerHTML = draft.revisions.map(item => `<li><button class="btn btn-secondary" data-action="selectRevision" data-revision="${item.revision}" ${item.is_current ? 'aria-current="true"' : ''}>rev${item.revision}${item.label ? ' · ' + esc(item.label) : ''}${item.is_current ? ' · 当前' : ''}<small>${kinds[item.kind] || '版本'}${item.parent_revision != null ? ' · 基于 rev' + item.parent_revision : ''}${item.restored_from != null ? ' · 恢复自 rev' + item.restored_from : ''}</small></button></li>`).join('');
   }
 
   function select(revision) {

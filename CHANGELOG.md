@@ -11,6 +11,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.8] — 2026-10-17 · C6 收口：点击动作统一事件委托
+
+> 结构升级（前端）。HTTP 接口、项目数据、动作语义**均未改变**。
+> 顺带修掉一个真点击验证暴露的既有死交互（见 Fixed）。
+> 架构审计 C6 的「112 处 onclick 迁 data-action」至此关闭，审计清单
+> 全部处置完毕（C6 事件委托本体从「有意推迟」转为「已完成」）。
+
+**Changed**
+- **106 处内联 onclick 全量迁 `data-action` + document 级事件委托**
+  （index.html 58、fox-core.js 30、classic.html 5、lifecycle-intake 7、
+  workbench-features 5、canvas-productivity 4、lifecycle-revisions 1；
+  以精确替换 + 次数断言的一次性脚本完成，`scripts/migrate_onclick_to_data_action.py`）。
+- **类型签名表 `FOX_ACTION_SIGNATURES`**：审计推迟迁移的原因是「data-*
+  取值是字符串而节点 id 是数字，=== 会失效」。答案是把转换收敛到唯一
+  一点——按动作声明参数类型（`number` / `number?`（空缺归 null，供
+  advanceWs 的「未归属工作区」）/ `string`），声明即契约，静态门禁双向
+  锁死（站点键 ⊆ 签名键 ⊆ 站点键）。
+- **语义升格**：`zoomBy(1.2)/(1/1.2)` → `zoomIn`/`zoomOut`；
+  `FoxCanvasProductivity.*` 的 8 个命名空间调用 → 语义动作登记进
+  `window.FoxActions`；`window.open('/classic')` → 既有 `openClassic`；
+  classic 的 `loadProjects();return false;` → 委托层对 `<a>` 一律
+  preventDefault。
+- **小地图**是画布部件而非用户命令：click 改由 canvas-productivity
+  initialize 直接绑定（需要原始事件坐标，不适合参数签名通道）。
+- **保留内联**：`ondblclick`（快速重命名、预览页双击）、`onpointerdown`
+  （••• 编辑钮）与 minimap `onkeydown` ——指针/键盘层非 click 动作，
+  继续受「引用必须可解析」的登记校验。
+- 委托层解析顺序：FoxActions 表 → 裸全局函数；两者皆非 → console.error
+  （死按钮在开发期暴露，v0.6.0 intakeFetchBatch 教训的终态化）。
+  `closest()` 取最近 data-action，等价替代旧 `onclick="event.stopPropagation();…"`
+  的语义（ws-head 适配/推进按钮与芯片 ••• 不再误触父级；节点选中走
+  pointerdown 且已排除 button，不受影响）。
+
+**Fixed**
+- **工作区芯片点击失灵（既有缺陷，真点击门禁首次暴露）**：
+  `finishPointerInteraction` 绑在 window pointerup 且**无条件**重渲染
+  工作区导航栏——普通点击芯片也会在按下与 click 派发之间把导航栏
+  innerHTML 整个换掉，按下中的元素被替换，Chromium 抑制 click。
+  用 v0.7.7 的前端文件实测确认：真实点击芯片同样无 click 事件、内联
+  onclick 从未触发——该缺陷早于本版迁移存在，桌面端点击芯片无法切换
+  工作区。修复：重渲染尾巴只对真的发生过指针交互（拖拽/平移/缩放/
+  连线）或状态有变的收尾执行；纯点击没有需要清理的中间态。
+
+**门禁**
+- `tests/test_action_registry.py` 重写（7 条）：onclick 归零（剥注释后
+  扫描）；data-action 全部可解析；站点参数键与签名**双向一致**（按元素
+  开标签扫描，data-icon/data-intake-filter/data-page-id 是状态标记不是
+  参数）；签名无死声明；派发表委托真实 Module；无内联 DOM poke。
+- `tests/test_action_delegation_runtime.py`（2 条，真点击）：类型契约
+  （focusWorkspace 收到 number 且等值、toggleMobilePanel 收到原文
+  string、advanceWs 空参归 null）、closest 边界（••• 不触发芯片动作）、
+  zoomIn 真实缩放、未知动作 console.error 可见。
+- 变异 `scripts/mutate_action_delegation_gates.py`：拆委托 / 拆 number
+  转换 / 删签名条目 / onclick 回流——**4/4 CAUGHT**。
+
 ## [0.7.7] — 2026-10-12 · 改写吸收：provenance 第三档 paraphrased
 
 > 新能力（需 LLM 才升级，离线行为零变化）。HTTP 接口新增 `paraphrased`

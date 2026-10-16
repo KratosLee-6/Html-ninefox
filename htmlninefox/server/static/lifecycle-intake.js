@@ -91,14 +91,14 @@
         ${item.ai_analysis ? `<div class="intake-outline">🤖 ${esc(item.ai_analysis.description || '')}${item.ai_tags?.length ? ' · ' + esc(item.ai_tags.join(' / ')) : ''}</div>` : ''}
         <div class="intake-card-actions">
           ${item.status === 'pending'
-            ? `<button class="btn btn-primary" onclick="intakeApprove('${esc(item.candidate_id)}')">✔ 采纳为模板</button>
-               <button class="btn btn-danger-ghost" onclick="intakeReject('${esc(item.candidate_id)}')">✕ 拒绝</button>
-               <button class="btn btn-secondary" onclick="intakeTogglePreview('${esc(item.candidate_id)}')">👁 预览</button>
-               <button class="btn btn-secondary" id="intake-analyze-${esc(item.candidate_id)}" onclick="intakeAnalyze('${esc(item.candidate_id)}')">🤖 AI 分析</button>`
+            ? `<button class="btn btn-primary" data-action="intakeApprove" data-id="${esc(item.candidate_id)}">✔ 采纳为模板</button>
+               <button class="btn btn-danger-ghost" data-action="intakeReject" data-id="${esc(item.candidate_id)}">✕ 拒绝</button>
+               <button class="btn btn-secondary" data-action="intakeTogglePreview" data-id="${esc(item.candidate_id)}">👁 预览</button>
+               <button class="btn btn-secondary" id="intake-analyze-${esc(item.candidate_id)}" data-action="intakeAnalyze" data-id="${esc(item.candidate_id)}">🤖 AI 分析</button>`
             : `${item.status === 'approved'
-                ? `<button class="btn btn-secondary" onclick="intakeMakeStylePreset('${esc(item.candidate_id)}')">🎨 生成风格预设</button>` +
-                  (item.kind === 'components' ? `<button class="btn btn-secondary" onclick="intakeImportComponents('${esc(item.candidate_id)}')">🧩 导入组件</button>` : '') +
-                  (item.kind === 'motion' ? `<button class="btn btn-secondary" onclick="intakeImportMotion('${esc(item.candidate_id)}')">✨ 吸收动效</button>` : '')
+                ? `<button class="btn btn-secondary" data-action="intakeMakeStylePreset" data-id="${esc(item.candidate_id)}">🎨 生成风格预设</button>` +
+                  (item.kind === 'components' ? `<button class="btn btn-secondary" data-action="intakeImportComponents" data-id="${esc(item.candidate_id)}">🧩 导入组件</button>` : '') +
+                  (item.kind === 'motion' ? `<button class="btn btn-secondary" data-action="intakeImportMotion" data-id="${esc(item.candidate_id)}">✨ 吸收动效</button>` : '')
                 : `<span class="intake-status">已拒绝</span>`}`}
         </div>
         <iframe class="intake-preview" id="intake-preview-${esc(item.candidate_id)}" hidden

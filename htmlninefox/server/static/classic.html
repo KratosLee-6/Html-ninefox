@@ -80,7 +80,7 @@ textarea { min-height:96px; }
   <div class="logo" style="display:flex;align-items:center;gap:9px"><img src="/logo-mark.svg" alt="" width="30" height="30"><span>Html<em>九尾狐</em></span></div>
   <span class="ver" id="ver"></span>
   <div class="sp"></div>
-  <a href="#" onclick="loadProjects();return false;">刷新项目</a>
+  <a href="#" data-action="loadProjects">刷新项目</a>
   <a href="https://github.com/" target="_blank" rel="noopener">Skill 联盟</a>
 </header>
 <main>
@@ -104,7 +104,7 @@ textarea { min-height:96px; }
     <label style="display:flex;align-items:center;gap:8px;margin-top:14px">
       <input type="checkbox" id="quiet" style="width:auto"> 纯离线模式（跳过 LLM 微调）
     </label>
-    <button class="btn" id="go" onclick="generate()">生成 HTML</button>
+    <button class="btn" id="go" data-action="generate">生成 HTML</button>
     <div class="status" id="gen-status"></div>
     <p class="tagline">
       五字段 Brief（目标/场景/内容/风格/约束）由 Brief Expert 自动补全；
@@ -123,7 +123,7 @@ textarea { min-height:96px; }
       <span class="chip">版本 <b id="cur-rev">—</b></span>
       <div class="sp" style="flex:1"></div>
       <span>刷新</span><span class="kbd">Ctrl+R</span>
-      <button class="btn ghost" style="width:auto;margin:0;padding:5px 14px" onclick="reloadPreview()">↻</button>
+      <button class="btn ghost" style="width:auto;margin:0;padding:5px 14px" data-action="reloadPreview">↻</button>
     </div>
     <div class="stage">
       <iframe id="preview" title="预览"></iframe>
@@ -139,7 +139,7 @@ textarea { min-height:96px; }
   <section class="panel">
     <h3>反馈迭代</h3>
     <textarea id="note" placeholder="例：颜色再深一点，参考 vercel；标题再大一点" style="min-height:72px"></textarea>
-    <button class="btn ghost" id="fb-btn" onclick="sendFeedback()" style="margin-top:10px">提交反馈并生成修订</button>
+    <button class="btn ghost" id="fb-btn" data-action="sendFeedback" style="margin-top:10px">提交反馈并生成修订</button>
     <div class="status" id="fb-status"></div>
     <h3 style="margin-top:22px">迭代历史</h3>
     <div id="fb-history"><p class="tagline">提交反馈后，每轮迭代（rev1、rev2…）会记录在这里，产物保存在项目 revisions/ 目录。</p></div>
@@ -172,7 +172,7 @@ async function loadProjects() {
   try {
     const r = await (await fetch('/api/projects')).json();
     $('projects').innerHTML = r.items.length ? r.items.map(p => `
-      <div class="hist-item" onclick="openProject('${p.project.replace(/\\/g,'\\\\')}','${p.preview_url}')">
+      <div class="hist-item" data-action="openProject" data-project="${esc(p.project)}" data-url="${p.preview_url}">
         <div>${p.prompt || p.name}</div>
         <div class="meta">${p.intent} · ${p.preset_id} · rev${p.revision}</div>
       </div>`).join('') : '<p class="tagline">还没有项目。</p>';

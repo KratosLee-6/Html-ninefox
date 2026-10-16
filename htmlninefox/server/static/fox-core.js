@@ -416,7 +416,17 @@ function finishPointerInteraction(e){let changed=false;
   if(pan)changed=true;if(linking){if(linking.target&&!edges.some(edge=>edge.from===linking.from&&edge.to===linking.target.nodeId)){
   edges.push({from:linking.from,to:linking.target.nodeId});changed=true;const sourceNode=nodes.find(item=>item.id===linking.from),targetNode=nodes.find(item=>item.id===linking.target.nodeId);flash('已智能连接：'+(sourceNode?.title||'节点')+' → '+(targetNode?.title||'节点'),true);}
   document.getElementById('node-'+linking.from)?.classList.remove('link-source');linking=null;clearLinkTarget();clearCandidatePorts();clearTempEdge();}
-  pan=null;drag=null;resize=null;viewport.classList.remove('panning');canvasEngine.clearGuides();drawEdges();updateWsCount();renderWorkspaceNavigator();timeline();if(changed){save();window.FoxCanvasProductivity?.commitHistory();}
+  /* 重渲染尾巴只对真的发生过指针交互（拖拽/平移/缩放/连线）的收尾执行。
+   * 曾经无条件执行：普通点击工作区芯片也会在这里把导航栏 innerHTML 整个
+   * 换掉——按下中的元素被替换，Chromium 直接抑制 click，芯片在真实产品里
+   * 点不动（内联 onclick 时代同样被抑制；C6 的真点击门禁首次暴露）。
+   * 纯点击没有需要清理的中间态（guides/panning 都来自拖拽与平移）。 */
+  const hadPointerInteraction = pan || drag || resize || linking;
+  pan=null;drag=null;resize=null;viewport.classList.remove('panning');
+  if (hadPointerInteraction || changed) {
+    canvasEngine.clearGuides();drawEdges();updateWsCount();renderWorkspaceNavigator();timeline();
+  }
+  if(changed){save();window.FoxCanvasProductivity?.commitHistory();}
   if(e?.pointerId!=null&&viewport.hasPointerCapture?.(e.pointerId))viewport.releasePointerCapture(e.pointerId);}
 window.addEventListener('pointerup',finishPointerInteraction);window.addEventListener('pointercancel',finishPointerInteraction);
 
@@ -467,8 +477,8 @@ function renderNode(n) {
     el.innerHTML = `<div class="ws-head" data-drag="${n.id}">
         <span class="workspace-mark" style="color:var(--workspace-color)"><span class="ui-icon" data-icon="workspace" aria-hidden="true"></span></span><span class="nm" ondblclick="event.stopPropagation();quickRenameWorkspace(${n.id})" title="双击重命名">${esc(n.title)}</span>
         <span class="cnt" id="ws-cnt-${n.id}"></span>
-        <button onclick="event.stopPropagation();fitWs(${n.id})" title="自动缩放到此工作区"><span class="ui-icon" data-icon="fit" aria-hidden="true"></span>适配</button>
-        <button class="go" onclick="event.stopPropagation();advanceWs(${n.id})" id="ws-go-${n.id}"><span class="ui-icon" data-icon="play" aria-hidden="true"></span>推进</button>
+        <button data-action="fitWs" data-id="${n.id}" title="自动缩放到此工作区"><span class="ui-icon" data-icon="fit" aria-hidden="true"></span>适配</button>
+        <button class="go" data-action="advanceWs" data-id="${n.id}" id="ws-go-${n.id}"><span class="ui-icon" data-icon="play" aria-hidden="true"></span>推进</button>
       </div><div class="ws-handle" data-resize="${n.id}"></div>`;
   } else if (n.kind === 'requirement') {
     el.innerHTML = head('prompt', 'linear-gradient(135deg,#B45309,#F59E0B)', '<span class="rev-chip" id="an-st-${n.id}" style="display:none"></span>') +
@@ -840,10 +850,10 @@ function renderWorkspaceNavigator() {
   list.innerHTML = workspaces.map(ws => {
     const color = workspaceColor(ws.data?.color);
     return `<div class="workspace-nav-item ${ws.id===activeWorkspaceId?'active':''}">
-      <button class="workspace-nav-main" onclick="focusWorkspace(${ws.id})" ondblclick="quickRenameWorkspace(${ws.id})" style="--workspace-color:${color.hex}">
+      <button class="workspace-nav-main" data-action="focusWorkspace" data-id="${ws.id}" ondblclick="quickRenameWorkspace(${ws.id})" style="--workspace-color:${color.hex}">
         <span class="workspace-dot"></span><span class="workspace-nav-name">${esc(ws.title)}</span>
         <span class="workspace-nav-count">${membersOf(ws).length}</span></button>
-      <button class="workspace-nav-edit" onpointerdown="event.stopPropagation();editWorkspace(${ws.id})" onclick="event.stopPropagation();editWorkspace(${ws.id})" title="编辑工作区">•••</button></div>`;
+      <button class="workspace-nav-edit" onpointerdown="event.stopPropagation();editWorkspace(${ws.id})" data-action="editWorkspace" data-id="${ws.id}" title="编辑工作区">•••</button></div>`;
   }).join('');
 }
 function membersOf(ws, options = {}) {
@@ -917,12 +927,96 @@ window.FoxActions = {
   intakeLoadStats: () => window.FoxIntake.loadStats(),
   openZipPicker: () => document.querySelector('#intake-zip-file').click(),
   openClassic: () => window.open('/classic', '_blank'),
+  /* 语义动作：旧内联站点写的是实现细节（zoomBy(1.2)、FoxCanvasProductivity.*），
+   * C6 迁移时升格为语义名——data-action 只认这一张表（或裸全局函数）。 */
+  zoomIn: () => zoomBy(1.2),
+  zoomOut: () => zoomBy(1 / 1.2),
+  undo: () => window.FoxCanvasProductivity?.undo(),
+  redo: () => window.FoxCanvasProductivity?.redo(),
+  openSearch: () => window.FoxCanvasProductivity?.openSearch(),
+  toggleSelectionMode: () => window.FoxCanvasProductivity?.toggleSelectionMode(),
+  toggleLockSelection: () => window.FoxCanvasProductivity?.toggleLockSelection(),
+  groupSelection: () => window.FoxCanvasProductivity?.groupSelection(),
+  ungroupSelection: () => window.FoxCanvasProductivity?.ungroupSelection(),
+  deleteSelection: () => window.FoxCanvasProductivity?.deleteSelection(),
 };
 /* onclick 字符串靠全局名解析，这里把派发表挂上去。
- * 已存在的同名全局不覆盖——真正��工作台函数优先。 */
+ * 已存在的同名全局不覆盖——真正的工作台函数优先。 */
 for (const [name, fn] of Object.entries(window.FoxActions)) {
   if (!(name in window)) window[name] = fn;
 }
+/* C6 · 点击动作统一事件委托（v0.7.8）。
+ * 规则：触发用户动作的元素一律 data-action="动作名"，参数用 data-<key>。
+ * data-* 读出来永远是字符串，而节点 id 等主键是数字——这正是审计 C6
+ * 推迟迁移的原因。答案是把转换收敛到一个点：FOX_ACTION_SIGNATURES，
+ * 声明即契约，按动作声明每个参数的类型：
+ *   'number'  → Number(raw)（节点 id / 修订号等数字主键；=== 比较的安全前提）
+ *   'number?' → 空缺归 null（advanceWs 的「未归属工作区」；id 从 1 起，0 不是合法值）
+ *   'string'  → 原样（candidate_id / 模板 id 等本来就是字符串）
+ * 无签名的动作 = 无参数动作。解析顺序：FoxActions 表 → 裸全局函数。
+ * 两边都不是函数 = 控制台报错并放弃——死按钮在开发期暴露，而非用户
+ * 点击时静默（v0.6.0 intakeFetchBatch 的教训）。
+ * closest() 取最近的 data-action：内层按钮接管后外层容器不再触发。
+ * 这正是旧内联 onclick="event.stopPropagation();…" 的语义替代——
+ * ws-head 的适配/推进按钮与工作区芯片的 ••• 按钮靠它免于误触父级；
+ * 节点选中走 pointerdown（beginNodePointer 已排除 button），不受影响。
+ * <a> 上的动作 preventDefault（classic 的 href="#" 刷新项）。 */
+const FOX_ACTION_SIGNATURES = {
+  delNode: { id: 'number' },
+  renameProject: { id: 'number' },
+  duplicateProject: { id: 'number' },
+  deleteProject: { id: 'number' },
+  openOutput: { id: 'number' },
+  openExportCenter: { id: 'number' },
+  openSlideEditor: { id: 'number' },
+  openRevisionDiff: { id: 'number' },
+  openNodePreview: { id: 'number' },
+  adoptProject: { id: 'number' },
+  openCreatePanel: { id: 'number?' },
+  advanceWs: { id: 'number?' },
+  fitWs: { id: 'number' },
+  focusWorkspace: { id: 'number' },
+  editWorkspace: { id: 'number' },
+  setWorkspaceColor: { id: 'number', color: 'string' },
+  rerunRecipeStage: { id: 'number', stage: 'string' },
+  selectRevision: { revision: 'number' },
+  removeCreationInput: { index: 'number' },
+  toggleMobilePanel: { panel: 'string' },
+  intakeRefresh: { filter: 'string' },
+  intakeBatch: { mode: 'string' },
+  intakeApprove: { id: 'string' },
+  intakeReject: { id: 'string' },
+  intakeTogglePreview: { id: 'string' },
+  intakeAnalyze: { id: 'string' },
+  intakeMakeStylePreset: { id: 'string' },
+  intakeImportComponents: { id: 'string' },
+  intakeImportMotion: { id: 'string' },
+  addGalleryTemplate: { id: 'string' },
+  openGalleryPreview: { id: 'string' },
+  previewGalleryPage: { id: 'string', page: 'string' },
+  openProject: { project: 'string', url: 'string' },
+};
+document.addEventListener('click', event => {
+  const el = event.target.closest('[data-action]');
+  if (!el) return;
+  const name = el.dataset.action;
+  const fn = window.FoxActions?.[name] ?? window[name];
+  if (typeof fn !== 'function') {
+    console.error('[FoxActions] 未登记的点击动作：' + name +
+      '——动作名必须登记在 window.FoxActions 或是全局函数');
+    return;
+  }
+  if (el.tagName === 'A') event.preventDefault();
+  const signature = FOX_ACTION_SIGNATURES[name];
+  const args = signature ? Object.keys(signature).map(key => {
+    const raw = el.dataset[key];
+    const type = signature[key];
+    if (type === 'number') return Number(raw);
+    if (type === 'number?') return (raw == null || raw === '') ? null : Number(raw);
+    return raw == null ? undefined : String(raw);
+  }) : [];
+  fn(...args);
+});
 document.addEventListener('change', event => {
   if (event.target?.id === 'intake-zip-file' && event.target.files?.[0]) {
     window.FoxIntake.importZip(event.target.files[0]);
@@ -1001,7 +1095,7 @@ function recipeRunMarkup(run, nodeId=null) {
       <div class="recipe-stage-dot">${stage.status === 'succeeded' || stage.status === 'reused' ? '✓' : stage.status === 'failed' ? '!' : index + 1}</div>
       <div><div class="recipe-stage-title">${esc(stage.label || stage.label_en || stage.id)}</div>
       <div class="recipe-stage-meta">${esc(recipeStageSummary(stage))}${stage.duration_ms !== null && stage.duration_ms !== undefined ? ' · ' + stage.duration_ms + ' ms' : ''}</div></div>
-      ${nodeId && stage.rerunnable && ['succeeded','failed','reused'].includes(stage.status) ? `<button class="btn btn-secondary" onclick="rerunRecipeStage(${nodeId},'${stage.id}')">重跑</button>` : ''}
+      ${nodeId && stage.rerunnable && ['succeeded','failed','reused'].includes(stage.status) ? `<button class="btn btn-secondary" data-action="rerunRecipeStage" data-id="${nodeId}" data-stage="${stage.id}">重跑</button>` : ''}
     </div>`).join('')}
   </div>`;
 }
@@ -1026,20 +1120,20 @@ function renderInspector() {
       <div class="kv"><span>类型</span><span>${esc(INTENT_LABEL[n.data.intent] || '—')}</span></div>
       <div class="kv"><span>风格</span><span>${esc(n.data.preset_id || '—')}</span></div>
       <div class="kv"><span>版本</span><span id="ins-rev">rev${n.data.revision || 0}</span></div></div>
-      ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" onclick="openSlideEditor(${n.id})">✏️ 编辑幻灯片</button>` : ''}
-      <button class="btn btn-secondary" id="btn-revision-diff" onclick="openRevisionDiff(${n.id})">查看版本差异</button>
+      ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" data-action="openSlideEditor" data-id="${n.id}">✏️ 编辑幻灯片</button>` : ''}
+      <button class="btn btn-secondary" id="btn-revision-diff" data-action="openRevisionDiff" data-id="${n.id}">查看版本差异</button>
       <h3 style="margin-top:14px">运行轨迹</h3>${recipeRunMarkup(n.data.recipe_run, n.id)}
       ${memorySummaryMarkup(n.data.memory_applied)}
-      <button class="btn ${isProjectAdopted(n.data.project_name)?'btn-secondary':'btn-primary'}" style="margin-top:9px;width:100%" onclick="adoptProject(${n.id})" ${isProjectAdopted(n.data.project_name)?'disabled':''}>${isProjectAdopted(n.data.project_name)?'✓ 已采用并学习':'♡ 采用此版本并学习'}</button>
+      <button class="btn ${isProjectAdopted(n.data.project_name)?'btn-secondary':'btn-primary'}" style="margin-top:9px;width:100%" data-action="adoptProject" data-id="${n.id}" ${isProjectAdopted(n.data.project_name)?'disabled':''}>${isProjectAdopted(n.data.project_name)?'✓ 已采用并学习':'♡ 采用此版本并学习'}</button>
       <div class="field"><label>反馈迭代（口语化）</label>
       <textarea id="fb-note" placeholder="颜色深一点，标题大一点，参考 vercel"></textarea></div>
       <button class="btn btn-primary" id="fb-send">⚡ 提交反馈（改 token 重渲染）</button>
-      <div class="field" style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn btn-secondary" onclick="openOutput(${n.id})">↗ 新窗口打开</button><button class="btn btn-primary" onclick="openExportCenter(${n.id})">⇩ 导出 PDF / PNG</button></div>
+      <div class="field" style="margin-top:9px;display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn btn-secondary" data-action="openOutput" data-id="${n.id}">↗ 新窗口打开</button><button class="btn btn-primary" data-action="openExportCenter" data-id="${n.id}">⇩ 导出 PDF / PNG</button></div>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
-        <button class="btn btn-secondary" onclick="renameProject(${n.id})">重命名</button>
-        <button class="btn btn-secondary" onclick="duplicateProject(${n.id})">创建副本</button>
+        <button class="btn btn-secondary" data-action="renameProject" data-id="${n.id}">重命名</button>
+        <button class="btn btn-secondary" data-action="duplicateProject" data-id="${n.id}">创建副本</button>
       </div>
-      <button class="btn btn-danger-ghost" onclick="deleteProject(${n.id})">移入回收站</button>
+      <button class="btn btn-danger-ghost" data-action="deleteProject" data-id="${n.id}">移入回收站</button>
       <h3 style="margin-top:16px">迭代历史</h3><div id="fb-history">${
         (n.data.feedback || []).map(f => `<div class="fb-item"><span class="rev">rev${f.rev}</span>${esc(f.note)}
         <div class="sug">${esc(f.sug || '')}</div></div>`).join('') || '<p class="ins-empty">反馈后记录在这里。</p>'}</div>`;
@@ -1049,21 +1143,21 @@ function renderInspector() {
       <div class="field"><div class="kv"><span>项目</span><span>${esc(n.data.project_name || '')}</span></div>
       <div class="kv"><span>类型</span><span>${esc(INTENT_LABEL[n.data.intent] || '—')}</span></div>
       <div class="kv"><span>风格</span><span>${esc(n.data.preset_id || '—')}</span></div></div>
-      <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn btn-primary" onclick="openOutput(${n.id})">↗ 打开产物</button><button class="btn btn-secondary" onclick="openExportCenter(${n.id})">⇩ 导出</button></div>
-      ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" onclick="openSlideEditor(${n.id})">✏️ 编辑幻灯片</button>` : ''}
-      <button class="btn btn-secondary" id="btn-revision-diff" onclick="openRevisionDiff(${n.id})">查看版本差异</button>
+      <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn btn-primary" data-action="openOutput" data-id="${n.id}">↗ 打开产物</button><button class="btn btn-secondary" data-action="openExportCenter" data-id="${n.id}">⇩ 导出</button></div>
+      ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" data-action="openSlideEditor" data-id="${n.id}">✏️ 编辑幻灯片</button>` : ''}
+      <button class="btn btn-secondary" id="btn-revision-diff" data-action="openRevisionDiff" data-id="${n.id}">查看版本差异</button>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-top:9px">
-        <button class="btn btn-secondary" onclick="renameProject(${n.id})">重命名</button>
-        <button class="btn btn-secondary" onclick="duplicateProject(${n.id})">创建副本</button>
+        <button class="btn btn-secondary" data-action="renameProject" data-id="${n.id}">重命名</button>
+        <button class="btn btn-secondary" data-action="duplicateProject" data-id="${n.id}">创建副本</button>
       </div>
-      <button class="btn btn-danger-ghost" onclick="deleteProject(${n.id})">移入回收站</button>`;
+      <button class="btn btn-danger-ghost" data-action="deleteProject" data-id="${n.id}">移入回收站</button>`;
   } else if (n.kind === 'requirement') {
     box.innerHTML = `<h3>需求节点</h3>
       <div class="field"><label>文字需求（推进时自动拆解）</label><textarea id="ins-text">${esc(n.data.text)}</textarea></div>
       ${(n.data.attachments||[]).length ? `<div class="field"><label>输入附件</label><div class="attachment-chips">${n.data.attachments.map(item=>`<span>${esc(item.name)}</span>`).join('')}</div></div>` : ''}
-      <button class="btn btn-secondary" onclick="openCreatePanel(${n.id})">编辑文字、文件与图片</button>
-      <button class="btn btn-primary" style="margin-top:8px" onclick="advanceWs(${workspaceForNode(n)?.id ?? 'null'})">▶ 在所属工作区推进</button>
-      <button class="btn btn-danger-ghost" style="margin-top:8px" onclick="delNode(${n.id})">删除节点</button>`;
+      <button class="btn btn-secondary" data-action="openCreatePanel" data-id="${n.id}">编辑文字、文件与图片</button>
+      <button class="btn btn-primary" style="margin-top:8px" data-action="advanceWs" data-id="${workspaceForNode(n)?.id ?? ''}">▶ 在所属工作区推进</button>
+      <button class="btn btn-danger-ghost" style="margin-top:8px" data-action="delNode" data-id="${n.id}">删除节点</button>`;
     box.querySelector('#ins-text').oninput = e => {
       n.data.text = e.target.value;
       delete n.data.analysis;
@@ -1075,16 +1169,16 @@ function renderInspector() {
     box.innerHTML = `<h3>工作区设置</h3>
       <div class="field"><label>工作区名称</label><input type="text" id="workspace-name" value="${esc(n.title)}" maxlength="48"></div>
       <div class="field"><label>识别颜色</label><div class="workspace-colors">${WORKSPACE_COLORS.map(color =>
-        `<button class="workspace-color ${String(n.data.color).toLowerCase()===color.hex.toLowerCase()?'on':''}" style="--swatch:${color.hex}" onclick="setWorkspaceColor(${n.id},'${color.hex}')" title="${color.hex}"></button>`).join('')}</div></div>
+        `<button class="workspace-color ${String(n.data.color).toLowerCase()===color.hex.toLowerCase()?'on':''}" style="--swatch:${color.hex}" data-action="setWorkspaceColor" data-id="${n.id}" data-color="${color.hex}" title="${color.hex}"></button>`).join('')}</div></div>
       <div class="kv"><span>配方素材</span><span>${membersOf(n).length}</span></div>
       <div class="kv"><span>生成产物</span><span>${membersOf(n,{includeOutputs:true}).filter(item=>item.kind==='output').length}</span></div>
       <div class="kv"><span>尺寸</span><span>${n.w} × ${n.h}</span></div>
       <p class="ins-empty" style="margin-top:10px">可拖动工作区任意空白区域整体移动；内部素材会保持相对位置。双击画布标题或列表名称也可快速重命名。</p>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-top:10px">
-        <button class="btn btn-secondary" onclick="fitWs(${n.id})">⤢ 定位</button>
-        <button class="btn btn-primary" onclick="advanceWs(${n.id})">▶ 推进</button>
+        <button class="btn btn-secondary" data-action="fitWs" data-id="${n.id}">⤢ 定位</button>
+        <button class="btn btn-primary" data-action="advanceWs" data-id="${n.id}">▶ 推进</button>
       </div>
-      <button class="btn btn-danger-ghost" style="margin-top:8px" onclick="delNode(${n.id})">删除工作区（保留素材）</button>`;
+      <button class="btn btn-danger-ghost" style="margin-top:8px" data-action="delNode" data-id="${n.id}">删除工作区（保留素材）</button>`;
     box.querySelector('#workspace-name').oninput = event => updateWorkspaceTitle(n, event.target.value);
   } else {
     box.innerHTML = `<h3>${kindLabel(n.kind)}素材</h3>
@@ -1092,8 +1186,8 @@ function renderInspector() {
       ${n.data.preset ? `<div class="kv"><span>预设</span><span>${esc(n.data.preset)}</span></div>` : ''}
       ${n.data.hex ? `<div class="kv"><span>主色</span><span>${esc(n.data.hex)}</span></div>` : ''}
       ${n.data.origin ? `<div class="kv"><span>设计来源</span><span>${esc(n.data.origin)}</span></div>` : ''}
-      ${['template','style','block'].includes(n.kind) && (n.data.preview_url || ['template','style'].includes(n.kind)) ? `<button class="btn btn-primary" style="margin-top:10px" onclick="openNodePreview(${n.id})">查看真实 HTML 预览</button>` : ''}
-      <button class="btn btn-danger-ghost" style="margin-top:10px" onclick="delNode(${n.id})">删除节点</button>`;
+      ${['template','style','block'].includes(n.kind) && (n.data.preview_url || ['template','style'].includes(n.kind)) ? `<button class="btn btn-primary" style="margin-top:10px" data-action="openNodePreview" data-id="${n.id}">查看真实 HTML 预览</button>` : ''}
+      <button class="btn btn-danger-ghost" style="margin-top:10px" data-action="delNode" data-id="${n.id}">删除节点</button>`;
   }
 }
 function deleteNodeIds(ids) {

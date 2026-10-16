@@ -81,6 +81,12 @@
     registerWorkbenchCommands();
     prepareCommandPalette();
     scheduleMinimap();
+    /* C6：小地图是画布部件而非用户命令，点击直接绑定本模块——它需要
+     * 原始 click 事件算坐标，不适合 data-action 的参数签名通道。
+     * svg 在重绘时只换 innerHTML，元素自身持久，绑定一次即可。 */
+    document.getElementById('minimap-svg')?.addEventListener('click', event => {
+      window.FoxCanvasProductivity.navigateMinimap(event);
+    });
   }
 
   function restore(entry) {
@@ -304,10 +310,10 @@
       <div class="field"><div class="kv"><span>所在工作区</span><span>${workspaceCount}</span></div>
       <div class="kv"><span>组合</span><span>${groupIds.size ? groupIds.size + ' 组' : '未组合'}</span></div>
       <div class="kv"><span>锁定</span><span>${locked} / ${items.length}</span></div></div>
-      <div class="field selection-actions"><button class="btn btn-secondary" onclick="FoxCanvasProductivity.groupSelection()">组合</button>
-      <button class="btn btn-secondary" onclick="FoxCanvasProductivity.ungroupSelection()">取消组合</button>
-      <button class="btn btn-secondary" onclick="FoxCanvasProductivity.toggleLockSelection()">${locked === items.length ? '解锁' : '锁定'}</button></div>
-      <button class="btn btn-danger-ghost" onclick="FoxCanvasProductivity.deleteSelection()">删除所选节点</button>
+      <div class="field selection-actions"><button class="btn btn-secondary" data-action="groupSelection">组合</button>
+      <button class="btn btn-secondary" data-action="ungroupSelection">取消组合</button>
+      <button class="btn btn-secondary" data-action="toggleLockSelection">${locked === items.length ? '解锁' : '锁定'}</button></div>
+      <button class="btn btn-danger-ghost" data-action="deleteSelection">删除所选节点</button>
       <p class="ins-empty" style="margin-top:10px">拖动任一所选节点可整体移动；按 Shift 点击可继续增减选择。</p>`;
     return true;
   }

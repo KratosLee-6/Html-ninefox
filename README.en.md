@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.7.7-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.7)
+[![App Release](https://img.shields.io/badge/app-v0.7.8-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.8)
 [![Tests](https://img.shields.io/badge/pytest-596%20passed%20%7C%202%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
@@ -17,7 +17,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.7.7`（2026-10-12 发布）· 完整功能与架构见下。
+> 当前应用包版本为 `0.7.8`（2026-10-17 发布）· 完整功能与架构见下。
 
 ---
 
@@ -91,6 +91,7 @@ Windows installer & portable (.exe/.zip), macOS Apple Silicon & Intel (.zip), Li
 
 | Version | Date | In one line |
 |---|---|---|
+| **v0.7.8** | 2026-10-17 | **C6 closed**: all 106 inline onclick handlers migrated to data-action delegation with a typed signature table; also fixed the dead workspace-chip clicks the real-click gate exposed |
 | **v0.7.7** | 2026-10-12 | **Rewrite absorption (paraphrased)**: with an LLM configured, reference pages' prose enters products in rewritten form (what you preview is what you get), gated by a fidelity check; offline behaviour unchanged |
 | **v0.7.6** | 2026-10-12 | **Packaging matrix completed**: new macOS Intel portable and Linux .deb, both booted and verified for real, .deb in the byte-readback gate; app unchanged |
 | **v0.7.5** | 2026-10-12 | **C7 closed**: the workbench's shared `state` gets a seven-key declared schema + read-only `FoxState`, locked by static bidirectional mirror, IIFE scope gate and an execution-level check; the structural backlog is now empty |

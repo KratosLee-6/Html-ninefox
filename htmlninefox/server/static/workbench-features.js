@@ -296,10 +296,10 @@ function openGalleryPreview(itemId, pageId = '') {
   $('#preview-meta').textContent = `${INTENT_LABEL[item.intent]} · ${item.pages.length} 个页面 · ${item.preset_id}`;
   $('#preview-pages').hidden = false;
   $('#preview-pages').innerHTML = `<div class="preview-actions">
-    <button class="btn btn-primary" onclick="addGalleryTemplate('${item.id}')">整套加入工作区</button>
+    <button class="btn btn-primary" data-action="addGalleryTemplate" data-id="${item.id}">整套加入工作区</button>
     <button class="btn btn-secondary" id="preview-extract-page" hidden>抽取当前页面</button>
   </div><p class="gallery-origin">${esc(item.description)}<br>${esc(item.origin)}</p>
-  <div class="preview-page-list">${item.pages.map((page, index) => `<button class="preview-page ${page.id===pageId?'on':''}" data-page-id="${page.id}" onclick="previewGalleryPage('${item.id}','${page.id}')" ondblclick="addGalleryPage('${item.id}','${page.id}')"><b>${String(index+1).padStart(2,'0')}</b><span><strong>${esc(page.name)}</strong><br>${esc(page.headline)}</span></button>`).join('')}</div>`;
+  <div class="preview-page-list">${item.pages.map((page, index) => `<button class="preview-page ${page.id===pageId?'on':''}" data-page-id="${page.id}" data-action="previewGalleryPage" data-id="${item.id}" data-page="${page.id}" ondblclick="addGalleryPage('${item.id}','${page.id}')"><b>${String(index+1).padStart(2,'0')}</b><span><strong>${esc(page.name)}</strong><br>${esc(page.headline)}</span></button>`).join('')}</div>`;
   previewGalleryPage(item.id, pageId);
   window.FoxInteraction?.openDialog('#preview-modal', { initialFocus:'#preview-close' });
 }
@@ -529,7 +529,7 @@ function closeCreatePanel() {
 }
 
 function renderCreationInputs() {
-  $('#creation-input-list').innerHTML = creationDraft.inputs.map((item, index) => `<div class="input-item"><span>${esc(item.name)}<br><small>${esc(item.kind)} · ${Math.ceil((item.size || 0)/1024)}KB</small></span><button onclick="removeCreationInput(${index})">×</button></div>`).join('');
+  $('#creation-input-list').innerHTML = creationDraft.inputs.map((item, index) => `<div class="input-item"><span>${esc(item.name)}<br><small>${esc(item.kind)} · ${Math.ceil((item.size || 0)/1024)}KB</small></span><button data-action="removeCreationInput" data-index="${index}">×</button></div>`).join('');
 }
 
 function removeCreationInput(index) {
@@ -588,7 +588,7 @@ async function analyzeCreation() {
       <div class="recommend-preview"><iframe src="${esc(item.preview_url)}" sandbox="allow-scripts allow-same-origin"></iframe></div>
       <div class="analysis-chips">${item.pages.map(page => `<span>${esc(page.name)}</span>`).join('')}</div>
       ${memorySummaryMarkup(analysis.memory_applied)}
-      <div class="flow-actions"><button class="btn btn-primary" onclick="adoptRecommendedAndGenerate()">采用推荐并生成</button><button class="btn btn-secondary" onclick="sendToCustomWorkspace()">进入工作区自定义</button><button class="btn btn-ghost" onclick="openGalleryPreview('${item.id}')">查看全部页面</button></div>`;
+      <div class="flow-actions"><button class="btn btn-primary" data-action="adoptRecommendedAndGenerate">采用推荐并生成</button><button class="btn btn-secondary" data-action="sendToCustomWorkspace">进入工作区自定义</button><button class="btn btn-ghost" data-action="openGalleryPreview" data-id="${item.id}">查看全部页面</button></div>`;
   } catch (error) {
     $('#creation-analysis').className = 'analysis-empty';
     $('#creation-analysis').textContent = '分析失败：' + error.message;

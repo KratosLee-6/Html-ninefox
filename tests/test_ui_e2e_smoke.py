@@ -533,12 +533,12 @@ def test_no_uncaught_page_errors_across_a_full_workbench_journey(workbench_serve
         # 产物检查器上（这是"点了没反应"最常见的一种原因）。
         # 按 onclick 定位而不是按按钮文案：文案在检查器的两个分支里不一样。
         page.evaluate("id => select(id)", node_id)
-        page.locator('#inspector button[onclick*="openExportCenter"]').click()
+        page.locator('#inspector button[data-action="openExportCenter"]').click()
         after("点开导出中心")
         page.wait_for_function(
             "document.querySelector('#export-status').textContent === '分析完成，可以导出'",
             timeout=60000)
-        page.locator('#export-modal .preview-bar button[onclick="closeExportCenter()"]').click()
+        page.locator('#export-modal .preview-bar button[data-action="closeExportCenter"]').click()
         page.wait_for_selector("#export-modal", state="hidden", timeout=20000)
         after("关闭导出中心")
 
@@ -570,7 +570,7 @@ def test_no_uncaught_page_errors_across_a_full_workbench_journey(workbench_serve
         page.wait_for_function(
             "document.querySelector('#revision-summary').textContent.length > 0", timeout=30000)
         after("打开版本历史")
-        page.locator('#revision-modal button[onclick="closeRevisionDiff()"]').click()
+        page.locator('#revision-modal button[data-action="closeRevisionDiff"]').click()
         page.wait_for_selector("#revision-modal", state="hidden", timeout=20000)
         after("关闭版本历史")
 
