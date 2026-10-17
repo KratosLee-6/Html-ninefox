@@ -346,6 +346,12 @@
 .intake-dialog .flow-body { display:grid; gap:var(--space-3); }
 
 .intake-preview { width:100%; height:320px; border:1px dashed var(--border-default); background:#fff; }
+.intake-blocks { width:100%; border:1px dashed var(--border-default); border-top:none; background:var(--surface-raised, #fff); padding:10px; display:grid; gap:8px; }
+.intake-blocks-head { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:.85rem; color:var(--text-muted, #5a6473); }
+.intake-block { display:grid; grid-template-columns:auto 1fr; gap:4px 8px; align-items:baseline; padding:6px 8px; border:1px solid var(--border-subtle, #e5e2d8); border-radius:8px; }
+.intake-block-content { grid-column:1 / -1; font-size:.85rem; color:var(--text-secondary, #3c4552); }
+.intake-block-content.dim, .intake-block.dim { color:var(--text-muted, #5a6473); }
+.intake-badge.para { background:rgba(73,184,148,.14); color:#1f6f57; border-color:rgba(73,184,148,.4); }
 
 .intake-stats { font-size:var(--fs-md); color:var(--text-secondary); }
 

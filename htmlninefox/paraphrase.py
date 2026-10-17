@@ -18,6 +18,7 @@
 """
 from __future__ import annotations
 
+import inspect
 import re
 
 from typing import Callable, Optional
@@ -84,16 +85,45 @@ def make_llm_rewriter(router) -> Callable[[str, str], Optional[str]]:
     任何失败（未配置、网络、超时、空响应）都归一为 None，由许可规则层
     回落 structure_only。这里**不做**忠实度判定——那是 intake 的职责。
     """
-    def rewriter(source: str, heading: str = "") -> Optional[str]:
+    def rewriter(source: str, heading: str = "", *, use_cache: bool = True) -> Optional[str]:
         if not source or not source.strip():
             return None
         try:
             result = router.call(
                 rewrite_prompt(source, heading),
                 agent="brief_expert", task="paraphrase",
-                temperature=0.4, max_tokens=2048, use_cache=True)
+                temperature=0.4, max_tokens=2048, use_cache=use_cache)
         except Exception:  # noqa: BLE001 - 未配置/网络/限额一律静默回落
             return None
         text = str(result).strip() if result is not None else ""
         return text or None
     return rewriter
+
+
+def _accepts_use_cache(rewriter: Callable) -> bool:
+    """改写器是否有缓存旁路形参。判定用签名，不靠 TypeError——与
+    intake._call_transport 同一纪律：靠 TypeError 会把改写器**内部**的
+    TypeError 吞成「不支持」，静默改变重试语义。"""
+    try:
+        params = inspect.signature(rewriter).parameters
+    except (TypeError, ValueError):
+        return False
+    if any(p.kind is inspect.Parameter.VAR_KEYWORD for p in params.values()):
+        return True
+    return any(p.kind is inspect.Parameter.KEYWORD_ONLY and p.name == "use_cache"
+               for p in params.values())
+
+
+def retrying(rewriter: Callable) -> Callable:
+    """显式重改：绕过 LLM 缓存重新生成（「重新改写」按钮的语义）。
+
+    有 use_cache 形参的改写器被包成 use_cache=False 的调用；没有该形参的
+    （测试替身/自定义运输层）本来就不存在可跳过的缓存，原样返回——
+    行为如实，不假装绕过了什么。
+    """
+    if not _accepts_use_cache(rewriter):
+        return rewriter
+
+    def retried(source: str, heading: str = "") -> Optional[str]:
+        return rewriter(source, heading, use_cache=False)
+    return retried

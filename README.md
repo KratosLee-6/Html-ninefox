@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.7.8-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.7.8)
+[![App Release](https://img.shields.io/badge/app-v0.8.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.0)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.7.8`（2026-10-17 发布）· 完整功能与架构见下。
+> 当前应用包版本为 `0.8.0`（2026-10-17 发布）· 完整功能与架构见下。
 
 ---
 
@@ -169,6 +169,7 @@ Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.8.0** | 2026-10-17 | **DOCX 语义导出**：doc/archdoc 全文 / deck 讲义，降级清单如实；paraphrased「重新改写」；导出矩阵补上 Word 这一格 |
 | **v0.7.8** | 2026-10-17 | **C6 收口**：106 处内联 onclick 全量迁 data-action 委托，类型签名表守住「字符串 vs 数字 id」；顺带修掉真点击门禁暴露的芯片点击失灵 |
 | **v0.7.7** | 2026-10-12 | **改写吸收（paraphrased）**：配置 LLM 后，参考类网页正文以改写形态进入产物（预览即所得），忠实度门禁防假标签；离线行为不变 |
 | **v0.7.6** | 2026-10-12 | **打包矩阵补齐**：新增 macOS Intel 便携包与 Linux .deb，两平台产物真实启动验证、.deb 进字节级回读；应用零变化 |

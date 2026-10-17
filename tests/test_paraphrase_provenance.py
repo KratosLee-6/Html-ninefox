@@ -152,6 +152,53 @@ def test_service_without_a_rewriter_stays_structure_only(service, monkeypatch):
     assert all(b["content"] == "" for b in result["blocks"])
 
 
+# ------------------------------------------------- v0.8.0「重新改写」重试
+
+def test_retrying_bypasses_cache_for_cache_aware_rewriters():
+    captured = []
+
+    def cache_aware(source, heading="", *, use_cache=True):
+        captured.append(use_cache)
+        return REWRITE
+
+    wrapped = paraphrase.retrying(cache_aware)
+    assert wrapped is not cache_aware, "缓存感知改写器必须被包装"
+    wrapped(SOURCE, "标题")
+    assert captured == [False], f"重试未绕过缓存：use_cache={captured}"
+
+
+def test_retrying_passes_through_rewriters_without_a_cache_seam():
+    """无 use_cache 形参的改写器（测试替身/自定义运输层）本就无可跳过的
+    缓存——原样返回，行为如实，不假装绕过了什么。"""
+    def plain(source, heading):
+        return REWRITE
+
+    assert paraphrase.retrying(plain) is plain
+
+
+def test_service_retry_paraphrase_bypasses_cache_and_reports(monkeypatch, service):
+    seen = []
+
+    def cache_aware(source, heading="", *, use_cache=True):
+        seen.append(use_cache)
+        return REWRITE
+
+    monkeypatch.setattr(service, "rewriter", cache_aware)
+    cid = _stub_fetch_and_approve(service, monkeypatch, licence="reference")
+    result = service.page_blocks({"candidate_id": cid, "retry_paraphrase": True})
+    assert result["retried"] is True, "retried 标记未透出"
+    assert seen == [False], f"重试没有绕过缓存：use_cache={seen}"
+    assert any(b["provenance"] == "paraphrased" for b in result["blocks"])
+
+
+def test_service_retry_without_a_rewriter_stays_offline(monkeypatch, service):
+    cid = _stub_fetch_and_approve(service, monkeypatch, licence="reference")
+    result = service.page_blocks({"candidate_id": cid, "retry_paraphrase": True})
+    assert result["retried"] is True and result["paraphrased"] is False, \
+        "未配置改写器时重改必须如实回落 structure_only（离线承诺）"
+    assert all(b["content"] == "" for b in result["blocks"])
+
+
 # ------------------------------------------------------- 运输层的失败归一
 
 def test_the_llm_transport_normalises_every_failure_to_none():

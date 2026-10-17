@@ -71,7 +71,7 @@ CONTENT_EXPECTATIONS: tuple[tuple[str, tuple[str, ...]], ...] = (
     # 夜蓝主题主按钮对比度修复引入的语义令牌
     ("/", ("--on-accent",)),
     # 导出中心的 PPTX 选项（此前根本没登记）
-    ("/", ("export-format", "PPTX")),
+    ("/", ("export-format", "PPTX", "DOCX")),
     # 动作派发表，以及批量抓取这个动作的实现。
     #
     # 两者**都不在 index.html 里了**。C7 抽离后 81,375 字符的内核整块搬进了

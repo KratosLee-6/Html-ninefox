@@ -4,7 +4,8 @@
   M1 忠实度门禁放水（paraphrased 退化成带假标签的 verbatim）
   M2 改写块被标成 verbatim（许可语义被污染）
   M3 open 路径开始调用改写器（verbatim 语义与开销被破坏）
-  M4 service 掉线改写器（接线断路，能力静默消失）
+  M4 service 掉线改写器（接线断路）
+  M5 重改包装被拆（retry 不绕缓存）
 
   python scripts/mutate_paraphrase_gates.py
 """
@@ -27,7 +28,11 @@ PARA_LABEL = '                provenance, carried = "paraphrased", attempt.strip
 VERA_LABEL = '                provenance, carried = "verbatim", attempt.strip()'
 ELIGIBLE = "        elif rewriter is not None and content_text.strip():"
 ALWAYS = "        if rewriter is not None and content_text.strip():"
-SERVICE_WIRE = "            candidate, raw.decode(\"utf-8\", \"replace\"), rewriter=self.rewriter)"
+SERVICE_WIRE = "            candidate, raw.decode(\"utf-8\", \"replace\"), rewriter=rewriter)"
+RETRY_WIRE = ("        if retry and rewriter is not None:\n"
+              "            rewriter = paraphrase.retrying(rewriter)")
+RETRY_DEAD = ("        if retry and rewriter is not None:\n"
+              "            pass  # MUTATED: 重试包装被拆")
 SERVICE_CUT = "            candidate, raw.decode(\"utf-8\", \"replace\"), rewriter=None)"
 
 
@@ -64,6 +69,10 @@ def main() -> int:
              lambda: SERVICE.write_text(
                  originals[SERVICE].replace(SERVICE_WIRE, SERVICE_CUT, 1),
                  encoding="utf-8")),
+            ("M5 重改包装被拆（retry 不绕缓存）",
+             lambda: SERVICE.write_text(
+                 originals[SERVICE].replace(RETRY_WIRE, RETRY_DEAD, 1),
+                 encoding="utf-8")),
         ):
             mutate()
             code = run_gates()
@@ -76,7 +85,7 @@ def main() -> int:
     finally:
         for path, text in originals.items():
             path.write_text(text, encoding="utf-8")
-    print(f"\n{4 - len(bad)}/4 CAUGHT" + (f"；未抓到：{bad}" if bad else ""))
+    print(f"\n{5 - len(bad)}/5 CAUGHT" + (f"；未抓到：{bad}" if bad else ""))
     return 1 if bad else 0
 
 

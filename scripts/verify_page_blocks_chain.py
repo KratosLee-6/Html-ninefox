@@ -224,6 +224,12 @@ def run(out_root, server_app):
         html3 = (Path(gen3["project"]) / "output.html").read_text(encoding="utf-8")
         check("paraphrased：产物携带改写文本，原文一字不现",
               REWRITE_A in html3 and ALPHA not in html3 and BETA not in html3)
+        pb3_retry = api("POST", "/api/intake/page-blocks",
+                        {"candidate_id": cid3, "retry_paraphrase": True})
+        check("paraphrased 重改（v0.8.0）：retried 如实、改写仍随行",
+              pb3_retry["retried"] is True and pb3_retry["paraphrased"] is True
+              and all(b["content"] in (REWRITE_A, REWRITE_B)
+                      for b in pb3_retry["blocks"] if b["provenance"] == "paraphrased"))
     finally:
         server_app._PARAPHRASE_REWRITER = _rewriter_backup
 

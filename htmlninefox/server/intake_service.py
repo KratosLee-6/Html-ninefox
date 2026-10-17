@@ -21,7 +21,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, Optional
 
-from .. import intake
+from .. import intake, paraphrase
 from ..user_gallery import UserGalleryError
 from .storage import StoreError
 
@@ -175,16 +175,22 @@ class IntakeService:
 
         v0.7.7：配置了 rewriter 时，reference 类正文尝试改写为
         `paraphrased`（预览即所得——用户选择的就是改写后的文本）；否则
-        structure_only。忠实度判定在 intake 层，这里只运输名字。"""
+        structure_only。忠实度判定在 intake 层，这里只运输名字。
+        v0.8.0：`retry_paraphrase: true` 时绕过 LLM 缓存重新改写（审核台
+        「重新改写」按钮），响应带 `retried` 供前端与门禁断言。"""
         candidate_id = str(body.get("candidate_id") or "")
         store = self.candidates()
         candidate = store.get(candidate_id)
         if candidate.get(intake.CandidateKeys.STATUS) != "approved":
             raise StoreError("intake_candidate_not_approved",
                              "只有已采纳的候选才能拆成分区", 409)
+        retry = bool(body.get("retry_paraphrase"))
+        rewriter = self.rewriter
+        if retry and rewriter is not None:
+            rewriter = paraphrase.retrying(rewriter)
         raw = store.body(candidate_id)
         blocks = intake.page_blocks_from_candidate(
-            candidate, raw.decode("utf-8", "replace"), rewriter=self.rewriter)
+            candidate, raw.decode("utf-8", "replace"), rewriter=rewriter)
         return {
             "ok": True,
             "candidate": candidate,
@@ -194,6 +200,7 @@ class IntakeService:
                                 for b in blocks),
             "paraphrased": any(b.get("provenance") == "paraphrased"
                                for b in blocks),
+            "retried": retry,
             "block_notes": "从页面拆出的分区；结构与顺序可用，正文在开放许可时"
                            "随行（verbatim），配置改写后参考类正文以改写形态随行"
                            "（paraphrased），否则仅结构（structure_only）",

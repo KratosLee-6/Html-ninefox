@@ -42,7 +42,7 @@ STATIC_ROUTES = ("/workbench-system.css", "/lifecycle-intake.js",
 # lifecycle 模块上，而不是曾经承载过它们的 / 上。
 CONTENT_EXPECTATIONS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("/workbench-system.css", ("--fs-", "--fw-", "--space-")),
-    ("/", ("--on-accent", "Html九尾狐")),
+    ("/", ("--on-accent", "Html九尾狐", "DOCX")),
     ("/fox-core.js", ("window.FoxActions", "window.FoxState")),
     ("/lifecycle-slides.js", ("expected_revision",)),
     ("/lifecycle-intake.js", ("fetchBatch",)),

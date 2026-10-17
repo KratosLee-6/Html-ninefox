@@ -97,6 +97,7 @@
                <button class="btn btn-secondary" id="intake-analyze-${esc(item.candidate_id)}" data-action="intakeAnalyze" data-id="${esc(item.candidate_id)}">🤖 AI 分析</button>`
             : `${item.status === 'approved'
                 ? `<button class="btn btn-secondary" data-action="intakeMakeStylePreset" data-id="${esc(item.candidate_id)}">🎨 生成风格预设</button>` +
+                  `<button class="btn btn-secondary" data-action="intakeShowBlocks" data-id="${esc(item.candidate_id)}">🧩 拆块预览</button>` +
                   (item.kind === 'components' ? `<button class="btn btn-secondary" data-action="intakeImportComponents" data-id="${esc(item.candidate_id)}">🧩 导入组件</button>` : '') +
                   (item.kind === 'motion' ? `<button class="btn btn-secondary" data-action="intakeImportMotion" data-id="${esc(item.candidate_id)}">✨ 吸收动效</button>` : '')
                 : `<span class="intake-status">已拒绝</span>`}`}
@@ -104,6 +105,7 @@
         <iframe class="intake-preview" id="intake-preview-${esc(item.candidate_id)}" hidden
           sandbox title="${esc(item.title)} 预览"
           src="/api/intake/candidates/${esc(item.candidate_id)}/preview"></iframe>
+        <div class="intake-blocks" id="intake-blocks-${esc(item.candidate_id)}" hidden></div>
       </div>`;
     }).join('');
   }
@@ -179,6 +181,46 @@
       }
     };
     reader.readAsDataURL(file);
+  }
+
+  function renderBlocksPanel(candidateId, result) {
+    const host = document.getElementById('intake-blocks-' + candidateId);
+    if (!host) return;
+    const badges = { verbatim: '原文', paraphrased: '改写', structure_only: '仅结构' };
+    const rows = (result.blocks || []).map(block => {
+      const badge = badges[block.provenance] || block.provenance;
+      const content = block.content
+        ? `<div class="intake-block-content">${esc(String(block.content).slice(0, 200))}</div>`
+        : '<div class="intake-block-content dim">（正文未随行）</div>';
+      return `<div class="intake-block"><span class="intake-badge ${block.provenance === 'paraphrased' ? 'para' : 'dim'}">${badge}</span><b>${esc(block.heading || '')}</b>${content}</div>`;
+    }).join('');
+    const retry = result.paraphrased
+      ? `<button class="btn btn-secondary" data-action="intakeRetryParaphrase" data-id="${esc(candidateId)}">🔄 重新改写</button>`
+      : '';
+    host.innerHTML = `<div class="intake-blocks-head"><span>生成块预览 · ${result.blocks?.length || 0} 块 · ${result.retried ? '本次为重新改写' : '首次拆块'}</span>${retry}</div>${rows || '<div class="intake-block dim">无可拆内容</div>'}`;
+    host.hidden = false;
+  }
+
+  async function showBlocks(candidateId) {
+    const host = document.getElementById('intake-blocks-' + candidateId);
+    if (host && !host.hidden) { host.hidden = true; return; }
+    try {
+      const result = await post('/api/intake/page-blocks', { candidate_id: candidateId });
+      renderBlocksPanel(candidateId, result);
+    } catch (error) {
+      flash('拆块失败：' + error.message, false);
+    }
+  }
+
+  async function retryParaphrase(candidateId) {
+    try {
+      const result = await post('/api/intake/page-blocks',
+        { candidate_id: candidateId, retry_paraphrase: true });
+      renderBlocksPanel(candidateId, result);
+      flash(result.paraphrased ? '✓ 已重新改写（绕过缓存）' : '改写不可用：未配置 LLM 或改写未通过忠实度检查', result.paraphrased);
+    } catch (error) {
+      flash('重新改写失败：' + error.message, false);
+    }
   }
 
   async function approve(candidateId) {
@@ -330,6 +372,6 @@
 
   window.FoxIntake = {
     open, close, refresh, preload, loadStats, fetchCandidate, fetchBatch, importZip,
-    approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply, analyze, importComponents, importMotion, makeStylePreset,
+    approve, reject, togglePreview, toggleSelect, selectAllPending, batchApply, analyze, importComponents, importMotion, makeStylePreset, showBlocks, retryParaphrase,
   };
 })();

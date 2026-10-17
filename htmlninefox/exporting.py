@@ -19,7 +19,9 @@ from . import pipeline
 from . import pptx_export
 from .server.storage import ProjectStore, StoreError
 
-SUPPORTED_FORMATS = ("pdf", "png", "pptx")
+SUPPORTED_FORMATS = ("pdf", "png", "pptx", "docx")
+# DOCX 只适合文字型产物与 deck 讲义；视觉型在此拒绝并引导 PDF/PNG。
+DOCX_SUITED_INTENTS = ("doc", "archdoc", "deck")
 PAPER_FORMATS = ("A4", "Letter", "A3")
 _PAGE_LIMIT = 200
 _FREEZE_CSS = """
@@ -78,6 +80,7 @@ def runtime_capabilities() -> dict[str, Any]:
     return {
         "engine": "playwright-chromium",
         "package_ready": package_ready,
+        "docx_ready": importlib.util.find_spec("docx") is not None,
         "detected_browsers": browsers,
         "formats": list(SUPPORTED_FORMATS),
         "local_only": True,
@@ -148,7 +151,7 @@ def normalize_export_request(payload: dict[str, Any]) -> dict[str, Any]:
         raise StoreError("export_project_required", "请选择需要导出的项目", 400)
     export_format = str(payload.get("format") or "pdf").lower()
     if export_format not in SUPPORTED_FORMATS:
-        raise StoreError("export_format_unsupported", "当前版本支持 PDF、PNG 和 PPTX（deck 产物）", 400,
+        raise StoreError("export_format_unsupported", "当前版本支持 PDF、PNG、PPTX（deck 产物）和 DOCX（doc/archdoc/deck）", 400,
                          {"supported": list(SUPPORTED_FORMATS)})
     scope = str(payload.get("scope") or "auto").lower()
     if scope not in {"auto", "pages", "long"}:
@@ -182,6 +185,8 @@ def export_project(root: str | Path, payload: dict[str, Any]) -> dict[str, Any]:
     project = Path(manifest["project_path"])
     if request["format"] == "pptx":
         return _export_pptx(project, request, manifest)
+    if request["format"] == "docx":
+        return _export_docx(project, request, manifest)
     html_path = project / manifest["source_file"]
     export_id = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + uuid.uuid4().hex[:6]
     exports_root = project / "exports"
@@ -572,6 +577,73 @@ def _file_result(project_name: str, export_id: str, path: Path) -> dict[str, Any
         "bytes": path.stat().st_size,
         "download_url": f"/output/{relative}?download=1",
         "preview_url": f"/output/{relative}",
+    }
+
+
+def _export_docx(project: Path, request: dict[str, Any], manifest: dict[str, Any]) -> dict[str, Any]:
+    """DOCX path: no browser; doc/archdoc map semantically, deck becomes a handout.
+
+    Visual-first intents get honest guidance toward PDF/PNG instead of a
+    misshapen Word file — the option stays visible so the reason is readable.
+    """
+    from . import docx_export as bridge
+
+    intent = manifest.get("intent", "")
+    if intent not in DOCX_SUITED_INTENTS:
+        raise StoreError(
+            "docx_intent_unsuited",
+            f"Word 导出适合文字型产物（doc/archdoc 全文）与 deck 讲义；"
+            f"当前产物是 {intent or '未知类型'}，视觉版式请使用 PDF / PNG 高保真导出",
+            400, {"intent": intent, "suggested": ["pdf", "png"]})
+    project_path = Path(manifest["project_path"])
+    if intent == "deck":
+        info = bridge.export_deck_handout_docx(project_path)
+    else:
+        info = bridge.export_document_docx(project_path)
+    target = Path(info["file"])
+    export_id = target.parent.name
+    warnings = [item for item in manifest.get("warnings", []) if item.get("level") != "error"]
+    degraded = info.get("degraded", {})
+    flattened = degraded.get("flattened") or []
+    if flattened:
+        warnings.append({"code": "docx_flattened", "level": "warning",
+                         "message": f"Word 中不重现的视觉元素 {len(flattened)} 项，详见报告"})
+    if degraded.get("external_images"):
+        warnings.append({"code": "docx_external_images", "level": "warning",
+                         "message": f"外链图片 {len(degraded['external_images'])} 张未内嵌（离线承诺），详见报告"})
+    report = {
+        "schema_version": 1,
+        "export_id": export_id,
+        "created_at": info["generated_at"],
+        "source": {"project_name": manifest["project_name"], "file": manifest.get("source_file", ""),
+                   "intent": manifest.get("intent", ""), "preset_id": manifest.get("preset_id", "")},
+        "request": request,
+        "browser": {"engine": "python-docx", "source": "file-bridge"},
+        "warnings": warnings,
+        "files": [{"name": target.name, "bytes": target.stat().st_size}],
+        "docx": {"mode": info.get("mode"), "mapped": info.get("mapped"),
+                 "degraded": degraded, "notes": info.get("notes", [])},
+    }
+    (target.parent / "export-report.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    relative = "/".join(quote(item, safe="") for item in
+                        (manifest["project_name"], "exports", export_id))
+    file_result = {
+        "name": target.name, "bytes": target.stat().st_size,
+        "download_url": f"/output/{relative}/{target.name}?download=1",
+        "preview_url": f"/output/{relative}/{target.name}",
+    }
+    report_entry = dict(file_result); report_entry["name"] = "export-report.json"
+    report_entry["download_url"] = f"/output/{relative}/export-report.json?download=1"
+    return {
+        "project_name": manifest["project_name"],
+        "export_id": export_id,
+        "format": "docx",
+        "files": [report_entry, file_result],
+        "report": {"name": "export-report.json", "bytes": len(json.dumps(report))},
+        "warnings": warnings,
+        "compatibility_score": manifest["compatibility_score"],
+        "browser": {"source": "python-docx"},
     }
 
 

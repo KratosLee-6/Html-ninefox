@@ -11,6 +11,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-10-17 · DOCX 语义导出 + paraphrased 重新改写（v0.8 开篇）
+
+> 新能力。HTTP 接口新增 `docx` 导出格式与 `retried` 响应字段；项目数据
+> 格式不变。规划见 `docs/PLAN-v0.8.md`，产品北极星见 `docs/VISION.md`。
+
+**Added**
+- **DOCX 语义导出**（导出中心 v0.4 设计文本预告的最后一格）：
+  - `htmlninefox/docx_export.py`：`python-docx` 可选 extra `[docx]`
+    （未装如实提示 `pip install 'htmlninefox[docx]'`，离线承诺不破）；
+  - 语义映射 v1（宁小勿假）：h1–h6 → Heading 1–6、段落、ul/ol 列表、
+    表格（Table Grid）、data: URI 内嵌图片、引用、hr 分隔线、pre/code
+    等宽段落；**降级清单如实上市**——外链图片不抓取（离线承诺）、CSS
+    配色/字体/布局不映射、非语义容器文本计数上报、chrome（nav/footer/
+    按钮等）单独计数不混入内容；
+  - 按意图分工：doc/archdoc → 全文语义版；deck → 讲义式大纲（复用
+    PPTX 页解析）；landing/poster/dashboard → 400 引导 PDF/PNG
+    （`docx_intent_unsuited`，选项可见、原因可读）；
+  - 导出中心加 Word 选项（按意图显隐），兼容性报告覆盖 docx。
+- **paraphrased「重新改写」**：`/api/intake/page-blocks` 增
+  `retry_paraphrase` 参数（绕过 LLM 缓存重算，`retrying()` 包装——
+  缓存感知判定用签名不靠 TypeError）；响应带 `retried`。审核台
+  已采纳候选新增**拆块预览面板**（provenance 徽标 + 内容预览），面板内
+  paraphrased 块可一键「🔄 重新改写」——补上 v0.7.0 交付的 API seam
+  缺失的 UI 消费端。
+
+**门禁**
+- `tests/test_docx_export.py`（9 条）：python-docx 回读逐项断言（标题
+  层级/列表样式/引用/表格/内嵌图）；**降级清单完整性**（声称保留的计数
+  == 源数量 == 回读计数；声称丢弃的真不在文档里）；deck 讲义回读；
+  意图守卫 400；未装 extra 的 pip 提示；**无依赖 zip 冒烟**（标准库读
+  document.xml，永不跳过）；capabilities 与伺服页面带 DOCX 选项。
+- paraphrased 门禁扩至 12 条：retrying 绕缓存/无缓存缝透传/service
+  retried 标记与绕缓存/未配置时重改如实回落。
+- 真链验收扩至 **18/18**（重改：retried 如实、改写仍随行）。
+- 变异：`mutate_docx_gates.py` 3/3 CAUGHT（表格映射拆/降级清单说谎/
+  意图守卫拆）；`mutate_paraphrase_gates.py` 扩至 5/5 CAUGHT（新增
+  重改包装被拆；M4 目标随 v0.8.0 重构同步更新）。
+- 内容标记：冻结包伺服页面新增 `DOCX` 断言（Windows/unix 双验证器），
+  陈旧产物在发布回读时被抓住。
+
 ## [0.7.8] — 2026-10-17 · C6 收口：点击动作统一事件委托
 
 > 结构升级（前端）。HTTP 接口、项目数据、动作语义**均未改变**。

@@ -50,6 +50,9 @@
     // anything else, so keep the option hidden instead of offering a failure.
     const pptxOption = document.querySelector('#export-format-pptx');
     if (pptxOption) pptxOption.hidden = manifest.intent !== 'deck';
+    // DOCX 只对文字型产物与 deck 讲义有意义；视觉型保持隐藏（选项原因见 PLAN-v0.8）。
+    const docxOption = document.querySelector('#export-format-docx');
+    if (docxOption) docxOption.hidden = !['doc', 'archdoc', 'deck'].includes(manifest.intent);
     const formatSelect = $('#export-format');
     const recommended = manifest.recommended?.format || 'pdf';
     formatSelect.value = (recommended === 'pptx' && manifest.intent !== 'deck') ? 'pdf' : recommended;
@@ -63,12 +66,12 @@
   function syncOptions() {
     const format = $('#export-format').value;
     const image = format === 'png';
-    const pptx = format === 'pptx';
+    const fileBridge = format === 'pptx' || format === 'docx';
     $('#export-scale-field').hidden = !image;
-    $('#export-paper-field').hidden = image || pptx;
-    $('#export-landscape-field').hidden = image || pptx;
+    $('#export-paper-field').hidden = image || fileBridge;
+    $('#export-landscape-field').hidden = image || fileBridge;
     const pagesField = $('#export-pages')?.closest('.flow-field');
-    if (pagesField) pagesField.hidden = pptx;
+    if (pagesField) pagesField.hidden = fileBridge;
   }
 
   async function start() {
