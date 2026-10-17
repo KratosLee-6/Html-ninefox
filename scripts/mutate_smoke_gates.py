@@ -74,7 +74,7 @@ MUTATIONS = [
     # 8. export stops reporting what it can produce.
     ("M8 runtime stops reporting pdf",
      "htmlninefox/exporting.py",
-     'SUPPORTED_FORMATS = ("pdf", "png", "pptx")',
+     'SUPPORTED_FORMATS = ("pdf", "png", "pptx", "docx")',
      'SUPPORTED_FORMATS = ()'),
     # 9. The v0.6.2 shape proper: the whole fetch raises, so the feature is
     #    100% dead while a rejection-only suite stays green. If the smoke
