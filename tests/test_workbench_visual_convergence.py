@@ -63,9 +63,15 @@ def test_workbench_convergence_layout_icons_and_semantic_zoom(workbench_server):
             "document.querySelector('.canvas-wrap')"
             "?.getAttribute('data-canvas-density') === 'overview'",
             timeout=10000)
+        # Vue/Playwright 细节：wait_for_function 里任何异常都会让等待立即失败（不重试）。
+        # 这里先等节点真的挂上 DOM，再读计算样式；querySelector 返回 null 时
+        # getComputedStyle(null) 抛 TypeError，会表现成随机红的「flaky gate」。
         page.wait_for_function(
-            "getComputedStyle(document.querySelector('#node-2 .node-body'))"
-            ".display === 'none'", timeout=10000)
+            "() => !!document.querySelector('#node-2 .node-body')", timeout=10000)
+        page.wait_for_function(
+            "() => { const el = document.querySelector('#node-2 .node-body');"
+            " return !!el && getComputedStyle(el).display === 'none'; }",
+            timeout=10000)
 
         page.evaluate("camera.z=1; applyCamera(false,false)")
         page.wait_for_function(
@@ -73,8 +79,9 @@ def test_workbench_convergence_layout_icons_and_semantic_zoom(workbench_server):
             "?.getAttribute('data-canvas-density') === 'detail'",
             timeout=10000)
         page.wait_for_function(
-            "getComputedStyle(document.querySelector('#node-2 .node-body'))"
-            ".display !== 'none'", timeout=10000)
+            "() => { const el = document.querySelector('#node-2 .node-body');"
+            " return !!el && getComputedStyle(el).display !== 'none'; }",
+            timeout=10000)
 
         page.set_viewport_size({"width": 768, "height": 1024})
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
