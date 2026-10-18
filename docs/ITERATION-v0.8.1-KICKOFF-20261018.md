@@ -44,9 +44,39 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 
 > 这一跑暴露了一个真实缺陷：第一个 Heading1 是「目录」，直接拿它当标题会让整份提案在审核台上显示成「目录」。已改为「core.xml 的 dc:title → 第一个非目录标题」，并补了门禁。
 
-### 1.3 门禁
+### 1.3 统一契约 `intake_outline`（KX 2026-10-18 定：统一收敛）
 
-`tests/test_docx_import.py` **9 条**：标题/段落/列表层级/表格行列/图片资产/bytes 与路径等价/坏 zip 报错/缺 document.xml/降级清单/机器形态稳定/目录标题不被误用/`dc:title` 优先。
+新增 `htmlninefox/intake_outline.py`，把「读进来的东西」定成一种形状，PPTX / PDF / HTML 之后共用：
+
+- `SourceInfo`（kind / ref / digest / origin / licence / title）
+- `AdapterInfo`（name / version / offline / requires）
+- `Block`（kind / heading / content / level / rows / asset / provenance / **evidence** / ordinal）
+- `IntakeOutline`（source / adapter / blocks / assets / **limitations**）＋ `validate()` ＋ `as_dict()`
+
+**两条硬规则**（借自 REA）：
+1. **每个 block 必须有可回指的 locator**（DOCX：1-based 段落序号；表格带 `table: true`；图片带 `part`）。`validate()` 直接拒绝没有定位的块——没有证据的结论不进审核台。
+2. **limitations 是交付物**，不是日志：未读取的部件、缺标题、图片引用缺失都逐条列出。
+
+`parse_docx` 现在返回 `IntakeOutline`（不再有 DOCX 专属模型），DOCX 只是第一个适配器。
+
+### 1.4 提案层（v0.8.1 第 2 步，离线规则版）
+
+新增 `htmlninefox/docx_proposal.py`：`propose(outline) -> Proposal`，产出审核台要看的四件东西：
+
+| 字段 | 内容 | 例子（真实 GEO 方案） |
+|---|---|---|
+| `intent` ＋ `intent_reason` | 意图判定与理由 | `doc` ← 54 个标题 / 34 段正文 / 48 张表 |
+| `style` ＋ `style_reason` | 落到既有预设，不新建风格 | `doc-clean` ← doc × professional |
+| `image_plan` | slot ＋ 用途 ＋ 提示词（只给提示词，不直出图） | `cover`、`section-1..3` |
+| `copy` | headline / summary / sections / key_points，可编辑 | 摘要压成单行，目录不进章节 |
+| `limitations` | 继承 outline ＋ 本轮自己的边界 | 「未配置 LLM：规则引擎给出」 |
+
+`refiner` 钩子留给 LLM：覆盖结果仍走 `validate()`，坏提案（未知意图/预设、缺提示词）直接抛错，不会半成品上桌。
+
+### 1.5 门禁
+
+- `tests/test_docx_import.py` **11 条**：标题/段落/列表/表格/图片资产/bytes 等价/坏 zip/缺 document.xml/降级清单/机器形态/**每块都有定位**/契约拒绝无定位块/目录标题不被误用/`dc:title` 优先。
+- `tests/test_docx_proposal.py` **14 条**：五种意图判定（doc/deck/archdoc/poster/dashboard）、风格与理由、图片计划（cover 唯一、提示词非空）、文案（headline/summary/章节上限）、limitations 继承、机器形态、非法预设报错、refiner 覆盖与坏 refiner 报错、**目录不进章节/配图位**、摘要压成单行。
 
 ---
 
@@ -54,24 +84,28 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 
 | 项 | 结果 |
 |---|---|
-| `pytest tests/test_docx_import.py` | **9 passed**（0.44s） |
-| 真实 .docx 解析 | 通过（见上，54 标题 / 48 表格 / 1 图片） |
+| `pytest tests/test_docx_import.py` | **11 passed** |
+| `pytest tests/test_docx_proposal.py` | **14 passed** |
+| 真实 .docx 解析 | 通过（54 标题 / 48 表格 / 1 图片 / `evidence_complete=True`） |
+| 真实 .docx 提案 | `doc` ＋ `doc-clean`，封面＋3 个章节配图位，摘要单行，目录被排除 |
 | `mutate_smoke_gates.py` | **9/9 CAUGHT**（M8 用新结构锚点后恢复 CAUGHT；此前是 `NOT APPLIED`） |
 | `mutate_ui_gates.py` | **8/8 CAUGHT** |
 | `mutate_page_blocks_gates.py` | **7/7 CAUGHT** |
 | `preflight_mutations.py`（三套合一） | **通过，退出码 0**（2026-10-18 实跑） |
-| 全量回归 | 待跑（本轮先跑定向门禁与三套变异，避免抢 CPU 导致 e2e 超时误判） |
+| 全量回归（本机） | 687 passed / 9 skipped / 2 failed —— 两条均已查明：socket flaky（重跑绿）＋ `.venv` 缺 `python-docx`（装上后 docx 导出 9/9 绿） |
+| GitHub Actions · `Test` | **success**（run 39129995627，2026-10-18） |
 
 ---
 
 ## 3. 下一步（v0.8.1 管线第 2–5 步）
 
-| 步 | 内容 | 依赖 | 预估 |
-|---|---|---|---|
-| 2 | `docx_proposal`：意图判定 / 风格令牌提案（附理由）/ 图片计划（slot＋用途＋提示词）/ 文案提炼；未配置 LLM 时规则引擎兜底 | 解析器（已完成）＋ `[llm]` 通道 | 1.5 天 |
-| 3 | 审核台呈现：上传 .docx、提案可改可拒、图片位增删、文案可编辑 | 2 ＋ B3-6 的界面规则（v0.8.2 会验收） | 1.5 天 |
-| 4 | 采纳生成：大纲 → blocks → 既有分块通道（六生成器零改动） | 2、3 | 0.5 天 |
-| 5 | 门禁：真链验收（真实 docx → 六类产物逐类断言）＋ 无 LLM 兜底锁定 ＋ 提案 schema 锁定 ＋ 变异 | 全部 | 1 天 |
+| 步 | 内容 | 状态 |
+|---|---|---|
+| 1 | 上传解析（离线）：`docx_outline` ＋ 统一 `intake_outline` 契约 | ✅ 完成（11 条门禁） |
+| 2 | `docx_proposal`：意图 / 风格 / 图片计划 / 文案（离线规则 ＋ LLM refiner 钩子） | ✅ 完成第一版（14 条门禁） |
+| 3 | 审核台呈现：上传 .docx、提案可改可拒、图片位增删、文案可编辑 | ⏭ 下一步（1.5 天，受 v0.8.2 界面规则约束） |
+| 4 | 采纳生成：blocks → 既有分块通道（六生成器零改动） | ⏭ 待 3（0.5 天） |
+| 5 | 门禁：真链验收（真实 docx → 六类产物）＋ 无 LLM 兜底锁定 ＋ 提案 schema 锁定 ＋ 变异 | ⏭ 待 4（1 天） |
 
 ---
 
