@@ -11,5 +11,8 @@ entry: python -m guizang_ppt --topic "{topic}" --style {style}
 fallback: local:deck
 cost_estimate: 0.05-0.15          # 美元/次（LLM 增强时）
 homepage: https://github.com/op7418/guizang-ppt-skill
-license_review: README 声称 MIT，但本地 LICENSE 为 AGPL-3.0；仅 clean-room 适配，不复制代码资产
+license_review: GitHub 已于 2026-10-18 明确标记 AGPL-3.0（spdx），此前的「README 声称 MIT / LICENSE 为 AGPL」冲突结案为 AGPL-3.0
 integration: clean-room-design-adapter
+upstream_checked_at: 2026-10-18
+upstream_license: AGPL-3.0
+upstream_version: 无 tag（2026-08-07 最后推送，28.1k★）

@@ -10,3 +10,6 @@ python_module: archify
 entry: python -m archify --spec {spec_path} --format html
 fallback: local:archdoc
 homepage: https://github.com/tt-a1i/archify
+upstream_checked_at: 2026-10-18
+upstream_license: MIT
+upstream_version: 无 tag（2026-10-18 当日有推送，85.2k★）

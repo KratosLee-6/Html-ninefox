@@ -11,5 +11,9 @@ python_module: baoyu_slide_deck
 entry: python -m baoyu_slide_deck --topic "{topic}" --style "{style}" --output "{output}"
 fallback: local:ppt_image
 cost_estimate: 0.005-0.02
-homepage: https://github.com/JimLiu/baoyu-slide-deck
+homepage: https://github.com/JimLiu/baoyu-skills
+# 2026-10-18 复核：旧地址 JimLiu/baoyu-slide-deck 已 404，作者并入 baoyu-skills 单仓（MIT，26.7k★）
+upstream_checked_at: 2026-10-18
+upstream_version: baoyu-skills（无版本号，2026-09-10 最后推送）
+upstream_license: MIT
 tags: [ppt, slides, image-generation, social-media, wechat]

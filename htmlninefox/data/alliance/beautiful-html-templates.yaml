@@ -5,11 +5,14 @@ name: beautiful-html-templates
 version: 1.0.0
 author: 张咋啦 (zarazhangrui)
 category: design
-description: 28 套现成 HTML 模板，字体配色 token 化稳定，5 套精选（landing/dashboard/blog/pricing/docs）
+description: 现成 HTML 模板库，字体配色 token 化稳定；2026-10-18 实测上游 34 个 .html（manifest 长期写 28，已过期）
 intents: [html_template]
 python_module: beautiful_html_templates
 entry: python -m beautiful_html_templates --topic "{topic}" --template "{template}" --output "{output}"
 fallback: local:html_template
 cost_estimate: 0.001-0.01
 homepage: https://github.com/zarazhangrui/beautiful-html-templates
+upstream_checked_at: 2026-10-18
+upstream_license: MIT
+upstream_templates: 34 个 .html（可整条入库，需保留其版权声明）
 tags: [html, templates, stable, lazy-production, multi-purpose]

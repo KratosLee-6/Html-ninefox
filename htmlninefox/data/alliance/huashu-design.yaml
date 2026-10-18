@@ -1,7 +1,7 @@
 # huashu-design · Skill 联盟成员 manifest（种子）
 # 高保真 HTML 原型/动画 —— 未安装时由本地 landing 生成器兜底
 name: huashu-design
-version: 1.0.0
+version: 3.0.0
 author: 花叔
 category: design
 description: 用 HTML 做高保真原型、幻灯片、动画、可视化与专家评审；新设计先出三个方向初稿
@@ -12,3 +12,8 @@ fallback: local:landing
 homepage: https://github.com/alchaincyf/huashu-design
 license: MIT
 integration: workflow-adapter
+# 2026-10-18 复核：上游已到 v3.0.0（tag），描述含 20 条设计哲学 / 5 维评审 / MP4 导出；
+# 我们的 manifest 仍写「先出三个方向」，属于过期口径，风格库扩充见 docs/PLAN-TEMPLATE-EXPANSION.md
+upstream_checked_at: 2026-10-18
+upstream_version: v3.0.0
+upstream_license: MIT

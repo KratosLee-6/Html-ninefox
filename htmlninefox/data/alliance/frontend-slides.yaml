@@ -12,4 +12,7 @@ entry: python -m frontend_slides --topic "{topic}" --output "{output}"
 fallback: local:ppt_html
 cost_estimate: 0.01-0.05
 homepage: https://github.com/zarazhangrui/frontend-slides
+upstream_checked_at: 2026-10-18
+upstream_license: MIT
+upstream_version: 无 tag（2026-06-23 最后推送，30.8k★）
 tags: [ppt, slides, html, no-ai-gradient, mobile-safe]
