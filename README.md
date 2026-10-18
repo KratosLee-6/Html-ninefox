@@ -12,8 +12,8 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-596%20passed%20%7C%202%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.7.0.md)
-[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
+[![Tests](https://img.shields.io/badge/pytest-685%20passed%20%7C%204%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.8.0.md)
+[![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22%20(v0.6.0)-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
 
@@ -24,8 +24,8 @@
 
 ---
 
-![Html九尾狐 工作台主界面（v0.7.0 实拍）](assets/screenshots/v0.7.0/workbench-paper-1440.png)
-<p align="center"><b>Html九尾狐 工作台 · Pixel Garden 界面</b>（v0.7.0 实拍：素材库 · 无限画布工作区 · 检查器）</p>
+![Html九尾狐 工作台主界面（v0.8.0 实拍）](assets/screenshots/v0.8.0/workbench-paper-1440.png)
+<p align="center"><b>Html九尾狐 工作台 · Pixel Garden 界面</b>（v0.8.0 实拍：素材库 · 无限画布工作区 · 检查器）</p>
 
 ## ▶ 视频
 
@@ -35,21 +35,30 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.7.0 · 网页反向拆解（最新功能）
+## 🆕 v0.8.0 · Word 语义导出 + 改写吸收（最新功能）
 
-**把一个真实网页的分区，变成一个结构可编辑的项目。**
+**导出矩阵补上 Word 这一格：文档类产物切成真正的 .docx 结构；改写过的块可以一键重写。**
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.7.0/intake-page-blocks-pending.png" alt="审核台"><br><b>贴一个公开网址 → 落进审核台</b><br>候选带许可标签；开放许可正文随行，仅参考只借结构。</td>
-<td width="50%"><img src="assets/screenshots/v0.7.0/output-landing-with-page-sections.png" alt="成品"><br><b>拆下来的分区 → 出现在成品里</b><br>六个内容类型全部消费分块通道。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.0/export-centre-docx.png" alt="导出中心 · Word 文档"><br><b>导出中心 · 选 Word 文档</b><br>doc / archdoc 走全文语义映射，deck 走讲义大纲；landing / poster / dashboard 如实引导 PDF / PNG，不假装能出 Word。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.0/output-doc-preview.png" alt="真实产物预览"><br><b>生成结果 · 真实产物预览</b><br>一条需求走完「分析 → 推荐 → 生成 → 预览」，产物在本地落盘、可导出可回滚。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.0/intake-blocks-preview.png" alt="拆块预览面板"><br><b>审核台 · 拆块预览</b><br>每块带 provenance 徽标（原文 / 改写 / 仅结构），改写块可一键「重新改写」。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.0/intake-blocks-retried.png" alt="重新改写后的块"><br><b>重新改写 · 绕过缓存重算</b><br>响应带 <code>retried</code> 标记，忠实度门禁照常拦截照抄。</td>
 </tr>
 </table>
 
-- `POST /api/intake/page-blocks` 把已采纳候选的分区切成生成通道认识的分块（嵌套小节也拆得开），**端点只读不写回**——携带正文必须由用户决定。
-- 版权按字段：`open` 才随行原文；`reference` / `inspiration-only` 只带结构与顺序，生成回落自带文案。
-- 门禁：Windows 本地 `596 passed / 2 skipped`，Linux CI `597 passed / 1 skipped`；16 个变异脚本全部 CAUGHT；浏览器 22/22；真实链路 15/15。
-- 详见 [v0.7.0 发布说明](docs/RELEASE-NOTES-v0.7.0.md) · [设计文档](docs/DESIGN-v0.7-page-decomposition.md)。
+- **语义映射（宁小勿假）**：h1–h6 → Heading 1–6、段落、ul/ol、表格、data: URI 内嵌图片（含 alt 题注）、引用、分隔线、`pre/code` 等宽段落。
+- **降级清单如实上市**：外链图片不抓取（离线承诺）、CSS 配色 / 字体 / 布局不映射、非语义容器文本计数上报、界面 chrome 单独计数——每项都有门禁盯住「声称丢弃的真不在文档里」。
+- **意图分工**：视觉型产物选 Word 得 400 并给出正确路径（`docx_intent_unsuited`），而不是给一份错形的 Word。
+- **门禁**：Windows 本地 `685 passed / 4 skipped`；本轮变异 docx **3/3** ＋ paraphrased **5/5** 全 CAUGHT；真实链路 **18/18**。
+- 详见 [v0.8.0 发布说明](docs/RELEASE-NOTES-v0.8.0.md) · [v0.8 迭代规划](docs/PLAN-v0.8.md)。
+
+### 🔎 网页反向拆解（v0.7 能力，仍在主线）
+
+把真实网页的分区变成结构可编辑的项目：`POST /api/intake/page-blocks` 只读不写回，携带正文必须由用户决定；`open` 才随行原文，`reference` / `inspiration-only` 只带结构与顺序。真实链路脚本：[scripts/verify_page_blocks_chain.py](scripts/verify_page_blocks_chain.py)。
 
 ## 🏗 整体架构
 
@@ -78,16 +87,16 @@
 
 <table>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台（Web 端）</b><br>素材库 · 无限画布工作区 · 检查器。</td>
-<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题（Web 端）</b><br>同一层级的完整暗色主题，对比度达 WCAG AA。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.0/workbench-paper-1440.png" alt="Pixel Paper 桌面工作台"><br><b>Pixel Paper 桌面工作台（Web 端）</b><br>素材库 · 无限画布工作区 · 检查器。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.0/workbench-night-1440.png" alt="夜蓝主题桌面工作台"><br><b>夜蓝主题（Web 端）</b><br>同一层级的完整暗色主题，对比度达 WCAG AA。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.7.0/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>导航卡并存，检查器直接改名与配色。</td>
-<td width="50%"><img src="assets/screenshots/v0.7.0/sidebar-templates.png" alt="REAL HTML 模板库"><br><b>REAL HTML 模板库</b><br>采纳的网页与模板卡，直接可复用。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.0/workbench-overview.png" alt="多工作区管理"><br><b>多工作区管理</b><br>导航卡并存，检查器直接改名与配色。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.0/sidebar-templates.png" alt="REAL HTML 模板库"><br><b>REAL HTML 模板库</b><br>采纳的网页与模板卡，直接可复用。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.7.1/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放；步骤条收成圆点不再溢出。</td>
-<td width="50%"><img src="assets/screenshots/v0.7.1/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动 390 任务视图</b><br>版本徽标在窄屏依旧可见，工作区动作与节点卡片替代缩小画布。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.0/workbench-tablet-768.png" alt="平板 768 布局"><br><b>平板 768 布局</b><br>侧栏折叠为顶栏抽屉，画布语义缩放；步骤条收成圆点不再溢出。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.0/workbench-mobile-390.png" alt="移动任务视图"><br><b>移动 390 任务视图</b><br>版本徽标在窄屏依旧可见，工作区动作与节点卡片替代缩小画布。</td>
 </tr>
 </table>
 
@@ -102,10 +111,6 @@
 </tr>
 </table>
 
-### 🔎 网页反向拆解（v0.7 新增）
-
-见上方「v0.7.0 最新功能」。真实链路验收脚本随仓库发布：[scripts/verify_page_blocks_chain.py](scripts/verify_page_blocks_chain.py)。
-
 ### 📊 可编辑 PPTX
 
 deck 产物导出标准 .pptx，PowerPoint / WPS 里文本框真正可编辑；工作台内逐页改写，写回带版本冲突保护。
@@ -119,7 +124,7 @@ deck 产物导出标准 .pptx，PowerPoint / WPS 里文本框真正可编辑；�
 
 ### 📤 导出中心
 
-PDF / 逐页 PNG / 完整长图三种真实导出 + 兼容性评分报告；deck 产物额外放开 PPTX。
+PDF / 逐页 PNG / 完整长图 + **Word（.docx）** 四种真实导出 + 兼容性评分报告；deck 产物额外放开可编辑 PPTX。视觉型产物会被如实引导到高保真 PDF / PNG，而不是给一份错形的 Word。
 
 <table>
 <tr>
@@ -149,7 +154,7 @@ PDF / 逐页 PNG / 完整长图三种真实导出 + 兼容性评分报告；deck
 | ✅ 真实 LLM 接入 | MiniMax-M3 / Claude / GPT-4o 与 OpenAI 兼容接口，环境变量自动配置 |
 | ✅ 设计吸收 + 网页反向拆解 | 12 个内置源安全抓取；采纳的网页拆成分区直接进生成，许可三档逐字段判定；配置 LLM 后参考类正文改写吸收（paraphrased），忠实度门禁防照抄 |
 | ✅ 口语化反馈迭代 | 「颜色深一点、标题大一点」改的是设计令牌；`rev1 / rev2 / …` 历史可恢复 |
-| ✅ 可编辑 PPTX + 多格式导出 | 标准 .pptx 真可编辑；PDF / 逐页 PNG / 长图 + 兼容性评分报告 |
+| ✅ 可编辑 PPTX + 多格式导出 | 标准 .pptx 真可编辑；PDF / 逐页 PNG / 长图 / **Word（.docx）** + 兼容性评分报告 |
 | ✅ 项目记忆 | 明确采用才学习：品牌、受众、语气、模板本地复用，可查看、关闭、清空 |
 | ✅ 命令面板与多端布局 | Ctrl+K 直达；桌面 / 平板 / 移动各有一套可读排版 |
 | ✅ 隐私边界 | API Key、附件正文、反馈原文不写入记忆与诊断包；导出在本机完成不上传 |
@@ -204,5 +209,16 @@ Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双
 | 归藏 · 花叔 Design · Archify 等社区工作 | — | 设计方法与审美启发（逐项来源见 [DESIGN-SOURCES](docs/DESIGN-SOURCES.md)） |
 
 早期版本的完整致敬长文（含引用原文）保留在 [docs/HOMEPAGE-ARCHIVE.md](docs/HOMEPAGE-ARCHIVE.md#致敬与感谢)。
+
+## 📚 引用与署名
+
+- 代码许可是 **MIT**（见 [LICENSE](LICENSE)）；署名、引用格式与第三方组件边界写在 [NOTICE.md](NOTICE.md)。
+- 文章 / 教程 / 论文引用请带版本号，机器可读格式见 [CITATION.cff](CITATION.cff)（GitHub 侧栏会显示「Cite this repository」）。
+- 分发或集成时，保留 `LICENSE` 与 `NOTICE.md` 即可满足 MIT 的署名要求；名称、Logo 与 Pixel Garden 视觉不在 MIT 范围内。
+
+```text
+KratosLee. (2026). Html九尾狐：人机共驾的 HTML 内容交付工作台（v0.8.0）[计算机软件].
+https://github.com/KratosLee-6/Html-ninefox
+```
 
 [MIT License](LICENSE) © 2026 **KratosLee · Html九尾狐项目组**

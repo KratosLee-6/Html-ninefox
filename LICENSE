@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 KratosLee
+Copyright (c) 2026 KratosLee · Html九尾狐项目组
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,15 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-## 附加说明 / Additional Notes
-
-This project is a personal open-source initiative by KratosLee.
-
-The methodology "Brief + 模板 + 反馈三件套" (Brief + Templates + Feedback
-trio) is documented in `docs/DESIGN.md` and is shared openly for the community
-to build upon.
-
-For collaboration, contact via GitHub: https://github.com/KratosLee-6

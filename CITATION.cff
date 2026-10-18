@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "引用本项目时请带版本号；格式见 NOTICE.md 第 3 节。"
+title: "Html九尾狐：人机共驾的 HTML 内容交付工作台"
+abstract: >-
+  HtmlNineFox is a local-first workbench for producing deliverable HTML:
+  an infinite canvas of briefs, templates and files, an intake review desk
+  with licence tiers, a page-decomposition channel, six artefact generators,
+  revision history, and an export centre (PDF / PNG / PPTX / DOCX).
+  AI is an optional upgrade, never a dependency — the offline rule engine
+  still completes every path.
+authors:
+  - family-names: "Lee"
+    given-names: "Kratos"
+    alias: "KratosLee"
+    website: "https://github.com/KratosLee-6"
+version: "0.8.0"
+date-released: "2026-10-17"
+license: MIT
+repository-code: "https://github.com/KratosLee-6/Html-ninefox"
+url: "https://github.com/KratosLee-6/Html-ninefox"
+keywords:
+  - html
+  - design-tools
+  - local-first
+  - infinite-canvas
+  - pptx
+  - docx
+  - ai-agent
+preferred-citation:
+  type: software
+  title: "Html九尾狐：人机共驾的 HTML 内容交付工作台"
+  authors:
+    - family-names: "Lee"
+      given-names: "Kratos"
+      alias: "KratosLee"
+  version: "0.8.0"
+  date-released: "2026-10-17"
+  license: MIT
+  repository-code: "https://github.com/KratosLee-6/Html-ninefox"
