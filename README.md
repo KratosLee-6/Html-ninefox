@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-685%20passed%20%7C%204%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.8.0.md)
+[![Tests](https://img.shields.io/badge/pytest-711%20passed%20%7C%203%20skipped-1F8A70)](docs/ITERATION-v0.8.1-KICKOFF-20261018.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22%20(v0.6.0)-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -53,10 +53,10 @@
 - **语义映射（宁小勿假）**：h1–h6 → Heading 1–6、段落、ul/ol、表格、data: URI 内嵌图片（含 alt 题注）、引用、分隔线、`pre/code` 等宽段落。
 - **降级清单如实上市**：外链图片不抓取（离线承诺）、CSS 配色 / 字体 / 布局不映射、非语义容器文本计数上报、界面 chrome 单独计数——每项都有门禁盯住「声称丢弃的真不在文档里」。
 - **意图分工**：视觉型产物选 Word 得 400 并给出正确路径（`docx_intent_unsuited`），而不是给一份错形的 Word。
-- **门禁**：Windows 本地 `685 passed / 4 skipped`；本轮变异 docx **3/3** ＋ paraphrased **5/5** 全 CAUGHT；真实链路 **18/18**。
+- **门禁**：v0.8.0 发布时 685 passed / 4 skipped；主线当前 CI **711 passed / 3 skipped**；docx 变异 **3/3** ＋ paraphrased **5/5** 全 CAUGHT；真实链路 **18/18**。
 - 详见 [v0.8.0 发布说明](docs/RELEASE-NOTES-v0.8.0.md) · [v0.8 迭代规划](docs/PLAN-v0.8.md)。
 
-> **正在开发 · v0.8.1**：贴入一份 .docx → AI 理解内容并补齐视觉层提案 → 人在审核台改 → 一键成页。离线解析已落地（`htmlninefox/docx_import.py`），提案与审核界面进行中；计划见 [v0.8.1 开工记录](docs/ITERATION-v0.8.1-KICKOFF-20261018.md)。
+> **正在开发 · v0.8.1**：贴入一份 .docx → AI 理解内容并补齐视觉层提案 → 人在审核台改 → 一键成页。离线解析（`htmlninefox/docx_import.py`）、统一 `intake_outline` 契约与离线提案层（`htmlninefox/docx_proposal.py`）已落地并各自带门禁；审核界面进行中。进度见 [v0.8.1 开工记录](docs/ITERATION-v0.8.1-KICKOFF-20261018.md)。
 
 ### 🔎 网页反向拆解（v0.7 能力，仍在主线）
 
@@ -77,6 +77,8 @@
 | `rules.py` + `generators/` | 离线规则引擎与六个渲染器（landing/dashboard/deck/poster/archdoc/doc），分块通道全量消费 |
 | `server/app.py` | 零依赖本地服务：工作台 API（intake / 生成 / 反馈 / 版本 / 导出 / 幻灯片编辑） |
 | `exporting.py` + `pptx_export.py` | PDF / 逐页 PNG / 长图 + 兼容性报告；python-pptx 受控映射出可编辑 PPTX |
+| `docx_export.py` + `docx_import.py` | Word 语义导出与读取；`intake_outline.py` 是跨格式统一契约（每块带 evidence，顶层带 limitations） |
+| `docx_proposal.py` | v0.8.1 提案层：意图 / 风格 / 图片计划 / 文案，全部带理由，离线规则可独立跑 |
 | `revisions.py` + `project_memory.py` | 版本历史快照与恢复；明确采用后才学习的本地偏好记忆 |
 
 架构全文见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
@@ -202,6 +204,7 @@ Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双
 |---|---|---|
 | [Univer](https://github.com/dream-num/univer)（dream-num） | Apache-2.0 | v0.6 起的工作台内幻灯片可视化编辑基于 Univer Slides 构建 |
 | [python-pptx](https://github.com/scanny/python-pptx)（Steve Canny） | MIT | .pptx 导出的服务端受控映射，文本框在 PowerPoint / WPS 里真正可编辑 |
+| [python-docx](https://github.com/python-openxml/python-docx)（python-openxml） | MIT | .docx 语义导出的写出（v0.8）+ 读取（v0.8.1 的 `[docx]` extra） |
 | [huashu-art-motion](https://github.com/alchaincyf/huashu-art-motion)（花叔） | MIT | v0.7.0 解说视频的 t2 发布会动画引擎（`film/v070-huashu/`） |
 | [Archify](https://github.com/tt-a1i/archify)（tt-a1i） | MIT | README 架构图由 Archify 生成（交互版随仓库发布） |
 | [op7418/guizang-product-video-skill](https://github.com/op7418/guizang-product-video-skill) | AGPL-3.0（仅借鉴方法论；SFX 为其原创合成并附使用声明） | 宣传片工程方法论；`film/sfx` 音效来源 |
