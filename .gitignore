@@ -43,3 +43,11 @@ packaging/linux/wheels/typing_extensions-*.whl
 # TLS certificates generated on the fly by tests/test_ssrf_tls_pinning.py.
 # They are throwaway material for a loopback server, not repo assets.
 tests/cert/
+
+# Promo / marketing media belongs in Release assets, not in git history.
+# The repo already carries ~44 MB of mp4; new cuts stay out (see
+# 07_GitHub开源发布/仓库体检-20261018.md). Existing tracked files are
+# untouched by .gitignore — removing them is a separate, explicit decision.
+assets/promo/*.mp4
+assets/promo/*.mp3
+assets/marketing/
