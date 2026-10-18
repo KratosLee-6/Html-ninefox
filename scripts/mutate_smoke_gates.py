@@ -12,12 +12,16 @@ up declaring a gate invalid when nothing was actually tested.
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from mutation_support import finish, stale_report  # noqa: E402  (同目录共用诊断层)
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -92,6 +96,20 @@ MUTATIONS = [
 RESOURCES = ("htmlninefox/example", "htmlninefox/data",
              "htmlninefox/templates", "examples")
 
+# 结构锚点：文字锚点会随源码「同类改动」失效（M8 就死在格式元组从
+# ("pdf","png","pptx") 扩到带 docx 的那一次）。这里给它一个能容忍同类
+# 改动的正则版本；命中就以它为准，命中不了才报 STALE。
+REGEX_ANCHORS: dict[str, tuple[str, str]] = {
+    "M8 runtime stops reporting pdf": (
+        r'SUPPORTED_FORMATS\s*=\s*\([^)]*\)',
+        "SUPPORTED_FORMATS = ()",
+    ),
+    "M4 analyser reports a wrong source_size": (
+        r'"source_size"\s*:\s*[^,\n]+',
+        '"source_size": 0',
+    ),
+}
+
 
 def prepare(tag: str) -> Path:
     work = SCRATCH / f"smoke-{tag}"
@@ -159,27 +177,35 @@ def main() -> int:
         last = work
         target = work / rel
         text = target.read_text(encoding="utf-8")
-        if old not in text:
-            results.append((label, "NOT APPLIED", ""))
-            print(f"\n{label}: PATTERN NOT FOUND — nothing was tested")
+
+        # 先走结构锚点（正则），再退回文字锚点。两条都不中才算 STALE ——
+        # 只有这时才说明「源码里没有这个形态了」，不是「门禁漏了」。
+        mutated = None
+        regex = REGEX_ANCHORS.get(label)
+        if regex:
+            candidate, hits = re.subn(regex[0], regex[1], text, count=1)
+            if hits:
+                mutated = candidate
+        if mutated is None and old in text:
+            mutated = text.replace(old, new, 1)
+        if mutated is None or mutated == text:
+            print(stale_report(
+                label, rel, regex[0] if regex else old, text,
+                reason="文字锚点与结构锚点都没有命中",
+                hint="先确认这条功能还在，再把锚点改成结构定位；不要删掉变异换绿。"))
+            results.append((label, "STALE", ""))
+            shutil.rmtree(work, ignore_errors=True)
             continue
-        target.write_text(text.replace(old, new, 1), encoding="utf-8")
+
+        target.write_text(mutated, encoding="utf-8")
         rc, out = run(work)
         verdict = "CAUGHT" if rc != 0 else "MISSED"
         results.append((label, verdict, out))
         print(f"\n{label}: {verdict}  {out}")
         shutil.rmtree(work, ignore_errors=True)
 
-    print("\n=== summary ===")
-    for label, verdict, _ in results:
-        print(f"  {verdict:12} {label}")
-    caught = [r for r in results if r[1] == "CAUGHT"]
-    print(f"\n{len(caught)}/{len(results)} mutations caught")
-    failed = [r for r in results if r[1] != "CAUGHT"]
-    for label, verdict, _ in failed:
-        print(f"  !! {verdict}: {label}")
     cleanup(base)
-    return 0 if not failed else 1
+    return finish(results, total_expected=len(MUTATIONS))
 
 
 if __name__ == "__main__":

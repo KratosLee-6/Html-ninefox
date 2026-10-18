@@ -16,6 +16,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from mutation_support import finish, stale_report  # noqa: E402  (同目录共用诊断层)
+
 ROOT = Path(__file__).resolve().parents[1]
 INTAKE = ROOT / "htmlninefox" / "intake.py"
 CORE = ROOT / "htmlninefox" / "server" / "static" / "fox-core.js"
@@ -239,8 +242,12 @@ def main() -> int:
             try:
                 broken = fn(*(original[p] for p in files))
             except MutationFailure as exc:
-                print(f"HARD FAIL  {name}\n          {exc}")
-                rows.append((name, "HARD FAIL"))
+                # 锚点找不到 ≠ 门禁有洞：测试体系过期，退出码 3。
+                print(stale_report(
+                    name, "htmlninefox/", str(exc),
+                    reason="变异函数的锚点在当前源码里没命中",
+                    hint="先确认功能还在，再更新锚点；不要删掉变异换绿。"))
+                rows.append((name, "STALE"))
                 restore()
                 continue
 
@@ -282,7 +289,7 @@ def main() -> int:
     for n, v in bad:
         print(f"  {v}  {n}")
     print("=" * 74)
-    return 1 if bad else 0
+    return finish(rows)
 
 
 if __name__ == "__main__":

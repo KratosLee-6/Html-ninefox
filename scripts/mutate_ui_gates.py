@@ -31,6 +31,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from mutation_support import finish  # noqa: E402  (同目录共用诊断层)
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -208,13 +211,16 @@ def main() -> int:
             try:
                 broken = fn(originals)
             except MutationFailure as exc:
-                print(f"HARD FAIL  {name}\n          {exc}")
-                rows.append((name, "HARD FAIL"))
+                # 锚点找不到 ≠ 门禁有洞：这是测试体系过期（退出码 3）。
+                print(f"STALE     {name}")
+                print(f"          锚点过期，不是产品缺陷：{exc}")
+                print("          改锚点后重跑；不要为了变绿把这条变异删掉。")
+                rows.append((name, "STALE"))
                 continue
 
             if broken == originals:
-                print(f"HARD FAIL  {name}\n          变异没有改变任何内容")
-                rows.append((name, "HARD FAIL"))
+                print(f"STALE     {name}\n          变异没有改变任何内容——锚点已过期。")
+                rows.append((name, "STALE"))
                 continue
 
             apply(broken)
@@ -241,18 +247,18 @@ def main() -> int:
     print("=" * 74)
     caught = sum(1 for _, verdict in rows if verdict == "CAUGHT")
     missed = [name for name, verdict in rows if verdict == "MISSED"]
-    hard = [name for name, verdict in rows if verdict == "HARD FAIL"]
+    stale = [name for name, verdict in rows if verdict == "STALE"]
     print(f"{caught}/{len(rows)} CAUGHT")
     if missed:
         print("门禁在真实破坏下仍然全绿——视为无效门禁：")
         for name in missed:
             print(f"  MISSED   {name}")
-    if hard:
-        print("变异没有生效，本轮结论无效：")
-        for name in hard:
-            print(f"  HARD     {name}")
+    if stale:
+        print("变异锚点过期，本轮没有真正测到（不是产品坏了）：")
+        for name in stale:
+            print(f"  STALE    {name}")
     print("=" * 74)
-    return 1 if (missed or hard) else 0
+    return finish(rows)
 
 
 if __name__ == "__main__":
