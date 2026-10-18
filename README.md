@@ -56,6 +56,8 @@
 - **门禁**：Windows 本地 `685 passed / 4 skipped`；本轮变异 docx **3/3** ＋ paraphrased **5/5** 全 CAUGHT；真实链路 **18/18**。
 - 详见 [v0.8.0 发布说明](docs/RELEASE-NOTES-v0.8.0.md) · [v0.8 迭代规划](docs/PLAN-v0.8.md)。
 
+> **正在开发 · v0.8.1**：贴入一份 .docx → AI 理解内容并补齐视觉层提案 → 人在审核台改 → 一键成页。离线解析已落地（`htmlninefox/docx_import.py`），提案与审核界面进行中；计划见 [v0.8.1 开工记录](docs/ITERATION-v0.8.1-KICKOFF-20261018.md)。
+
 ### 🔎 网页反向拆解（v0.7 能力，仍在主线）
 
 把真实网页的分区变成结构可编辑的项目：`POST /api/intake/page-blocks` 只读不写回，携带正文必须由用户决定；`open` 才随行原文，`reference` / `inspiration-only` 只带结构与顺序。真实链路脚本：[scripts/verify_page_blocks_chain.py](scripts/verify_page_blocks_chain.py)。
