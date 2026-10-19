@@ -1,4 +1,4 @@
-"""发版前把三个变异脚本一次跑完 —— 让红留在本地，而不是落在 tag 上。
+"""发版前把五套变异脚本一次跑完 —— 让红留在本地，而不是落在 tag 上。
 
 背景：v0.7.7 / v0.7.8 / v0.8.0 三个 release commit 的 CI 都是红的，随后
 补一条 fix commit 才绿。红落在发版提交上，等于每次发版都给自己发一封
@@ -27,6 +27,10 @@ SCRIPTS = (
     ("smoke", "mutate_smoke_gates.py"),
     ("ui", "mutate_ui_gates.py"),
     ("page-blocks", "mutate_page_blocks_gates.py"),
+    # v0.8.0 的导出链变异此前没接进 preflight——等于每次发版都没人验证它。
+    ("docx-export", "mutate_docx_gates.py"),
+    # v0.8.1 的 Word 审核台与采纳链（与上面那个不是一回事：一个读进来，一个导出去）。
+    ("docx-intake", "mutate_docx_intake_gates.py"),
 )
 
 MEANING = {
@@ -50,7 +54,7 @@ def main() -> int:
 
     print(f"\n{'=' * 74}")
     if not failures:
-        print("preflight 通过：三套变异全绿，可以提交 release commit。")
+        print(f"preflight 通过：{len(SCRIPTS)} 套变异全绿，可以提交 release commit。")
         return 0
     print("preflight 未通过，不要在 red 状态下提交 release commit：")
     for name, code in failures:

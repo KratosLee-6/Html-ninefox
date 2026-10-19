@@ -94,9 +94,11 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 | 真实 .docx 解析 | 通过（54 标题 / 48 表格 / 1 图片 / `evidence_complete=True`） |
 | 真实 .docx 提案 | `doc` ＋ `doc-clean`，封面＋3 个章节配图位，摘要单行，目录被排除 |
 | `mutate_smoke_gates.py` | **9/9 CAUGHT**（M8 用新结构锚点后恢复 CAUGHT；此前是 `NOT APPLIED`） |
+| `mutate_docx_intake_gates.py`（本版新增） | **6/6 CAUGHT**（D1 目录模式 / D2 空壳章节 / D3 表格消失 / D4 占位符 / D5 人审文案被覆盖 / D6 意图白名单） |
+| `mutate_docx_gates.py`（v0.8.0 导出链，现已并入 preflight） | **3/3 CAUGHT** |
 | `mutate_ui_gates.py` | **8/8 CAUGHT** |
 | `mutate_page_blocks_gates.py` | **7/7 CAUGHT** |
-| `preflight_mutations.py`（三套合一） | **通过，退出码 0**（2026-10-18 实跑） |
+| `preflight_mutations.py`（五套合一） | **通过，退出码 0**（2026-10-19 起含 docx-export 与 docx-intake） |
 | 全量回归（本机） | 687 passed / 9 skipped / 2 failed —— 两条均已查明：socket flaky（重跑绿）＋ `.venv` 缺 `python-docx`（装上后 docx 导出 9/9 绿） |
 | GitHub Actions · `Test` | **success**（run 39129995627，2026-10-18） |
 
@@ -110,7 +112,7 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 | 2 | `docx_proposal`：意图 / 风格 / 图片计划 / 文案（离线规则 ＋ LLM refiner 钩子） | ✅ 完成第一版（14 条门禁） |
 | 3 | 审核台呈现：上传 .docx、提案可改可拒、图片位增删、文案可编辑 | ✅ 完成（`/api/intake/docx` ＋ `/api/intake/docx/adopt` ＋ `docx-desk.js`；8 条 API 门禁 ＋ 1 条真浏览器门禁） |
 | 4 | 采纳生成：blocks → 既有分块通道（六生成器零改动） | ✅ 完成（11 条门禁，六个意图逐个断言正文到达；真实 GEO 文档 20k+ 字符） |
-| 5 | 门禁：真链验收（真实 docx → 六类产物）＋ 无 LLM 兜底锁定 ＋ 提案 schema 锁定 ＋ 变异 | 🟡 真链六意图 ✅ ＋ schema 锁定 ✅ ＋ 无 LLM 兜底 ✅；**仅剩变异接入 `preflight_mutations.py`** |
+| 5 | 门禁：真链验收（真实 docx → 六类产物）＋ 无 LLM 兜底锁定 ＋ 提案 schema 锁定 ＋ 变异 | ✅ 完成（真链六意图 ＋ schema 锁定 3 条 ＋ 变异 **6/6 CAUGHT**，已并入 `preflight_mutations.py`） |
 
 ---
 
@@ -134,3 +136,25 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 | 3 | 界面整块空白，控制台 `window.FoxDocx` 未定义 | 新增的 `docx-desk.js` 未登记进 `STATIC_FILES`（显式白名单），请求 404 → 脚本不执行 → 卡片是死的 | 登记 `"/docx-desk.js"`；同一条教训早写在 `fox-core.js` 上方注释里（"未登记 = 空白页而不是构建失败"） |
 
 **门禁补强**：`test_no_brand_means_no_placeholder_on_the_page`、`test_toc_run_is_skipped_not_rendered_as_a_giant_paragraph`、`test_adopt_renders_the_word_prose_into_a_real_project` 里新增 `assert "Your Product" not in html`，以及 `test_action_registry` 的模块允许表加入 `window.FoxDocx`。
+
+---
+
+## 6. 变异验证反过来抓到的门禁自身的洞
+
+D3（表格不再压平）第一次跑出来是 **MISSED**——门禁在真实破坏下仍然全绿。
+查下来不是产品漏洞，是**断言假阳性**：
+
+```python
+assert "12%" in html   # ✗ 命中的是内联 CSS：radial-gradient(42% 34% at 18% 12%, …)
+```
+
+表格整段被丢掉，这条断言照样成立。修法不是放宽门禁，而是把断言换成文档独有的串
+（`12.5%·基准值`），并在测试里写清原因。
+
+**由此定一条规则**：断言产物文本时不用短数字、百分号、单个量词——它们会命中内联
+CSS 与装饰性文案。用被断言对象独有的串，否则门禁测的是"页面里有这个字符"。
+命中后再跑 D3，6/6 全 CAUGHT。
+
+**另外**：v0.8.0 的 `mutate_docx_gates.py`（导出链 3 条）从写出来那天起就没进
+`preflight_mutations.py`——等于每次发版都没人验证它。这版把它和新的
+`mutate_docx_intake_gates.py` 一并接进 preflight，现在五套一起跑。

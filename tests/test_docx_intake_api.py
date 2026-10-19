@@ -51,7 +51,7 @@ def build_docx(*, title: str = "季度交付说明") -> bytes:
         + _p("这是 Word 里的背景正文。")
         + _p("二、方案", "Heading1")
         + _p("方案说明文字。")
-        + _table([["指标", "数值"], ["转化", "12%"]])
+        + _table([["指标", "数值"], ["转化率", "12.5%·基准值"]])
         + _p("三、空章节", "Heading1")
         + "</w:body></w:document>")
     core = ("<?xml version='1.0' encoding='UTF-8'?>"
@@ -124,7 +124,9 @@ def test_adopt_renders_the_word_prose_into_a_real_project(workbench):
 
     assert "这是 Word 里的背景正文。" in html
     assert "方案说明文字。" in html
-    assert "12%" in html, "表格压平后的文字也要到产物里"
+    # 不要用 "12%" 这种短串：内联 CSS 的渐变里就有 `18% 12%`，表格整个丢了也
+    # 能命中 —— 变异验证 D3 正是靠这条断言才暴露了它（当时判为 MISSED）。
+    assert "12.5%·基准值" in html, "表格压平后的文字也要到产物里"
     assert "Your Product" not in html, "品牌为空时不能印占位符"
     assert any("表格已压成文本行" in item for item in payload["limitations"])
 

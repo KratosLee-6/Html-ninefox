@@ -137,7 +137,9 @@ CAUGHT ＋ 9 界面 × 3 视口 × 2 主题截图证据。
   契约 ✅；第 2 步 `docx_proposal` 离线提案 ✅（意图 / 风格 / 图片计划 / 文案，
   带理由）；第 3 步 Word 审核台 ✅（`/api/intake/docx` ＋ `adopt` ＋
   `docx-desk.js`，提案可改意图/风格/文案/图片位）；第 4 步采纳生成 ✅（走既有
-  blocks 通道，六生成器零改动）；**剩第 5 步真链门禁与变异**。详见
+  blocks 通道，六生成器零改动）；第 5 步真链门禁与变异 ✅（六意图真链 ＋
+  schema 锁定 ＋ `mutate_docx_intake_gates.py` 6/6 CAUGHT，已并入五套
+  preflight）—— **v0.8.1 收口，下一版进 v0.8.2 界面 UI/VI/版面**。详见
   [v0.8.1 开工记录](ITERATION-v0.8.1-KICKOFF-20261018.md)。
 - **v0.8.3 追加**：PPTX 反向拆解适配器（零新依赖，`python-pptx` 读回
   title / bullets / notes 已实测），设计与边界见
