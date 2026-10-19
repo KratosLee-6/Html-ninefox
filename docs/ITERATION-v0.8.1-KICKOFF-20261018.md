@@ -86,7 +86,10 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 |---|---|
 | `pytest tests/test_docx_import.py` | **11 passed** |
 | `pytest tests/test_docx_proposal.py` | **14 passed** |
-| `pytest tests/test_docx_adopt.py` | **11 passed**（六意图 × 正文到达 ＋ 表格压平 ＋ 图片留资产 ＋ 真实文档 20k+ 字符） |
+| `pytest tests/test_docx_adopt.py` | **13 passed**（六意图 × 正文到达 ＋ 表格压平 ＋ 图片留资产 ＋ 目录整段跳过 ＋ 无品牌不印占位符 ＋ 真实文档 20k+ 字符） |
+| `pytest tests/test_docx_intake_api.py` | **8 passed**（上传/错误码/采纳/改意图改风格/删图片位；产物里是 Word 正文） |
+| `pytest tests/test_docx_desk_ui.py` | **passed**（真浏览器：上传 `.docx` → 提案可改 → 采纳 → 产物含原文；连跑 3 次绿） |
+| v0.8.1 实拍 | `assets/screenshots/v0.8.1/`：提案态 / 采纳后态 / 产物首屏（1440×900，真实 GEO 方案） |
 | 真实 .docx 解析 | 通过（54 标题 / 48 表格 / 1 图片 / `evidence_complete=True`） |
 | 真实 .docx 提案 | `doc` ＋ `doc-clean`，封面＋3 个章节配图位，摘要单行，目录被排除 |
 | `mutate_smoke_gates.py` | **9/9 CAUGHT**（M8 用新结构锚点后恢复 CAUGHT；此前是 `NOT APPLIED`） |
@@ -104,7 +107,7 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 |---|---|---|
 | 1 | 上传解析（离线）：`docx_outline` ＋ 统一 `intake_outline` 契约 | ✅ 完成（11 条门禁） |
 | 2 | `docx_proposal`：意图 / 风格 / 图片计划 / 文案（离线规则 ＋ LLM refiner 钩子） | ✅ 完成第一版（14 条门禁） |
-| 3 | 审核台呈现：上传 .docx、提案可改可拒、图片位增删、文案可编辑 | ⏭ 下一步（1.5 天，受 v0.8.2 界面规则约束） |
+| 3 | 审核台呈现：上传 .docx、提案可改可拒、图片位增删、文案可编辑 | ✅ 完成（`/api/intake/docx` ＋ `/api/intake/docx/adopt` ＋ `docx-desk.js`；8 条 API 门禁 ＋ 1 条真浏览器门禁） |
 | 4 | 采纳生成：blocks → 既有分块通道（六生成器零改动） | ✅ 完成（11 条门禁，六个意图逐个断言正文到达；真实 GEO 文档 20k+ 字符） |
 | 5 | 门禁：真链验收（真实 docx → 六类产物）＋ 无 LLM 兜底锁定 ＋ 提案 schema 锁定 ＋ 变异 | ⏭ 待 4（1 天） |
 
@@ -115,3 +118,18 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 - **图像模型直出**仍不在本版：图片计划只交付「提示词 ＋ 占位」；Provider 选型是独立决策点。
 - **不做**新渲染路径：采纳后走既有 blocks 通道，六个生成器不改。
 - `.docx` 的样式表（`word/styles.xml`）未解析：标题层级靠 `w:pStyle` 的命名约定，自定义样式名会退化成段落。这一条要在第 2 步的门禁里显式锁定（宁可退化为段落，也不猜）。
+
+---
+
+## 5. 审核台首轮实拍抓到的三个真 bug（都是看截图才发现的）
+
+这三条都**没有被单元测试发现**——测试断言的是"有没有内容"，而它们坏的是"印出来是什么"。
+留档，因为这一类缺陷只有实拍才看得见。
+
+| # | 现象 | 根因 | 修法 |
+|---|---|---|---|
+| 1 | 产物标题印成「Your Product · 极简科技…」 | `brand_of()` 把**显式空品牌**兜底成占位符（`"" or "Your Product"`）；同时 `brief_expert` 会重写文案，把审核台改过的摘要盖回兜底句 | `brand_of()` 区分「缺字段（演示兜底）」与「显式空（不印）」；新增 `brand_line()`；给 `GenerationRequest` 加 caller-owned `content`，在 pipeline 里以人审文案覆盖规则文案（空字符串只对 `brand` 生效） |
+| 2 | 800 字目录整段印进首节正文 | Word 的目录是「提示句 ＋ 01/02 条目」的**普通段落**，没有标题级别；旧的跳过规则要求 `len>40`，而提示句恰好 12 字，于是漏网，后续条目继续拼进同一节 | `_TOC_HINTS` 命中即进入「目录模式」，连带跳过后续 `^\s*\d{1,2}\s*[、.．]?` 条目，直到遇见真标题；并在 limitations 里写明 |
+| 3 | 界面整块空白，控制台 `window.FoxDocx` 未定义 | 新增的 `docx-desk.js` 未登记进 `STATIC_FILES`（显式白名单），请求 404 → 脚本不执行 → 卡片是死的 | 登记 `"/docx-desk.js"`；同一条教训早写在 `fox-core.js` 上方注释里（"未登记 = 空白页而不是构建失败"） |
+
+**门禁补强**：`test_no_brand_means_no_placeholder_on_the_page`、`test_toc_run_is_skipped_not_rendered_as_a_giant_paragraph`、`test_adopt_renders_the_word_prose_into_a_real_project` 里新增 `assert "Your Product" not in html`，以及 `test_action_registry` 的模块允许表加入 `window.FoxDocx`。

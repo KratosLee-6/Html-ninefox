@@ -364,3 +364,53 @@
 .slides-slide-head { font-size:var(--fs-md); color:var(--text-tertiary); }
 .slides-field { display:grid; gap:var(--space-1); font-size:var(--fs-md); color:var(--text-secondary); }
 .slides-field textarea { width:100%; }
+
+/* Word 导入审核台（v0.8.1）：提案先可见，再采纳。只用 token，不加第二种边框语言。 */
+.docx-desk { display:grid; gap:var(--space-2); }
+.docx-head { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-2); }
+.docx-head h3 { font-size:var(--fs-lg); }
+.docx-sub { margin-top:var(--space-1); font-size:var(--fs-sm); color:var(--text-secondary); }
+.docx-badge { flex:none; padding:2px var(--space-2); border:1px solid var(--border-subtle);
+  border-radius:999px; font-size:var(--fs-sm); color:var(--text-secondary); }
+.docx-badge[data-state="busy"] { border-color:var(--warning); color:var(--warning); }
+.docx-badge[data-state="ready"], .docx-badge[data-state="done"] {
+  border-color:var(--success); color:var(--success); }
+.docx-badge[data-state="error"] { border-color:var(--danger); color:var(--danger); }
+.docx-input-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--space-2); align-items:center; }
+.docx-input-row input[type="file"] { width:auto; height:auto; }
+.docx-proposal { display:grid; gap:var(--space-2); padding-top:var(--space-2);
+  border-top:1px solid var(--border-subtle); }
+.docx-grid { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr); gap:var(--space-2); }
+.docx-reason { font-size:var(--fs-sm); color:var(--text-secondary); }
+.docx-slots { display:grid; gap:var(--space-1); }
+.docx-slot { display:grid; grid-template-columns:110px minmax(0,1fr) minmax(0,2fr) auto;
+  gap:var(--space-1); align-items:center; }
+.docx-slot input { height:32px; }
+.docx-add-slot { justify-self:start; }
+.docx-limits { display:grid; gap:2px; padding-left:var(--space-4); font-size:var(--fs-sm);
+  color:var(--text-secondary); }
+.docx-actions { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; }
+.docx-result { font-size:var(--fs-sm); color:var(--accent); }
+.docx-status { font-size:var(--fs-sm); color:var(--text-secondary); min-height:1.2em; }
+.docx-status[data-tone="error"] { color:var(--danger); }
+.docx-status[data-tone="ok"] { color:var(--success); }
+.docx-status[data-tone="warn"] { color:var(--warning); }
+@media (max-width:720px) {
+  .docx-grid, .docx-slot { grid-template-columns:1fr; }
+}
+
+/* Word 台细节修：原生英文 Choose File 换成中文选择器；摘要/图片描述不再截断；
+   主按钮在提案很长时贴底可见，不用滚到底找它。 */
+.docx-pick { position:relative; display:inline-flex; align-items:center; justify-content:center;
+  min-height:34px; padding:0 var(--space-3); border:1px solid var(--border-default);
+  border-radius:var(--radius); font-size:var(--fs-md); cursor:pointer; max-width:100%; }
+.docx-pick:focus-within { outline:2px solid var(--focus); outline-offset:1px; }
+.docx-pick input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+.docx-pick span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.docx-desk textarea { min-height:52px; }
+.docx-slot { grid-template-columns:96px minmax(120px,150px) minmax(0,1fr) auto; align-items:start; }
+.docx-slot textarea { min-height:34px; resize:vertical; }
+.docx-actions { position:sticky; bottom:0; padding:var(--space-2) 0;
+  background:var(--bg-panel); border-top:1px solid var(--border-subtle); }
+.docx-slot { grid-template-columns:96px minmax(180px,200px) minmax(0,1fr) auto; }
+.docx-slot textarea { min-height:34px; }

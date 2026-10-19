@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
+from ._shared import (base_css, block_ids_of, blocks_of, brand_line, brand_of, content_of, esc, html_shell,
                       page_sections_html, page_sections_of)
 
 _EXTRA = """
@@ -157,7 +157,7 @@ def render(brief: dict, style: dict, assets: dict) -> str:
     if "hero" in blocks:
         parts.append(f"""
 <section class="wrap hero">
-  <span class="tag">{esc(brand)} · 正式发布</span>
+  <span class="tag">{esc(brand_line(brand, "正式发布"))}</span>
   <h1>{esc(headline)}</h1>
   <p class="lead">{esc(content_of(brief, "hero_sub", "把想法变成可交付的成果，只差一个开始。"))}</p>
   <div class="actions"><a class="btn" href="#cta">免费开始</a><a class="btn ghost" href="#features">了解功能 →</a></div>

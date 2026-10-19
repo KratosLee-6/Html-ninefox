@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
+from ._shared import (base_css, block_ids_of, blocks_of, brand_line, brand_of, content_of, esc, html_shell,
                       page_sections_html, page_sections_of)
 
 _EXTRA = """
@@ -80,9 +80,9 @@ def render(brief: dict, style: dict, assets: dict) -> str:
 
     if "cover" in blocks:
         slides.append(slide("01", f"""
-  <div class="cover-tag">{esc(brand)} · 发布会 2026</div>
+  <div class="cover-tag">{esc(brand_line(brand, "发布会 2026"))}</div>
   <h1>{esc(content_of(brief, "headline", core))}</h1>
-  <p class="sub">—— {esc(brand)} · 由 Html九尾狐 编排生成 ——</p>"""))
+  <p class="sub">—— {esc(brand_line(brand, "由 Html九尾狐 编排生成"))} ——</p>"""))
     if "problem" in blocks:
         slides.append(slide("02", f"""
   <div class="rule"></div><h2>今天的问题</h2>

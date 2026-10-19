@@ -93,6 +93,36 @@ def test_adoption_reports_what_the_channel_cannot_carry():
     assert "未配置 LLM" in joined, "提案层的边界必须随页面一起交付"
 
 
+def test_toc_run_is_skipped_not_rendered_as_a_giant_paragraph():
+    """Word 的目录是「提示句 + 01/02 条目」，两段都要跳过。
+
+    真实方案文档里这一串有 800+ 字，混进正文会变成首节一个巨型段落。
+    """
+    outline = IntakeOutline(
+        source=SourceInfo(kind="docx", ref="upload://docx", title="方案",
+                          digest="sha256:test"),
+        adapter=AdapterInfo(name="docx"),
+        blocks=(_block(1, "paragraph", "打开文档后可右键更新目录"),
+                _block(2, "list", "01  一、执行摘要"),
+                _block(3, "list", "02  二、方案"),
+                _block(4, "heading", "一、执行摘要", level=1),
+                _block(5, "paragraph", "真正的正文。")),
+    ).validate()
+
+    sections, notes = sections_from_outline(outline)
+    text = " ".join(s["content"] for s in sections)
+
+    assert "更新目录" not in text and "01  一、执行摘要" not in text
+    assert "真正的正文。" in text
+    assert any("目录行已跳过" in note for note in notes)
+
+
+def test_no_brand_means_no_placeholder_on_the_page():
+    page = adopt(sample_outline())
+
+    assert "Your Product" not in page.html
+
+
 def test_toc_heading_never_becomes_a_section():
     outline = IntakeOutline(
         source=SourceInfo(kind="docx", ref="upload://docx", title="方案",

@@ -819,9 +819,40 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   </div>
 </div>
 <div class="preview-modal" id="intake-modal" hidden role="dialog" aria-modal="true" aria-labelledby="intake-title">
-  <div class="flow-dialog intake-dialog"><div class="preview-bar"><strong id="intake-title">设计吸收</strong><span>全球优秀设计 · 安全抓取 · 审核后入库</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeIntake">关闭</button></div>
+  <div class="flow-dialog intake-dialog"><div class="preview-bar"><strong id="intake-title">导入与吸收</strong><span>Word 提案 · 全球设计抓取 · 审核后入库</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeIntake">关闭</button></div>
     <div class="flow-body">
       <section class="flow-card"><div id="intake-stats" class="intake-stats" aria-live="polite">加载吸收指标…</div></section>
+      <article class="flow-card docx-desk" id="docx-desk">
+        <div class="docx-head">
+          <div><h3>从 Word 开始</h3>
+            <p class="docx-sub">上传 .docx，先看提案：意图、风格、图片位、文案都可改，再采纳生成。</p></div>
+          <span class="docx-badge" id="docx-state" data-state="idle">待上传</span>
+        </div>
+        <div class="docx-input-row">
+          <label class="btn btn-ghost docx-pick">
+            <input type="file" id="docx-file" accept=".docx" aria-label="选择 Word 文件">
+            <span id="docx-filename">选择 .docx</span>
+          </label>
+          <button class="btn btn-secondary" id="docx-analyze" data-action="docxAnalyze">解析并出提案</button>
+        </div>
+        <div class="docx-proposal" id="docx-proposal" hidden>
+          <div class="docx-grid">
+            <label class="flow-field">标题<input id="docx-headline" maxlength="120"></label>
+            <label class="flow-field">意图<select id="docx-intent" aria-label="页面意图"></select></label>
+            <label class="flow-field">风格<select id="docx-preset" aria-label="视觉风格"></select></label>
+          </div>
+          <label class="flow-field">摘要<textarea id="docx-summary" rows="2"></textarea></label>
+          <p class="docx-reason" id="docx-reason"></p>
+          <div class="docx-slots" id="docx-slots" aria-label="图片位"></div>
+          <button class="btn btn-ghost docx-add-slot" data-action="docxAddSlot">＋ 加一个图片位</button>
+          <ul class="docx-limits" id="docx-limits" aria-label="边界说明"></ul>
+          <div class="docx-actions">
+            <button class="btn btn-primary" id="docx-adopt" data-action="docxAdopt">采纳并生成</button>
+            <a class="docx-result" id="docx-result" hidden target="_blank" rel="noopener">打开产物 ↗</a>
+          </div>
+        </div>
+        <p class="docx-status" id="docx-status" role="status"></p>
+      </article>
       <section class="flow-card">
         <div class="intake-fetch-row">
           <input id="intake-fetch-url" placeholder="https:// 参考网页地址（仅公网）" aria-label="参考网页地址">
@@ -884,6 +915,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <script src="/lifecycle-revisions.js"></script>
 <script src="/lifecycle-exports.js"></script>
 <script src="/lifecycle-intake.js"></script>
+<script src="/docx-desk.js"></script>
 <script src="/lifecycle-slides.js"></script>
 <script src="/fox-core.js"></script>
 <script src="/canvas-productivity.js"></script>

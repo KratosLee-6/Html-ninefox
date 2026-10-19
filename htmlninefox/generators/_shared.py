@@ -372,4 +372,19 @@ def page_sections_html(
 
 
 def brand_of(brief: dict) -> str:
-    return content_of(brief, "brand", "Your Product") or "Your Product"
+    """An explicitly empty brand means "no brand" — only a missing one is a demo.
+
+    Word 导入没有品牌字段；以前显式传 "" 也会被兜底成 "Your Product"，于是一份
+    客户的方案页顶着占位符发出去。缺字段仍给占位（演示与测试依赖它），给了空
+    字符串就当真随空走。
+    """
+    payload = brief.get("brief", brief) if isinstance(brief, dict) else {}
+    content = payload.get("content", {}) or {}
+    if "brand" in content or "brand" in payload:
+        return str(content.get("brand") or payload.get("brand") or "")
+    return "Your Product"
+
+
+def brand_line(brand: str, suffix: str) -> str:
+    """`brand · suffix`，没有品牌时就只印 suffix——不印"· 标题"这种断头。"""
+    return f"{brand} · {suffix}" if brand else suffix

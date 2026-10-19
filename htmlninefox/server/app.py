@@ -20,6 +20,7 @@ from typing import Callable
 from urllib.parse import parse_qs, unquote, urlparse
 
 from .. import __version__, exporting, intake, llm, pipeline, project_memory, revisions, template_gallery
+from .. import docx_adopt, docx_import, docx_proposal
 from .. import pptx_export
 from ..application import (
     ExportError, ExportRequest, ExportResult,
@@ -58,6 +59,7 @@ STATIC_FILES = {
     "/lifecycle-revisions.js": ("lifecycle-revisions.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-exports.js": ("lifecycle-exports.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-intake.js": ("lifecycle-intake.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/docx-desk.js": ("docx-desk.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-slides.js": ("lifecycle-slides.js", "application/javascript; charset=utf-8", "no-cache"),
     "/motion-system.js": ("motion-system.js", "application/javascript; charset=utf-8", "no-cache"),
     "/motion-lab": ("motion-lab.html", "text/html; charset=utf-8", "no-cache"),
@@ -199,6 +201,69 @@ class _Handler(BaseHTTPRequestHandler):
 
     def _api_intake_zip(self, body: dict) -> dict:
         return self._intake_service().import_zip(body)
+
+    @staticmethod
+    def _docx_upload(body: dict) -> bytes:
+        """The upload is base64 JSON, like the ZIP import — no multipart parser."""
+        payload = str(body.get("docx_base64") or "").strip()
+        if not payload:
+            raise StoreError("docx_upload_required", "请选择一份 .docx 文件", 400)
+        try:
+            data = base64.b64decode(payload, validate=True)
+        except (ValueError, TypeError) as exc:
+            raise StoreError("docx_upload_invalid", "Word 文件不是合法 Base64", 400) from exc
+        if not data:
+            raise StoreError("docx_upload_required", "请选择一份 .docx 文件", 400)
+        return data
+
+    def _docx_outline(self, body: dict):
+        data = self._docx_upload(body)
+        try:
+            return docx_import.parse_docx(data)
+        except docx_import.DocxIntakeError as exc:
+            raise StoreError("docx_unreadable", str(exc), 400) from exc
+
+    def _api_intake_docx(self, body: dict) -> dict:
+        """Parse an uploaded .docx and return the proposal a person reviews."""
+        outline = self._docx_outline(body)
+        proposal = docx_proposal.propose(outline)
+        return {
+            "ok": True,
+            "source": outline.as_dict()["source"],
+            "counts": outline.counts,
+            "evidence_complete": outline.evidence_complete,
+            "limitations": list(dict.fromkeys((*outline.limitations, *proposal.limitations))),
+            "proposal": proposal.as_dict(),
+        }
+
+    def _api_intake_docx_adopt(self, body: dict) -> dict:
+        """Render the reviewed proposal through the existing generation use case."""
+        outline = self._docx_outline(body)
+        base = docx_proposal.propose(outline)
+        try:
+            proposal = docx_adopt.apply_overrides(base, body.get("proposal"))
+        except ValueError as exc:
+            raise StoreError("docx_proposal_invalid", str(exc), 400) from exc
+        sections, notes = docx_adopt.sections_from_outline(outline)
+        payload = self._generation_result({
+            "prompt": proposal.copy.get("headline") or outline.source.title or "Word 导入",
+            "intent": proposal.intent,
+            "template": proposal.preset_id,
+            "blocks": sections,
+            "content": {
+                "brand": "",
+                "headline": proposal.copy.get("headline", ""),
+                "hero_sub": proposal.copy.get("summary", ""),
+                "summary": proposal.copy.get("summary", ""),
+            },
+            "quiet_llm": True,
+            "selection_mode": "docx",
+        })
+        payload["limitations"] = list(dict.fromkeys(
+            (*outline.limitations, *proposal.limitations, *notes)))
+        payload["docx"] = {"title": outline.source.title, "sections": len(sections),
+                           "counts": outline.counts}
+        return payload
 
     def _api_intake_decide(self, candidate_id: str, action: str) -> dict:
         return self._intake_service().decide(candidate_id, action)
@@ -596,6 +661,10 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json(self._api_intake_fetch_batch(body))
         if path == "/api/intake/zip":
             return self._json(self._api_intake_zip(body))
+        if path == "/api/intake/docx":
+            return self._json(self._api_intake_docx(body))
+        if path == "/api/intake/docx/adopt":
+            return self._json(self._api_intake_docx_adopt(body))
         if path == "/api/intake/candidates/batch":
             return self._json(self._api_intake_batch(body))
         if path == "/api/intake/components/import":
@@ -793,6 +862,7 @@ class _Handler(BaseHTTPRequestHandler):
                 for item in blocks
             ),
             selection_mode=body.get("selection_mode") or "custom",
+            content=body.get("content") if isinstance(body.get("content"), dict) else {},
         )
 
     @staticmethod

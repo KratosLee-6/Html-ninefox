@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
+from ._shared import (base_css, block_ids_of, blocks_of, brand_line, brand_of, content_of, esc, html_shell,
                       sections_of)
 
 _EXTRA = """
@@ -59,7 +59,7 @@ def render(brief: dict, style: dict, assets: dict) -> str:
         parts.append(f"""
 <header class="doc-head">
   <span class="tag">DOCUMENT</span>
-  <h1>{esc(brand)} · {esc(headline)}</h1>
+  <h1>{esc(brand_line(brand, headline))}</h1>
   <div class="meta"><span>版本 v1.0</span><span>2026-08</span><span>Html九尾狐 编排生成</span></div>
 </header>""")
 
@@ -126,5 +126,5 @@ def render(brief: dict, style: dict, assets: dict) -> str:
 <div class="sign"><span>{esc(brand)}</span><span>编制：Html九尾狐 · 2026-08</span></div>""")
 
     parts.append("</main>")
-    return html_shell(f"{brand} · {headline}", preset, "\n".join(parts), _EXTRA,
+    return html_shell(brand_line(brand, headline), preset, "\n".join(parts), _EXTRA,
                       generator="htmlninefox-v0.2/doc")

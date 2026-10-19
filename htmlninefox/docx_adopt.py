@@ -12,13 +12,19 @@ preview and the shipped page drift apart, which is exactly what v0.7.4 cost.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, replace
 
-from .docx_proposal import Proposal, propose
+from .docx_proposal import ImagePlanItem, Proposal, propose
 from .generators import _tokens, render
 from .intake_outline import IntakeOutline
 
 _TOC_HEADS = {"目录", "目 录", "contents", "table of contents"}
+# Word 把目录存成域展开后的普通段落（"打开文档后可右键更新目录 01 一、执行摘要
+# 02 二、…"），没有标题级别。它一旦混进正文，整份目录就被当成一个巨型段落印在
+# 首节里。只认强特征，避免误吃正常段落。
+_TOC_HINTS = ("更新目录", "右键更新", "目录已更新", "table of contents")
+_TOC_ENTRY = re.compile(r"^\s*\d{1,2}\s*[、.．]?\s*\S")
 
 
 @dataclass(frozen=True)
@@ -46,6 +52,7 @@ def sections_from_outline(outline: IntakeOutline) -> tuple[list[dict], list[str]
     sections: list[dict] = []
     notes: list[str] = []
     current: dict | None = None
+    toc_mode = False  # 目录是「提示句 + 一串 01/02 条目」，要一起跳过
 
     def flush() -> None:
         nonlocal current
@@ -56,6 +63,7 @@ def sections_from_outline(outline: IntakeOutline) -> tuple[list[dict], list[str]
 
     for block in outline.blocks:
         if block.kind == "heading":
+            toc_mode = False
             if block.heading.strip().lower() in _TOC_HEADS:
                 continue
             flush()
@@ -70,6 +78,15 @@ def sections_from_outline(outline: IntakeOutline) -> tuple[list[dict], list[str]
             continue
 
         body = block.content or (block.heading if block.kind == "section" else "")
+        if block.kind in {"paragraph", "list"} and any(
+                hint in body.lower() for hint in _TOC_HINTS):
+            toc_mode = True
+            notes.append("目录行已跳过：Word 的目录是域展开文本，不是正文")
+            continue
+        if toc_mode and block.kind in {"paragraph", "list"} and _TOC_ENTRY.match(body):
+            continue
+        if toc_mode and body.strip():
+            toc_mode = False
         if block.kind == "table" and block.rows:
             body = _rows_to_text(block.rows)
             notes.append("表格已压成文本行；列宽、合并单元格与边框不随行")
@@ -99,6 +116,38 @@ def sections_from_outline(outline: IntakeOutline) -> tuple[list[dict], list[str]
     return sections, notes
 
 
+def apply_overrides(base: Proposal, overrides: dict | None) -> Proposal:
+    """Put the review desk's edits back into a proposal — and re-validate them.
+
+    The desk may change the intent, the preset, the copy and the image plan.
+    Anything illegal (unknown intent or preset, a slot without a prompt) raises
+    here instead of reaching the renderer.
+    """
+    if not overrides:
+        return base
+    style = overrides.get("style") if isinstance(overrides.get("style"), dict) else {}
+    plan = overrides.get("image_plan")
+    if isinstance(plan, list):
+        image_plan = tuple(
+            item if isinstance(item, ImagePlanItem) else ImagePlanItem(
+                slot=str(item.get("slot", "")), purpose=str(item.get("purpose", "")),
+                prompt=str(item.get("prompt", "")))
+            for item in plan
+        )
+    else:
+        image_plan = base.image_plan
+    copy = {**base.copy, **overrides["copy"]} if isinstance(overrides.get("copy"), dict) else base.copy
+    return replace(
+        base,
+        intent=str(overrides.get("intent") or base.intent),
+        preset_id=str(style.get("preset_id") or overrides.get("preset_id") or base.preset_id),
+        style_reason=str(style.get("reason") or base.style_reason),
+        image_plan=image_plan,
+        copy=copy,
+        limitations=tuple(overrides.get("limitations") or base.limitations),
+    ).validate()
+
+
 def adopt(outline: IntakeOutline, proposal: Proposal | None = None, *,
           intent: str | None = None) -> AdoptedPage:
     """Render the adopted page through the existing generators.
@@ -114,7 +163,8 @@ def adopt(outline: IntakeOutline, proposal: Proposal | None = None, *,
     brief = {
         "brief": {
             "headline": proposal.copy.get("headline", ""),
-            "brand": "",
+            "brand": "",  # 显式空品牌：页面不印占位符（brand_of 认这个区别）
+            "hero_sub": proposal.copy.get("summary", ""),
             "content": {
                 "summary": proposal.copy.get("summary", ""),
                 "sections": proposal.copy.get("sections", []),

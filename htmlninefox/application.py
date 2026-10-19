@@ -164,6 +164,9 @@ class GenerationRequest:
     gallery_id: str | None = None
     blocks: tuple[GenerationBlock, ...] = ()
     selection_mode: str = "custom"
+    # Caller-owned copy (brand / hero_sub / summary). Word 导入审过的文案走这里，
+    # 否则 brief_expert 会用规则重写一遍，页面上印的是它的话而不是人审过的话。
+    content: JsonObject = field(default_factory=dict)
 
     def _memory_context(self) -> JsonObject:
         """Expose only explicit requirements understood by Project Memory."""
@@ -456,6 +459,7 @@ class StudioApplication:
                     "gallery_source": gallery_item.get("source") if gallery_item else "builtin",
                     "template_design_tokens": design_tokens if isinstance(design_tokens, dict) else {},
                     "blocks": [block.to_value() for block in request.blocks],
+                    "content": dict(request.content or {}),
                     "inputs": input_items,
                     "selection_mode": request.selection_mode or "custom",
                 },

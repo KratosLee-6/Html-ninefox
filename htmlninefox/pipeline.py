@@ -91,6 +91,24 @@ def _brief_to_md(brief_payload: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _apply_caller_copy(brief_result: dict[str, Any], copy: dict[str, Any] | None) -> None:
+    """Explicit copy wins over the rules — but only the keys the caller named.
+
+    Word 导入的文案是人审过的；brief_expert 仍要跑（它负责 intent 与 confidence），
+    只是它生成的那几句中文不能盖掉审核台上改过的标题与摘要。
+    """
+    if not isinstance(copy, dict):
+        return
+    payload = brief_result.setdefault("brief", {})
+    content = payload.setdefault("content", {})
+    for key, value in copy.items():
+        if not isinstance(value, str):
+            continue
+        # 空字符串只对 brand 有意义（"没有品牌"），其他键空白一律忽略。
+        if value.strip() or key == "brand":
+            content[key] = value.strip()
+
+
 def _apply_memory_context(brief_result: dict[str, Any], memory_context: dict[str, Any] | None) -> None:
     if not isinstance(memory_context, dict):
         return
@@ -230,6 +248,7 @@ def _run_expert_into(work: Path, project_name: str, ts: str, prompt: str, skill:
             "project_memory": bool((memory_context or {}).get("applied")),
         })
         brief_result = brief_expert.BriefExpert().execute({"prompt": prompt, "allow_llm": not quiet_llm})
+        _apply_caller_copy(brief_result, (composition or {}).get("content"))
         _apply_memory_context(brief_result, memory_context)
         intent = intent_override or brief_result.get("intent", "landing")
         tracker.complete("analyze", {

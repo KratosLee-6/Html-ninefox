@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from ._shared import (base_css, block_ids_of, blocks_of, brand_of, content_of, esc, html_shell,
+from ._shared import (base_css, block_ids_of, blocks_of, brand_line, brand_of, content_of, esc, html_shell,
                       page_sections_html, page_sections_of)
 
 _EXTRA = """
@@ -108,7 +108,7 @@ def render(brief: dict, style: dict, assets: dict) -> str:
     if "title" in blocks:
         parts.append(f"""
 <header class="doc-head">
-  <h1>{esc(brand)} · {esc(content_of(brief, "headline", core))}</h1>
+  <h1>{esc(brand_line(brand, content_of(brief, "headline", core)))}</h1>
   <div class="meta"><span>版本 v0.2</span><span>2026-08-29</span>
     <span>状态：评审稿</span><span>作者：Html九尾狐 生成</span></div>
 </header>""")
