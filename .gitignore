@@ -51,3 +51,6 @@ tests/cert/
 assets/promo/*.mp4
 assets/promo/*.mp3
 assets/marketing/
+
+# 旧版证据截图（v0.6.4 已随 Release 归档）；新证据按版本目录提交
+assets/screenshots/v0.6.4/
