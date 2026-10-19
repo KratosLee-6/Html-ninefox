@@ -158,3 +158,26 @@ CSS 与装饰性文案。用被断言对象独有的串，否则门禁测的是"
 **另外**：v0.8.0 的 `mutate_docx_gates.py`（导出链 3 条）从写出来那天起就没进
 `preflight_mutations.py`——等于每次发版都没人验证它。这版把它和新的
 `mutate_docx_intake_gates.py` 一并接进 preflight，现在五套一起跑。
+
+---
+
+## 7. 发布记录（v0.8.1）
+
+| 项 | 值 |
+|---|---|
+| tag | `v0.8.1` → `980c121`（annotated，重指到绿提交） |
+| Release | <https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.1> · 25 个资产（wheel ＋ sha256、各平台包、5 张截图、演示视频） |
+| 版本一致性 | `pyproject` / `__init__` / `uv.lock` / `README.md` / `README.en.md` 全部 `0.8.1`；`check_release_version.py --tag v0.8.1` 通过 |
+| 全量回归 | 本机 **741 passed / 4 skipped / 0 failed**（451 s）；CI 同数 **741 passed / 4 skipped**（318 s） |
+| CI | Test `39198634175` **success** · Build release packages `39199487694` **success** |
+| README | v0.8.1 新功能在最上，**v0.8.0 能力作为主线正文保留**；两版截图都是当前构建实拍 |
+
+**发版过程里修掉的一个门禁缺陷**：CI 先在 `test_workbench_visual_convergence`
+红过一次（等 `#node-2 .node-body` 收起，10 秒超时）。密度规则只作用于
+`.node:not(.ws)`，而 node-2 在某些种子数据下是工作区节点——它本来就不该被收起，
+门禁问错了对象。改成对整组普通节点断言后，本机连跑三次与 CI 均绿。
+
+**另一条环境坑**：本机 `.venv` 里的 pip 后来不见了，`test_packaging_matrix`
+的两条因此报 `subprocess.CalledProcessError`（真实原因是
+`No module named pip`）。`python -m ensurepip --upgrade` 之后 6/6 绿——这类红
+是环境问题，不是产品回归，先看 `pip --version` 再改代码。
