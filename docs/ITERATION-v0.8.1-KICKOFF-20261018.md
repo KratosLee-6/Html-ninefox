@@ -86,6 +86,7 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 |---|---|
 | `pytest tests/test_docx_import.py` | **11 passed** |
 | `pytest tests/test_docx_proposal.py` | **14 passed** |
+| `pytest tests/test_docx_adopt.py` | **11 passed**（六意图 × 正文到达 ＋ 表格压平 ＋ 图片留资产 ＋ 真实文档 20k+ 字符） |
 | 真实 .docx 解析 | 通过（54 标题 / 48 表格 / 1 图片 / `evidence_complete=True`） |
 | 真实 .docx 提案 | `doc` ＋ `doc-clean`，封面＋3 个章节配图位，摘要单行，目录被排除 |
 | `mutate_smoke_gates.py` | **9/9 CAUGHT**（M8 用新结构锚点后恢复 CAUGHT；此前是 `NOT APPLIED`） |
@@ -104,7 +105,7 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 | 1 | 上传解析（离线）：`docx_outline` ＋ 统一 `intake_outline` 契约 | ✅ 完成（11 条门禁） |
 | 2 | `docx_proposal`：意图 / 风格 / 图片计划 / 文案（离线规则 ＋ LLM refiner 钩子） | ✅ 完成第一版（14 条门禁） |
 | 3 | 审核台呈现：上传 .docx、提案可改可拒、图片位增删、文案可编辑 | ⏭ 下一步（1.5 天，受 v0.8.2 界面规则约束） |
-| 4 | 采纳生成：blocks → 既有分块通道（六生成器零改动） | ⏭ 待 3（0.5 天） |
+| 4 | 采纳生成：blocks → 既有分块通道（六生成器零改动） | ✅ 完成（11 条门禁，六个意图逐个断言正文到达；真实 GEO 文档 20k+ 字符） |
 | 5 | 门禁：真链验收（真实 docx → 六类产物）＋ 无 LLM 兜底锁定 ＋ 提案 schema 锁定 ＋ 变异 | ⏭ 待 4（1 天） |
 
 ---

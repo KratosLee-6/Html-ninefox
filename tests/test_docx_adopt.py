@@ -1,0 +1,127 @@
+"""docx adoption gates (v0.8.1 step 4).
+
+Adoption must not grow a second rendering path: these gates render through the
+same `generators.render` the product uses, in all six intents, and assert the
+document's own prose survives.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from htmlninefox.docx_adopt import adopt, sections_from_outline
+from htmlninefox.docx_proposal import propose
+from htmlninefox.intake_outline import AdapterInfo, Block, IntakeOutline, SourceInfo
+
+INTENTS = ["landing", "dashboard", "deck", "poster", "archdoc", "doc"]
+
+REAL_DOCX = Path(r"E:/工作/01_业务/【汐构科技】/GEO/汐构信息技术全域数字营销与GEO平台定制方案_含产品架构图.docx")
+
+
+def _block(index: int, kind: str, text: str = "", *, level: int = 0,
+           rows: tuple[tuple[str, ...], ...] = (), asset: str = "") -> Block:
+    return Block(
+        id=f"b{index}",
+        kind=kind,
+        heading=text if kind == "heading" else "",
+        content=text if kind in {"paragraph", "list"} else "",
+        level=level,
+        rows=rows,
+        asset=asset,
+        evidence={"paragraph": index},
+        ordinal=index - 1,
+    )
+
+
+def sample_outline() -> IntakeOutline:
+    blocks = [
+        _block(1, "heading", "一、背景", level=1),
+        _block(2, "paragraph", "这是背景的第一段正文。"),
+        _block(3, "paragraph", "这是背景的第二段正文。"),
+        _block(4, "heading", "二、方案", level=1),
+        _block(5, "paragraph", "方案说明文字。"),
+        _block(6, "table", rows=(("指标", "数值"), ("转化", "12%"))),
+        _block(7, "heading", "三、空章节", level=1),
+        _block(8, "image", asset="word/media/image1.png"),
+    ]
+    return IntakeOutline(
+        source=SourceInfo(kind="docx", ref="upload://docx", title="季度交付说明",
+                          digest="sha256:test", origin="user_upload", licence="user_owned"),
+        adapter=AdapterInfo(name="docx"),
+        blocks=tuple(blocks),
+    ).validate()
+
+
+def test_sections_follow_the_headings_and_keep_their_prose():
+    sections, notes = sections_from_outline(sample_outline())
+
+    assert [s["heading"] for s in sections] == ["一、背景", "二、方案"]
+    assert "第一段" in sections[0]["content"] and "第二段" in sections[0]["content"]
+    assert sections[0]["kind"] == "sections"
+    assert sections[0]["source"].startswith("docx:paragraph-")
+    assert any("表格已压成文本行" in note for note in notes)
+    assert any("图片" in note for note in notes)
+
+
+def test_empty_heading_is_skipped_and_table_text_lands_in_its_section():
+    sections, _ = sections_from_outline(sample_outline())
+
+    assert all(s["content"].strip() for s in sections), "不允有空章节进渲染"
+    assert "12%" in sections[1]["content"]
+
+
+@pytest.mark.parametrize("intent", INTENTS)
+def test_every_intent_renders_the_document_prose(intent):
+    outline = sample_outline()
+    proposal = propose(outline)
+
+    page = adopt(outline, proposal, intent=intent)
+
+    assert page.intent == intent
+    assert "这是背景的第一段正文。" in page.html
+    assert "方案说明文字。" in page.html
+    assert len(page.html) > 1000
+
+
+def test_adoption_reports_what_the_channel_cannot_carry():
+    page = adopt(sample_outline())
+
+    joined = " ".join(page.limitations)
+    assert "表格已压成文本行" in joined
+    assert "未配置 LLM" in joined, "提案层的边界必须随页面一起交付"
+
+
+def test_toc_heading_never_becomes_a_section():
+    outline = IntakeOutline(
+        source=SourceInfo(kind="docx", ref="upload://docx", title="方案",
+                          digest="sha256:test"),
+        adapter=AdapterInfo(name="docx"),
+        blocks=(_block(1, "heading", "目录", level=1),
+                _block(2, "paragraph", "01 执行摘要"),
+                _block(3, "heading", "一、执行摘要", level=1),
+                _block(4, "paragraph", "正文。")),
+    ).validate()
+
+    sections, _ = sections_from_outline(outline)
+    headings = [s["heading"] for s in sections]
+
+    assert "目录" not in headings, "目录不能变成章节"
+    assert "一、执行摘要" in headings
+    # 目录行落在首个真标题之前，按「文档标题下的前言」处理——宁可保留，
+    # 也不猜哪一段是目录项（真实文档的封面语也长这样）。
+    assert headings[0] == "方案"
+
+
+@pytest.mark.skipif(not REAL_DOCX.exists(), reason="本机没有那份真实 .docx")
+def test_real_business_doc_renders_end_to_end():
+    from htmlninefox.docx_import import parse_docx
+
+    outline = parse_docx(REAL_DOCX)
+    proposal = propose(outline)
+    page = adopt(outline, proposal)
+
+    assert page.section_count >= 10
+    assert "执行摘要" in page.html
+    assert len(page.html) > 20000
