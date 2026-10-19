@@ -63,25 +63,29 @@ def test_workbench_convergence_layout_icons_and_semantic_zoom(workbench_server):
             "document.querySelector('.canvas-wrap')"
             "?.getAttribute('data-canvas-density') === 'overview'",
             timeout=10000)
-        # Vue/Playwright 细节：wait_for_function 里任何异常都会让等待立即失败（不重试）。
-        # 这里先等节点真的挂上 DOM，再读计算样式；querySelector 返回 null 时
-        # getComputedStyle(null) 抛 TypeError，会表现成随机红的「flaky gate」。
+        # Vue/Playwright 细节：wait_for_function 里任何异常都会让等待立即失败（不重试），
+        # 所以先断言节点存在再读计算样式（querySelector 返回 null 时
+        # getComputedStyle(null) 抛 TypeError，会表现成随机红的「flaky gate」）。
+        #
+        # 断言不再绑定 `#node-2`：密度规则只作用于 `.node:not(.ws)`，而 node-2 在
+        # 某些种子数据下是一个工作区节点（`.ws`），那时它本来就不该被收起——
+        # CI 上偶发 10s 超时就是这么来的（run 39197736166）。这里改成对整组
+        # 普通节点断言，语义不变，也不再依赖某个具体 id 的身份。
         page.wait_for_function(
-            "() => !!document.querySelector('#node-2 .node-body')", timeout=10000)
-        page.wait_for_function(
-            "() => { const el = document.querySelector('#node-2 .node-body');"
-            " return !!el && getComputedStyle(el).display === 'none'; }",
-            timeout=10000)
+            "() => { const bodies = [...document.querySelectorAll("
+            "'.canvas-wrap[data-canvas-density=\"overview\"] .node:not(.ws) .node-body')];"
+            " return bodies.length >= 1 && bodies.every(el => getComputedStyle(el).display === 'none'); }",
+            timeout=15000)
 
         page.evaluate("camera.z=1; applyCamera(false,false)")
         page.wait_for_function(
             "document.querySelector('.canvas-wrap')"
             "?.getAttribute('data-canvas-density') === 'detail'",
-            timeout=10000)
+            timeout=15000)
         page.wait_for_function(
-            "() => { const el = document.querySelector('#node-2 .node-body');"
-            " return !!el && getComputedStyle(el).display !== 'none'; }",
-            timeout=10000)
+            "() => { const bodies = [...document.querySelectorAll('.node:not(.ws) .node-body')];"
+            " return bodies.length >= 1 && bodies.every(el => getComputedStyle(el).display !== 'none'); }",
+            timeout=15000)
 
         page.set_viewport_size({"width": 768, "height": 1024})
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
