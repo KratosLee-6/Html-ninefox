@@ -8,8 +8,8 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.0)
-[![Tests](https://img.shields.io/badge/pytest-596%20passed%20%7C%202%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.7.0.md)
+[![App Release](https://img.shields.io/badge/app-v0.8.1-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.1)
+[![Tests](https://img.shields.io/badge/pytest-741%20passed%20%7C%204%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.8.1.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -17,7 +17,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.0`（2026-10-17 发布）· 完整功能与架构见下。
+> Current app version `0.8.1` (released 2026-10-19) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.1) · full features below.
 
 ---
 
@@ -32,7 +32,32 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.7.0 · Page decomposition (latest)
+## v0.8.1 · Word import: parse → proposal → adopt (latest)
+
+**Drop in a `.docx` and the workbench first shows how it understood the document — you edit the proposal, then it renders. Parsing is fully offline.**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.1/docx-desk-proposal-1440.png" alt="Word review desk"><br><b>Review desk · the whole proposal</b><br>Intent, style, headline, summary and every image slot are editable; each recommendation carries its reason, and the parse limits sit on the same screen.</td>
+<td width="50%"><img src="assets/screenshots/v0.8.1/docx-artifact-1440.png" alt="doc artifact"><br><b>doc artifact · the document's own prose</b><br>A real 54-heading, 48-table business proposal becomes 45 sections and 25k+ characters; TOC lines and placeholders never leak in.</td>
+</tr>
+</table>
+
+- Proposal before generation: rules first (labelled `rules` when no model is configured), a human approves, then it lands as a real project with revisions and exports.
+- One contract (`intake_outline`) shared by parse, proposal and adoption — anything without a locator is rejected, and `limitations` travel with the proposal.
+- No second rendering path: adoption feeds the existing `sections` block channel, so all six generators stay untouched.
+- Limits shipped, not hidden: tables flatten to text, images stay assets, Word style sheets are not parsed.
+- Gates: 56 DOCX gates (parse 11 · proposal 14 · adoption 13 · API 14 · schema 3 · browser 1), mutations 6/6 caught, full suite 741 passed / 4 skipped. See the [release notes](docs/RELEASE-NOTES-v0.8.1.md).
+
+## v0.8.0 · Word export + paraphrase absorption (v0.8 mainline)
+
+**The export matrix gains its Word cell: document-shaped artifacts become real .docx structure, and paraphrased blocks can be rewritten on demand.**
+
+- Semantic mapping: h1–h6 → Heading 1–6, paragraphs, lists, tables, inline `data:` images with alt captions, quotes, rules, monospace blocks.
+- An honest degradation list: external images are not fetched, CSS colours/fonts/layout are not mapped, unsupported container text is counted and reported.
+- Visual intents get a 400 (`docx_intent_unsuited`) and the correct path instead of a malformed Word file.
+
+## v0.7.0 · Page decomposition (v0.7 ability)
 
 **Turn a real web page's sections into an editable project.**
 

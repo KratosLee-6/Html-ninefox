@@ -8,11 +8,11 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.0)
+[![App Release](https://img.shields.io/badge/app-v0.8.1-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.1)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-711%20passed%20%7C%203%20skipped-1F8A70)](docs/ITERATION-v0.8.1-KICKOFF-20261018.md)
+[![Tests](https://img.shields.io/badge/pytest-741%20passed%20%7C%204%20skipped-1F8A70)](docs/ITERATION-v0.8.1-KICKOFF-20261018.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22%20(v0.6.0)-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.0`（2026-10-17 发布）· 完整功能与架构见下。
+> 当前应用包版本为 `0.8.1`（2026-10-19 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.1) · 完整功能与架构见下。
 
 ---
 
@@ -35,7 +35,29 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.8.0 · Word 语义导出 + 改写吸收（最新功能）
+## 🆕 v0.8.1 · 贴入 Word：解析 → 提案 → 采纳（最新功能）
+
+**一份 .docx 进工作台，先看到「它被怎么理解」的提案，人改完再生成。解析全程离线，不联网也能用。**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.1/docx-desk-proposal-1440.png" alt="Word 导入审核台 · 提案"><br><b>审核台 · 提案全可见</b><br>意图、风格、标题、摘要、每个图片位都可改；每条建议带理由，解析边界（表格压平、图片留资产）同屏列出。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.1/docx-desk-adopted-1440.png" alt="采纳并生成"><br><b>采纳并生成</b><br>一次点击落成真实项目：目录、版本、导出全走既有链路，不另造渲染路径。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.1/docx-artifact-1440.png" alt="doc 产物"><br><b>doc 产物 · 文档自己的正文</b><br>54 个标题 / 48 张表 / 1 张图的真实商务方案，落成 45 节、25k+ 字符；目录行与占位符都不会混进来。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.1/docx-artifact-deck-1440.png" alt="同一份文档换成 deck"><br><b>同一份文档 · 换成 deck</b><br>审核台里改意图即可换形态，不用重新上传。</td>
+</tr>
+</table>
+
+- **提案先于生成**：意图 / 风格 / 图片计划 / 标题 / 摘要一次摆出来；未配模型时判据来自规则引擎并如实标 `rules`，人审完才落盘。
+- **统一契约**：`intake_outline` 让解析、提案、采纳共用一份带 locator 的块——没有出处的内容进不来，边界（`limitations`）随提案一起交付。
+- **不做第二条渲染路径**：采纳后转成既有分块通道的 `sections` 块，六个生成器零改动；预览与成品因此不会再漂移（v0.7.4 的旧账）。
+- **边界如实上市**：表格压成文本行、图片保留为资产、Word 样式表未解析（自定义样式名退化为段落），三条都写在界面清单与接口字段里。
+- **门禁**：DOCX 链 **56 条**（解析 11 · 提案 14 · 采纳 13 · 接口 14 · schema 3 · 真浏览器 1），变异 **6/6 CAUGHT**，全量 **741 passed / 4 skipped**。
+- 详见 [v0.8.1 发布说明](docs/RELEASE-NOTES-v0.8.1.md) · [v0.8.1 开工记录](docs/ITERATION-v0.8.1-KICKOFF-20261018.md)。
+
+## v0.8.0 · Word 语义导出 + 改写吸收（v0.8 主线能力）
 
 **导出矩阵补上 Word 这一格：文档类产物切成真正的 .docx 结构；改写过的块可以一键重写。**
 
@@ -53,10 +75,10 @@
 - **语义映射（宁小勿假）**：h1–h6 → Heading 1–6、段落、ul/ol、表格、data: URI 内嵌图片（含 alt 题注）、引用、分隔线、`pre/code` 等宽段落。
 - **降级清单如实上市**：外链图片不抓取（离线承诺）、CSS 配色 / 字体 / 布局不映射、非语义容器文本计数上报、界面 chrome 单独计数——每项都有门禁盯住「声称丢弃的真不在文档里」。
 - **意图分工**：视觉型产物选 Word 得 400 并给出正确路径（`docx_intent_unsuited`），而不是给一份错形的 Word。
-- **门禁**：v0.8.0 发布时 685 passed / 4 skipped；主线当前 CI **711 passed / 3 skipped**；docx 变异 **3/3** ＋ paraphrased **5/5** 全 CAUGHT；真实链路 **18/18**。
+- **门禁**：v0.8.0 发布时 685 passed / 4 skipped；docx 变异 **3/3** ＋ paraphrased **5/5** 全 CAUGHT；真实链路 **18/18**。
 - 详见 [v0.8.0 发布说明](docs/RELEASE-NOTES-v0.8.0.md) · [v0.8 迭代规划](docs/PLAN-v0.8.md)。
 
-> **正在开发 · v0.8.1**：贴入一份 .docx → AI 理解内容并补齐视觉层提案 → 人在审核台改 → 一键成页。离线解析（`htmlninefox/docx_import.py`）、统一 `intake_outline` 契约与离线提案层（`htmlninefox/docx_proposal.py`）已落地并各自带门禁；审核界面进行中。进度见 [v0.8.1 开工记录](docs/ITERATION-v0.8.1-KICKOFF-20261018.md)。
+> **下一步 · v0.8.2**：前端 UI / VI 与设计版面收敛（token 收敛、版面重排、手册 v1.2、设计契约三方比对）。计划见 [v0.8.2 UI/VI 收敛](docs/PLAN-v0.8.2-UI-VI.md)。
 
 ### 🔎 网页反向拆解（v0.7 能力，仍在主线）
 
@@ -112,6 +134,17 @@
 <tr>
 <td width="50%"><img src="assets/screenshots/v0.6.3/intake-review-pending.png" alt="素材审核台"><br><b>素材审核台 · 待审核</b><br>许可徽标、令牌色板、骨架大纲与吸收指标。</td>
 <td width="50%"><img src="assets/screenshots/v0.6.3/intake-approved-absorption.png" alt="已采纳与六层入库"><br><b>已采纳 · 六层入库</b><br>风格预设 / 组件 / 动效 / 内容，吸收指标同步更新。</td>
+</tr>
+</table>
+
+### 📄 Word 导入
+
+贴入 `.docx` 就能开工：本地解析出带出处的块，规则引擎（可接模型）给出意图 / 风格 / 图片计划 / 文案的提案，人在审核台改完再生成。桌面与窄屏都能操作。
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.1/docx-desk-proposal-1440.png" alt="Word 审核台 · 桌面"><br><b>桌面 · 提案与边界同屏</b><br>改意图 / 换风格 / 编辑文案 / 增删图片位，主按钮贴底常驻。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.1/docx-desk-proposal-390.png" alt="Word 审核台 · 390px"><br><b>390px · 单列堆叠</b><br>实测 0 个元素越界，主按钮仍可点到。</td>
 </tr>
 </table>
 
@@ -178,6 +211,7 @@ Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.8.1** | 2026-10-19 | **Word 导入**：`.docx` 离线解析 → 提案（意图/风格/图片位/文案，带理由）→ 审核台可改 → 一键成页；走既有分块通道，六生成器零改动；DOCX 链 56 条门禁 ＋ 变异 6/6 |
 | **v0.8.0** | 2026-10-17 | **DOCX 语义导出**：doc/archdoc 全文 / deck 讲义，降级清单如实；paraphrased「重新改写」；导出矩阵补上 Word 这一格 |
 | **v0.7.8** | 2026-10-17 | **C6 收口**：106 处内联 onclick 全量迁 data-action 委托，类型签名表守住「字符串 vs 数字 id」；顺带修掉真点击门禁暴露的芯片点击失灵 |
 | **v0.7.7** | 2026-10-12 | **改写吸收（paraphrased）**：配置 LLM 后，参考类网页正文以改写形态进入产物（预览即所得），忠实度门禁防假标签；离线行为不变 |

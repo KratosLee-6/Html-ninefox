@@ -11,6 +11,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] — 2026-10-19 · Word 导入：解析 → 提案 → 采纳
+
+> 新能力。HTTP 新增 `/api/intake/docx`（上传出提案）与
+> `/api/intake/docx/adopt`（改完的提案落成项目）；项目数据格式不变。
+> 发布说明见 `docs/RELEASE-NOTES-v0.8.1.md`。
+
+**Added**
+- **离线 DOCX 解析**：纯 stdlib 读 `word/document.xml` / `_rels` / `media` /
+  `docProps`，标题取 `dc:title` 优先、首个非「目录」标题兜底。
+- **统一契约 `intake_outline`**：块携带 `provenance` 与 `evidence`（段落号 / 表号），
+  `validate()` 拒绝没有 locator 的内容。
+- **提案层 `docx_proposal`**：意图 / 风格（各带理由）、图片计划、文案与
+  `limitations`；离线规则产出并标 `refined_by="rules"`，留 `refiner` 钩子。
+- **审核台**：上传 → 提案可改（意图 / 风格 / 标题 / 摘要 / 图片位增删）→
+  采纳生成；390px 单列布局实测无越界。
+- **caller-owned 文案**：`GenerationRequest.content` 让审过的标题与摘要覆盖
+  `brief_expert` 的规则文案。
+
+**Fixed**
+- 显式空品牌不再被兜底成 `Your Product`（`brand_of` 区分缺字段与显式空）。
+- Word 目录（提示句 + 01/02 条目）不再拼成首节巨型段落。
+- 新增前端脚本登记进 `STATIC_FILES`，避免 404 后整块面板空白。
+
+**Gates**
+- DOCX 链 56 条（解析 11 / 提案 14 / 采纳 13 / 接口 14 / schema 3 / 浏览器 1）；
+  变异 6/6 CAUGHT；全量 741 passed / 4 skipped。`preflight_mutations.py` 现跑五套。
+
 ## [0.8.0] — 2026-10-17 · DOCX 语义导出 + paraphrased 重新改写（v0.8 开篇）
 
 > 新能力。HTTP 接口新增 `docx` 导出格式与 `retried` 响应字段；项目数据

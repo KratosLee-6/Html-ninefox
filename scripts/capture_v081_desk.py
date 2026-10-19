@@ -39,6 +39,22 @@ def main() -> int:
         page.screenshot(path=str(OUT / "docx-artifact-1440.png"), full_page=False)
         print("preview:", href)
         print("sections:", page.evaluate("document.querySelectorAll('section').length"))
+
+        # 同一份文档换个意图：审核台说改就改，产物形状跟着变（deck 不是长文档的翻版）
+        page.goto(server.base_url + "/")
+        page.wait_for_function("window.FoxDocx && window.FoxIntake")
+        page.evaluate("window.FoxIntake.open()")
+        page.set_input_files("#docx-file", str(DOCX))
+        page.click("#docx-analyze")
+        page.wait_for_selector("#docx-proposal:not([hidden])", timeout=30000)
+        page.select_option("#docx-intent", "deck")
+        page.click("#docx-adopt")
+        page.wait_for_selector("#docx-result:not([hidden])", timeout=120000)
+        deck_href = page.get_attribute("#docx-result", "href")
+        page.goto(server.base_url + deck_href)
+        page.wait_for_timeout(600)
+        page.screenshot(path=str(OUT / "docx-artifact-deck-1440.png"))
+        print("deck:", deck_href)
         browser.close()
     return 0
 
