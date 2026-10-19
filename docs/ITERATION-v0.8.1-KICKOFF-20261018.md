@@ -99,7 +99,7 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 | `mutate_ui_gates.py` | **8/8 CAUGHT** |
 | `mutate_page_blocks_gates.py` | **7/7 CAUGHT** |
 | `preflight_mutations.py`（五套合一） | **通过，退出码 0**（2026-10-19 起含 docx-export 与 docx-intake） |
-| 全量回归（本机） | 687 passed / 9 skipped / 2 failed —— 两条均已查明：socket flaky（重跑绿）＋ `.venv` 缺 `python-docx`（装上后 docx 导出 9/9 绿） |
+| 全量回归（本机） | **741 passed / 4 skipped / 0 failed**（2026-10-19，7 分 22 秒）。历史遗留两条已查明：socket flaky（重跑绿）＋ `.venv` 缺 `python-docx`（装上后 docx 导出 9/9 绿） |
 | GitHub Actions · `Test` | **success**（run 39129995627，2026-10-18） |
 
 ---
