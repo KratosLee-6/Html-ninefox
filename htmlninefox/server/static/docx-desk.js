@@ -107,7 +107,7 @@
       <input data-part="slot" aria-label="位置" maxlength="40">
       <textarea data-part="purpose" aria-label="用途" rows="2" maxlength="60"></textarea>
       <textarea data-part="prompt" aria-label="画面描述" rows="2" maxlength="200"></textarea>
-      <button class="btn btn-ghost" data-action="docxDropSlot" title="删掉这个图片位">删</button>`;
+      <button class="btn btn-ghost docx-slot-drop" title="删掉这个图片位">删</button>`;
     row.querySelector('[data-part="slot"]').value = item.slot || '';
     row.querySelector('[data-part="purpose"]').value = item.purpose || '';
     row.querySelector('[data-part="prompt"]').value = item.prompt || '';
@@ -273,7 +273,7 @@
 
   window.FoxDocx = { analyze, adopt, addSlot, dropSlot, reset, collect };
   document.addEventListener('click', (event) => {
-    const drop = event.target.closest('[data-action="docxDropSlot"]');
+    const drop = event.target.closest('.docx-slot-drop');
     if (drop) dropSlot(drop);
   });
 })();

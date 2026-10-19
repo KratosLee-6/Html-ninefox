@@ -43,6 +43,7 @@ SCANNED = [
     "workbench-features.js", "canvas-productivity.js", "lifecycle-intake.js",
     "lifecycle-revisions.js", "lifecycle-generation.js", "lifecycle-exports.js",
     "lifecycle-slides.js", "lifecycle-projects.js", "workbench-ui.js",
+    "docx-desk.js",
     "interaction-system.js", "motion-system.js", "canvas-engine.js",
 ]
 
