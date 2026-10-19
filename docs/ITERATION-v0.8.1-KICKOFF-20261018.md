@@ -87,7 +87,7 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 | `pytest tests/test_docx_import.py` | **11 passed** |
 | `pytest tests/test_docx_proposal.py` | **14 passed** |
 | `pytest tests/test_docx_adopt.py` | **13 passed**（六意图 × 正文到达 ＋ 表格压平 ＋ 图片留资产 ＋ 目录整段跳过 ＋ 无品牌不印占位符 ＋ 真实文档 20k+ 字符） |
-| `pytest tests/test_docx_intake_api.py` | **8 passed**（上传/错误码/采纳/改意图改风格/删图片位；产物里是 Word 正文） |
+| `pytest tests/test_docx_intake_api.py` | **14 passed**（上传/错误码/采纳/改意图改风格/删图片位 ＋ 六意图真链：HTTP → 生成 → 磁盘产物含原文） |
 | `pytest tests/test_docx_desk_ui.py` | **passed**（真浏览器：上传 `.docx` → 提案可改 → 采纳 → 产物含原文；连跑 3 次绿） |
 | `pytest tests/test_docx_proposal_schema.py` | **3 passed**（顶层/style/copy/图片位键集合锁定；`refined_by="rules"` ＋ limitations 写明离线兜底） |
 | v0.8.1 实拍 | `assets/screenshots/v0.8.1/`：提案态 / 采纳后态 / 产物首屏（1440×900，真实 GEO 方案） |
@@ -110,7 +110,7 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 | 2 | `docx_proposal`：意图 / 风格 / 图片计划 / 文案（离线规则 ＋ LLM refiner 钩子） | ✅ 完成第一版（14 条门禁） |
 | 3 | 审核台呈现：上传 .docx、提案可改可拒、图片位增删、文案可编辑 | ✅ 完成（`/api/intake/docx` ＋ `/api/intake/docx/adopt` ＋ `docx-desk.js`；8 条 API 门禁 ＋ 1 条真浏览器门禁） |
 | 4 | 采纳生成：blocks → 既有分块通道（六生成器零改动） | ✅ 完成（11 条门禁，六个意图逐个断言正文到达；真实 GEO 文档 20k+ 字符） |
-| 5 | 门禁：真链验收（真实 docx → 六类产物）＋ 无 LLM 兜底锁定 ＋ 提案 schema 锁定 ＋ 变异 | 🟡 部分：schema 锁定 ✅（3 条）＋ 无 LLM 兜底 ✅；真链六类产物与变异待做 |
+| 5 | 门禁：真链验收（真实 docx → 六类产物）＋ 无 LLM 兜底锁定 ＋ 提案 schema 锁定 ＋ 变异 | 🟡 真链六意图 ✅ ＋ schema 锁定 ✅ ＋ 无 LLM 兜底 ✅；**仅剩变异接入 `preflight_mutations.py`** |
 
 ---
 

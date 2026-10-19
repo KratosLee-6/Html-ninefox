@@ -156,3 +156,16 @@ def test_adopt_can_drop_an_image_slot(workbench):
         upload_payload(build_docx(), proposal={"image_plan": one_slot}))
 
     assert payload["ok"] is True
+
+
+@pytest.mark.parametrize("intent", ["landing", "dashboard", "deck", "poster", "archdoc", "doc"])
+def test_every_intent_survives_the_real_generation_chain(workbench, intent):
+    """真链：HTTP → 解析 → 提案 → 生成用例 → 磁盘产物，六个意图逐个走一遍。"""
+    payload, _ = api_request(
+        workbench.base_url, "/api/intake/docx/adopt", "POST",
+        upload_payload(build_docx(), proposal={"intent": intent}))
+
+    assert payload["intent"] == intent
+    html = (Path(payload["project"]) / "output.html").read_text(encoding="utf-8")
+    assert "这是 Word 里的背景正文。" in html, f"{intent} 丢了正文"
+    assert payload["verification"]["ok"] is not False
