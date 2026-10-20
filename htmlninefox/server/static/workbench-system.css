@@ -430,3 +430,16 @@
   letter-spacing: .01em;
   font-weight: 700;
 }
+
+/* 审核台版面（v0.8.2 B3-2）：三层同款边框降为「分隔线 + 卡片」两层；
+   筛选与批量操作分两行；主操作贴底常驻，不用滚到底去找。 */
+.intake-dialog .flow-card { border:0; border-top:1px solid var(--border-subtle);
+  border-radius:0; background:transparent; padding:var(--space-3) 0; }
+.intake-dialog .flow-body > .flow-card:first-child { border-top:0; padding-top:0; }
+.intake-toolbar--filters { margin-bottom:var(--space-1); }
+.intake-toolbar--bulk { margin-bottom:var(--space-2); align-items:center; }
+.intake-hint { font-size:var(--fs-sm); color:var(--text-tertiary); }
+.intake-dialog .flow-actions,
+.intake-dialog #intake-batch-bar { position:sticky; bottom:0; z-index:2;
+  padding:var(--space-2) 0; background:var(--bg-panel);
+  border-top:1px solid var(--border-subtle); }

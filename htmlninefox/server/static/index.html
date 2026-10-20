@@ -874,13 +874,16 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
         </details>
       </section>
       <section class="flow-card">
-        <div class="intake-toolbar" role="tablist" aria-label="候选筛选">
+        <div class="intake-toolbar intake-toolbar--filters" role="tablist" aria-label="候选筛选">
           <button class="btn btn-secondary" data-intake-filter="pending" aria-pressed="false" data-action="intakeRefresh" data-filter="pending">待审核</button>
           <button class="btn btn-secondary" data-intake-filter="approved" aria-pressed="false" data-action="intakeRefresh" data-filter="approved">已采纳</button>
           <button class="btn btn-secondary" data-intake-filter="rejected" aria-pressed="false" data-action="intakeRefresh" data-filter="rejected">已拒绝</button>
           <button class="btn btn-secondary" data-intake-filter="all" aria-pressed="false" data-action="intakeRefresh" data-filter="all">全部</button>
           <select id="intake-source-filter" onchange="intakeSourceFilter(this.value)" aria-label="按来源筛选"></select>
-          <button class="btn btn-secondary" data-action="intakeSelectAll">全选待审核</button>
+        </div>
+        <div class="intake-toolbar intake-toolbar--bulk" aria-label="批量操作">
+          <button class="btn btn-ghost" data-action="intakeSelectAll">全选待审核</button>
+          <span class="intake-hint">选中后可批量采纳或拒绝</span>
         </div>
         <div class="intake-toolbar" id="intake-batch-bar" hidden>
           <span id="intake-batch-count" class="intake-badge">已选 0 项</span>
