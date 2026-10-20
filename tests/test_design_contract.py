@@ -108,6 +108,35 @@ def test_display_serif_is_actually_used():
         f"衬线只覆盖 {selectors} 个选择器，契约要求 ≥{display['min_selectors']}"
 
 
+def test_focus_ring_meets_non_text_contrast():
+    """焦点环必须 ≥3:1（WCAG 1.4.11）。陶土橙 2.87:1 不合格，已改钴蓝 9.92:1。"""
+    import re as _re
+
+    html = (ROOT / "htmlninefox" / "server" / "static" / "index.html").read_text(encoding="utf-8")
+    tokens = dict(_re.findall(r"(--[a-z0-9-]+):(#?[0-9A-Za-z()%,.\s-]+);", html))
+
+    def hex_of(token: str) -> str:
+        value = tokens[token].strip()
+        assert value.startswith("#") and len(value) == 7, f"{token} 不是十六进制：{value}"
+        return value
+
+    def luminance(value: str) -> float:
+        raw = value.lstrip("#")
+        channels = [int(raw[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+        linear = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+                  for c in channels]
+        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+    def contrast(a: str, b: str) -> float:
+        la, lb = luminance(a), luminance(b)
+        return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+
+    ring = hex_of("--focus-ring")
+    for surface in ("--bg-panel", "--bg-base"):
+        ratio = contrast(ring, hex_of(surface))
+        assert ratio >= 3.0, f"焦点环 {ring} 对 {surface} 只有 {ratio:.2f}:1，低于 3:1"
+
+
 def test_no_self_referential_tokens():
     """`--focus:var(--focus)` 这类自引用会让 token 变成空值，界面上还看不出来。
 

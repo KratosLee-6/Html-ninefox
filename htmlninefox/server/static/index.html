@@ -25,7 +25,7 @@
   --font-display:Georgia,'Noto Serif SC','Songti SC',SimSun,serif;--font-body:'Inter','PingFang SC','Microsoft YaHei',sans-serif;
   --radius:4px; --shadow-color:rgba(23,60,143,.12); --shadow:3px 3px 0 var(--shadow-color);
   --wire:#7D9BA9; --wire-soft:#C7D5D0; --grid-dot:#BAC8C1; --preview-base:#E9EFEA;
-  --overlay:rgba(23,40,61,.34); --focus:#E57A3F; --workspace-glow:rgba(23,60,143,.16); --gen-fail:var(--focus);
+  --overlay:rgba(23,40,61,.34); --focus:#E57A3F; --focus-ring:#173C8F; --workspace-glow:rgba(23,60,143,.16); --gen-fail:var(--focus);
 }
 :root[data-theme="pixel-night"] {
   color-scheme:dark;
@@ -37,7 +37,7 @@
   --info:#6CB9E9; --amber:#E4AE4F; --cyan:#63BCD0; --pink:#DF86A0; --green:#62C7A5;
   --radius:4px; --shadow-color:rgba(4,14,25,.28); --shadow:3px 3px 0 var(--shadow-color);
   --wire:#7795A4; --wire-soft:#34566A; --grid-dot:#34536A; --preview-base:#18344C;
-  --overlay:rgba(3,15,27,.68); --focus:#F0A16E; --workspace-glow:rgba(118,165,255,.2); --gen-fail:var(--focus);
+  --overlay:rgba(3,15,27,.68); --focus:#F0A16E; --focus-ring:#9BC0FF; --workspace-glow:rgba(118,165,255,.2); --gen-fail:var(--focus);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 html,body { height:100%; overflow:hidden; font-family:'Inter','PingFang SC','Microsoft YaHei',sans-serif;
@@ -391,7 +391,7 @@ input,textarea,select { font-family:inherit; }
 /* ---------- Pixel Garden brand layer ---------- */
 body { background-color:var(--bg-base); background-image:linear-gradient(135deg,color-mix(in srgb,var(--bg-base) 96%,var(--accent)) 0%,var(--bg-base) 55%,color-mix(in srgb,var(--bg-base) 94%,var(--green)) 100%); }
 button,input,textarea,select { border-radius:var(--radius) !important; }
-button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:2px solid var(--focus); outline-offset:2px; }
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:3px solid var(--focus-ring); outline-offset:2px; }
 .topbar { min-height:46px; box-shadow:0 2px 0 color-mix(in srgb,var(--accent) 16%,transparent); }
 .brand-lockup { display:flex; align-items:center; gap:var(--space-2); min-width:174px; }
 .brand-lockup img { width:32px; height:32px; display:block; image-rendering:pixelated; }

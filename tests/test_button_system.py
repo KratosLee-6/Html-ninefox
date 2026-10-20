@@ -54,6 +54,24 @@ def test_keyboard_focus_is_visible(page_fixture):
             f"聚焦环不可见：{outline}"
 
 
+def test_icon_only_buttons_are_labeled_and_sized(page_fixture):
+    """纯图标按钮：必须有可访问名，点击区 ≥32×32，状态切换不改尺寸。"""
+    offenders = page_fixture.eval_on_selector_all(
+        ".btn-icon",
+        """els => els.filter(el => {
+             const r = el.getBoundingClientRect();
+             if (r.width === 0 || r.height === 0) return false;
+             const name = (el.getAttribute('aria-label') || el.getAttribute('title') || '').trim();
+             return !name || r.width < 32 || r.height < 32;
+           }).map(el => ({
+             cls: el.className,
+             label: el.getAttribute('aria-label'),
+             w: el.getBoundingClientRect().width,
+             h: el.getBoundingClientRect().height,
+           }))""")
+    assert not offenders, f"纯图标按钮缺可访问名或尺寸不足：{offenders}"
+
+
 def test_one_filled_primary_per_view(page_fixture):
     primaries = page_fixture.eval_on_selector_all(
         ".btn-primary",

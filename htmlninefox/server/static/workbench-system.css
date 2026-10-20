@@ -697,3 +697,34 @@ button.btn:focus-visible, summary.btn:focus-visible, a.btn:focus-visible,
   outline-offset: 2px !important;
   outline-style: solid !important;
 }
+
+/* 交叉评审修订（MiniMax-M3.1-Flash，2026-10-20）
+   ① 焦点环改钴蓝：陶土橙（--focus）对暖纸白只有 2.87:1，低于 WCAG 1.4.11 的 3:1；
+      钴蓝（--accent）是 9.92:1。--focus 仍留给选区与装饰。
+   ② 像素投影保留但只用深钴蓝，hover 不再放大，active 下移 2px 归零。
+   ③ 纯图标按钮补齐规范：32×32（移动 40）、必须有 aria-label 与 title、
+      状态切换不改尺寸。 */
+:where(button,a,input,textarea,select,[role="button"]):focus-visible {
+  outline: 3px solid var(--focus-ring) !important;
+  outline-offset: 2px;
+}
+button.btn:focus-visible, summary.btn:focus-visible, a.btn:focus-visible,
+.btn.btn-icon:focus-visible, .pal-card:focus-visible {
+  outline: 3px solid var(--focus-ring) !important;
+  outline-offset: 2px !important;
+  outline-style: solid !important;
+}
+.btn-primary { box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent) 62%, var(--text-primary)); }
+.btn-primary:hover {
+  transform: none;
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent) 62%, var(--text-primary));
+}
+.btn-primary:active:not(:disabled) { transform: translate(2px, 2px) !important; box-shadow: none !important; }
+
+.btn-icon {
+  width: 32px; min-width: 32px; height: 32px;
+  padding: 0;
+}
+@media (max-width: 620px) {
+  .btn-icon { width: 40px; min-width: 40px; height: 40px; }
+}
