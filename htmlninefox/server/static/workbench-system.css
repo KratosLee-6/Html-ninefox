@@ -23,8 +23,8 @@
    *   xl  标题   19px 弹窗标题、空态标题
    *   dsp 展示   30px 空态主文案、字体样张
    */
-  --fs-2xs:9px;
-  --fs-xs:10px;
+  --fs-2xs:11px;
+  --fs-xs:11px;
   --fs-sm:11px;
   --fs-md:12px;
   --fs-lg:14px;
@@ -296,7 +296,7 @@
 @media (max-width:420px) {
   /* 版本徽标在窄屏也要可见：它是发布证据（README 实拍与 capture 脚本都
      断言它），整只藏掉会让移动端截图无法自证版本。改用更小字号保留。 */
-  .ver { display:inline-block; font-size:10px; letter-spacing:0; padding:0 2px; }
+  .ver { display:inline-block; font-size:11px; letter-spacing:0; padding:0 2px; }
   .mobile-library-toggle,.mobile-inspector-toggle { width:38px !important; }
   #btn-go { min-width:76px; }
 }
@@ -319,7 +319,7 @@
   background:var(--bg-panel); border:1px solid var(--border-subtle); border-radius:6px; position:relative; }
 .intake-metric b { font-size:var(--fs-lg); line-height:1.15; color:var(--text-primary); font-weight:var(--fw-bold); }
 .intake-metric span { font-size:var(--fs-2xs); color:var(--text-tertiary); letter-spacing:.04em; }
-.intake-metric i { position:absolute; left:0; top:6px; bottom:6px; width:3px; border-radius:2px; }
+.intake-metric i { position:absolute; left:0; top:6px; bottom:6px; width:3px; border-radius:3px; }
 .intake-metric i.pending { background:var(--warning); }
 .intake-metric i.approved { background:var(--success); }
 .intake-metric i.rejected { background:var(--danger); }
@@ -347,11 +347,11 @@
 
 .intake-preview { width:100%; height:320px; border:1px dashed var(--border-default); background:#fff; }
 .intake-blocks { width:100%; border:1px dashed var(--border-default); border-top:none; background:var(--surface-raised, #fff); padding:10px; display:grid; gap:8px; }
-.intake-blocks-head { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:.85rem; color:var(--text-muted, #5a6473); }
-.intake-block { display:grid; grid-template-columns:auto 1fr; gap:4px 8px; align-items:baseline; padding:6px 8px; border:1px solid var(--border-subtle, #e5e2d8); border-radius:8px; }
-.intake-block-content { grid-column:1 / -1; font-size:.85rem; color:var(--text-secondary, #3c4552); }
-.intake-block-content.dim, .intake-block.dim { color:var(--text-muted, #5a6473); }
-.intake-badge.para { background:rgba(73,184,148,.14); color:#1f6f57; border-color:rgba(73,184,148,.4); }
+.intake-blocks-head { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:.85rem; color:var(--text-muted, var(--text-secondary)); }
+.intake-block { display:grid; grid-template-columns:auto 1fr; gap:4px 8px; align-items:baseline; padding:6px 8px; border:1px solid var(--border-subtle, var(--border-subtle)); border-radius:6px; }
+.intake-block-content { grid-column:1 / -1; font-size:.85rem; color:var(--text-secondary, var(--text-secondary)); }
+.intake-block-content.dim, .intake-block.dim { color:var(--text-muted, var(--text-secondary)); }
+.intake-badge.para { background:rgba(73,184,148,.14); color:var(--success); border-color:rgba(73,184,148,.4); }
 
 .intake-stats { font-size:var(--fs-md); color:var(--text-secondary); }
 

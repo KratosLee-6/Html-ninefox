@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "updated": "2026-10-19",
+  "note": "v0.8.2 B2 收敛后的可执行契约。手册（docs/VI.md · docs/UI-GUIDE.md）与代码以本文件数值为准；tests/test_design_contract.py 双向比对。",
+  "scope": {
+    "shell": ["htmlninefox/server/static/index.html", "htmlninefox/server/static/workbench-system.css"],
+    "exempt": {
+      "htmlninefox/server/static/motion-lab.html": "设计实验室页：独立演示文档，自带一套演示配色"
+    }
+  },
+  "font": {
+    "min_px": 11,
+    "scale": {
+      "--fs-2xs": 11,
+      "--fs-xs": 11,
+      "--fs-sm": 11,
+      "--fs-md": 12,
+      "--fs-lg": 14,
+      "--fs-xl": 19,
+      "--fs-dsp": 30
+    },
+    "display_serif": {
+      "stack": "Georgia, 'Noto Serif SC', 'Songti SC', SimSun, serif",
+      "usage": "空态标题与章节标题；正文保持无衬线"
+    }
+  },
+  "radius": {
+    "allowed_px": [3, 4, 5, 6],
+    "pill_px": 999,
+    "roles": {
+      "control": 4,
+      "node": 5,
+      "container": 6
+    },
+    "extra_allowed": ["50%"]
+  },
+  "color": {
+    "rule": ":root 之外不得出现十六进制字面量；下列为经批准的非 CSS 场合",
+    "whitelist": [
+      {
+        "file": "htmlninefox/server/static/index.html",
+        "value": "#FFFDF6",
+        "where": "<meta name=\"theme-color\">",
+        "why": "浏览器地址栏取色只能写字面量，不支持 var()"
+      },
+      {
+        "file": "htmlninefox/server/static/index.html",
+        "value": "#173C8F",
+        "where": "input#memory-primary placeholder",
+        "why": "展示给用户的示例值，本身就是一段十六进制文本"
+      }
+    ]
+  },
+  "spacing": {
+    "grid_px": [0, 1, 2, 4, 8, 12, 16, 24, 32, 48, 64],
+    "note": "1–2px 发丝线保留。B2-2 分批收口，契约先锁「不再变差」。",
+    "off_grid_baseline": 109,
+    "target": 0
+  },
+  "layout": {
+    "max_border_layers": 2,
+    "primary_cta_per_screen": 1,
+    "empty_state_requires_action": true
+  }
+}

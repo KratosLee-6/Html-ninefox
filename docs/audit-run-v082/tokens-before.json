@@ -1,0 +1,115 @@
+{
+  "files": {
+    "index.html": {
+      "font_tokens": {},
+      "font_literals_below_11": [],
+      "radius": {
+        "10px": 2,
+        "14px": 1,
+        "16px": 1,
+        "2px": 1,
+        "3px": 4,
+        "4px": 10,
+        "50%": 5,
+        "5px": 4,
+        "6px": 14,
+        "7px": 8,
+        "8px": 2,
+        "999px": 3
+      },
+      "hex_outside_root": {
+        "#173C8F": 1,
+        "#D35D5D": 2,
+        "#E57A3F": 1,
+        "#FFFDF6": 1
+      },
+      "spacing_off_grid": {
+        "3": 7,
+        "5": 9,
+        "6": 12,
+        "7": 11,
+        "9": 9,
+        "10": 27,
+        "11": 4,
+        "13": 1,
+        "14": 5,
+        "22": 1,
+        "28": 2,
+        "700": 1
+      }
+    },
+    "workbench-system.css": {
+      "font_tokens": {
+        "--fs-2xs": 9,
+        "--fs-xs": 10,
+        "--fs-sm": 11,
+        "--fs-md": 12,
+        "--fs-lg": 14,
+        "--fs-xl": 19,
+        "--fs-dsp": 30
+      },
+      "font_literals_below_11": [
+        10
+      ],
+      "radius": {
+        "2px": 1,
+        "4px": 1,
+        "6px": 1,
+        "8px": 1,
+        "999px": 3
+      },
+      "hex_outside_root": {
+        "#1F6F57": 1,
+        "#3C4552": 1,
+        "#5A6473": 2,
+        "#E5E2D8": 1
+      },
+      "spacing_off_grid": {
+        "6": 2,
+        "7": 2,
+        "9": 1,
+        "10": 11,
+        "11": 1,
+        "14": 1,
+        "18": 2
+      }
+    }
+  },
+  "totals": {
+    "font_literals_below_11": 1,
+    "hex_outside_root": 8,
+    "radius_values": [
+      "10px",
+      "14px",
+      "16px",
+      "2px",
+      "3px",
+      "4px",
+      "50%",
+      "5px",
+      "6px",
+      "7px",
+      "8px",
+      "999px"
+    ],
+    "spacing_off_grid": {
+      "3": 7,
+      "5": 9,
+      "6": 14,
+      "7": 13,
+      "9": 10,
+      "10": 38,
+      "11": 5,
+      "13": 1,
+      "14": 6,
+      "18": 2,
+      "22": 1,
+      "28": 2,
+      "700": 1
+    },
+    "spacing_off_grid_count": 109,
+    "exempt": {
+      "motion-lab.html": "设计实验室页（独立文档，自带一套演示配色）"
+    }
+  }
+}
