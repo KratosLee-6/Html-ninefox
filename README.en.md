@@ -8,8 +8,8 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.1-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.1)
-[![Tests](https://img.shields.io/badge/pytest-741%20passed%20%7C%204%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.8.1.md)
+[![App Release](https://img.shields.io/badge/app-v0.8.2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.2)
+[![Tests](https://img.shields.io/badge/pytest-774%20passed%20%7C%204%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.8.1.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -17,7 +17,7 @@
 </div>
 
 
-> Current app version `0.8.1` (released 2026-10-19) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.1) · full features below.
+> Current app version `0.8.2` (released 2026-10-20) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.2) · full features below.
 
 ---
 
@@ -32,7 +32,26 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.8.1 · Word import: parse → proposal → adopt (latest)
+## v0.8.2 · Interface pass: surfaces instead of outlines, one motion clock (latest)
+
+**No theme change, no new brand colour.** This closes the execution layer of Pixel Garden:
+structure comes from surfaces and two soft shadows instead of drawn borders, and buttons,
+motion, empty states and icons all follow one scale that a gate can check.
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.2/workbench-pixel-paper-1440.png" alt="Workbench after the pass"><br><b>Workbench · surface hierarchy</b><br>Borders drop to 10/17/30% ink; icons settle at two sizes (16/20) with one 1.8 stroke.</td>
+<td width="50%"><img src="assets/screenshots/v0.8.2/inspector-empty-1440.png" alt="Inspector empty state"><br><b>Empty states are starting points</b><br>One sentence plus three real entries — a gate clicks each one and asserts a panel opens.</td>
+</tr>
+</table>
+
+- **Executable design contract**: `docs/design-contract.json` is checked both ways by `tests/test_design_contract.py`; sizes, radii, colours, spacing and the serif rule all fail loudly when they drift.
+- **Button system**: 32 default / 36 top bar and dialogs / 40 on mobile; hover, active, disabled, busy and focus-visible are all explicit; one filled primary per view.
+- **One motion clock**: instant 90 / feedback 140 / enter 180 / panel 200 / exit 140, every duration from a token; reduced motion measured at zero animations.
+- **Accessibility**: the focus ring moved from clay (2.87:1 on paper, below the 3:1 minimum) to cobalt (9.92:1); icon-only buttons need a name and a 32×32 target.
+- Gates: 14 design-contract, 5 surface, 8 motion, 4 button, 6 packaging; full suite 774 passed / 4 skipped, 5 mutation suites all caught.
+
+## v0.8.1 · Word import: parse → proposal → adopt (v0.8.1 capability)
 
 **Drop in a `.docx` and the workbench first shows how it understood the document — you edit the proposal, then it renders. Parsing is fully offline.**
 
@@ -116,6 +135,7 @@ Windows installer & portable (.exe/.zip), macOS Apple Silicon & Intel (.zip), Li
 
 | Version | Date | In one line |
 |---|---|---|
+| **v0.8.2** | 2026-10-20 | **Interface pass**: surfaces over outlines, button system, motion clock, empty states and icon scale; executable design contract |
 | **v0.8.0** | 2026-10-17 | **DOCX semantic export**: doc/archdoc full-text / deck handout with honest degradation lists; paraphrased retry — the Word cell of the export matrix |
 | **v0.7.8** | 2026-10-17 | **C6 closed**: all 106 inline onclick handlers migrated to data-action delegation with a typed signature table; also fixed the dead workspace-chip clicks the real-click gate exposed |
 | **v0.7.7** | 2026-10-12 | **Rewrite absorption (paraphrased)**: with an LLM configured, reference pages' prose enters products in rewritten form (what you preview is what you get), gated by a fidelity check; offline behaviour unchanged |
