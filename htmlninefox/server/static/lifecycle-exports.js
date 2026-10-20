@@ -63,6 +63,16 @@
     syncOptions();
   }
 
+  // 与后端 _export_docx 的 warnings 同源（docx_flattened / docx_external_images /
+  // 非语义文本计数）：界面上先讲清楚会丢什么，导完再在结果区逐条确认——
+  // 界面 / 报告 / 回读三处口径必须一致（v0.8.2 B3-1）。
+  const DEGRADATION = {
+    docx: ['CSS 配色、字体、布局不映射，Word 只保留语义结构',
+           '外链图片不抓取（离线承诺），只内嵌 data: 图片',
+           '非语义容器的文字会计数上报，不强行塞进段落'],
+    pptx: ['复杂 CSS 动画与渐变不迁移，PowerPoint 里保留文本与基础形状'],
+  };
+
   function syncOptions() {
     const format = $('#export-format').value;
     const image = format === 'png';
@@ -70,8 +80,23 @@
     $('#export-scale-field').hidden = !image;
     $('#export-paper-field').hidden = image || fileBridge;
     $('#export-landscape-field').hidden = image || fileBridge;
+    // Word / PPTX 按页面结构导出，画布尺寸对它们没有意义——以前这两格一直留着，
+    // 选了「Word 文档」还让人填 1440×900（v0.8.2 P1）。
+    const widthField = $('#export-width-field');
+    const heightField = $('#export-height-field');
+    if (widthField) widthField.hidden = fileBridge;
+    if (heightField) heightField.hidden = fileBridge;
     const pagesField = $('#export-pages')?.closest('.flow-field');
     if (pagesField) pagesField.hidden = fileBridge;
+
+    const degradation = $('#export-degradation');
+    if (degradation) {
+      const lines = DEGRADATION[format] || [];
+      degradation.hidden = !lines.length;
+      degradation.innerHTML = lines.length
+        ? `<b>这种格式会丢掉什么</b><ul>${lines.map(line => `<li>${esc(line)}</li>`).join('')}</ul>`
+        : '';
+    }
   }
 
   async function start() {
@@ -107,7 +132,13 @@
       // `result.report` again would add a row with an undefined href.
       const entries = [...result.files];
       if (result.report && result.report.download_url) entries.push(result.report);
-      $('#export-result').innerHTML = entries.map(file => `<div class="export-file"><span><b>${esc(file.name)}</b><small>${exportBytes(file.bytes)}</small></span><a class="btn btn-secondary" href="${esc(file.download_url)}">下载</a></div>`).join('');
+      const filesHtml = entries.map(file => `<div class="export-file"><span><b>${esc(file.name)}</b><small>${exportBytes(file.bytes)}</small></span><a class="btn btn-secondary" href="${esc(file.download_url)}">下载</a></div>`).join('');
+      // 导完把后端 warnings 原样贴出来：界面预告的「会丢什么」与报告、回读
+      // 必须是同一套话，否则三处各说一套（B3-1 的验收条件）。
+      const warningsHtml = (result.warnings || [])
+        .map(item => `<div class="export-warning ${esc(item.level || 'warning')}">${esc(item.message)}</div>`)
+        .join('');
+      $('#export-result').innerHTML = filesHtml + warningsHtml;
       flash(`✓ ${node.data.project_name} 已导出 ${result.files.length} 个文件`, true);
     } catch (error) {
       if (stale()) return;

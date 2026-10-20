@@ -180,3 +180,19 @@ B5（门禁 + 证据 + 发布回读）
 - [ ] 变异全 CAUGHT，数字实测进发布说明
 - [ ] `verify_portable.py` 内容标记更新，发布物字节回读通过
 - [ ] 截图证据 `assets/screenshots/v0.8.2/` 齐全（含 390 / 768 / 1440 与双主题）
+
+---
+
+## 8. 进度（2026-10-20，本地迭代中，未推送）
+
+| 批次 | 状态 | 证据 |
+|---|---|---|
+| B1 取证 | ✅ 静态体检脚本 `scripts/design_tokens_report.py`（可 `--check`、可写 JSON）；基线 `docs/audit-run-v082/tokens-before.json` | 9 弹窗级别的浏览器体检脚本仍待扩，暂用静态口径 |
+| B2-1 字阶 | ✅ 工作台 <11px **22 处 → 0**；`--fs-2xs/--fs-xs` 均 11px | `tokens-after.json` |
+| B2-2 间距 | 🟡 工作台 CSS 脱网格 19 → 4 处；全仓仍 95 处（index.html 内联为主） | 契约 baseline 109 → 95 |
+| B2-3 圆角 | ✅ 只剩 {3,4,5,6} + 999 + 50% | `tokens-after.json` |
+| B2-4 颜色 | ✅ `:root` 外裸 hex 8 → 2（均登记白名单） | 契约 color.whitelist |
+| B3-1 导出中心 | ✅ 格式联动（Word/PPTX 隐藏画布宽高）＋「会丢掉什么」清单 ＋ 结果区回显后端 warnings | `tests/test_export_format_linkage.py` 4 条 |
+| B4-1 Display 衬线 | ✅ `--font-display` 落到 `.flow-card h3` / `.export-panel h3` / `.docx-head h3` | `test_display_serif_is_actually_used` |
+| B3-2~4 / B4-2~4 / B5 | ⏳ 未做 | — |
+| 素材脱敏 | ✅ 所有截图改用 `tests/fixtures/demo_docx.py`（星野智造／栖木云）；新增 `tests/test_no_client_material.py` | 提交 `39642b7` |

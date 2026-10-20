@@ -22,6 +22,7 @@
   --accent:#173C8F; --accent-hover:#2455B6; --accent-soft:rgba(23,60,143,.12); --on-accent:#FFFFFF;
   --indigo:#3568B8; --success:#2F9778; --warning:#DCA934; --danger:#C95C50;
   --info:#2F73B8; --amber:#D79932; --cyan:#328CA3; --pink:#C45C79; --green:#49B894;
+  --font-display:Georgia,'Noto Serif SC','Songti SC',SimSun,serif;--font-body:'Inter','PingFang SC','Microsoft YaHei',sans-serif;
   --radius:4px; --shadow-color:rgba(23,60,143,.12); --shadow:3px 3px 0 var(--shadow-color);
   --wire:#7D9BA9; --wire-soft:#C7D5D0; --grid-dot:#BAC8C1; --preview-base:#E9EFEA;
   --overlay:rgba(23,40,61,.34); --focus:var(--focus); --workspace-glow:rgba(23,60,143,.16); --gen-fail:var(--focus);
@@ -752,12 +753,13 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
           <div class="flow-field"><label>格式</label><select id="export-format" onchange="syncExportOptions()"><option value="pdf">PDF 文档</option><option value="png">PNG 图片</option><option value="pptx" id="export-format-pptx" hidden>PPTX 演示（可编辑 · deck 产物）</option><option value="docx" id="export-format-docx" hidden>Word 文档 · DOCX（doc/archdoc 全文 · deck 讲义）</option></select></div>
           <div class="flow-field"><label>范围</label><select id="export-scope"><option value="auto">智能判断</option><option value="pages">逐页导出</option><option value="long">整页 / 长图</option></select></div>
           <div class="flow-field wide"><label>页面范围（留空为全部）</label><input id="export-pages" placeholder="例如 1-3,5"></div>
-          <div class="flow-field"><label>画布宽度</label><input id="export-width" type="number" min="320" max="3840" value="1920"></div>
-          <div class="flow-field"><label>画布高度</label><input id="export-height" type="number" min="240" max="2160" value="1080"></div>
+          <div class="flow-field" id="export-width-field"><label>画布宽度</label><input id="export-width" type="number" min="320" max="3840" value="1920"></div>
+          <div class="flow-field" id="export-height-field"><label>画布高度</label><input id="export-height" type="number" min="240" max="2160" value="1080"></div>
           <div class="flow-field" id="export-scale-field"><label>图片倍率</label><select id="export-scale"><option value="1">1×</option><option value="2" selected>2× 高清</option><option value="3">3× 超清</option></select></div>
           <div class="flow-field" id="export-paper-field"><label>PDF 纸张</label><select id="export-paper"><option value="A4">A4</option><option value="Letter">Letter</option><option value="A3">A3</option></select></div>
           <div class="flow-field wide" id="export-landscape-field"><label><input id="export-landscape" type="checkbox" style="width:auto;height:auto"> 横向 PDF（分页 Deck 会自动使用画布尺寸）</label></div>
         </div>
+        <div class="export-degradation" id="export-degradation" hidden></div>
         <div class="export-runtime" id="export-runtime">导出在本机完成，不上传 HTML、附件或 API Key。</div>
         <div class="flow-actions" style="margin-top:12px"><button class="btn btn-primary" id="export-start" data-action="startExport">开始导出</button></div>
         <div class="status-panel" id="export-status" role="status" aria-live="polite" style="margin-top:10px">等待分析</div><div class="export-result" id="export-result"></div>

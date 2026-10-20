@@ -91,6 +91,23 @@ def test_spacing_does_not_get_worse():
         f"脱网格间距从 {baseline} 涨到 {count} —— 新增的间距请走 --space-* token")
 
 
+def test_display_serif_is_actually_used():
+    """B4-1：衬线不能只写在契约里，至少三处选择器要真的用它。"""
+    import re as _re
+
+    css = (ROOT / "htmlninefox" / "server" / "static" / "workbench-system.css").read_text(encoding="utf-8")
+    html = (ROOT / "htmlninefox" / "server" / "static" / "index.html").read_text(encoding="utf-8")
+    display = CONTRACT["font"]["display_serif"]
+
+    assert display["token"] in html, "衬线 token 必须定义在 :root"
+    # 一条规则里可以并列多个选择器，所以数选择器，不数 var() 出现次数。
+    selectors = 0
+    for block in _re.findall(r"([^{}]+)\{[^{}]*var\(%s\)[^{}]*\}" % _re.escape(display["token"]), css):
+        selectors += len([part for part in block.split(",") if part.strip()])
+    assert selectors >= display["min_selectors"], \
+        f"衬线只覆盖 {selectors} 个选择器，契约要求 ≥{display['min_selectors']}"
+
+
 def test_contract_records_layout_rules_for_the_next_batch():
     """B3 的门禁还没接上，但规则先落纸，避免下一批人重新定义。"""
     layout = CONTRACT["layout"]

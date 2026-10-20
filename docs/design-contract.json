@@ -20,8 +20,10 @@
       "--fs-dsp": 30
     },
     "display_serif": {
+      "token": "--font-display",
       "stack": "Georgia, 'Noto Serif SC', 'Songti SC', SimSun, serif",
-      "usage": "空态标题与章节标题；正文保持无衬线"
+      "usage": "空态标题与章节标题；正文保持无衬线",
+      "min_selectors": 3
     }
   },
   "radius": {
@@ -54,7 +56,7 @@
   "spacing": {
     "grid_px": [0, 1, 2, 4, 8, 12, 16, 24, 32, 48, 64],
     "note": "1–2px 发丝线保留。B2-2 分批收口，契约先锁「不再变差」。",
-    "off_grid_baseline": 109,
+    "off_grid_baseline": 95,
     "target": 0
   },
   "layout": {

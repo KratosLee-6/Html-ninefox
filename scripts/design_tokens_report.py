@@ -99,9 +99,22 @@ def audit() -> dict:
     return report
 
 
+def _whitelisted_hexes() -> dict[str, set[str]]:
+    """契约里登记过的非 CSS 十六进制（meta theme-color、输入框示例值）。"""
+    path = ROOT / "docs" / "design-contract.json"
+    if not path.is_file():
+        return {}
+    contract = json.loads(path.read_text(encoding="utf-8"))
+    allowed: dict[str, set[str]] = {}
+    for entry in contract.get("color", {}).get("whitelist", []):
+        allowed.setdefault(Path(entry["file"]).name, set()).add(entry["value"].upper())
+    return allowed
+
+
 def check(report: dict) -> list[str]:
     problems = []
     t = report["totals"]
+    whitelist = _whitelisted_hexes()
     if t["font_literals_below_11"]:
         problems.append(f"工作台仍有 {t['font_literals_below_11']} 处 <11px 字面量")
     for name, f in report["files"].items():
@@ -111,8 +124,9 @@ def check(report: dict) -> list[str]:
         bad_radius = [r for r in f["radius"] if r not in {"3px", "4px", "5px", "6px", "999px", "50%"}]
         if bad_radius:
             problems.append(f"{name}: 圆角出现契约外取值 {bad_radius}")
-        if f["hex_outside_root"]:
-            problems.append(f"{name}: :root 之外有十六进制 {sorted(f['hex_outside_root'])}")
+        leftover = set(f["hex_outside_root"]) - whitelist.get(name, set())
+        if leftover:
+            problems.append(f"{name}: :root 之外有未登记十六进制 {sorted(leftover)}")
     return problems
 
 
