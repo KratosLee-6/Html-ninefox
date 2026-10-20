@@ -728,3 +728,41 @@ button.btn:focus-visible, summary.btn:focus-visible, a.btn:focus-visible,
 @media (max-width: 620px) {
   .btn-icon { width: 40px; min-width: 40px; height: 40px; }
 }
+
+/* ============================================================
+   动效校准层（v0.8.2 · 2026-10-20）
+   原则：反馈要快、面板要稳、退出比进入短。只动 transform / opacity /
+   颜色，不动布局属性；所有时长走 motion token，减少动效开关由
+   motion-system.js 统一接管（本层不另写媒体查询）。
+   ============================================================ */
+
+/* 按下是「立刻」，悬停是「跟上」——两者分开，手感才对 */
+.btn {
+  transition: background var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              border-color var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              color var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              box-shadow var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              transform var(--motion-instant, 90ms) var(--motion-ease, ease);
+}
+
+/* 卡片只在悬停时变面，不位移：像素风靠「面」而不是飘浮 */
+.pal-card, .intake-card, .export-file, .template-thumb, .preview-page, .docx-slot {
+  transition: background var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              border-color var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              box-shadow var(--motion-feedback, 140ms) var(--motion-ease, ease);
+}
+.pal-card:hover, .intake-card:hover, .export-file:hover {
+  background: color-mix(in srgb, var(--bg-panel) 92%, var(--bg-hover));
+  box-shadow: var(--shadow-panel);
+}
+
+/* 批量条出现时上浮 6px：告诉人「这一行是刚刚冒出来的」 */
+#intake-batch-bar:not([hidden]) { animation: fox-bar-in var(--motion-feedback, 140ms) var(--motion-ease, ease) both; }
+@keyframes fox-bar-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 状态点、徽标这类小面积信号用同一条时长，避免「有的快有的慢」 */
+.intake-badge, .docx-badge, .template-badge, .status-panel {
+  transition: background var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              color var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              border-color var(--motion-feedback, 140ms) var(--motion-ease, ease);
+}

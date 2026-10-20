@@ -361,7 +361,10 @@ input,textarea,select { font-family:inherit; }
 .tl-stage { display:flex; align-items:center; flex:1; min-width:120px; }
 .tl-dot { width:24px; height:24px; border-radius:50%; background:var(--bg-base); border:2px solid var(--border-default);
   display:flex; align-items:center; justify-content:center; font-size:var(--fs-sm); color:var(--text-tertiary);
-  flex:none; transition:all .25s; }
+  flex:none; transition:background var(--motion-feedback,140ms) var(--motion-ease,cubic-bezier(.33,1,.68,1)),
+    border-color var(--motion-feedback,140ms) var(--motion-ease,cubic-bezier(.33,1,.68,1)),
+    color var(--motion-feedback,140ms) var(--motion-ease,cubic-bezier(.33,1,.68,1)),
+    box-shadow var(--motion-feedback,140ms) var(--motion-ease,cubic-bezier(.33,1,.68,1)); }
 .tl-stage.done .tl-dot { border-color:var(--success); color:var(--success); }
 .tl-stage.active .tl-dot { border-color:var(--accent); color:var(--on-accent); background:var(--accent);
   box-shadow:0 0 0 4px var(--accent-soft); }

@@ -148,3 +148,46 @@ def test_progress_coalesces_toasts_and_sample_has_mobile_layout(workbench):
     page.wait_for_function("window.FoxMotion && window.FoxCanvasProductivity")
     bounds = page.locator("#motion-preference").bounding_box()
     assert bounds and bounds["x"] >= 0 and bounds["x"] + bounds["width"] <= 390
+
+
+# ---- v0.8.2 动效校准：时长只许来自 token，入场面板用 panel 档 ----
+
+STATIC = Path(__file__).resolve().parents[1] / "htmlninefox" / "server" / "static"
+
+
+def test_motion_durations_only_come_from_tokens():
+    source = (STATIC / "motion-system.js").read_text(encoding="utf-8")
+
+    for token in ("instant:90", "feedback:140", "enter:180", "panel:200", "exit:140"):
+        assert token in source, f"缺运动时长 token：{token}"
+
+
+def test_shell_styles_never_transition_all():
+    import re
+
+    offenders = []
+    for name in ("index.html", "workbench-system.css"):
+        text = (STATIC / name).read_text(encoding="utf-8")
+        if re.search(r"transition\s*:\s*all", text):
+            offenders.append(name)
+    assert not offenders, f"还在用 transition:all（会连布局属性一起动）：{offenders}"
+
+
+def test_dialog_entrance_uses_the_panel_duration(workbench):
+    page, _ = workbench
+    page.evaluate("FoxMotion.setPreference('system')")
+    page.evaluate("window.FoxIntake.open()")
+    durations = page.evaluate(
+        """() => document.getAnimations()
+             .map(a => (a.effect && a.effect.getTiming().duration) || 0)
+             .filter(d => d > 0)""")
+
+    assert any(abs(d - 200) < 1 for d in durations), f"面板入场应约 200ms，实测 {durations}"
+
+
+def test_cards_transition_surface_not_geometry(workbench):
+    page, _ = workbench
+    props = page.eval_on_selector(".pal-card", "el => getComputedStyle(el).transitionProperty")
+
+    assert "background" in props
+    assert "transform" not in props, "卡片悬停不该位移：像素风靠面，不靠飘"

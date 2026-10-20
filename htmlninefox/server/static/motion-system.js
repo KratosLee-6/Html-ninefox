@@ -6,13 +6,13 @@
   const key = 'fox-motion-preference';
   const modes = ['system', 'reduced', 'off'];
   const active = new Map();
-  const tokens = Object.freeze({ feedback:140, enter:180, panel:220, ease:'cubic-bezier(.33,1,.68,1)' });
+  const tokens = Object.freeze({ instant:90, feedback:140, enter:180, panel:200, exit:140, ease:'cubic-bezier(.33,1,.68,1)' });
   let preference = 'system';
   try { const saved = localStorage.getItem(key); if (modes.includes(saved)) preference = saved; } catch (_) {}
   const style = document.createElement('style');
   style.id = 'fox-motion-policy';
   style.textContent = `
-    :root { --motion-feedback:140ms; --motion-enter:180ms; --motion-panel:220ms; --motion-ease:cubic-bezier(.33,1,.68,1); }
+    :root { --motion-instant:90ms; --motion-feedback:140ms; --motion-enter:180ms; --motion-panel:200ms; --motion-exit:140ms; --motion-ease:cubic-bezier(.33,1,.68,1); }
     :root[data-fox-motion="reduced"] *, :root[data-fox-motion="reduced"] *::before, :root[data-fox-motion="reduced"] *::after,
     :root[data-fox-motion="off"] *, :root[data-fox-motion="off"] *::before, :root[data-fox-motion="off"] *::after {
       animation:none!important; transition:none!important; scroll-behavior:auto!important;
