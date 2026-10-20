@@ -443,3 +443,155 @@
 .intake-dialog #intake-batch-bar { position:sticky; bottom:0; z-index:2;
   padding:var(--space-2) 0; background:var(--bg-panel);
   border-top:1px solid var(--border-subtle); }
+
+/* ============================================================
+   视觉统一层（v0.8.2 · 2026-10-20）
+   回应「全是黑线框白底」的反馈：把「靠线分隔」换成「靠面层叠 + 弱线」，
+   让界面像纸与卡片的层，而不是一堆描边盒子。
+   秩序：底 → 面板 → 浮层；线只做提示，不承担结构。
+   ============================================================ */
+:root {
+  --surface-base: var(--bg-base);
+  --surface-panel: var(--bg-panel);
+  --surface-sunken: color-mix(in srgb, var(--bg-base) 70%, var(--bg-panel));
+  --surface-raised: color-mix(in srgb, var(--bg-panel) 88%, #FFFFFF);
+  --line-soft: var(--border-subtle);
+  --line: var(--border-default);
+  --shadow-soft: 0 10px 30px -18px rgba(23, 40, 61, .35);
+  --shadow-panel: 0 2px 10px -6px rgba(23, 40, 61, .28);
+}
+:root[data-theme="pixel-night"] {
+  --surface-sunken: color-mix(in srgb, var(--bg-base) 80%, #000000);
+  --surface-raised: color-mix(in srgb, var(--bg-panel) 88%, #FFFFFF);
+  --shadow-soft: 0 12px 34px -18px rgba(2, 10, 20, .8);
+  --shadow-panel: 0 2px 10px -6px rgba(2, 10, 20, .6);
+}
+
+/* 浮层：整块面 + 柔和投影，靠阴影离开背景，不靠 2px 深色描边 */
+.flow-dialog, .export-dialog, .revision-dialog, .canvas-command-dialog {
+  background: var(--surface-raised);
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+/* 面板与卡片：有底色就不用描边；需要边界时用 1px 弱线，不再叠 second border */
+.flow-dialog .flow-card, .export-dialog .export-panel {
+  border: 0;
+  background: transparent;
+}
+.flow-dialog .flow-card + .flow-card,
+.export-dialog .export-panel + .export-panel {
+  border-top: 1px solid var(--line-soft);
+}
+
+/* 表单控件统一：内凹面 + 弱线；聚焦用陶土橙双层环，不用深色粗边 */
+.flow-dialog input[type="text"], .flow-dialog input[type="number"],
+.flow-dialog input:not([type]), .flow-dialog select, .flow-dialog textarea,
+.export-dialog input, .export-dialog select {
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  box-shadow: inset 0 1px 0 rgba(23, 40, 61, .03);
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+.flow-dialog input:focus, .flow-dialog select:focus, .flow-dialog textarea:focus,
+.export-dialog input:focus, .export-dialog select:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--focus) 60%, var(--line));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent);
+  background: var(--surface-panel);
+}
+
+/* 按钮层级：primary 实心钴蓝；secondary 弱线浅面；ghost 无线，只靠 hover 面 */
+.flow-dialog .btn-secondary, .export-dialog .btn-secondary {
+  background: color-mix(in srgb, var(--surface-panel) 80%, transparent);
+  border: 1px solid var(--line-soft);
+  color: var(--text-primary);
+}
+.flow-dialog .btn-secondary:hover, .export-dialog .btn-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--line);
+}
+.flow-dialog .btn-ghost, .export-dialog .btn-ghost {
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+}
+.flow-dialog .btn-ghost:hover, .export-dialog .btn-ghost:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* 胶囊只留给徽标；其它控件一律回到 4/5/6 的刻度 */
+.intake-badge, .docx-badge, .meta-chip, .rev-chip { border-radius: 999px; }
+
+/* 第二轮统一（B3-3 细化）：把「每个格子一个框」改成「一行一条线」。
+   图片位本来就是表格语义，用行分隔比 12 个小方框安静得多。 */
+.docx-slot input, .docx-slot textarea {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+  border-radius: 0;
+  padding: 4px 2px;
+  box-shadow: none;
+}
+.docx-slot input:focus, .docx-slot textarea:focus {
+  background: transparent;
+  border-bottom-color: var(--focus);
+  box-shadow: none;
+}
+.docx-slot { padding: var(--space-1) 0; border-bottom: 1px solid var(--line-soft); }
+.docx-slot:last-child { border-bottom: 0; }
+.docx-slot .docx-slot-drop { color: var(--text-tertiary); padding: 0 var(--space-1); }
+.docx-slot .docx-slot-drop:hover { color: var(--danger); background: transparent; }
+
+/* 指标条：一条带分隔的横向读数，不是七个盒子 */
+.intake-metric {
+  border: 0;
+  border-right: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: transparent;
+  padding: var(--space-1) var(--space-3);
+}
+.intake-metric:last-child { border-right: 0; }
+.intake-metrics { gap: 0; align-items: stretch; }
+
+/* 文件选择器：与输入框同一套「内凹面 + 弱线」 */
+.docx-pick {
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-soft);
+  color: var(--text-secondary);
+}
+.docx-pick:hover { border-color: var(--line); color: var(--text-primary); }
+.docx-slot textarea { resize: none; }
+
+/* 第三轮统一（B3-3/B3-4）：模板缩略图放大到能读出真实版式；
+   「REAL HTML」从黑块改为弱线小标；顶栏只留一个主色 CTA。 */
+.template-thumb { height: 128px; border: 1px solid var(--line-soft); border-radius: 6px; }
+.template-thumb iframe { transform: scale(.198); }
+.template-thumb .template-badge {
+  left: 6px; bottom: 6px; padding: 0 8px;
+  background: color-mix(in srgb, var(--bg-panel) 88%, transparent);
+  border: 1px solid var(--line-soft);
+  color: var(--text-secondary);
+  border-radius: 3px;
+  font: var(--fw-semibold) 11px var(--mono, monospace);
+  letter-spacing: .08em;
+}
+.template-thumb .preview-open {
+  opacity: 1; transform: none;
+  background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
+  color: var(--text-primary);
+  border: 1px solid var(--line-soft);
+}
+.template-thumb .preview-open:hover { border-color: var(--accent); color: var(--accent); }
+
+/* 顶栏：推进是唯一主色动作，输入需求降为安静入口（高度不变，门禁照旧） */
+#btn-create { background: transparent; border-color: transparent; color: var(--text-secondary); }
+#btn-create:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* 夜蓝主题下模板预览是浅色内容，压低一点亮度让它安静；徽标用不透明面保证可读 */
+:root[data-theme="pixel-night"] .template-thumb iframe { opacity: .92; }
+.template-thumb .template-badge {
+  background: var(--surface-raised);
+  box-shadow: 0 1px 0 var(--line-soft);
+}

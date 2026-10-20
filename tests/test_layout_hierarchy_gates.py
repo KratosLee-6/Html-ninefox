@@ -84,7 +84,9 @@ def test_template_cards_have_stable_height(workbench) -> None:
     })""")
     assert cards, "侧栏应有模板卡"
     for card in cards:
-        assert card["h"] <= 170, f"模板卡过高：{card['h']}px（{card}）"
+        # v0.8.2 B3-3：缩略图从 86px 抬到 128px（KX 定的「更大更少」），
+        # 卡片上限随之从 170 抬到 210；超过就说明又往卡里塞了东西。
+        assert card["h"] <= 210, f"模板卡过高：{card['h']}px（{card}）"
         assert card["zhLines"] <= 2, f"模板名应最多两行，实测 {card['zhLines']} 行"
         assert card["enLines"] <= 2, f"模板描述应最多两行，实测 {card['enLines']} 行"
 
