@@ -27,6 +27,7 @@ def main() -> int:
         errors: list[str] = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.goto(args.base + "/")
+        page.add_style_tag(content=".toast-region{display:none !important}")
         page.wait_for_function("window.FoxWorkbenchUI", timeout=30000)
         page.wait_for_timeout(900)
 

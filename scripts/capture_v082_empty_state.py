@@ -27,6 +27,7 @@ def main() -> int:
         errors: list[str] = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.goto(args.base + "/")
+        page.add_style_tag(content=".toast-region{display:none !important}")
         page.wait_for_function("window.FoxWorkbenchUI", timeout=30000)
         page.wait_for_timeout(800)
 
@@ -42,6 +43,7 @@ def main() -> int:
 
         mobile = browser.new_page(viewport={"width": 390, "height": 844})
         mobile.goto(args.base + "/")
+        mobile.add_style_tag(content=".toast-region{display:none !important}")
         mobile.wait_for_function("window.FoxWorkbenchUI", timeout=30000)
         mobile.wait_for_timeout(700)
         mobile.evaluate("select(null)")
