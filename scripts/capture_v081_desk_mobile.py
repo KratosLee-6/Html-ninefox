@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -10,13 +11,15 @@ from playwright.sync_api import sync_playwright
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tests.conftest import WorkbenchServer  # noqa: E402
+from tests.fixtures.demo_docx import build_plan_docx  # noqa: E402
 
-DOCX = Path(r"E:/工作/01_业务/【汐构科技】/GEO/汐构信息技术全域数字营销与GEO平台定制方案_含产品架构图.docx")
-OUT = Path(r"E:/工作/01_业务/【汐构科技】/客户跟进/Html九尾狐/htmlninefox/assets/screenshots/v0.8.1")
+DEMO = Path(tempfile.gettempdir()) / "fox082"
+DOCX = build_plan_docx(DEMO / "demo-plan-mobile.docx")
+OUT = Path(__file__).resolve().parents[1] / "assets" / "screenshots" / "v0.8.1"
 
 
 def main() -> int:
-    with WorkbenchServer(Path(r"C:/Users/Admin/AppData/Local/Temp/fox082/output-mobile")) as server, \
+    with WorkbenchServer(DEMO / "output-mobile") as server, \
             sync_playwright() as playwright:
         browser = playwright.chromium.launch()
         page = browser.new_page(viewport={"width": 390, "height": 844})

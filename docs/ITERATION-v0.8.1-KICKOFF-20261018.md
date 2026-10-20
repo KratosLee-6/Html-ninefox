@@ -33,12 +33,13 @@
 - **降级如实**：未读取的部件逐个列进 `warnings`，不静默丢；
 - 坏文件明确报错（`DocxIntakeError`），不半解析。
 
-**真实文档验证**：`E:/工作/01_业务/【汐构科技】/GEO/汐构信息技术全域数字营销与GEO平台定制方案_含产品架构图.docx`
+**脱敏示例文档验证**：`tests/fixtures/demo_docx.py` 生成的虚构方案（星野智造／栖木云）。
+真实客户文档一律不进仓库、不进测试、不进截图（2026-10-20 合规要求）。
 
 ```
-title   极简科技全域数字营销与 GEO 平台定制方案   ← 取自 dc:title，不是「目录」
-counts  {heading: 54, paragraph: 34, table: 48, image: 1}
-assets  word/media/geo_product_architecture.png
+title   星野智造全域数字化营销与增长平台方案   ← 取自 dc:title，不是「目录」
+counts  {heading: 26, paragraph: 31, table: 2}
+sections 26 · 12,138 字符（doc 形态）
 warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…）
 ```
 
@@ -63,9 +64,9 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 
 新增 `htmlninefox/docx_proposal.py`：`propose(outline) -> Proposal`，产出审核台要看的四件东西：
 
-| 字段 | 内容 | 例子（真实 GEO 方案） |
+| 字段 | 内容 | 例子（脱敏示例方案） |
 |---|---|---|
-| `intent` ＋ `intent_reason` | 意图判定与理由 | `doc` ← 54 个标题 / 34 段正文 / 48 张表 |
+| `intent` ＋ `intent_reason` | 意图判定与理由 | `doc` ← 26 个标题 / 31 段正文 / 2 张表 |
 | `style` ＋ `style_reason` | 落到既有预设，不新建风格 | `doc-clean` ← doc × professional |
 | `image_plan` | slot ＋ 用途 ＋ 提示词（只给提示词，不直出图） | `cover`、`section-1..3` |
 | `copy` | headline / summary / sections / key_points，可编辑 | 摘要压成单行，目录不进章节 |
@@ -131,7 +132,7 @@ warnings 未读取的部件 7 个（header/footer/numbering/settings/styles…�
 
 | # | 现象 | 根因 | 修法 |
 |---|---|---|---|
-| 1 | 产物标题印成「Your Product · 极简科技…」 | `brand_of()` 把**显式空品牌**兜底成占位符（`"" or "Your Product"`）；同时 `brief_expert` 会重写文案，把审核台改过的摘要盖回兜底句 | `brand_of()` 区分「缺字段（演示兜底）」与「显式空（不印）」；新增 `brand_line()`；给 `GenerationRequest` 加 caller-owned `content`，在 pipeline 里以人审文案覆盖规则文案（空字符串只对 `brand` 生效） |
+| 1 | 产物标题印成「Your Product · 星野智造…」 | `brand_of()` 把**显式空品牌**兜底成占位符（`"" or "Your Product"`）；同时 `brief_expert` 会重写文案，把审核台改过的摘要盖回兜底句 | `brand_of()` 区分「缺字段（演示兜底）」与「显式空（不印）」；新增 `brand_line()`；给 `GenerationRequest` 加 caller-owned `content`，在 pipeline 里以人审文案覆盖规则文案（空字符串只对 `brand` 生效） |
 | 2 | 800 字目录整段印进首节正文 | Word 的目录是「提示句 ＋ 01/02 条目」的**普通段落**，没有标题级别；旧的跳过规则要求 `len>40`，而提示句恰好 12 字，于是漏网，后续条目继续拼进同一节 | `_TOC_HINTS` 命中即进入「目录模式」，连带跳过后续 `^\s*\d{1,2}\s*[、.．]?` 条目，直到遇见真标题；并在 limitations 里写明 |
 | 3 | 界面整块空白，控制台 `window.FoxDocx` 未定义 | 新增的 `docx-desk.js` 未登记进 `STATIC_FILES`（显式白名单），请求 404 → 脚本不执行 → 卡片是死的 | 登记 `"/docx-desk.js"`；同一条教训早写在 `fox-core.js` 上方注释里（"未登记 = 空白页而不是构建失败"） |
 

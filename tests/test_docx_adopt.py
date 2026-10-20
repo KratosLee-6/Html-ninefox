@@ -17,7 +17,9 @@ from htmlninefox.intake_outline import AdapterInfo, Block, IntakeOutline, Source
 
 INTENTS = ["landing", "dashboard", "deck", "poster", "archdoc", "doc"]
 
-REAL_DOCX = Path(r"E:/工作/01_业务/【汐构科技】/GEO/汐构信息技术全域数字营销与GEO平台定制方案_含产品架构图.docx")
+# 只许用脱敏示例文档（tests/fixtures/demo_docx.py）。真实客户文档不进仓库、
+# 不进测试、不进截图 —— 2026-10-20 的合规要求。
+from tests.fixtures.demo_docx import build_plan_docx  # noqa: E402
 
 
 def _block(index: int, kind: str, text: str = "", *, level: int = 0,
@@ -144,14 +146,16 @@ def test_toc_heading_never_becomes_a_section():
     assert headings[0] == "方案"
 
 
-@pytest.mark.skipif(not REAL_DOCX.exists(), reason="本机没有那份真实 .docx")
-def test_real_business_doc_renders_end_to_end():
+@pytest.mark.parametrize("intent", ["doc", "archdoc"])
+def test_real_business_doc_renders_end_to_end(tmp_path, intent):
+    """用脱敏示例文档跑完整链路：三十来节、六张表，正文必须到达产物。"""
     from htmlninefox.docx_import import parse_docx
 
-    outline = parse_docx(REAL_DOCX)
+    sample = build_plan_docx(tmp_path / "demo-plan.docx")
+    outline = parse_docx(sample)
     proposal = propose(outline)
-    page = adopt(outline, proposal)
+    page = adopt(outline, proposal, intent=intent)
 
-    assert page.section_count >= 10
+    assert page.section_count >= 8
     assert "执行摘要" in page.html
-    assert len(page.html) > 20000
+    assert len(page.html) > 8000

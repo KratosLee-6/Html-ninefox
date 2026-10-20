@@ -45,7 +45,7 @@
 <td width="50%"><img src="assets/screenshots/v0.8.1/docx-desk-adopted-1440.png" alt="采纳并生成"><br><b>采纳并生成</b><br>一次点击落成真实项目：目录、版本、导出全走既有链路，不另造渲染路径。</td>
 </tr>
 <tr>
-<td width="50%"><img src="assets/screenshots/v0.8.1/docx-artifact-1440.png" alt="doc 产物"><br><b>doc 产物 · 文档自己的正文</b><br>54 个标题 / 48 张表 / 1 张图的真实商务方案，落成 45 节、25k+ 字符；目录行与占位符都不会混进来。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.1/docx-artifact-1440.png" alt="doc 产物"><br><b>doc 产物 · 文档自己的正文</b><br>一份 26 节的示例方案（虚构主体 · 星野智造／栖木云），落成 26 节、1.2 万字符；目录行与占位符都不会混进来。</td>
 <td width="50%"><img src="assets/screenshots/v0.8.1/docx-artifact-deck-1440.png" alt="同一份文档换成 deck"><br><b>同一份文档 · 换成 deck</b><br>审核台里改意图即可换形态，不用重新上传。</td>
 </tr>
 </table>

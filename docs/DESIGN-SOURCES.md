@@ -7,14 +7,14 @@
 ### Huashu Design
 
 - GitHub：`https://github.com/alchaincyf/huashu-design`
-- 本地来源：`C:\Users\Admin\.agents\skills\huashu-design`
+- 本地来源：`~/.agents/skills\huashu-design`
 - 本地 `LICENSE`：MIT。
 - 接入策略：保留为 Skill 联盟设计顾问；九尾狐只接入“先出三方向、再定稿”的流程与独立实现的视觉 token，不复制演示资产。
 
 ### Guizang PPT Skill
 
 - GitHub：`https://github.com/op7418/guizang-ppt-skill`
-- 本地来源：`C:\Users\Admin\.agents\skills\guizang-ppt-skill`
+- 本地来源：`~/.agents/skills\guizang-ppt-skill`
 - 许可证状态：本地 README 声称 2026-05-14 起为 MIT，但本地根目录 `LICENSE` 内容仍为 AGPL-3.0；两者冲突。
 - 接入策略：在许可证冲突解决前，不复制其模板、脚本和资产；仅依据公开的编辑设计、电子墨水与瑞士国际主义原则，做 clean-room 原生适配。
 

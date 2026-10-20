@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -10,14 +11,17 @@ from playwright.sync_api import sync_playwright
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tests.conftest import WorkbenchServer  # noqa: E402
+from tests.fixtures.demo_docx import build_plan_docx  # noqa: E402
 
-DOCX = Path(r"E:/工作/01_业务/【汐构科技】/GEO/汐构信息技术全域数字营销与GEO平台定制方案_含产品架构图.docx")
-OUT = Path(r"E:/工作/01_业务/【汐构科技】/客户跟进/Html九尾狐/htmlninefox/assets/screenshots/v0.8.1")
+# 脱敏示例文档：真实客户文档一律不许进截图（2026-10-20 合规要求）。
+DEMO = Path(tempfile.gettempdir()) / "fox082"
+DOCX = build_plan_docx(DEMO / "demo-plan.docx")
+OUT = Path(__file__).resolve().parents[1] / "assets" / "screenshots" / "v0.8.1"
 
 
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
-    with WorkbenchServer(Path(r"C:/Users/Admin/AppData/Local/Temp/fox082/output")) as server, \
+    with WorkbenchServer(DEMO / "output") as server, \
             sync_playwright() as playwright:
         browser = playwright.chromium.launch()
         page = browser.new_page(viewport={"width": 1440, "height": 900})
@@ -28,6 +32,7 @@ def main() -> int:
         page.click("#docx-analyze")
         page.wait_for_selector("#docx-proposal:not([hidden])", timeout=30000)
         page.wait_for_timeout(400)
+        page.select_option("#docx-intent", "doc")
         page.screenshot(path=str(OUT / "docx-desk-proposal-1440.png"))
         page.click("#docx-adopt")
         page.wait_for_selector("#docx-result:not([hidden])", timeout=120000)
