@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.2] - 2026-10-20
+
+### Added
+- `docs/design-contract.json` — 字号 / 圆角 / 颜色 / 间距的唯一数值来源，与 `tests/test_design_contract.py` 双向比对
+- 检查器空态改为「一句话 + 三个可点起点」（写需求 / 补素材 / 新建工作区）
+- 动效 token：instant 90 / feedback 140 / enter 180 / panel 200 / exit 140
+- `--focus-ring` 独立焦点环 token（浅色钴蓝 / 夜蓝 `#9BC0FF`）
+- 按钮系统门禁、动效门禁、素材脱敏门禁、焦点环对比度门禁
+
+### Changed
+- 面板边界改为墨色 10% / 17% / 30% 三档透明度，结构交给底色与两级柔和投影
+- 按钮尺寸收敛为 32 默认 / 36 顶栏与弹窗 / 40 移动；补全 hover、active、disabled、busy、focus-visible
+- 按下 90ms、悬停 140ms 分开；面板入场 220 → 200ms
+- 图标统一 16 / 20 两档，线宽 1.8
+- 模板缩略图 86 → 128px，黑色标签改 mono 小标
+
+### Fixed
+- 焦点环陶土橙对纸白仅 2.87:1（低于 WCAG 3:1），改钴蓝 9.92:1
+- `--focus:var(--focus)` 自引用导致焦点环退化为 `currentColor`
+- 时间轴圆点 `transition:all .25s` 会连布局属性一起动画
+- 像素投影从多处收敛到两处（选中节点、主按钮）
+
 ## [Unreleased]
 
 ## [0.8.1] — 2026-10-19 · Word 导入：解析 → 提案 → 采纳

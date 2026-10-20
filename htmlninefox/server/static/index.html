@@ -21,6 +21,11 @@
   --text-primary:#17283D; --text-secondary:#536476; --text-tertiary:#59676D;
   --accent:#173C8F; --accent-hover:#2455B6; --accent-soft:rgba(23,60,143,.12); --on-accent:#FFFFFF;
   --indigo:#3568B8; --success:#2F9778; --warning:#DCA934; --danger:#C95C50;
+  /* v0.8.2：这三个 token 一直在被引用却从未定义，浏览器静默退化成继承值
+     （--orange 让警告浮条透明、--mono/--sans 让字体回落到默认） */
+  --orange:#D9822B; --fw-regular:400;
+  --sans:system-ui,-apple-system,"Segoe UI","Noto Sans SC",sans-serif;
+  --mono:"JetBrains Mono",Consolas,"SFMono-Regular",monospace;
   --info:#2F73B8; --amber:#D79932; --cyan:#328CA3; --pink:#C45C79; --green:#49B894;
   --font-display:Georgia,'Noto Serif SC','Songti SC',SimSun,serif;--font-body:'Inter','PingFang SC','Microsoft YaHei',sans-serif;
   --radius:4px; --shadow-color:rgba(23,60,143,.12); --shadow:3px 3px 0 var(--shadow-color);
@@ -326,9 +331,9 @@ input,textarea,select { font-family:inherit; }
   border:1px solid var(--border-default); border-radius:6px; padding:0 9px; font-size:var(--fs-md); }
 .inspector input[type="text"]:focus { outline:none; border-color:var(--accent); }
 .workspace-colors { display:grid; grid-template-columns:repeat(6,1fr); gap:var(--space-2); }
-.workspace-color { aspect-ratio:1; border-radius:6px; background:var(--swatch); border:2px solid transparent;
+.workspace-color { aspect-ratio:1; border-radius:6px; background:var(--swatch,var(--accent)); border:2px solid transparent;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); }
-.workspace-color:hover,.workspace-color.on { border-color:#fff; box-shadow:0 0 0 2px var(--swatch); }
+.workspace-color:hover,.workspace-color.on { border-color:#fff; box-shadow:0 0 0 2px var(--swatch,var(--accent)); }
 .inspector .btn { width:100%; justify-content:center; }
 .ins-empty { color:var(--text-tertiary); font-size:var(--fs-md); line-height:1.9; }
 .fb-item { background:var(--bg-elevated); border:1px solid var(--border-subtle); border-radius:6px;
@@ -403,8 +408,8 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .brand-copy small { color:var(--text-tertiary); font:var(--fw-bold) 7px/1 Consolas,'SFMono-Regular',monospace; letter-spacing:.18em; }
 .ver { font-family:Consolas,'SFMono-Regular',monospace; }
 .btn { border-width:1px; box-shadow:none; }
-.btn-primary { box-shadow:2px 2px 0 color-mix(in srgb,var(--accent) 30%,transparent); }
-.btn-primary:hover { transform:translate(-1px,-1px); box-shadow:3px 3px 0 color-mix(in srgb,var(--accent) 28%,transparent); }
+.btn-primary { }
+.btn-primary:hover { }
 .theme-toggle { min-width:84px; justify-content:center; }
 .theme-glyph { width:12px; height:12px; border:1px solid currentColor; background:linear-gradient(90deg,currentColor 50%,transparent 50%); display:inline-block; }
 .sidebar,.inspector,.timeline,.topbar { background-image:linear-gradient(180deg,color-mix(in srgb,var(--bg-panel) 96%,white) 0%,var(--bg-panel) 100%); }
@@ -413,10 +418,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .node.ws { border-radius:6px; background:linear-gradient(135deg,var(--workspace-tint),transparent 68%); }
 .node.ws.selected { box-shadow:0 0 0 2px var(--workspace-glow); }
 .ws-head,.workspace-navigator,.preview-dialog { border-radius:5px; }
-.workspace-navigator { box-shadow:4px 4px 0 color-mix(in srgb,var(--accent) 12%,transparent); backdrop-filter:blur(9px); }
+.workspace-navigator { box-shadow:0 8px 24px color-mix(in srgb,var(--accent) 12%,transparent); backdrop-filter:blur(9px); }
 .tab { border-radius:3px 3px 0 0; }
-.pal-card { border-radius:4px; box-shadow:2px 2px 0 transparent; }
-.pal-card:hover { box-shadow:2px 2px 0 color-mix(in srgb,var(--accent) 18%,transparent); }
+.pal-card { border-radius:4px; box-shadow:none; }
+.pal-card:hover { box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 18%,transparent); }
 .canvas-empty .big { display:grid; place-items:center; }
 .canvas-empty .big img { width:54px; height:54px; image-rendering:pixelated; filter:drop-shadow(3px 3px 0 color-mix(in srgb,var(--accent) 16%,transparent)); }
 .tl-dot { border-radius:3px; }
@@ -522,14 +527,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .command-result-main small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-tertiary); font-size:var(--fs-xs); }
 .command-shortcut { padding:2px 5px; border:1px solid var(--border-default); background:var(--bg-elevated); color:var(--text-secondary); font:var(--fw-bold) 9px/1.2 var(--mono); }
 .command-empty { padding:28px; text-align:center; color:var(--text-tertiary); }
-.toast-region { position:fixed; z-index:180; top:58px; right:14px; width:min(380px,calc(100vw - 28px)); display:grid; gap:var(--space-2); pointer-events:none; }
-.fox-toast { --toast-color:var(--accent); display:grid; grid-template-columns:10px minmax(0,1fr) 24px; gap:var(--space-2); align-items:start; padding:11px 10px 11px 12px; border:1px solid var(--border-strong); border-left:4px solid var(--toast-color); background:color-mix(in srgb,var(--bg-panel) 96%,white); color:var(--text-primary); box-shadow:4px 4px 0 color-mix(in srgb,var(--toast-color) 18%,transparent),0 16px 42px rgba(0,0,0,.2); opacity:0; transform:translateY(-6px); transition:opacity .16s ease,transform .16s ease; pointer-events:auto; }
+.toast-region { position:fixed; z-index:180; bottom:18px; right:14px; width:min(380px,calc(100vw - 28px)); display:grid; gap:var(--space-2); pointer-events:none; }
+.fox-toast { --toast-color:var(--accent); display:grid; grid-template-columns:10px minmax(0,1fr) 24px; gap:var(--space-2); align-items:start; padding:11px 10px 11px 12px; border:1px solid var(--border-strong); border-left:4px solid var(--toast-color); background:color-mix(in srgb,var(--bg-panel) 96%,white); color:var(--text-primary); box-shadow:0 10px 30px color-mix(in srgb,var(--text-primary) 18%,transparent),0 16px 42px rgba(0,0,0,.2); opacity:0; transform:translateY(6px); transition:opacity var(--motion-feedback,140ms) var(--motion-ease,ease),transform var(--motion-feedback,140ms) var(--motion-ease,ease); pointer-events:auto; }
 .fox-toast.is-visible { opacity:1; transform:translateY(0); }
-.fox-toast.is-leaving { opacity:0; transform:translateY(-6px); }
+.fox-toast.is-leaving { opacity:0; transform:translateY(6px); }
 .fox-toast--success { --toast-color:var(--success); }
 .fox-toast--warning { --toast-color:var(--orange); }
 .fox-toast--error { --toast-color:var(--danger); }
-.fox-toast-mark { width:8px; height:8px; margin-top:4px; background:var(--toast-color); box-shadow:2px 2px 0 color-mix(in srgb,var(--toast-color) 24%,transparent); }
+.fox-toast-mark { width:8px; height:8px; margin-top:4px; background:var(--toast-color); }
 .fox-toast-message { font-size:var(--fs-sm); line-height:1.55; overflow-wrap:anywhere; }
 .fox-toast-close { width:28px; height:28px; padding:0; color:var(--text-tertiary); }
 @media (pointer:coarse) { .fox-toast-close { width:36px; height:36px; } }
@@ -794,7 +799,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
     <div class="flow-body"><div class="flow-grid">
       <section class="flow-card"><h3>01 · 文字、文件与图片</h3>
         <div class="flow-field"><label>你希望生成什么？</label><textarea id="creation-prompt" placeholder="例如：做一个 AI 产品发布会 PPT，面向设计团队，重点展示工作流、模板市场和本地数据安全。"></textarea></div>
-        <div class="drop-zone"><strong>添加参考文件或图片</strong><small>支持 TXT / Markdown / JSON / CSV / HTML 和常见图片，单个不超过 8MB。文本会提取内容，图片会作为创作上下文记录。</small><input id="creation-files" type="file" multiple accept="image/*,.txt,.md,.json,.csv,.html,.htm,.yaml,.yml"></div>
+        <div class="drop-zone"><strong>添加参考文件或图片</strong><small>支持 TXT / Markdown / JSON / CSV / HTML 和常见图片，单个不超过 8MB。文本会提取内容，图片会作为创作上下文记录。</small><input id="creation-files" class="sr-only" type="file" multiple accept="image/*,.txt,.md,.json,.csv,.html,.htm,.yaml,.yml"><label class="drop-pick" for="creation-files">选择文件<span class="drop-pick-hint">可多选</span></label></div>
         <div class="input-list" id="creation-input-list"></div>
         <div class="flow-actions"><button class="btn btn-primary" id="creation-analyze" data-action="analyzeCreation">AI 分析并推荐</button><button class="btn btn-secondary" data-action="sendToCustomWorkspace">先进入工作区自定义</button></div>
       </section>

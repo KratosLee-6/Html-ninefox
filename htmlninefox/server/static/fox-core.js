@@ -1117,10 +1117,15 @@ function renderInspector() {
   const box = $('#inspector');
   if (window.FoxCanvasProductivity?.renderSelectionInspector(box)) return;
   const n = nodes.find(x => x.id === selected);
-  if (!n) { box.innerHTML = `<h3>检查器</h3><p class="ins-empty">选中节点查看属性。<br><br>
-    · <b>工作区</b>：拖素材进来 = 你的模板，点 ▶ 推进<br>
-    · <b>需求节点</b>：自动拆解为 类型+风格+要点<br>
-    · <b>产物节点</b>：预览 + 口语反馈迭代（rev）</p>`; return; }
+  if (!n) { box.innerHTML = `<h3>检查器</h3>
+    <div class="ins-empty">
+      <p>还没选中任何东西。先选一个起点：</p>
+      <div class="ins-empty-actions">
+        <button class="btn btn-secondary" data-action="openCreatePanel">写一句需求</button>
+        <button class="btn btn-secondary" data-action="openIntake">补充素材</button>
+        <button class="btn btn-secondary" data-action="addWorkspace">新建工作区</button>
+      </div>
+    </div>`; return; }
   if (n.kind === 'output') {
     box.innerHTML = `<h3>产物</h3>
       <div class="field"><div class="kv"><span>项目</span><span>${esc(n.data.project_name || '')}</span></div>

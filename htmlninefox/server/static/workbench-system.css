@@ -75,7 +75,7 @@
   font-size:var(--fs-md);
 }
 .btn-icon { width:var(--control-default); padding:0; justify-content:center; }
-.btn-primary { box-shadow:2px 2px 0 color-mix(in srgb,var(--accent) 22%,transparent); }
+.btn-primary { border-color:color-mix(in srgb,var(--accent) 70%,transparent); }
 .btn-primary:hover { transform:translateY(-1px); }
 .btn:disabled { opacity:.46; cursor:not-allowed; transform:none; box-shadow:none; }
 .btn[aria-busy="true"] { cursor:wait; }
@@ -91,6 +91,7 @@
   color:currentColor;
   vertical-align:-.16em;
 }
+.ui-icon, .ui-icon svg { stroke-width:1.8; }
 .ui-icon svg { width:100%; height:100%; display:block; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .pal-ico .ui-icon { width:12px; height:12px; color:#fff; }
 .workspace-mark .ui-icon { width:15px; height:15px; }
@@ -204,7 +205,7 @@
 .mobile-workspace-tabs button { min-height:38px; padding:0 8px; border:1px solid var(--border-default); border-radius:var(--radius); background:var(--bg-panel); color:var(--text-secondary); white-space:nowrap; }
 .mobile-workspace-tabs button.active { color:var(--text-primary); border-color:var(--accent); background:var(--accent-soft); }
 .mobile-task-list { display:grid; gap:var(--space-2); }
-.mobile-task-card { width:100%; min-height:58px; display:grid; grid-template-columns:32px minmax(0,1fr) auto; gap:var(--space-2); align-items:center; padding:8px 10px; text-align:left; border:1px solid var(--border-default); border-radius:var(--radius); background:var(--bg-panel); box-shadow:2px 2px 0 color-mix(in srgb,var(--accent) 10%,transparent); }
+.mobile-task-card { width:100%; min-height:58px; display:grid; grid-template-columns:32px minmax(0,1fr) auto; gap:var(--space-2); align-items:center; padding:8px 10px; text-align:left; border:1px solid var(--border-default); border-radius:var(--radius); background:var(--bg-panel); box-shadow:var(--shadow-panel); }
 .mobile-task-card:hover,.mobile-task-card:focus-visible { border-color:var(--accent); }
 .mobile-task-card .task-icon { width:32px; height:32px; display:grid; place-items:center; color:var(--accent); background:var(--accent-soft); border-radius:var(--radius); }
 .mobile-task-card strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:var(--fs-lg); }
@@ -579,7 +580,7 @@
 }
 .template-thumb .preview-open {
   opacity: 1; transform: none;
-  background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
+  background: var(--bg-panel);
   color: var(--text-primary);
   border: 1px solid var(--line-soft);
 }
@@ -592,7 +593,8 @@
 /* 夜蓝主题下模板预览是浅色内容，压低一点亮度让它安静；徽标用不透明面保证可读 */
 :root[data-theme="pixel-night"] .template-thumb iframe { opacity: .92; }
 .template-thumb .template-badge {
-  background: var(--surface-raised);
+  background: var(--bg-panel);
+  color: var(--text-primary);
   box-shadow: 0 1px 0 var(--line-soft);
 }
 
@@ -636,12 +638,10 @@
   background: var(--accent);
   color: var(--on-accent);
   border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
-  box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .btn-primary:hover {
   background: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 26%, transparent);
 }
 
 /* 危险操作：文字色，不抢主色 */
@@ -766,3 +766,40 @@ button.btn:focus-visible, summary.btn:focus-visible, a.btn:focus-visible,
               color var(--motion-feedback, 140ms) var(--motion-ease, ease),
               border-color var(--motion-feedback, 140ms) var(--motion-ease, ease);
 }
+
+/* 检查器空态（v0.8.2 B3-5）：一句话 + 三个可点起点，替掉三行说明 */
+.ins-empty p { font-size: var(--fs-sm); line-height: 1.6; color: var(--text-secondary); }
+.ins-empty-actions { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+.ins-empty-actions .btn { width: 100%; justify-content: flex-start; }
+
+/* 图标两档（B4-4）：默认 16，顶栏工具栏 20；线宽保持 1.8 */
+.pal-ico .ui-icon { width: 16px; height: 16px; color: var(--on-accent); }
+.workspace-mark .ui-icon { width: 16px; height: 16px; }
+.topbar .btn .ui-icon, .topbar-tools .ui-icon { width: 20px; height: 20px; }
+.ui-icon--lg { width: 20px; height: 20px; }
+
+/* 文件选择器：原生控件在中文界面里会露出英文 "Choose Files / No file chosen"，
+   换成与按钮同一尺度的中文入口；input 只做无障碍与事件，不参与排版。 */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.drop-pick {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  height: 32px; padding: 0 var(--space-3); margin-top: var(--space-2);
+  border: 1px solid var(--border-strong); border-radius: var(--radius);
+  background: var(--bg-panel); color: var(--text-primary);
+  font-size: var(--fs-sm); font-weight: var(--fw-medium); cursor: pointer;
+  transition: background var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              border-color var(--motion-feedback, 140ms) var(--motion-ease, ease);
+}
+.drop-pick:hover { background: var(--bg-hover); }
+.drop-pick:focus-within { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.drop-pick-hint { color: var(--text-tertiary); font-weight: var(--fw-regular); }
+
+/* 大面输入框的焦点环收一档：按钮 3px 好辨认，输入区 3px 会显得像粗黑框 */
+:where(input, textarea, select):focus-visible {
+  outline: 2px solid var(--focus-ring) !important;
+  outline-offset: 1px;
+}
+.drop-pick { justify-self: start; width: max-content; }

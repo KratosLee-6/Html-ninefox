@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -135,6 +136,30 @@ def test_focus_ring_meets_non_text_contrast():
     for surface in ("--bg-panel", "--bg-base"):
         ratio = contrast(ring, hex_of(surface))
         assert ratio >= 3.0, f"焦点环 {ring} 对 {surface} 只有 {ratio:.2f}:1，低于 3:1"
+
+
+def test_every_used_custom_property_is_defined():
+    """`var(--x)` 写错名字不会报错，只会静默 fallback 成透明/继承色。
+
+    真实案例：`.template-badge` 用了 `--surface-raised`，该 token 从未定义，
+    夜蓝主题下徽标背景变透明，白字压在浅色缩略图上只剩 1.67:1。
+    """
+    static = ROOT / "htmlninefox" / "server" / "static"
+    sources = [p for p in static.glob("*.css")] + [static / "index.html", static / "motion-system.js"]
+    defined: set[str] = set()
+    used: dict[str, str] = {}
+
+    for path in sources:
+        text = path.read_text(encoding="utf-8")
+        defined.update(re.findall(r"(--[a-z0-9-]+)\s*:", text))
+        for match in re.finditer(r"var\(\s*(--[a-z0-9-]+)\s*([,)])", text):
+            name, tail = match.group(1), match.group(2)
+            if tail == ",":      # 自带兜底值的可以不全局定义
+                continue
+            used.setdefault(name, path.name)
+
+    missing = {name: origin for name, origin in used.items() if name not in defined}
+    assert not missing, f"这些自定义属性从未定义（会静默失效）：{missing}"
 
 
 def test_no_self_referential_tokens():

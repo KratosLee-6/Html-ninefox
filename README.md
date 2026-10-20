@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.1-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.1)
+[![App Release](https://img.shields.io/badge/app-v0.8.2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.2)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.1`（2026-10-19 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.1) · 完整功能与架构见下。
+> 当前应用包版本为 `0.8.2`（2026-10-20 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.2) · 完整功能与架构见下。
 
 ---
 
@@ -35,7 +35,24 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.8.1 · 贴入 Word：解析 → 提案 → 采纳（最新功能）
+## 🆕 v0.8.2 · 界面收敛：面替代线，动效同一时钟（最新功能）
+
+**不换主题、不改品牌色：把 Pixel Garden 的执行层补齐 —— 用「面」分层而不是描边围框，按钮/动效/空态按一套尺度收口。**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.2/workbench-pixel-paper-1440.png" alt="工作台 · 收敛后"><br><b>工作台 · 面层结构</b><br>边界改成墨色的 10/17/30% 透明度，结构交给底色与两级柔和投影；模板缩略图 86→128px，黑标签换成 mono 小标。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.2/word-desk-proposal-1440.png" alt="审核台 · 收敛后"><br><b>审核台 · 两层结构</b><br>区段用发丝线分隔；图片位从十二个小方框改成行分隔；主操作贴底常驻。</td>
+</tr>
+</table>
+
+- **设计契约可执行**：`docs/design-contract.json` 与 `tests/test_design_contract.py` 双向比对，字号/圆角/颜色/间距/衬线任何一边改动都会红。
+- **按钮系统**：32 默认 / 36 顶栏 / 40 移动；hover、active、disabled、busy、focus-visible 全部显式；一屏只一个实心主操作。
+- **动效一条时钟**：instant 90 / feedback 140 / enter 180 / panel 200 / exit 140，全部来自 token；减少动效开关实测归零。
+- **可访问性**：焦点环改钴蓝（陶土橙对纸白仅 2.87:1，低于 3:1）；纯图标按钮必须有可访问名与 32×32 点击区。
+- **门禁**：设计契约 12 条 ＋ 按钮 4 条 ＋ 动效 8 条 ＋ 层级 6 条 ＋ 素材脱敏 3 条。
+
+## v0.8.1 · 贴入 Word：解析 → 提案 → 采纳（v0.8.1 能力）
 
 **一份 .docx 进工作台，先看到「它被怎么理解」的提案，人改完再生成。解析全程离线，不联网也能用。**
 
@@ -78,7 +95,7 @@
 - **门禁**：v0.8.0 发布时 685 passed / 4 skipped；docx 变异 **3/3** ＋ paraphrased **5/5** 全 CAUGHT；真实链路 **18/18**。
 - 详见 [v0.8.0 发布说明](docs/RELEASE-NOTES-v0.8.0.md) · [v0.8 迭代规划](docs/PLAN-v0.8.md)。
 
-> **下一步 · v0.8.2**：前端 UI / VI 与设计版面收敛（token 收敛、版面重排、手册 v1.2、设计契约三方比对）。计划见 [v0.8.2 UI/VI 收敛](docs/PLAN-v0.8.2-UI-VI.md)。
+> **下一步 · v0.8.3**：键盘可达性、Tauri 桌面决策与 PPTX 适配器。计划见 [v0.8.2 UI/VI 收敛](docs/PLAN-v0.8.2-UI-VI.md)。
 
 ### 🔎 网页反向拆解（v0.7 能力，仍在主线）
 
@@ -211,6 +228,7 @@ Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.8.2** | 2026-10-20 | **界面收敛**：面替代线、按钮系统、动效时钟、空态与图标尺度；设计契约可执行 |
 | **v0.8.1** | 2026-10-19 | **Word 导入**：`.docx` 离线解析 → 提案（意图/风格/图片位/文案，带理由）→ 审核台可改 → 一键成页；走既有分块通道，六生成器零改动；DOCX 链 56 条门禁 ＋ 变异 6/6 |
 | **v0.8.0** | 2026-10-17 | **DOCX 语义导出**：doc/archdoc 全文 / deck 讲义，降级清单如实；paraphrased「重新改写」；导出矩阵补上 Word 这一格 |
 | **v0.7.8** | 2026-10-17 | **C6 收口**：106 处内联 onclick 全量迁 data-action 委托，类型签名表守住「字符串 vs 数字 id」；顺带修掉真点击门禁暴露的芯片点击失灵 |
