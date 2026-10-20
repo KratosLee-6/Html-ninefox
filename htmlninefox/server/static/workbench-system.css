@@ -595,3 +595,105 @@
   background: var(--surface-raised);
   box-shadow: 0 1px 0 var(--line-soft);
 }
+
+/* ============================================================
+   按钮系统（v0.8.2 · 对齐 VI 控件尺度 32 / 36）
+   参考真实产品规范（Resend 的「形状跟角色走」、HubSpot 的「单一动作色 +
+   交互元素 8px 圆角」、Stripe 的紧凑控件发丝边），收敛成一套：
+   尺寸 32 默认 / 36 大 / 28 仅在密集表格；状态 hover / active / disabled /
+   busy / focus-visible 全部显式；图标 16px、间距 6px。
+   ============================================================ */
+.btn {
+  height: 32px;
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  gap: 8px;
+  border-radius: var(--radius);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-medium);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 140ms ease, border-color 140ms ease,
+              color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+.btn .ui-icon, .btn svg { width: 16px; height: 16px; flex: none; }
+
+/* 二级：浅面 + 发丝线；hover 只提亮面，不加重描边 */
+.btn-secondary {
+  background: var(--surface-panel);
+  border: 1px solid var(--line-soft);
+  color: var(--text-primary);
+}
+.btn-secondary:hover { background: var(--bg-hover); border-color: var(--line); }
+
+/* 幽灵：无线，靠 hover 面表达可点 */
+.btn-ghost { background: transparent; border: 1px solid transparent; color: var(--text-secondary); }
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* 主操作：实心钴蓝；像素投影只在这里与节点选中出现 */
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+/* 危险操作：文字色，不抢主色 */
+.btn-danger-ghost { color: var(--danger); }
+.btn-danger-ghost:hover { background: color-mix(in srgb, var(--danger) 12%, transparent); }
+
+/* 按下：位移复位、投影收掉——手感上「按进去了」 */
+.btn:active:not(:disabled) {
+  transform: translateY(1px) !important;
+  box-shadow: none !important;
+}
+
+/* 键盘焦点：陶土橙 3px 环，任何变体都可见 */
+.btn:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* 禁用与忙碌：都不可误触，但视觉语言不同 */
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+.btn[aria-busy="true"] { cursor: progress; opacity: .8; }
+.btn[aria-busy="true"]::before {
+  content: '';
+  width: 12px; height: 12px; margin-right: 2px;
+  border: 2px solid currentColor; border-right-color: transparent;
+  border-radius: 50%;
+  animation: btn-spin 720ms linear infinite;
+}
+@keyframes btn-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .btn[aria-busy="true"]::before { animation-duration: 2s; }
+}
+
+/* 移动端：关键动作至少 40px（UI-GUIDE §10） */
+@media (max-width: 620px) {
+  .btn { min-height: 40px; height: 40px; }
+}
+
+/* 尺寸档位 */
+.btn-lg { height: 36px; min-height: 36px; padding: 0 var(--space-4); font-size: var(--fs-lg); }
+.btn-sm { height: 28px; min-height: 28px; padding: 0 var(--space-2); font-size: var(--fs-sm); }
+
+/* 顶栏动作按「常用」档 36px，与门禁和 VI 一致 */
+.topbar .btn { height: 36px; min-height: 36px; padding: 0 var(--space-3); }
+@media (max-width: 620px) {
+  .btn, .topbar .btn { height: 40px; min-height: 40px; }
+  .mobile-library-toggle, .mobile-inspector-toggle { display: inline-flex; align-items: center; justify-content: center; }
+}
+/* 焦点环必须真的画出来：:where() 零特异性会被历史规则按掉 */
+button.btn:focus-visible, summary.btn:focus-visible, a.btn:focus-visible,
+.btn.btn-icon:focus-visible, .pal-card:focus-visible {
+  outline: 3px solid var(--focus) !important;
+  outline-offset: 2px !important;
+  outline-style: solid !important;
+}

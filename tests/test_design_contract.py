@@ -108,6 +108,20 @@ def test_display_serif_is_actually_used():
         f"衬线只覆盖 {selectors} 个选择器，契约要求 ≥{display['min_selectors']}"
 
 
+def test_no_self_referential_tokens():
+    """`--focus:var(--focus)` 这类自引用会让 token 变成空值，界面上还看不出来。
+
+    这是真发生过的：批量把十六进制换成 var(--token) 时，把定义那一行也换了，
+    结果焦点环颜色变成 currentColor、对比度全线静默下降。
+    """
+    import re as _re
+
+    html = (ROOT / "htmlninefox" / "server" / "static" / "index.html").read_text(encoding="utf-8")
+    pairs = _re.findall(r"(--[a-z0-9-]+)\s*:\s*var\((--[a-z0-9-]+)\)", html)
+    self_refs = sorted({name for name, target in pairs if name == target})
+    assert not self_refs, f"这些 token 定义成了自己：{self_refs}"
+
+
 def test_contract_records_layout_rules_for_the_next_batch():
     """B3 的门禁还没接上，但规则先落纸，避免下一批人重新定义。"""
     layout = CONTRACT["layout"]
