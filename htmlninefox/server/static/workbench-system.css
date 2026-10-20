@@ -803,3 +803,9 @@ button.btn:focus-visible, summary.btn:focus-visible, a.btn:focus-visible,
   outline-offset: 1px;
 }
 .drop-pick { justify-self: start; width: max-content; }
+.ins-empty-actions .btn::after {
+  content: "→"; margin-left: auto; color: var(--text-tertiary);
+  transition: color var(--motion-feedback, 140ms) var(--motion-ease, ease),
+              transform var(--motion-instant, 90ms) var(--motion-ease, ease);
+}
+.ins-empty-actions .btn:hover::after { color: var(--accent); transform: translateX(2px); }

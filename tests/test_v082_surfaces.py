@@ -39,8 +39,8 @@ def workbench(workbench_server):
 
 def test_inspector_empty_state_offers_three_starting_points(workbench):
     page, _ = workbench
-    page.evaluate("window.FoxCanvas && FoxCanvas.select && FoxCanvas.select(null)")
-    page.wait_for_timeout(200)
+    # 不点任何东西：第一屏（静态 HTML 直出）就必须已经是新空态
+    page.wait_for_timeout(250)
 
     panel = page.locator("#inspector")
     text = panel.inner_text()

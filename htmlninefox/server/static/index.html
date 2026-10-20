@@ -723,10 +723,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   </main>
 
   <aside class="inspector" id="inspector"><h3>检查器</h3>
-    <p class="ins-empty">选中节点查看属性。<br><br>
-    · <b>工作区</b>：拖素材进来 = 你的模板；点 ▶ 推进<br>
-    · <b>需求节点</b>：一句话需求，推进时自动拆解<br>
-    · <b>产物节点</b>：预览 + 反馈迭代</p>
+    <div class="ins-empty">
+      <p>还没选中任何东西。先选一个起点：</p>
+      <div class="ins-empty-actions">
+        <button class="btn btn-secondary" data-action="openCreatePanel">写一句需求</button>
+        <button class="btn btn-secondary" data-action="openIntake">补充素材</button>
+        <button class="btn btn-secondary" data-action="addWorkspace">新建工作区</button>
+      </div>
+    </div>
   </aside>
 
   <div class="mobile-scrim" id="mobile-scrim" data-action="closeMobilePanels"></div>
