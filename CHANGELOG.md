@@ -33,6 +33,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **PPTX 反向拆解（v0.8.3 主项之一）**：上传 .pptx → 统一 `intake_outline` →
+  既有提案层 → 审核台 → 采纳生成，与 Word 导入同一条管线、零新渲染路径。
+  - `htmlninefox/pptx_import.py`：`python-pptx` 只读遍历（复用 `[pptx]` extra，
+    未装如实提示）；标题占位符 → 标题、正文 → 列表、讲稿备注 → 段落、表格 →
+    表格、图片 → 资产候选、组内形状递归；evidence = 页号＋形状号（±段落号），
+    `validate()` 兜底 100% 可回指。
+  - HTTP 新增 `/api/intake/pptx`（上传出提案）与 `/api/intake/pptx/adopt`
+    （改完的提案落成项目）；`docx_adopt` 的 source 前缀按来源格式分流
+    （`pptx:slide-N-shape-M`）。
+  - 审核台同一张界面吃 .docx 与 .pptx（端点与字段随扩展名分流）；
+    「布局几何不还原」作为常驻 limitation 出现在每份拆解结果与界面上；
+    图表与 SmartArt 只计数、合并单元格如实上报、误传 docx 当场拒绝。
+  - 提案层新增 pptx 兜底：来源是演示文稿时默认意图为 deck（更强的信号
+    仍可覆盖），理由随提案可见。
+  - 门禁：解析合同 15 条（含 locator 回读比对）、API 13 条（含六意图真链）、
+    真浏览器 1 条；变异 `mutate_pptx_gates.py` **4/4 CAUGHT**（几何边界常驻 /
+    回指完整 / 图表只计数 / 意图兜底），已并入 preflight（第六套）。
+
+### Fixed
+- v0.8.2 迭代记录里一处本机绝对路径违反仓库卫生门禁（`test_no_client_material`
+  在发布后的 main 上是红的），改为工作区相对描述。
+
 ## [0.8.1] — 2026-10-19 · Word 导入：解析 → 提案 → 采纳
 
 > 新能力。HTTP 新增 `/api/intake/docx`（上传出提案）与

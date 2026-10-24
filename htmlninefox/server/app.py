@@ -21,7 +21,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 from .. import __version__, exporting, intake, llm, pipeline, project_memory, revisions, template_gallery
 from .. import docx_adopt, docx_import, docx_proposal
-from .. import pptx_export
+from .. import pptx_export, pptx_import
 from ..application import (
     ExportError, ExportRequest, ExportResult,
     FeedbackError, FeedbackRequest, FeedbackResult,
@@ -262,6 +262,73 @@ class _Handler(BaseHTTPRequestHandler):
         payload["limitations"] = list(dict.fromkeys(
             (*outline.limitations, *proposal.limitations, *notes)))
         payload["docx"] = {"title": outline.source.title, "sections": len(sections),
+                           "counts": outline.counts}
+        return payload
+
+    @staticmethod
+    def _pptx_upload(body: dict) -> bytes:
+        """Same base64-JSON transport as the DOCX desk — no multipart parser."""
+        payload = str(body.get("pptx_base64") or "").strip()
+        if not payload:
+            raise StoreError("pptx_upload_required", "请选择一份 .pptx 文件", 400)
+        try:
+            data = base64.b64decode(payload, validate=True)
+        except (ValueError, TypeError) as exc:
+            raise StoreError("pptx_upload_invalid", "PPT 文件不是合法 Base64", 400) from exc
+        if not data:
+            raise StoreError("pptx_upload_required", "请选择一份 .pptx 文件", 400)
+        return data
+
+    def _pptx_outline(self, body: dict):
+        data = self._pptx_upload(body)
+        try:
+            return pptx_import.parse_pptx(data)
+        except pptx_import.PptxIntakeError as exc:
+            raise StoreError("pptx_unreadable", str(exc), 400) from exc
+
+    def _api_intake_pptx(self, body: dict) -> dict:
+        """Parse an uploaded .pptx and return the proposal a person reviews.
+
+        The proposal layer consumes the shared `intake_outline` contract, so a
+        deck is proposed exactly the way a document is — no PPTX branch here.
+        """
+        outline = self._pptx_outline(body)
+        proposal = docx_proposal.propose(outline)
+        return {
+            "ok": True,
+            "source": outline.as_dict()["source"],
+            "counts": outline.counts,
+            "evidence_complete": outline.evidence_complete,
+            "limitations": list(dict.fromkeys((*outline.limitations, *proposal.limitations))),
+            "proposal": proposal.as_dict(),
+        }
+
+    def _api_intake_pptx_adopt(self, body: dict) -> dict:
+        """Render the reviewed deck proposal through the existing generation use case."""
+        outline = self._pptx_outline(body)
+        base = docx_proposal.propose(outline)
+        try:
+            proposal = docx_adopt.apply_overrides(base, body.get("proposal"))
+        except ValueError as exc:
+            raise StoreError("pptx_proposal_invalid", str(exc), 400) from exc
+        sections, notes = docx_adopt.sections_from_outline(outline)
+        payload = self._generation_result({
+            "prompt": proposal.copy.get("headline") or outline.source.title or "PPT 导入",
+            "intent": proposal.intent,
+            "template": proposal.preset_id,
+            "blocks": sections,
+            "content": {
+                "brand": "",
+                "headline": proposal.copy.get("headline", ""),
+                "hero_sub": proposal.copy.get("summary", ""),
+                "summary": proposal.copy.get("summary", ""),
+            },
+            "quiet_llm": True,
+            "selection_mode": "pptx",
+        })
+        payload["limitations"] = list(dict.fromkeys(
+            (*outline.limitations, *proposal.limitations, *notes)))
+        payload["pptx"] = {"title": outline.source.title, "sections": len(sections),
                            "counts": outline.counts}
         return payload
 
@@ -665,6 +732,10 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json(self._api_intake_docx(body))
         if path == "/api/intake/docx/adopt":
             return self._json(self._api_intake_docx_adopt(body))
+        if path == "/api/intake/pptx":
+            return self._json(self._api_intake_pptx(body))
+        if path == "/api/intake/pptx/adopt":
+            return self._json(self._api_intake_pptx_adopt(body))
         if path == "/api/intake/candidates/batch":
             return self._json(self._api_intake_batch(body))
         if path == "/api/intake/components/import":

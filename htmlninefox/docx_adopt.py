@@ -27,6 +27,14 @@ _TOC_HINTS = ("更新目录", "右键更新", "目录已更新", "table of conte
 _TOC_ENTRY = re.compile(r"^\s*\d{1,2}\s*[、.．]?\s*\S")
 
 
+def _source_ref(outline: IntakeOutline, block) -> str:
+    """The `source` string follows the outline's format, not this module's name."""
+    if outline.source.kind == "pptx":
+        return (f"pptx:slide-{block.evidence.get('slide', '')}"
+                f"-shape-{block.evidence.get('shape', '')}")
+    return f"docx:paragraph-{block.evidence.get('paragraph', '')}"
+
+
 @dataclass(frozen=True)
 class AdoptedPage:
     html: str
@@ -53,6 +61,7 @@ def sections_from_outline(outline: IntakeOutline) -> tuple[list[dict], list[str]
     notes: list[str] = []
     current: dict | None = None
     toc_mode = False  # 目录是「提示句 + 一串 01/02 条目」，要一起跳过
+    section_prefix = "slide" if outline.source.kind == "pptx" else "doc"
 
     def flush() -> None:
         nonlocal current
@@ -68,12 +77,12 @@ def sections_from_outline(outline: IntakeOutline) -> tuple[list[dict], list[str]
                 continue
             flush()
             current = {
-                "id": f"doc-section-{len(sections) + 1}",
+                "id": f"{section_prefix}-section-{len(sections) + 1}",
                 "kind": "sections",
                 "heading": block.heading.strip(),
                 "content": "",
                 "provenance": block.provenance,
-                "source": f"docx:paragraph-{block.evidence.get('paragraph', '')}",
+                "source": _source_ref(outline, block),
             }
             continue
 
@@ -97,22 +106,23 @@ def sections_from_outline(outline: IntakeOutline) -> tuple[list[dict], list[str]
             continue
         if current is None:
             current = {
-                "id": f"doc-section-{len(sections) + 1}",
+                "id": f"{section_prefix}-section-{len(sections) + 1}",
                 "kind": "sections",
                 "heading": outline.source.title or "概述",
                 "content": "",
                 "provenance": block.provenance,
-                "source": f"docx:paragraph-{block.evidence.get('paragraph', '')}",
+                "source": _source_ref(outline, block),
             }
         current["content"] += ("\n\n" if current["content"] else "") + body
 
     flush()
     if not sections:
-        fallback = outline.source.title or "文档"
-        notes.append("文档没有可用的章节正文，已用标题生成一个概述节")
-        sections = [{"id": "doc-section-1", "kind": "sections",
+        fallback = outline.source.title or ("演示" if outline.source.kind == "pptx" else "文档")
+        notes.append("来源没有可用的章节正文，已用标题生成一个概述节")
+        sections = [{"id": f"{section_prefix}-section-1", "kind": "sections",
                      "heading": fallback, "content": fallback,
-                     "provenance": "structure_only", "source": "docx:fallback"}]
+                     "provenance": "structure_only",
+                     "source": f"{outline.source.kind}:fallback"}]
     return sections, notes
 
 

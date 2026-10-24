@@ -31,6 +31,8 @@ SCRIPTS = (
     ("docx-export", "mutate_docx_gates.py"),
     # v0.8.1 的 Word 审核台与采纳链（与上面那个不是一回事：一个读进来，一个导出去）。
     ("docx-intake", "mutate_docx_intake_gates.py"),
+    # v0.8.3 的 PPTX 反向拆解链（边界常驻 / 回指完整 / 图表只计数 / 意图兜底）。
+    ("pptx-intake", "mutate_pptx_gates.py"),
 )
 
 MEANING = {

@@ -838,14 +838,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <section class="flow-card"><div id="intake-stats" class="intake-stats" aria-live="polite">加载吸收指标…</div></section>
       <article class="flow-card docx-desk" id="docx-desk">
         <div class="docx-head">
-          <div><h3>从 Word 开始</h3>
-            <p class="docx-sub">上传 .docx，先看提案：意图、风格、图片位、文案都可改，再采纳生成。</p></div>
+          <div><h3>从 Word / PPT 开始</h3>
+            <p class="docx-sub">上传 .docx 或 .pptx，先看提案：意图、风格、图片位、文案都可改，再采纳生成。</p></div>
           <span class="docx-badge" id="docx-state" data-state="idle">待上传</span>
         </div>
         <div class="docx-input-row">
           <label class="btn btn-ghost docx-pick">
-            <input type="file" id="docx-file" accept=".docx" aria-label="选择 Word 文件">
-            <span id="docx-filename">选择 .docx</span>
+            <input type="file" id="docx-file" accept=".docx,.pptx" aria-label="选择 Word 或 PPT 文件">
+            <span id="docx-filename">选择 .docx / .pptx</span>
           </label>
           <button class="btn btn-secondary" id="docx-analyze" data-action="docxAnalyze">解析并出提案</button>
         </div>

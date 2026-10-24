@@ -31,7 +31,13 @@
     ['guizang-magazine', '归藏杂志'],
   ];
 
-  const state = { name: '', base64: '', proposal: null };
+  const state = { name: '', base64: '', format: 'docx', proposal: null };
+
+  // 同一张审核台吃两种格式：端点与字段随上传文件的扩展名分流，
+  // 服务端两边返回同一份契约（proposal/limitations/counts），渲染不用分叉。
+  function formatOf(file) {
+    return (file.name || '').toLowerCase().endsWith('.pptx') ? 'pptx' : 'docx';
+  }
 
   function say(text, tone) {
     const el = $('docx-status');
@@ -170,33 +176,38 @@
     const input = $('docx-file');
     const file = input && input.files && input.files[0];
     if (!file) {
-      say('先选一份 .docx 文件。', 'warn');
+      say('先选一份 .docx 或 .pptx 文件。', 'warn');
       return;
     }
     if (file.size > 12 * 1024 * 1024) {
-      say('文件超过 12 MB，建议先在 Word 里压一下图片。', 'warn');
+      say('文件超过 12 MB，建议先压缩一下内嵌图片。', 'warn');
       return;
     }
+    const format = formatOf(file);
     busy(true, '解析中…');
     say('正在本地解析，不联网。', '');
     try {
       const base64 = await fileToBase64(file);
-      const response = await fetch('/api/intake/docx', {
+      const response = await fetch(`/api/intake/${format}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: file.name, docx_base64: base64 }),
+        body: JSON.stringify({ name: file.name, [`${format}_base64`]: base64 }),
       });
       const payload = await response.json();
       if (!response.ok) {
-        say((payload.error && payload.error.message) || '解析失败，换一份 .docx 试试。', 'error');
+        say((payload.error && payload.error.message) || '解析失败，换一份文件试试。', 'error');
         badge('解析失败', 'error');
         return;
       }
       state.name = file.name;
       state.base64 = base64;
+      state.format = format;
       render(payload);
       const counts = payload.counts || {};
-      say(`已解析：${counts.heading || 0} 个标题 / ${counts.table || 0} 张表 / ${counts.image || 0} 张图。改完点「采纳并生成」。`, 'ok');
+      const pages = format === 'pptx'
+        ? `${counts.heading || 0} 页标题 / ${counts.list || 0} 条要点`
+        : `${counts.heading || 0} 个标题 / ${counts.table || 0} 张表`;
+      say(`已解析：${pages} / ${counts.image || 0} 张图。改完点「采纳并生成」。`, 'ok');
     } catch (error) {
       say(error.message || '解析失败。', 'error');
       badge('解析失败', 'error');
@@ -207,16 +218,21 @@
 
   async function adopt() {
     if (!state.base64) {
-      say('先解析一份 .docx。', 'warn');
+      say('先解析一份 .docx 或 .pptx。', 'warn');
       return;
     }
     busy(true, '生成中…');
     say('正在生成页面…', '');
     try {
-      const response = await fetch('/api/intake/docx/adopt', {
+      const format = state.format || 'docx';
+      const response = await fetch(`/api/intake/${format}/adopt`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: state.name, docx_base64: state.base64, proposal: collect() }),
+        body: JSON.stringify({
+          name: state.name,
+          [`${format}_base64`]: state.base64,
+          proposal: collect(),
+        }),
       });
       const payload = await response.json();
       if (!response.ok) {
@@ -253,6 +269,7 @@
   function reset() {
     state.name = '';
     state.base64 = '';
+    state.format = 'docx';
     state.proposal = null;
     const proposal = $('docx-proposal');
     if (proposal) proposal.hidden = true;
@@ -265,9 +282,10 @@
   const picker = $('docx-file');
   if (picker) {
     picker.addEventListener('change', () => {
-      const name = picker.files && picker.files[0] && picker.files[0].name;
+      const file = picker.files && picker.files[0];
+      const name = file && file.name;
       const label = $('docx-filename');
-      if (label) label.textContent = name || '选择 .docx';
+      if (label) label.textContent = name || '选择 .docx / .pptx';
     });
   }
 

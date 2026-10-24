@@ -129,6 +129,10 @@ def _judge_intent(outline: IntakeOutline) -> tuple[str, str]:
                         f"章节多而正文短，更像逐页讲稿")
     if _has(text, _DECK_WORDS):
         return "deck", "标题出现发布会/分享类词，按演示结构处理"
+    if outline.source.kind == "pptx":
+        # 格式本身就是证据：一页一题的演示，页数少时上面的结构判定会漏判
+        # 成 doc——来源是 pptx 时按 deck 处理，除非更强的信号已经命中。
+        return "deck", "来源是演示文稿，页题即章节，按 deck 结构处理"
     return "doc", f"{headings} 个标题、{paragraphs} 段正文、{tables} 张表：按文档结构处理"
 
 
