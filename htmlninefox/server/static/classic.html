@@ -147,6 +147,10 @@ textarea { min-height:96px; }
 </main>
 <script>
 const $ = id => document.getElementById(id);
+/* 模板里一直在用 esc 却从没在本页定义过（fox-core 里有，但 classic 不加载
+ * 它）——历史列表因此静默 ReferenceError 了一路。v0.8.3 键盘走查时补上。 */
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentProject = null;
 let revision = 0;
 
@@ -172,7 +176,7 @@ async function loadProjects() {
   try {
     const r = await (await fetch('/api/projects')).json();
     $('projects').innerHTML = r.items.length ? r.items.map(p => `
-      <div class="hist-item" data-action="openProject" data-project="${esc(p.project)}" data-url="${p.preview_url}">
+      <div class="hist-item" data-action="openProject" data-project="${esc(p.project)}" data-url="${esc(p.preview_url)}" role="button" tabindex="0">
         <div>${p.prompt || p.name}</div>
         <div class="meta">${p.intent} · ${p.preset_id} · rev${p.revision}</div>
       </div>`).join('') : '<p class="tagline">还没有项目。</p>';
@@ -256,6 +260,28 @@ function reloadPreview() { $('preview').src = $('preview').src; }
 function setStatus(id, html, cls) { const el = $(id); el.innerHTML = html; el.className = 'status ' + (cls||''); }
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); generate(); }
+});
+/* C6 迁移把内联 onclick 改成了 data-action，但 classic 不加载 fox-core.js——
+ * 没人消费这些标记，五个控件自 v0.7.8 起全是死按钮（v0.8.3 键盘走查门禁
+ * 抓回）。这里是 classic 自己的最小委托：动作名即本页全局函数名，参数从
+ * data-* 读；keydown 路径与 fox-core 同构（只接非原生元素，避免双触发）。 */
+const CLASSIC_NATIVE = new Set(['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA']);
+function dispatchAction(el, event) {
+  const fn = window[el.dataset.action];
+  if (typeof fn !== 'function') return;
+  if (event && el.tagName === 'A') event.preventDefault();
+  fn(el.dataset.project, el.dataset.url);
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (el) dispatchAction(el, e);
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target.closest && e.target.closest('[data-action]');
+  if (!el || CLASSIC_NATIVE.has(el.tagName)) return;
+  e.preventDefault();
+  dispatchAction(el, e);
 });
 </script>
 </body>

@@ -49,31 +49,47 @@ tag `v0.8.2`、Release 含 wheel / Win·macOS·Linux 全平台安装包 / 截图
 
 ---
 
-## 二、键盘可达性专项（v0.8.2 顺延项 · 待做）
+## 二、键盘可达性专项（已完成 · 2026-10-24）
 
-**范围**：C6 迁移后残留的可点元素——`classic.html` 历史项、预览页、
-以及全部 `data-action` 控件的键盘可达。**只做「键盘可操作」**，读屏器
-审计另立版本（PLAN-v0.8 已定边界，不扩权）。
+**范围**：C6 迁移后残留的可点元素键盘可达；**只做「键盘可操作」**，读屏器
+审计另立版本（PLAN-v0.8 已定边界，未扩权）。
 
-- **清点**：扫 `server/static/*.html` 里挂在不可聚焦元素（div/span）上的
-  点击处理；逐个改语义（`<button>` 优先）或补 `role="button"` +
-  `tabindex="0"` + Enter/Space 激活；
-- **Tab 序走查门禁**：Playwright（已是核心依赖）加载 index 与 classic，
-  枚举全部 `data-action` 控件，断言：可聚焦（Tab 序可达）＋ Enter/Space
-  能触发同一 action；新增走查脚本进 preflight；
-- **焦点环**：v0.8.2 已落 `--focus-ring` token（钴蓝 9.92:1），走查同时
-  断言 focus-visible 不被 `outline:none` 悄悄拆掉。
+### 交付明细（全部实测）
+
+| 件 | 状态 | 说明 |
+|---|---|---|
+| 委托层 keydown 激活路径（fox-core.js） | ✅ | 非原生元素（role=button）Enter/Space 派发同一动作表；原生元素（a/button/input…）走原生 click 不重复派发；派发逻辑抽成 `dispatchFoxAction` 单点 |
+| Tab 走查门禁（`tests/test_keyboard_walk.py`） | ✅ 5 条 | 两页全部**可见** data-action 控件逐个断言（原生交互 / role=button＋tabindex / aria-hidden 装饰三出路）；Tab 键盘焦点环不被拆；classic 历史项 Enter+Space 真派发；工作台 keydown 路径真派发 |
+| classic 历史项 `role="button" tabindex="0"` | ✅ | 唯一非原生动作元素补齐语义 |
+| 移动遮罩标 `aria-hidden="true"` | ✅ | 装饰件不当键盘目标；面板开合走带 aria-expanded 的原生按钮 |
+
+### 走查抓到并修掉的两个存量真 bug
+
+1. **classic 五个控件自 v0.7.8 起全灭**：C6 迁移把内联 onclick 改成
+   data-action，但 classic 不加载 fox-core.js——没人消费这些标记，只有
+   Ctrl+Enter 还能生成。修复：classic 自带最小委托（动作名即本页全局
+   函数名，keydown 路径与 fox-core 同构）。
+2. **classic 项目历史一直空白**：模板里的 `esc()` 在本页从未定义（定义在
+   fox-core.js 里），`loadProjects()` 静默 ReferenceError 被 catch 吞掉。
+   修复：本页补 esc 定义。
+
+变异：`mutate_action_delegation_gates.py` 从 4 条扩到 **6 条全 CAUGHT**
+（新增 M5 工作台键盘路径被拆、M6 classic 委托被拆），走查门禁并入其
+守卫清单。
 
 ---
 
-## 三、Tauri 桌面壳 · 两个决策点（未定案不动工）
+## 三、Tauri 桌面壳 · 两决策点（已拍板 · 2026-10-24 机主定「需要的」）
 
-1. **与 PyInstaller 矩阵并存还是替换**——PLAN-v0.8 建议并存（Tauri 壳＝
-   窗口+webview+sidecar+托盘；PyInstaller 继续作无 Rust 环境兜底）；
-2. **Rust 工具链进 CI 的成本**（9 job 矩阵再加 Rust 位的时长与维护）。
+1. **与 PyInstaller 矩阵的关系：并存。** Tauri 壳＝窗口＋webview＋sidecar
+   ＋托盘；PyInstaller 继续作无 Rust 环境的打包兜底——刚验证过的 9 job
+   矩阵不动。
+2. **Rust 工具链进 CI：壳动工时再加，v0.8.3 不加。** 评估：现有 Test
+   矩阵保持轻快（绿标分钟级）；Rust 位会显著拉长流水线并增加维护面，
+   与壳的受益不匹配——壳是独立交付物，验收沿用 verify_portable 纪律
+   （启动后必须真探测到后端健康端点），动工时随壳一起进 CI。
 
-两个答案都在机主。定案前不写一行壳代码；定案后验收沿用 verify_portable
-纪律：启动后必须真探测到后端健康端点。
+壳本体按 PLAN-v0.8 的排期属 v0.9 候选；v0.8.3 到此只做决策不做壳代码。
 
 ---
 
@@ -85,7 +101,7 @@ tag `v0.8.2`、Release 含 wheel / Win·macOS·Linux 全平台安装包 / 截图
 - [x] 变异 `mutate_pptx_gates` 4/4 CAUGHT 并入 preflight（第六套）
 - [x] CHANGELOG `[Unreleased]` 更新（README 版本段落留到发版时配截图）
 - [x] 全量回归最终数字：**803 passed / 4 skipped**（2026-10-24 实测，
-      含 pptx 全部 29 条新门禁）
-- [ ] 键盘可达性走查门禁落地，存量残留清零
-- [ ] Tauri 两决策点答复
-- [ ] 发版：`docs/RELEASE-NOTES-v0.8.3.md` + README 段落 + tag
+      含 pptx 全部 29 条新门禁；键盘专项后的最终数字见 CHANGELOG）
+- [x] 键盘可达性走查门禁落地（5 条），存量残留清零（classic 委托 + esc）
+- [x] Tauri 两决策点拍板：并存；Rust 随壳动工进 CI（2026-10-24 机主定）
+- [ ] 发版：`docs/RELEASE-NOTES-v0.8.3.md` + README 段落 + tag（机主定节奏）

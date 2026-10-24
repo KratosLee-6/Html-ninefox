@@ -1003,9 +1003,11 @@ const FOX_ACTION_SIGNATURES = {
   previewGalleryPage: { id: 'string', page: 'string' },
   openProject: { project: 'string', url: 'string' },
 };
-document.addEventListener('click', event => {
-  const el = event.target.closest('[data-action]');
-  if (!el) return;
+/* 键盘可达（v0.8.3）：role=button 的非原生元素（classic 历史项等）没有
+ * 原生 Enter/Space 激活——原生交互元素（a/button/input…）自己会发 click，
+ * 再派发一次就是双触发，所以 keydown 路径只接非原生元素。 */
+const FOX_NATIVE_INTERACTIVE = new Set(['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA']);
+function dispatchFoxAction(el, sourceEvent) {
   const name = el.dataset.action;
   const fn = window.FoxActions?.[name] ?? window[name];
   if (typeof fn !== 'function') {
@@ -1013,7 +1015,7 @@ document.addEventListener('click', event => {
       '——动作名必须登记在 window.FoxActions 或是全局函数');
     return;
   }
-  if (el.tagName === 'A') event.preventDefault();
+  if (sourceEvent && el.tagName === 'A') sourceEvent.preventDefault();
   const signature = FOX_ACTION_SIGNATURES[name];
   const args = signature ? Object.keys(signature).map(key => {
     const raw = el.dataset[key];
@@ -1023,6 +1025,18 @@ document.addEventListener('click', event => {
     return raw == null ? undefined : String(raw);
   }) : [];
   fn(...args);
+}
+document.addEventListener('click', event => {
+  const el = event.target.closest('[data-action]');
+  if (!el) return;
+  dispatchFoxAction(el, event);
+});
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  const el = event.target.closest?.('[data-action]');
+  if (!el || FOX_NATIVE_INTERACTIVE.has(el.tagName) || el.isContentEditable) return;
+  event.preventDefault();
+  dispatchFoxAction(el, event);
 });
 document.addEventListener('change', event => {
   if (event.target?.id === 'intake-zip-file' && event.target.files?.[0]) {

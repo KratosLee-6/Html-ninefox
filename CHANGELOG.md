@@ -51,10 +51,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 门禁：解析合同 15 条（含 locator 回读比对）、API 13 条（含六意图真链）、
     真浏览器 1 条；变异 `mutate_pptx_gates.py` **4/4 CAUGHT**（几何边界常驻 /
     回指完整 / 图表只计数 / 意图兜底），已并入 preflight（第六套）。
+- **键盘可达性专项（v0.8.3 主项之二）**：
+  - 委托层新增 keydown 激活路径：非原生元素（`role=button`）Enter/Space
+    与点击派发同一动作表；派发收敛到 `dispatchFoxAction` 单点。
+  - Tab 走查门禁 `tests/test_keyboard_walk.py`（5 条）：index 与 classic
+    两页全部**可见** data-action 控件逐个断言可键盘操作（原生交互 /
+    role=button＋tabindex / aria-hidden 装饰三条出路）；Tab 键盘焦点环
+    未被拆；classic 历史项 Enter+Space 真派发；工作台 keydown 路径真派发。
+  - 变异 `mutate_action_delegation_gates.py` 4 → **6 条全 CAUGHT**
+    （新增：工作台键盘路径被拆、classic 委托被拆）；全量
+    **808 passed / 4 skipped**（2026-10-24 实测）。
 
 ### Fixed
 - v0.8.2 迭代记录里一处本机绝对路径违反仓库卫生门禁（`test_no_client_material`
   在发布后的 main 上是红的），改为工作区相对描述。
+- **classic 页五个控件自 v0.7.8 起全部失效**（走查门禁抓回）：C6 迁移把
+  内联 onclick 改成 data-action，但 classic 不加载 fox-core.js，没人消费
+  这些标记。修复：classic 自带最小委托（动作名即本页全局函数名）。
+- **classic 项目历史列表一直空白**：模板里的 `esc()` 在本页从未定义，
+  `loadProjects()` 的 ReferenceError 被 catch 静默吞掉。修复：本页补定义。
+- classic 历史项补 `role="button" tabindex="0"`；移动遮罩标
+  `aria-hidden="true"`（装饰件不进键盘序列，面板开合走带 aria-expanded
+  的原生按钮）。
 
 ## [0.8.1] — 2026-10-19 · Word 导入：解析 → 提案 → 采纳
 
