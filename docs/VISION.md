@@ -25,7 +25,7 @@ URL/ZIP/DOCX/口述 → 候选(审核台)     → blocks+provenance → 六类�
 结构化数据（API 可驱动，外部 AI agent 能接管）+ 界面呈现（人能看见、
 能改）。只有其一，就是断链。
 
-## 3. 现状对照（v0.7.8 时点）
+## 3. 现状对照（v0.8.3 时点，2026-10-25）
 
 | 交接面 | 机器形态 | 人的形态 | 状态 |
 |---|---|---|---|
@@ -34,10 +34,12 @@ URL/ZIP/DOCX/口述 → 候选(审核台)     → blocks+provenance → 六类�
 | 拆解 → 生成 | composition.blocks / style.tokens | 画布节点 + 素材库 + 风格面板 | ✅ |
 | 生成 → 迭代 | revision 历史（expected_revision 写回协议） | 版本差异对比 + 恢复 | ✅ |
 | 全程 | recipe_run 时间线 | 阶段时间线 UI | ✅ |
-| 生成 → 交付 | exporting（pptx/pdf/png/…） | 导出中心 | ✅（DOCX 导出进行中）|
-| **输入：DOCX** | ✗ | ✗ | **缺口（v0.8.1）** |
-| **视觉：图片环节** | ✗（无提案产物） | ✗ | **缺口（v0.8.1）** |
-| 外部 agent 全程驱动 | alliance（skill 联盟）+ HTTP API | — | 雏形，逐步补齐 |
+| 生成 → 交付 | exporting（pptx/pdf/png/docx/html） | 导出中心 | ✅ |
+| **输入：DOCX** | `intake_outline`（段落级 evidence） | 审核台提案 | ✅ v0.8.1 |
+| **输入：PPTX** | `intake_outline`（页号＋形状号 evidence） | 同一张审核台 | ✅ v0.8.3 |
+| **输入：PDF / 图片** | ✗ | ✗ | **缺口（v0.8.4，[PLAN-v0.8.4](PLAN-v0.8.4.md)）** |
+| **视觉：图片环节** | 图片计划（slot＋提示词） | 提案可改 | 🟡 计划已通，资产环节 v0.8.4 |
+| 外部 agent 全程驱动 | alliance（skill 联盟）+ HTTP API | — | 雏形，MCP 工具 v0.9 |
 
 ## 4. 三条不变的原则
 

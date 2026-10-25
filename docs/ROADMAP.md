@@ -380,8 +380,10 @@ v0.8.0 = DOCX 语义导出（导出中心预告的最后一格）+ paraphrased�
 **v0.8.1 = DOCX 导入 + AI 理解补全（主打：贴入 Word，AI 提出意图/风格/
 图片计划/提炼文案的可见提案，人审核微调后一键成页）**；v0.8.2 = 前端
 UI/VI/版面收敛（[PLAN-v0.8.2-UI-VI.md](PLAN-v0.8.2-UI-VI.md)）；v0.8.3 =
-键盘可达性 + Tauri 桌面壳（两个决策点定案后动工），并追加 PPTX 反向拆解
-适配器（[DESIGN-REVERSE-INTAKE.md](DESIGN-REVERSE-INTAKE.md)）。图像模型
+PPTX 反向拆解 + 键盘可达性专项，已于 2026-10-25 发版
+（[PLAN-v0.8.3.md](PLAN-v0.8.3.md)；Tauri 两决策点定案：与 PyInstaller
+并存、Rust 随壳动工进 CI，壳本体排 v0.9）；v0.8.4 已立项 = PDF 反向拆解
+＋ 图片资产环节（[PLAN-v0.8.4.md](PLAN-v0.8.4.md)）。图像模型
 自动接入、云同步、iOS Companion、生态维持后续观察。原生移动包维持缓发决策。
 
 > RC3-E 已于 2026-09-25 完成并随 v0.5.0 收口，原「下一步 RC3-E」条目作废。

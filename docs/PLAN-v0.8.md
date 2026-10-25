@@ -144,3 +144,10 @@ CAUGHT ＋ 9 界面 × 3 视口 × 2 主题截图证据。
 - **v0.8.3 追加**：PPTX 反向拆解适配器（零新依赖，`python-pptx` 读回
   title / bullets / notes 已实测），设计与边界见
   [反向拆解适配器](DESIGN-REVERSE-INTAKE.md)。
+- **v0.8.3 收口（2026-10-25）**：PPTX 反向拆解 ＋ 键盘可达性专项均已
+  落地发版（[PLAN-v0.8.3.md](PLAN-v0.8.3.md)，Release `v0.8.3`，
+  808 passed / 4 skipped，preflight 六套全绿）。Tauri 两决策点定案：
+  与 PyInstaller 并存、Rust 随壳动工进 CI，壳本体排 v0.9。
+- **v0.8.4 已立项（2026-10-25）**：PDF 反向拆解（`[pdf]` extra）＋
+  图片资产环节——VISION 输入缺口的最后两格，
+  [PLAN-v0.8.4.md](PLAN-v0.8.4.md)。
