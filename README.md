@@ -8,11 +8,11 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.2)
+[![App Release](https://img.shields.io/badge/app-v0.8.3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-741%20passed%20%7C%204%20skipped-1F8A70)](docs/ITERATION-v0.8.1-KICKOFF-20261018.md)
+[![Tests](https://img.shields.io/badge/pytest-808%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.8.3.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22%20(v0.6.0)-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.2`（2026-10-20 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.2) · 完整功能与架构见下。
+> 当前应用包版本为 `0.8.3`（2026-10-25 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3) · 完整功能与架构见下。
 
 ---
 
@@ -35,7 +35,23 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.8.2 · 界面收敛：面替代线，动效同一时钟（最新功能）
+## 🆕 v0.8.3 · 贴入 PPT + 键盘可达（最新功能）
+
+**一份 .pptx 走 Word 同一条管线：拆成带出处的块，先看提案再生成；整个工作台键盘可用。**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.3/pptx-desk-proposal-1440.png" alt="审核台 · PPT 提案"><br><b>审核台 · 吃进 .pptx</b><br>同一张界面按扩展名分流：页题成章节、要点成列表、讲稿进正文；「布局几何不还原」常驻边界清单，图表只计数，合并单元格如实上报。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.3/pptx-artifact-1440.png" alt="采纳后的 deck 产物"><br><b>采纳并生成 · deck 落地</b><br>每块 evidence 带页号＋形状号可回指；人改完意图/风格/文案再生成，零新渲染路径。</td>
+</tr>
+</table>
+
+- **统一契约再进一格式**：`pptx_import` 产出同一份 `intake_outline`——解析、提案、审核台、采纳全程与 Word 共用；来源是演示时默认按 deck 处理（理由随提案可见，更强的信号可覆盖）。
+- **键盘可达性专项**：委托层新增 keydown 路径（`role=button` 元素 Enter/Space 与点击同表派发）；Tab 走查门禁逐个断言两页全部可见控件可键盘操作、焦点环不被拆。走查抓回两个存量真 bug：classic 五个控件自 v0.7.8 起全灭（data-action 没人消费）、项目历史一直空白（`esc` 未定义被静默吞）——已修。
+- **门禁**：PPTX 解析 15 ＋ API 13（六意图真链）＋ 真浏览器 1；键盘走查 5 条；变异新增 `mutate_pptx_gates` 4/4、委托套件扩至 6/6 全 CAUGHT（preflight 六套）；全量 **808 passed / 4 skipped**。
+- 详见 [v0.8.3 计划](docs/PLAN-v0.8.3.md) · [反向拆解设计](docs/DESIGN-REVERSE-INTAKE.md)。
+
+## v0.8.2 · 界面收敛：面替代线，动效同一时钟
 
 **不换主题、不改品牌色：把 Pixel Garden 的执行层补齐 —— 用「面」分层而不是描边围框，按钮/动效/空态按一套尺度收口。**
 
@@ -95,7 +111,7 @@
 - **门禁**：v0.8.0 发布时 685 passed / 4 skipped；docx 变异 **3/3** ＋ paraphrased **5/5** 全 CAUGHT；真实链路 **18/18**。
 - 详见 [v0.8.0 发布说明](docs/RELEASE-NOTES-v0.8.0.md) · [v0.8 迭代规划](docs/PLAN-v0.8.md)。
 
-> **下一步 · v0.8.3**：键盘可达性、Tauri 桌面决策与 PPTX 适配器。计划见 [v0.8.2 UI/VI 收敛](docs/PLAN-v0.8.2-UI-VI.md)。
+> **下一步 · v0.8.4**：PDF 反向拆解（`[pdf]` extra，扫描件如实报错）与图片资产增强；Tauri 壳动工（决策已定：与 PyInstaller 并存）。计划见 [v0.8.3 计划](docs/PLAN-v0.8.3.md)。
 
 ### 🔎 网页反向拆解（v0.7 能力，仍在主线）
 

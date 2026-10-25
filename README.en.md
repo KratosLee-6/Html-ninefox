@@ -8,8 +8,8 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.2-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.2)
-[![Tests](https://img.shields.io/badge/pytest-774%20passed%20%7C%204%20skipped-1F8A70)](docs/RELEASE-NOTES-v0.8.1.md)
+[![App Release](https://img.shields.io/badge/app-v0.8.3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3)
+[![Tests](https://img.shields.io/badge/pytest-808%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.8.3.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -17,7 +17,7 @@
 </div>
 
 
-> Current app version `0.8.2` (released 2026-10-20) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.2) · full features below.
+> Current app version `0.8.3` (released 2026-10-25) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3) · full features below.
 
 ---
 
@@ -32,7 +32,23 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.8.2 · Interface pass: surfaces instead of outlines, one motion clock (latest)
+## v0.8.3 · Paste in a PPT + keyboard access (latest)
+
+**A .pptx now walks the same pipeline Word does: parsed into provenance-carrying blocks, proposed for review, then generated — and the whole workbench is keyboard-operable.**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.3/pptx-desk-proposal-1440.png" alt="Review desk · PPT proposal"><br><b>Review desk · takes .pptx</b><br>The same desk routes by extension: slide titles become sections, bullets become lists, speaker notes join the prose; "layout geometry is not reconstructed" is a standing limitation, charts are counted, merged cells are reported.</td>
+<td width="50%"><img src="assets/screenshots/v0.8.3/pptx-artifact-1440.png" alt="Adopted deck artifact"><br><b>Adopt & generate · deck lands</b><br>Every block carries slide+shape evidence you can walk back; edit intent/style/copy before generating, with zero new render paths.</td>
+</tr>
+</table>
+
+- **One more format on the shared contract**: `pptx_import` emits the same `intake_outline` — parsing, proposal, review desk and adoption are shared with Word; a deck source defaults to the deck intent (reason visible, overridable).
+- **Keyboard accessibility**: the delegation layer grew a keydown path (`role=button` elements get Enter/Space via the same action table); sweep gates assert every visible control on both pages is keyboard-operable and the focus ring survives Tab. The sweep caught two real regressions: five classic controls dead since v0.7.8 (unconsumed data-action markers) and a permanently empty project history (undefined `esc` swallowed by a catch) — both fixed.
+- **Gates**: PPTX parser 15 + API 13 (six-intent real chain) + browser 1; keyboard sweep 5; mutations `mutate_pptx_gates` 4/4 and the delegation suite extended to 6/6 CAUGHT (preflight now six suites); full suite **808 passed / 4 skipped**.
+- See the [v0.8.3 plan](docs/PLAN-v0.8.3.md) · [reverse-intake design](docs/DESIGN-REVERSE-INTAKE.md).
+
+## v0.8.2 · Interface pass: surfaces instead of outlines, one motion clock
 
 **No theme change, no new brand colour.** This closes the execution layer of Pixel Garden:
 structure comes from surfaces and two soft shadows instead of drawn borders, and buttons,

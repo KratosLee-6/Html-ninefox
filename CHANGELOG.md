@@ -33,6 +33,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-10-25 · 贴入 PPT + 键盘可达
+
+> 新能力。HTTP 新增 `/api/intake/pptx`（上传出提案）与
+> `/api/intake/pptx/adopt`（改完的提案落成项目）；项目数据格式不变。
+> 发布说明见 `docs/RELEASE-NOTES-v0.8.3.md`。
+
 ### Added
 - **PPTX 反向拆解（v0.8.3 主项之一）**：上传 .pptx → 统一 `intake_outline` →
   既有提案层 → 审核台 → 采纳生成，与 Word 导入同一条管线、零新渲染路径。

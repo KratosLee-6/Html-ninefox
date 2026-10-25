@@ -104,4 +104,6 @@ tag `v0.8.2`、Release 含 wheel / Win·macOS·Linux 全平台安装包 / 截图
       含 pptx 全部 29 条新门禁；键盘专项后的最终数字见 CHANGELOG）
 - [x] 键盘可达性走查门禁落地（5 条），存量残留清零（classic 委托 + esc）
 - [x] Tauri 两决策点拍板：并存；Rust 随壳动工进 CI（2026-10-24 机主定）
-- [ ] 发版：`docs/RELEASE-NOTES-v0.8.3.md` + README 段落 + tag（机主定节奏）
+- [x] 发版材料就绪：`docs/RELEASE-NOTES-v0.8.3.md` + README/README.en 段落
+      ＋ `assets/screenshots/v0.8.3/` 两张实拍（capture_v083_shots.py）；
+      版本四处同步（pyproject / `__init__` / uv.lock / 双 README）（机主定节奏）
