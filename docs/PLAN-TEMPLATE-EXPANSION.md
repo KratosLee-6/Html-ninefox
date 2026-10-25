@@ -114,3 +114,25 @@ C 档（外部库 34 套 + preset 扩族 + 月度巡检）  ← v0.9
 
 1. **A 档现在就做吗？**（4 张模板，约 1.5 天，不影响 DOCX 主线）
 2. **`guizang-` 前缀改中性名**（`fox-ink-*`）——改，还是保留「标明灵感来源」？
+
+---
+
+## 7. 执行记录
+
+### A 档 ✅（2026-10-25 执行，随 v0.8.3 后补）
+
+- **四张补空意图模板落地**：`fox-vibrant-poster`（poster）、`fox-shadcn-dashboard`
+  （dashboard）、`fox-doc-clean-brief`（doc）、`fox-swiss-archdoc`（archdoc）——
+  全部按对应预设色板原创，主体用既定虚构实体，画廊契约（.page[data-page] + 导航）
+  与既有模板同构。画廊 6 → **10 张，六意图全覆盖**。
+- **manifest 全体补 `license` 字段**（original；AGPL 系归藏模板为方法参考的
+  clean-room 原创，`origin` 里已写明），八字段必填门禁上线。
+- **新门禁 `tests/test_template_gallery_contract.py`**：八字段必填、六意图覆盖、
+  preset 覆盖（无 preset 落单）、页面声明与 HTML `data-page` 一致。
+- **修复 recommend_gallery 跨意图推荐 bug**：doc/poster/dashboard/archdoc
+  原会兜到 deck 模板（indigo），现在四类各有显式分支。
+- **同质化修正（deck 四张换 preset）顺延至 B 档**：那是一次真实重皮而不是
+  元数据翻转，随 B 档 18 张重排一起做，避免单张孤例。
+- **SKILL.md 三处刷新**：仓库根（v0.3.0b2 → 0.8.3，本地源码路径改迁移后新址）、
+  skill/SKILL.md（SkillHub 渠道，字段级更新 + 修正「Word/PPT 不在范围内」的
+  过期声明）、已装副本 `~/.agents/skills/htmlninefox/`（死路径修复）。

@@ -1,0 +1,54 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九尾狐 · 瑞士信号架构文档</title><style>
+:root{--bg:#F2F1EC;--surface:#E5E6E3;--text:#151617;--muted:#5D6268;--primary:#FF6B35;--accent:#2257D8;--border:#AEB2B3;--radius:0;--sans:'Inter','Noto Sans SC','PingFang SC',sans-serif;--disp:'Arial Narrow','Inter Tight','PingFang SC',sans-serif;--mono:'IBM Plex Mono',Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans)}
+.deck{height:100%;position:relative}
+.page{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr auto;padding:4.5vh 5vw;opacity:0;transform:translateX(22px);pointer-events:none;transition:.32s ease}
+.page.on{opacity:1;transform:none;pointer-events:auto}
+.chrome,.foot{display:flex;justify-content:space-between;align-items:center;font:700 12px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--text);padding-bottom:1.4vh}
+.kicker{font:700 13px/1 var(--mono);letter-spacing:.26em;text-transform:uppercase;color:var(--primary)}
+h1{margin:2.4vh 0 0;font-family:var(--disp);font-size:clamp(44px,6.4vw,104px);font-weight:700;letter-spacing:-.01em;line-height:.98;text-transform:uppercase}
+h2{margin:0 0 2vh;font-family:var(--disp);font-size:clamp(20px,2vw,30px);font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.lead{margin:2.4vh 0 0;font-size:clamp(15px,1.4vw,20px);line-height:1.7;color:var(--muted);max-width:44em}
+.diagram{margin-top:4vh;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:stretch}
+.tier{border:2px solid var(--text);padding:1.8vh 1vw;position:relative;background:var(--bg)}
+.tier b{display:block;font:700 12px/1 var(--mono);letter-spacing:.16em;color:var(--primary);margin-bottom:1.2vh}
+.tier strong{display:block;font-family:var(--disp);font-size:clamp(16px,1.5vw,22px);text-transform:uppercase;letter-spacing:.02em}
+.tier p{margin:.9vh 0 0;font-size:12.5px;line-height:1.55;color:var(--muted)}
+.tier:after{content:"→";position:absolute;right:-13px;top:50%;transform:translateY(-50%);font:800 16px var(--mono);color:var(--accent);z-index:2}
+.tier:last-child:after{content:""}
+.ars{margin-top:4vh;width:100%;border-collapse:collapse;font-size:14px}
+.ars th{font:700 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;text-align:left;color:var(--bg);background:var(--text);padding:11px 14px}
+.ars td{padding:14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.65}
+.ars td:first-child{font:700 13px var(--mono);color:var(--accent);white-space:nowrap}
+.ars b{font-weight:700}
+.impact{display:inline-block;font:700 11px/1 var(--mono);letter-spacing:.1em;padding:5px 9px;margin-top:.6vh;text-transform:uppercase}
+.impact.hi{background:var(--primary);color:#fff}.impact.md{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.note{margin-top:3vh;font-size:13px;color:var(--muted);border-left:4px solid var(--primary);padding-left:14px;line-height:1.7}
+.nav{position:fixed;right:22px;bottom:20px;z-index:9;display:flex;gap:6px}
+.nav button{width:34px;height:34px;border:2px solid var(--text);background:var(--bg);color:var(--text);font:700 14px var(--mono);border-radius:0;cursor:pointer}
+.counter{position:fixed;left:22px;bottom:22px;z-index:9;font:700 12px var(--mono);letter-spacing:.14em;color:var(--muted)}
+@media(max-width:900px){.diagram{grid-template-columns:1fr}.tier:after{content:"↓";right:auto;left:50%;top:auto;bottom:-16px;transform:translateX(-50%)}}
+</style></head><body><div class="deck">
+<section class="page on" data-page="architecture"><div class="chrome"><span>星野智造 · 内容交付流水线架构说明</span><span>ADR-2026-10</span></div>
+<main><span class="kicker">系统架构 · 总览</span>
+<h1>六段流水线<br>两个铁律</h1>
+<p class="lead">星野智造内容交付平台的骨干是一条六段流水线：每段输出既是 API 交接物，也是可审核的界面。两条铁律贯穿全程——本地优先，LLM 只是升级不是依赖。</p>
+<div class="diagram">
+<div class="tier"><b>01 INPUT</b><strong>进料</strong><p>一句话 / DOCX / PPTX / URL / ZIP</p></div>
+<div class="tier"><b>02 PARSE</b><strong>理解</strong><p>本地解析，块带出处</p></div>
+<div class="tier"><b>03 PROSE</b><strong>提案</strong><p>意图风格带理由，人可改</p></div>
+<div class="tier"><b>04 RENDER</b><strong>生成</strong><p>六类产物一套分块通道</p></div>
+<div class="tier"><b>05 SHIP</b><strong>交付</strong><p>HTML/PDF/PNG/PPTX/DOCX</p></div>
+</div>
+</main><div class="foot"><span>Html九尾狐 Swiss 原创模板</span><span>架构总览</span></div></section>
+<section class="page" data-page="decisions"><div class="chrome"><span>星野智造 · 内容交付流水线架构说明</span><span>ADR-2026-10</span></div>
+<main><span class="kicker">决策记录</span>
+<h2>已采纳的架构决策</h2>
+<table class="ars"><tr><th>编号</th><th>决策与理由</th><th>影响</th></tr>
+<tr><td>ADR-011</td><td><b>单一契约 intake_outline 跨全部输入格式。</b>格式适配器各自如实标注边界，审核台与提案层零分支。</td><td><span class="impact hi">高</span></td></tr>
+<tr><td>ADR-012</td><td><b>不建第二条渲染路径。</b>采纳走既有分块通道，预览与成品不漂移。</td><td><span class="impact hi">高</span></td></tr>
+<tr><td>ADR-013</td><td><b>拆不出来的东西写进 limitations。</b>几何不还原、图表只计数，界面可见。</td><td><span class="impact md">中</span></td></tr>
+<tr><td>ADR-014</td><td><b>可选依赖只做增强。</b>[pptx]/[docx] 未装时如实提示，离线承诺不破。</td><td><span class="impact md">中</span></td></tr></table>
+<p class="note">变更流程：新决策进本表需附理由与影响面；推翻旧决策不改编号，追加新编号并标注取代关系。</p>
+</main><div class="foot"><span>Html九尾狐 Swiss 原创模板</span><span>决策记录</span></div></section>
+</div><div class="counter"></div><nav class="nav"><button data-prev aria-label="上一页">←</button><button data-next aria-label="下一页">→</button></nav><script>(()=>{const pages=[...document.querySelectorAll('.page')],counter=document.querySelector('.counter');let index=0;function show(next){index=(next+pages.length)%pages.length;pages.forEach((page,i)=>page.classList.toggle('on',i===index));counter.textContent=String(index+1).padStart(2,'0')+' / '+String(pages.length).padStart(2,'0')}document.querySelector('[data-prev]').onclick=()=>show(index-1);document.querySelector('[data-next]').onclick=()=>show(index+1);addEventListener('keydown',event=>{if(['ArrowRight','PageDown',' '].includes(event.key))show(index+1);if(['ArrowLeft','PageUp'].includes(event.key))show(index-1)});show(0)})();</script></body></html>

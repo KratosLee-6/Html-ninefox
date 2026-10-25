@@ -1,0 +1,66 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九尾狐 · Stripe 文档接入说明</title><style>
+:root{--bg:#FFFFFF;--surface:#F6F8FA;--text:#0F172A;--muted:#64748B;--primary:#635BFF;--accent:#0EA5E9;--border:#E2E8F0;--radius:8px;--sans:'Inter','PingFang SC','Microsoft YaHei',sans-serif;--mono:'IBM Plex Mono',Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans)}
+.deck{height:100%;position:relative}
+.page{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr auto;padding:4.5vh 6vw;opacity:0;transform:translateY(14px);pointer-events:none;transition:.3s ease}
+.page.on{opacity:1;transform:none;pointer-events:auto}
+.chrome,.foot{display:flex;justify-content:space-between;align-items:center;font:600 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.kicker{font:700 13px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--primary)}
+h1{margin:2.6vh 0 0;font-size:clamp(40px,5.4vw,84px);font-weight:800;letter-spacing:-.03em;line-height:1.06}
+h2{margin:0 0 1.6vh;font-size:clamp(22px,2vw,30px);font-weight:700;letter-spacing:-.01em}
+.lead{margin:2.6vh 0 0;font-size:clamp(16px,1.5vw,22px);line-height:1.75;color:var(--muted);max-width:36em}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:3vw;margin-top:3.6vh;align-content:start}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.6vh 1.6vw}
+.card h3{margin:0 0 1.2vh;font-size:17px;font-weight:700}
+.card p{margin:0;font-size:14.5px;line-height:1.75;color:var(--muted)}
+.steps{counter-reset:s;margin:3.4vh 0 0;padding:0;list-style:none;max-width:52em}
+.steps li{counter-increment:s;position:relative;padding:1.8vh 0 1.8vh 64px;border-bottom:1px solid var(--border)}
+.steps li:before{content:"0" counter(s);position:absolute;left:0;top:1.8vh;font:700 15px/1.6 var(--mono);color:var(--primary)}
+.steps b{display:block;font-size:clamp(16px,1.5vw,20px)}
+.steps p{margin:.8vh 0 0;font-size:14.5px;line-height:1.75;color:var(--muted)}
+code,.code{font-family:var(--mono);font-size:13.5px}
+.code{display:block;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2vh 1.6vw;margin:2.4vh 0 0;line-height:1.7;white-space:pre-wrap}
+.code .k{color:var(--primary)}.code .c{color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:2.6vh}
+th{font:600 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:2px solid var(--text)}
+td{padding:13px 12px;border-bottom:1px solid var(--border);line-height:1.6}
+td:first-child{font-weight:600}
+.note{display:inline-block;margin-top:2.4vh;font-size:13.5px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px}
+.note b{color:var(--primary)}
+.nav{position:fixed;right:22px;bottom:20px;z-index:9;display:flex;gap:6px}
+.nav button{width:34px;height:34px;border:1px solid var(--border);background:#fff;color:var(--text);font:700 14px var(--mono);border-radius:var(--radius);cursor:pointer}
+.counter{position:fixed;left:22px;bottom:22px;z-index:9;font:600 12px var(--mono);letter-spacing:.12em;color:var(--muted)}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+</style></head><body><div class="deck">
+<section class="page on" data-page="cover"><div class="chrome"><span>星野智造 · 内容交付流水线接入说明</span><span>DOC V3</span></div>
+<main><span class="kicker">接入说明 · 内部文档</span>
+<h1>把内容交付<br>接进你的流程</h1>
+<p class="lead">本页说明星野智造团队如何把本地优先的内容交付流水线接进日常写作与汇报：从一句需求或一份 Word 出发，产出可交付的网页与文档。所有步骤均在本机完成，不经过第三方服务。</p>
+<div class="cols">
+<div class="card"><h3>适用读者</h3><p>写方案、做汇报的团队成员；不需要前端经验，也不需要命令行。</p></div>
+<div class="card"><h3>前置条件</h3><p>一台 Windows 或 macOS 电脑；安装包见内部下载页；可选配置模型密钥以获得增强提案。</p></div>
+</div>
+</main><div class="foot"><span>Html九尾狐 Doc Clean 原创模板</span><span>封面与导读</span></div></section>
+<section class="page" data-page="howto"><div class="chrome"><span>星野智造 · 内容交付流水线接入说明</span><span>DOC V3</span></div>
+<main><span class="kicker">三步接入</span>
+<h2>三步接入</h2>
+<ol class="steps">
+<li><b>安装并打开工作台</b><p>双击安装包，桌面图标打开本地工作台；浏览器访问 127.0.0.1:8620 即为入口。</p></li>
+<li><b>选择一种进料</b><p>写一句需求，或把 .docx / .pptx 拖进审核台——解析在本地完成，每个块带出处。</p></li>
+<li><b>审核提案后采纳</b><p>意图、风格、图片位每条建议带理由；改完点采纳，产物落盘即可导出。</p></li>
+</ol>
+<code class="code"><span class="c"># 命令行同样可用（可选）</span>
+htmlninefox expert <span class="k">"做一个发布会页面，主题是本地优先的内容交付"</span>
+htmlninefox serve <span class="c"># 打开工作台</span></code>
+</main><div class="foot"><span>Html九尾狐 Doc Clean 原创模板</span><span>操作步骤</span></div></section>
+<section class="page" data-page="reference"><div class="chrome"><span>星野智造 · 内容交付流水线接入说明</span><span>DOC V3</span></div>
+<main><span class="kicker">参考</span>
+<h2>交付格式与边界</h2>
+<table><tr><th>格式</th><th>适用意图</th><th>说明</th></tr>
+<tr><td>单文件 HTML</td><td>全部六类</td><td>点开就能看，适合发群里</td></tr>
+<tr><td>PDF / 长图 / PNG</td><td>全部六类</td><td>存档与印刷；长图注意页高</td></tr>
+<tr><td>可编辑 PPTX</td><td>deck</td><td>标题、要点、备注逐页可改</td></tr>
+<tr><td>DOCX</td><td>doc / archdoc</td><td>语义映射：标题层级、列表、表格</td></tr></table>
+<span class="note"><b>边界</b>：不做后端——表单提交与数据库连接不在范围内；离线模式走规则引擎，功能完整只降级。</span>
+</main><div class="foot"><span>Html九尾狐 Doc Clean 原创模板</span><span>参考与边界</span></div></section>
+</div><div class="counter"></div><nav class="nav"><button data-prev aria-label="上一页">←</button><button data-next aria-label="下一页">→</button></nav><script>(()=>{const pages=[...document.querySelectorAll('.page')],counter=document.querySelector('.counter');let index=0;function show(next){index=(next+pages.length)%pages.length;pages.forEach((page,i)=>page.classList.toggle('on',i===index));counter.textContent=String(index+1).padStart(2,'0')+' / '+String(pages.length).padStart(2,'0')}document.querySelector('[data-prev]').onclick=()=>show(index-1);document.querySelector('[data-next]').onclick=()=>show(index+1);addEventListener('keydown',event=>{if(['ArrowRight','PageDown',' '].includes(event.key))show(index+1);if(['ArrowLeft','PageUp'].includes(event.key))show(index-1)});show(0)})();</script></body></html>

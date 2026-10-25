@@ -1,0 +1,41 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九尾狐 · 高活力活动海报</title><style>
+:root{--bg:#12061F;--surface:#1D0B33;--text:#FFF7ED;--muted:#C4B5FD;--primary:#F43F5E;--accent:#FACC15;--border:#3B1358;--radius:16px;--sans:'Inter','PingFang SC','Microsoft YaHei',sans-serif}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans)}
+.deck{height:100%;position:relative}
+.page{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr auto;padding:5vh 6vw;opacity:0;transform:translateY(26px) scale(.98);pointer-events:none;transition:.4s ease;background:radial-gradient(120% 90% at 85% 10%,var(--surface),var(--bg) 62%)}
+.page.on{opacity:1;transform:none;pointer-events:auto}
+.chrome,.foot{display:flex;justify-content:space-between;align-items:center;font:700 12px/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.kicker{display:inline-block;font:800 13px/1 var(--sans);letter-spacing:.3em;text-transform:uppercase;color:var(--bg);background:var(--accent);padding:10px 18px;border-radius:999px}
+.display{font-size:clamp(64px,11vw,190px);line-height:.92;letter-spacing:-.03em;font-weight:900;margin:3.5vh 0 0}
+.display em{font-style:normal;color:var(--primary)}
+.display .alt{color:var(--accent)}
+.sub{font-size:clamp(18px,2vw,30px);line-height:1.6;color:var(--muted);max-width:26em;margin:3.5vh 0 0}
+.cta{display:inline-flex;align-items:center;gap:14px;margin-top:4.5vh;font:800 clamp(18px,1.8vw,26px)/1 var(--sans);color:#fff;background:var(--primary);border:0;border-radius:var(--radius);padding:20px 34px;letter-spacing:.04em}
+.cta small{font-weight:600;opacity:.8;letter-spacing:.12em}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:4.5vh}
+.meta div{background:var(--surface);padding:2.6vh 2vw}
+.meta b{display:block;font:800 12px/1 var(--sans);letter-spacing:.22em;color:var(--accent);text-transform:uppercase;margin-bottom:1.4vh}
+.meta span{font-size:clamp(16px,1.5vw,22px);font-weight:700}
+.tickets{display:grid;grid-template-columns:repeat(3,1fr);gap:2vw;margin-top:4vh}
+.tickets article{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:3vh 2vw}
+.tickets h3{margin:0;font-size:clamp(18px,1.7vw,24px)}
+.tickets p{margin:1.2vh 0 0;color:var(--muted);font-size:clamp(14px,1.2vw,18px);line-height:1.6}
+.tickets .price{display:block;margin-top:2vh;font-size:clamp(24px,2.4vw,36px);font-weight:900;color:var(--accent)}
+.nav{position:fixed;right:22px;bottom:20px;z-index:9;display:flex;gap:6px}
+.nav button{width:36px;height:36px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:700 15px var(--sans);border-radius:10px;cursor:pointer}
+.counter{position:fixed;left:22px;bottom:22px;z-index:9;font:700 12px var(--sans);letter-spacing:.14em;color:var(--muted)}
+@media(max-width:760px){.meta,.tickets{grid-template-columns:1fr}.display{font-size:15vw}}
+</style></head><body><div class="deck">
+<section class="page on" data-page="poster"><div class="chrome"><span>Html九尾狐 · 活动海报</span><span>VIBRANT</span></div>
+<main><span class="kicker">线上直播 · 免费报名</span>
+<h1 class="display">把方案<br><em>贴</em>成<br><span class="alt">网页</span></h1>
+<p class="sub">一句话、一份 Word、一份 PPT，都可以在现场变成能发出去的网页。全程本地，数据不出本机。</p>
+<button class="cta">立即预约<small>SCROLL FOR DETAILS</small></button>
+<div class="meta"><div><b>时间</b><span>11 月 7 日 20:00</span></div><div><b>形式</b><span>直播 + 回放</span></div><div><b>对象</b><span>方案 / 汇报负责人</span></div></div>
+</main><div class="foot"><span>Html九尾狐 Vibrant 原创模板</span><span>主视觉</span></div></section>
+<section class="page" data-page="details"><div class="chrome"><span>Html九尾狐 · 活动海报</span><span>DETAILS</span></div>
+<main><span class="kicker">当晚流程</span>
+<h1 class="display" style="font-size:clamp(44px,6.5vw,110px)">三个演示<br>一次答疑</h1>
+<div class="tickets"><article><h3>贴入 Word</h3><p>26 节方案，10 秒出提案，人改完再生成。</p><span class="price">01</span></article><article><h3>贴入 PPT</h3><p>页题成章节，讲稿进正文，出处可回指。</p><span class="price">02</span></article><article><h3>说人话改</h3><p>「标题大一点」直接生效，每轮存版本。</p><span class="price">03</span></article></div>
+</main><div class="foot"><span>Html九尾狐 Vibrant 原创模板</span><span>流程与报名</span></div></section>
+</div><div class="counter"></div><nav class="nav"><button data-prev aria-label="上一页">←</button><button data-next aria-label="下一页">→</button></nav><script>(()=>{const pages=[...document.querySelectorAll('.page')],counter=document.querySelector('.counter');let index=0;function show(next){index=(next+pages.length)%pages.length;pages.forEach((page,i)=>page.classList.toggle('on',i===index));counter.textContent=String(index+1).padStart(2,'0')+' / '+String(pages.length).padStart(2,'0')}document.querySelector('[data-prev]').onclick=()=>show(index-1);document.querySelector('[data-next]').onclick=()=>show(index+1);addEventListener('keydown',event=>{if(['ArrowRight','PageDown',' '].includes(event.key))show(index+1);if(['ArrowLeft','PageUp'].includes(event.key))show(index-1)});show(0)})();</script></body></html>

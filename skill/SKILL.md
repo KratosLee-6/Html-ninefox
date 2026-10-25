@@ -1,21 +1,24 @@
 ---
 slug: kratoslee-htmlninefox
 displayName: Html九尾狐·HTML创作工作台
-version: 1.0.0
-summary: 无限画布 + 单文件 HTML 创作工作台：文字/文件/图片/HTML 模板放上画布，AI 或离线规则分析 → 推荐内容类型与真实模板 → 生成零依赖单文件 HTML → 导出 PDF / 逐页 PNG / 长图。
+version: 1.2.0
+summary: 人机共驾的内容交付流水线：一句话 / Word / PPT / 参考网页进料 → 带出处的拆解 → 可编辑提案 → 人审采纳 → 零依赖单文件 HTML → 导出 PDF / PNG / 长图 / 可编辑 PPTX / DOCX。
 license: MIT
 author: KratosLee
 name: htmlninefox
 description: |
-  Html九尾狐 = HTML 创作工作台。把文字、文件、图片和散落的 HTML 模板放进一张无限画布，
-  经过分析、推荐、自由组合与反馈迭代，生成真正可交付的单文件 HTML，并导出 PDF / PNG / 长图。
-  触发：做单文件 HTML / 网页海报 / 落地页 / 发布会 PPT / 数据看板 / 架构文档 / 导出 PDF。
+  Html九尾狐 = 人机共驾的内容交付流水线。文字、Word、PPT、网页模板都能进料，
+  AI 拆解并给出可编辑提案（意图/风格/文案/图片位，每条带理由），人审采纳后生成
+  真正可交付的单文件 HTML；口语反馈迭代，每轮存版本可回滚；导出 PDF / PNG /
+  长图 / 可编辑 PPTX / DOCX。全程本地，离线可用。
+  触发：做单文件 HTML / 网页海报 / 落地页 / 发布会 PPT / 数据看板 / 架构文档 /
+  把 Word 或 PPT 变网页 / 导出 PDF 或 Word。
 tags: [html, canvas, workbench, pdf-export, single-file-html, kratoslee]
 ---
 
 # 🦊 Html九尾狐 · HTML 创作工作台
 
-> 让灵感在 HTML 里生长 · v0.5.0rc1 · 个人开源 MIT · 简体中文
+> 让灵感在 HTML 里生长 · v0.8.3 · 个人开源 MIT · 简体中文
 
 ---
 
@@ -31,8 +34,9 @@ tags: [html, canvas, workbench, pdf-export, single-file-html, kratoslee]
 | 「导出 PDF」「导出 PNG」「发长图给客户」 | `htmlninefox export <项目>` |
 | 「标题大一点」「颜色再稳重一些」 | `htmlninefox feedback --project <项目> --note "<反馈>"` |
 | 「记住我喜欢深蓝」「下次还用这个模板」 | Project Memory（产物检查器 → 采用此版本并学习） |
+| 「把这份 Word 变成网页」「用这份 PPT 生成」 | 审核台上传 → 提案 → 采纳（HTTP `/api/intake/docx|pptx`） |
 
-**不在范围内**：原生 Word / PPTX 文件（v0.5 未提供）；可编辑 Office 交付（v0.6 路线图）。
+**已在范围内（v0.8 起）**：原生 Word / PPTX 进料（审核台出提案）与可编辑 DOCX / PPTX 导出。仍不在范围：后端服务（表单提交、数据库）。
 
 ---
 
@@ -100,7 +104,7 @@ htmlninefox feedback --project output/html9n-2026-09-16-101500 --note "颜色更
 |---|---|
 | `htmlninefox expert "<prompt>"` | 一句话生成单文件 HTML（6 类型 × 11 风格预设 × 联盟路由） |
 | `htmlninefox feedback --project <dir> --note "<反馈>"` | 口语反馈 → 改设计 Token → 重渲染，存 `revisions/` |
-| `htmlninefox export <project>` | 导出 PDF / PNG + `export-report.json` |
+| `htmlninefox export <project>` | 导出 PDF / PNG / 长图 / PPTX / DOCX + `export-report.json` |
 | `htmlninefox workbench` | 启动 Web 工作台（默认 `0.0.0.0:8620`，便于 Docker / 局域网） |
 | `htmlninefox app` | 等价启动，默认 `127.0.0.1:8620`，端口占用自动顺延 |
 | `htmlninefox serve` | 仅启动本地 REST API + UI 服务 |
@@ -138,5 +142,5 @@ htmlninefox feedback --project output/html9n-2026-09-16-101500 --note "颜色更
 
 ---
 
-> **GitHub**：<https://github.com/KratosLee-6/Html-ninefox>
+> **GitHub**：<https://github.com/KratosLee-6/Html-ninefox>（v0.8.3 · 2026-10-25）
 > **小红书搜 KratosLee 看演示**

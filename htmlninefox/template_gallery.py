@@ -124,6 +124,14 @@ def recommend_gallery(intent: str, preset_id: str | None = None,
         preferred = "guizang-dune-portfolio"
     elif preset_id == "guizang-magazine":
         preferred = "guizang-editorial-ink"
+    elif intent == "poster":
+        preferred = "fox-vibrant-poster"
+    elif intent == "dashboard":
+        preferred = "fox-shadcn-dashboard"
+    elif intent == "doc":
+        preferred = "fox-doc-clean-brief"
+    elif intent == "archdoc":
+        preferred = "fox-swiss-archdoc"
     else:
         preferred = "guizang-indigo-research"
     selected = next((item for item in items if item["id"] == preferred), None)

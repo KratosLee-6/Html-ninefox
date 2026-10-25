@@ -1,0 +1,65 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>九尾狐 · shadcn 内容交付看板</title><style>
+:root{--bg:#09090B;--surface:#111113;--text:#FAFAFA;--muted:#A1A1AA;--primary:#10B981;--accent:#F59E0B;--border:#27272A;--radius:12px;--sans:'Inter','PingFang SC','Microsoft YaHei',sans-serif;--mono:'IBM Plex Mono',Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans)}
+.deck{height:100%;position:relative}
+.page{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr auto;padding:4.5vh 5vw;opacity:0;transform:translateY(18px);pointer-events:none;transition:.35s ease}
+.page.on{opacity:1;transform:none;pointer-events:auto}
+.chrome,.foot{display:flex;justify-content:space-between;align-items:center;font:600 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.head{display:flex;justify-content:space-between;align-items:flex-end;margin-top:3vh}
+h1{margin:0;font-size:clamp(26px,2.6vw,40px);font-weight:700;letter-spacing:-.02em}
+.badge{font:600 12px/1 var(--mono);color:var(--primary);border:1px solid var(--border);border-radius:999px;padding:8px 14px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:3vh}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.4vh 1.4vw}
+.kpi span{display:block;font:500 12px/1 var(--mono);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.kpi b{display:block;margin-top:1.6vh;font-size:clamp(26px,2.6vw,42px);font-weight:700;letter-spacing:-.02em}
+.kpi i{display:inline-block;margin-top:1.2vh;font:600 12px/1 var(--mono);font-style:normal;padding:5px 9px;border-radius:999px}
+.kpi .up{color:var(--primary);background:rgba(16,185,129,.12)}
+.kpi .warn{color:var(--accent);background:rgba(245,158,11,.12)}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-top:14px;padding:2.6vh 1.6vw}
+.panel h2{margin:0 0 2.2vh;font-size:15px;font-weight:600;color:var(--muted);letter-spacing:.06em}
+.bars{display:grid;grid-template-columns:repeat(12,1fr);gap:10px;align-items:end;height:24vh}
+.bar{border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--primary),rgba(16,185,129,.35));position:relative}
+.bar span{position:absolute;bottom:-24px;left:0;right:0;text-align:center;font:500 11px/1 var(--mono);color:var(--muted)}
+.bar.hot{background:linear-gradient(180deg,var(--accent),rgba(245,158,11,.35))}
+.rows{width:100%;border-collapse:collapse;font-size:14px}
+.rows th{font:600 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+.rows td{padding:12px;border-bottom:1px solid var(--border);color:var(--text)}
+.rows td.mono{font-family:var(--mono);color:var(--primary)}
+.rows tr:last-child td{border-bottom:0}
+.grid2{display:grid;grid-template-columns:3fr 2fr;gap:14px;margin-top:14px}
+.notes li{margin:1.2vh 0;color:var(--muted);line-height:1.7}
+.notes b{color:var(--text)}
+.nav{position:fixed;right:22px;bottom:20px;z-index:9;display:flex;gap:6px}
+.nav button{width:34px;height:34px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:700 14px var(--mono);border-radius:8px;cursor:pointer}
+.counter{position:fixed;left:22px;bottom:22px;z-index:9;font:600 12px var(--mono);letter-spacing:.12em;color:var(--muted)}
+@media(max-width:860px){.kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.bars .bar:nth-child(2n){display:none}}
+</style></head><body><div class="deck">
+<section class="page on" data-page="overview"><div class="chrome"><span>栖木云 · 内容交付看板（演示数据）</span><span>OVERVIEW</span></div>
+<div class="head"><h1>内容交付看板</h1><span class="badge">近 30 天 · 演示数据</span></div>
+<div class="kpis">
+<div class="kpi"><span>网页交付</span><b>1,284</b><i class="up">▲ 12.4%</i></div>
+<div class="kpi"><span>提案采纳率</span><b>86.9%</b><i class="up">▲ 3.1%</i></div>
+<div class="kpi"><span>反馈轮次均值</span><b>1.8</b><i class="up">▼ 0.4</i></div>
+<div class="kpi"><span>导出失败</span><b>0.6%</b><i class="warn">观察</i></div>
+</div>
+<div class="panel"><h2>每周交付量</h2><div class="bars">
+<div class="bar" style="height:42%"><span>W1</span></div><div class="bar" style="height:55%"><span>W2</span></div><div class="bar" style="height:48%"><span>W3</span></div><div class="bar" style="height:63%"><span>W4</span></div><div class="bar" style="height:58%"><span>W5</span></div><div class="bar" style="height:72%"><span>W6</span></div><div class="bar" style="height:66%"><span>W7</span></div><div class="bar" style="height:81%"><span>W8</span></div><div class="bar hot" style="height:93%"><span>W9</span></div><div class="bar" style="height:88%"><span>W10</span></div><div class="bar" style="height:96%"><span>W11</span></div><div class="bar hot" style="height:100%"><span>W12</span></div>
+</div><div style="height:24px"></div></div>
+<div class="foot"><span>Html九尾狐 shadcn 原创模板</span><span>概览</span></div></section>
+<section class="page" data-page="details"><div class="chrome"><span>栖木云 · 内容交付看板（演示数据）</span><span>DETAILS</span></div>
+<div class="head"><h1>渠道明细</h1><span class="badge">导出记录 · 演示数据</span></div>
+<div class="grid2">
+<div class="panel"><h2>最近导出</h2><table class="rows"><tr><th>项目</th><th>格式</th><th>耗时</th></tr>
+<tr><td>Q4 路演 · 增长团队</td><td class="mono">PPTX</td><td class="mono">6.2s</td></tr>
+<tr><td>栖木云接入说明 v3</td><td class="mono">DOCX</td><td class="mono">4.8s</td></tr>
+<tr><td>星野智造发布会页</td><td class="mono">HTML</td><td class="mono">9.1s</td></tr>
+<tr><td>渠道复盘看板</td><td class="mono">PDF</td><td class="mono">3.5s</td></tr></table></div>
+<div class="panel"><h2>值班备注</h2><ul class="notes">
+<li><b>0.6% 导出失败</b>集中在长图导出，已定位到超时阈值。</li>
+<li>提案采纳率连续三周上升，<b>风格推荐</b>贡献最大。</li>
+<li>反馈轮次下降说明<b>口语化迭代</b>减少来回。</li>
+<li>下周动作：长图超时阈值调参 + 值班交接文档。</li>
+</ul></div>
+</div>
+<div class="foot"><span>Html九尾狐 shadcn 原创模板</span><span>明细与备注</span></div></section>
+</div><div class="counter"></div><nav class="nav"><button data-prev aria-label="上一页">←</button><button data-next aria-label="下一页">→</button></nav><script>(()=>{const pages=[...document.querySelectorAll('.page')],counter=document.querySelector('.counter');let index=0;function show(next){index=(next+pages.length)%pages.length;pages.forEach((page,i)=>page.classList.toggle('on',i===index));counter.textContent=String(index+1).padStart(2,'0')+' / '+String(pages.length).padStart(2,'0')}document.querySelector('[data-prev]').onclick=()=>show(index-1);document.querySelector('[data-next]').onclick=()=>show(index+1);addEventListener('keydown',event=>{if(['ArrowRight','PageDown',' '].includes(event.key))show(index+1);if(['ArrowLeft','PageUp'].includes(event.key))show(index-1)});show(0)})();</script></body></html>
