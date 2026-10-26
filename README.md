@@ -21,6 +21,7 @@
 
 
 > 当前应用包版本为 `0.8.3`（2026-10-25 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3) · 完整功能与架构见下。
+> **AI / Agent 接入**：[Agent 调用指南](docs/AGENT-GUIDE.md)——CLI / HTTP API / Skill 三通路实测命令与回显。
 
 ---
 

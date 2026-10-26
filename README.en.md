@@ -18,6 +18,7 @@
 
 
 > Current app version `0.8.3` (released 2026-10-25) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3) · full features below.
+> **AI / Agent integration**: [Agent guide](docs/AGENT-GUIDE.md) — CLI / HTTP API / Skill, all commands verified against a live build.
 
 ---
 
