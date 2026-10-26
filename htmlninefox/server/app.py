@@ -21,7 +21,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 from .. import __version__, exporting, intake, llm, pipeline, project_memory, revisions, template_gallery
 from .. import docx_adopt, docx_import, docx_proposal
-from .. import pptx_export, pptx_import
+from .. import image_assets, pdf_import, pptx_export, pptx_import
 from ..application import (
     ExportError, ExportRequest, ExportResult,
     FeedbackError, FeedbackRequest, FeedbackResult,
@@ -302,6 +302,69 @@ class _Handler(BaseHTTPRequestHandler):
             "limitations": list(dict.fromkeys((*outline.limitations, *proposal.limitations))),
             "proposal": proposal.as_dict(),
         }
+
+    @staticmethod
+    def _pdf_upload(body: dict) -> bytes:
+        """Same base64-JSON transport as the DOCX/PPTX desks."""
+        payload = str(body.get("pdf_base64") or "").strip()
+        if not payload:
+            raise StoreError("pdf_upload_required", "请选择一份 .pdf 文件", 400)
+        try:
+            data = base64.b64decode(payload, validate=True)
+        except (ValueError, TypeError) as exc:
+            raise StoreError("pdf_upload_invalid", "PDF 文件不是合法 Base64", 400) from exc
+        if not data:
+            raise StoreError("pdf_upload_required", "请选择一份 .pdf 文件", 400)
+        return data
+
+    def _pdf_outline(self, body: dict):
+        data = self._pdf_upload(body)
+        try:
+            return pdf_import.parse_pdf(data)
+        except pdf_import.PdfIntakeError as exc:
+            raise StoreError("pdf_unreadable", str(exc), 400) from exc
+
+    def _api_intake_pdf(self, body: dict) -> dict:
+        """Parse an uploaded .pdf and return the proposal a person reviews."""
+        outline = self._pdf_outline(body)
+        proposal = docx_proposal.propose(outline)
+        return {
+            "ok": True,
+            "source": outline.as_dict()["source"],
+            "counts": outline.counts,
+            "evidence_complete": outline.evidence_complete,
+            "limitations": list(dict.fromkeys((*outline.limitations, *proposal.limitations))),
+            "proposal": proposal.as_dict(),
+        }
+
+    def _api_intake_pdf_adopt(self, body: dict) -> dict:
+        """Render the reviewed PDF proposal through the existing generation use case."""
+        outline = self._pdf_outline(body)
+        base = docx_proposal.propose(outline)
+        try:
+            proposal = docx_adopt.apply_overrides(base, body.get("proposal"))
+        except ValueError as exc:
+            raise StoreError("pdf_proposal_invalid", str(exc), 400) from exc
+        sections, notes = docx_adopt.sections_from_outline(outline)
+        payload = self._generation_result({
+            "prompt": proposal.copy.get("headline") or outline.source.title or "PDF 导入",
+            "intent": proposal.intent,
+            "template": proposal.preset_id,
+            "blocks": sections,
+            "content": {
+                "brand": "",
+                "headline": proposal.copy.get("headline", ""),
+                "hero_sub": proposal.copy.get("summary", ""),
+                "summary": proposal.copy.get("summary", ""),
+            },
+            "quiet_llm": True,
+            "selection_mode": "pdf",
+        })
+        payload["limitations"] = list(dict.fromkeys(
+            (*outline.limitations, *proposal.limitations, *notes)))
+        payload["pdf"] = {"title": outline.source.title, "sections": len(sections),
+                          "counts": outline.counts}
+        return payload
 
     def _api_intake_pptx_adopt(self, body: dict) -> dict:
         """Render the reviewed deck proposal through the existing generation use case."""
@@ -736,6 +799,23 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json(self._api_intake_pptx(body))
         if path == "/api/intake/pptx/adopt":
             return self._json(self._api_intake_pptx_adopt(body))
+        if path == "/api/intake/pdf":
+            return self._json(self._api_intake_pdf(body))
+        if path == "/api/intake/image":
+            payload = str(body.get("image_base64") or "").strip()
+            if not payload:
+                raise StoreError("image_upload_required", "请选择一张 PNG / JPEG 图片", 400)
+            try:
+                raw = base64.b64decode(payload, validate=True)
+            except (ValueError, TypeError) as exc:
+                raise StoreError("image_upload_invalid", "图片不是合法 Base64", 400) from exc
+            try:
+                return self._json({"ok": True,
+                                   "asset": image_assets.inspect_image(raw)})
+            except image_assets.ImageAssetError as exc:
+                raise StoreError("image_asset_invalid", str(exc), 400) from exc
+        if path == "/api/intake/pdf/adopt":
+            return self._json(self._api_intake_pdf_adopt(body))
         if path == "/api/intake/candidates/batch":
             return self._json(self._api_intake_batch(body))
         if path == "/api/intake/components/import":

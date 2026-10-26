@@ -33,6 +33,8 @@ SCRIPTS = (
     ("docx-intake", "mutate_docx_intake_gates.py"),
     # v0.8.3 的 PPTX 反向拆解链（边界常驻 / 回指完整 / 图表只计数 / 意图兜底）。
     ("pptx-intake", "mutate_pptx_gates.py"),
+    # v0.8.4 的 PDF 反向拆解链（扫描页上报 / 回指含页号 / 字号推断 / 魔数守卫）。
+    ("pdf-intake", "mutate_pdf_gates.py"),
 )
 
 MEANING = {

@@ -68,8 +68,18 @@
 
 ## 六、收口清单
 
-- [ ] pdf_import 全量门禁跑绿，数字实测回填
-- [ ] API 接线 + 六意图真链 + 变异第七套全 CAUGHT
-- [ ] 图片资产环节：stdlib 尺寸解析 + [image] 主色 + 审核台打通
+- [x] pdf_import 全量门禁跑绿：合同 10 + API 13（2026-10-25 实测）
+- [x] API 接线 + 六意图真链 + 变异第七套 4/4 CAUGHT（扫描页上报/回指含页号/
+      字号推断守卫/魔数校验）
+- [x] 图片资产：`image_assets.py`（stdlib 尺寸 + `[image]` Pillow 主色 +
+      像素损坏降级）+ `/api/intake/image` 端点 + 门禁 5+2 条
+- [ ] 审核台图片位「挂真实资产」UI（图片计划 slot 与资产的最终接通）
 - [ ] CHANGELOG / RELEASE-NOTES / 双 README / 版本四处同步
 - [ ] preflight 七套全绿后发版
+
+### 执行记录（2026-10-25/26）
+
+- 开发中被门禁抓到的真问题：①pdfminer 行对象是 LTTextBox 的子级，首版
+  收集器永远空集（所有页被误判无文本层）；②手写 PDF fixture 的 /Length
+  写死会静默产出 0 页——Length 必须按流字节数计算；③JPEG 主色有损漂移
+  ±1/255，断言按容差；④头部合法但像素损坏的 PNG：尺寸照答、主色如实降级。

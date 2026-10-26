@@ -33,6 +33,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added（v0.8.4 进行中，未发版）
+- **PDF 反向拆解**：`htmlninefox/pdf_import.py`（`[pdf]` extra，pdfminer.six 纯 Python）。
+  只信文本层——无文本层的页如实上报「可能为扫描件」，不 OCR 兜底；标题层级由
+  字号推断（≥中位数 1.15 倍）且推断规则写进 limitations；表格不做坐标还原
+  （宁「结构对、样式朴素」不出「看着像、结构错」）。evidence = 页号＋页内字符
+  区间，validate() 兜底 100% 可回指。HTTP 新增 `/api/intake/pdf(+/adopt)`，
+  审核台接受 .pdf。
+- **图片资产环节**：`htmlninefox/image_assets.py`——尺寸格式用 stdlib 解析
+  PNG/JPEG 头（零依赖），主色走 `[image]` extra（Pillow），无 Pillow 降级为
+  只有尺寸并如实标注；像素损坏时降级不报错。HTTP 新增 `/api/intake/image`。
+  OCR/视觉转写维持 provider 决策，默认关。
+- 门禁：PDF 合同 10 条（含 locator 回源切片）＋ API 13 条（六意图真链）＋
+  图片 5 条 ＋ 图片 API 2 条；变异 `mutate_pdf_gates.py` 4/4 CAUGHT
+  （扫描页上报/回指含页号/字号推断守卫/魔数校验），preflight 第七套。
+- 开发中被门禁抓到：pdfminer 行对象是 LTTextBox 的子级（首版收集器永远空集）；
+  手写 PDF fixture 的 /Length 写死导致整页解析静默为空。
+
 ## [0.8.3] - 2026-10-25 · 贴入 PPT + 键盘可达
 
 > 新能力。HTTP 新增 `/api/intake/pptx`（上传出提案）与

@@ -36,7 +36,10 @@
   // 同一张审核台吃两种格式：端点与字段随上传文件的扩展名分流，
   // 服务端两边返回同一份契约（proposal/limitations/counts），渲染不用分叉。
   function formatOf(file) {
-    return (file.name || '').toLowerCase().endsWith('.pptx') ? 'pptx' : 'docx';
+    const name = (file.name || '').toLowerCase();
+    if (name.endsWith('.pptx')) return 'pptx';
+    if (name.endsWith('.pdf')) return 'pdf';
+    return 'docx';
   }
 
   function say(text, tone) {
@@ -176,7 +179,7 @@
     const input = $('docx-file');
     const file = input && input.files && input.files[0];
     if (!file) {
-      say('先选一份 .docx 或 .pptx 文件。', 'warn');
+      say('先选一份 .docx / .pptx / .pdf 文件。', 'warn');
       return;
     }
     if (file.size > 12 * 1024 * 1024) {
@@ -206,7 +209,9 @@
       const counts = payload.counts || {};
       const pages = format === 'pptx'
         ? `${counts.heading || 0} 页标题 / ${counts.list || 0} 条要点`
-        : `${counts.heading || 0} 个标题 / ${counts.table || 0} 张表`;
+        : format === 'pdf'
+          ? `${counts.heading || 0} 个标题 / ${counts.paragraph || 0} 段正文`
+          : `${counts.heading || 0} 个标题 / ${counts.table || 0} 张表`;
       say(`已解析：${pages} / ${counts.image || 0} 张图。改完点「采纳并生成」。`, 'ok');
     } catch (error) {
       say(error.message || '解析失败。', 'error');
@@ -218,7 +223,7 @@
 
   async function adopt() {
     if (!state.base64) {
-      say('先解析一份 .docx 或 .pptx。', 'warn');
+      say('先解析一份文档。', 'warn');
       return;
     }
     busy(true, '生成中…');
@@ -285,7 +290,7 @@
       const file = picker.files && picker.files[0];
       const name = file && file.name;
       const label = $('docx-filename');
-      if (label) label.textContent = name || '选择 .docx / .pptx';
+      if (label) label.textContent = name || '选择文档';
     });
   }
 
