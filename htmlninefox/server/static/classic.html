@@ -178,7 +178,7 @@ async function loadProjects() {
     $('projects').innerHTML = r.items.length ? r.items.map(p => `
       <div class="hist-item" data-action="openProject" data-project="${esc(p.project)}" data-url="${esc(p.preview_url)}" role="button" tabindex="0">
         <div>${p.prompt || p.name}</div>
-        <div class="meta">${p.intent} · ${p.preset_id} · rev${p.revision}</div>
+        <div class="meta">意图 ${esc(p.intent)} · 风格 ${esc(p.preset_id)} · rev${p.revision}</div>
       </div>`).join('') : '<p class="tagline">还没有项目。</p>';
   } catch (e) {}
 }

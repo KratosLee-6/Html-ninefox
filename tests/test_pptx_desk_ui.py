@@ -52,3 +52,38 @@ def test_pptx_desk_uploads_reviews_and_adopts(workbench_server, tmp_path: Path):
         assert NOTES in page.content(), "讲稿备注也要到产物里"
         assert not errors, f"页面脚本报错：{errors}"
         browser.close()
+
+
+def test_slot_names_display_chinese_with_english_toggle(workbench_server, tmp_path: Path):
+    """图片位 UX（v0.8.4 走查反馈）：默认中文、可切 EN、手改不受切换影响。"""
+    deck = tmp_path / "Q4汇报.pptx"
+    deck.write_bytes(build_pptx())
+
+    with workbench_server as server, sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        page = browser.new_page(viewport={"width": 1440, "height": 900})
+        page.goto(server.base_url + "/")
+        page.wait_for_function("window.FoxDocx && window.FoxIntake")
+        page.evaluate("window.FoxIntake.open()")
+
+        page.set_input_files("#docx-file", str(deck))
+        page.click("#docx-analyze")
+        page.wait_for_selector("#docx-proposal:not([hidden])", timeout=20000)
+
+        # 默认中文：cover → 封面主视觉，section-1 → 章节配图 1
+        first_slot = page.input_value("#docx-slots .docx-slot [data-part='slot']")
+        assert first_slot == "封面主视觉", first_slot
+        assert "章节配图 1" in page.eval_on_selector_all(
+            "#docx-slots [data-part='slot']", "els => els.map(e => e.value).join('|')")
+
+        # EN 切换：已知槽位回英文 id；切换按钮自身换文案
+        page.click("#docx-slot-lang")
+        assert page.input_value("#docx-slots .docx-slot [data-part='slot']") == "cover"
+        assert page.inner_text("#docx-slot-lang") == "中"
+
+        # 手改过的名字不属于已知模式，切换不动它
+        page.click("#docx-slot-lang")  # 回中文
+        page.fill("#docx-slots .docx-slot [data-part='slot']", "我的自定义位")
+        page.click("#docx-slot-lang")  # 切 EN
+        assert page.input_value("#docx-slots .docx-slot [data-part='slot']") == "我的自定义位"
+        browser.close()

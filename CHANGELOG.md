@@ -49,6 +49,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   （扫描页上报/回指含页号/字号推断守卫/魔数校验），preflight 第七套。
 - 开发中被门禁抓到：pdfminer 行对象是 LTTextBox 的子级（首版收集器永远空集）；
   手写 PDF fixture 的 /Length 写死导致整页解析静默为空。
+- **审核台图片位 UX（走查反馈）**：槽位名默认中文（封面主视觉 / 章节配图 N），
+  一键 EN 切回机器 id；三行编辑区从裸网格改成卡片（底色+描边+悬停/聚焦态）
+  并加「每行都可直接改」提示与占位符；边界清单从裸列表升级为带标题的
+  Callout 卡片。服务端 slot 契约保持英文 id 不变（展示层翻译）。
+  顺带：面板标题与提案理由中文化，classic 历史项 meta 加中文前缀。
 
 ## [0.8.3] - 2026-10-25 · 贴入 PPT + 键盘可达
 

@@ -31,7 +31,16 @@
     ['guizang-magazine', '归藏杂志'],
   ];
 
-  const state = { name: '', base64: '', format: 'docx', proposal: null };
+  const state = { name: '', base64: '', format: 'docx', proposal: null, slotLang: 'zh' };
+
+  // 图片位名称的展示层中英切换：服务端契约保持英文 id（cover/section-N），
+  // 界面默认中文；用户手改过的名字不属于已知模式，切换时不动它。
+  const SLOT_ZH = { cover: '封面主视觉' };
+  function slotZhOf(slot) {
+    const m = /^(?:section|ch)[-_](\d+)$/.exec((slot || '').trim());
+    if (m) return `章节配图 ${m[1]}`;
+    return SLOT_ZH[(slot || '').trim()] || null;
+  }
 
   // 同一张审核台吃两种格式：端点与字段随上传文件的扩展名分流，
   // 服务端两边返回同一份契约（proposal/limitations/counts），渲染不用分叉。
@@ -113,14 +122,37 @@
     const row = document.createElement('div');
     row.className = 'docx-slot';
     row.innerHTML = `
-      <input data-part="slot" aria-label="位置" maxlength="40">
-      <textarea data-part="purpose" aria-label="用途" rows="2" maxlength="60"></textarea>
-      <textarea data-part="prompt" aria-label="画面描述" rows="2" maxlength="200"></textarea>
-      <button class="btn btn-ghost docx-slot-drop" title="删掉这个图片位">删</button>`;
-    row.querySelector('[data-part="slot"]').value = item.slot || '';
+      <input data-part="slot" aria-label="图片位位置" maxlength="40" placeholder="位置，如 封面主视觉">
+      <textarea data-part="purpose" aria-label="用途" rows="2" maxlength="60" placeholder="这张图用在哪里"></textarea>
+      <textarea data-part="prompt" aria-label="画面描述" rows="2" maxlength="200" placeholder="给图像模型的画面描述，可直接改"></textarea>
+      <button class="btn btn-ghost docx-slot-drop" title="删掉这个图片位" aria-label="删除图片位">删</button>`;
+    const slotInput = row.querySelector('[data-part="slot"]');
+    const zh = slotZhOf(item.slot);
+    if (zh) {
+      slotInput.dataset.autoZh = zh;
+      slotInput.dataset.autoEn = item.slot;
+      slotInput.value = state.slotLang === 'zh' ? zh : item.slot;
+    } else {
+      slotInput.value = item.slot || '';
+    }
     row.querySelector('[data-part="purpose"]').value = item.purpose || '';
     row.querySelector('[data-part="prompt"]').value = item.prompt || '';
     return row;
+  }
+
+  function toggleSlotLang() {
+    state.slotLang = state.slotLang === 'zh' ? 'en' : 'zh';
+    const toggle = $('docx-slot-lang');
+    if (toggle) toggle.textContent = state.slotLang === 'zh' ? 'EN' : '中';
+    document.querySelectorAll('#docx-slots .docx-slot').forEach((row) => {
+      const input = row.querySelector('[data-part="slot"]');
+      const zh = input.dataset.autoZh, en = input.dataset.autoEn;
+      if (!zh) return;                       // 用户自建位：不存在翻译对
+      const current = input.value.trim();
+      if (current === zh) input.value = en;   // 仍是自动名才互换
+      else if (current === en) input.value = zh;
+      // 否则是用户手改过的名字：保留，不动
+    });
   }
 
   function render(payload) {
@@ -294,7 +326,7 @@
     });
   }
 
-  window.FoxDocx = { analyze, adopt, addSlot, dropSlot, reset, collect };
+  window.FoxDocx = { analyze, adopt, addSlot, dropSlot, reset, collect, toggleSlotLang };
   document.addEventListener('click', (event) => {
     const drop = event.target.closest('.docx-slot-drop');
     if (drop) dropSlot(drop);

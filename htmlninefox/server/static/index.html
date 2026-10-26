@@ -833,7 +833,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   </div>
 </div>
 <div class="preview-modal" id="intake-modal" hidden role="dialog" aria-modal="true" aria-labelledby="intake-title">
-  <div class="flow-dialog intake-dialog"><div class="preview-bar"><strong id="intake-title">导入与吸收</strong><span>Word 提案 · 全球设计抓取 · 审核后入库</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeIntake">关闭</button></div>
+  <div class="flow-dialog intake-dialog"><div class="preview-bar"><strong id="intake-title">导入与吸收</strong><span>Word / PPT / PDF 提案 · 全球设计汲取 · 审核后入库</span><div class="sp"></div><button class="btn btn-ghost" data-action="closeIntake">关闭</button></div>
     <div class="flow-body">
       <section class="flow-card"><div id="intake-stats" class="intake-stats" aria-live="polite">加载吸收指标…</div></section>
       <article class="flow-card docx-desk" id="docx-desk">
@@ -857,9 +857,10 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
           </div>
           <label class="flow-field">摘要<textarea id="docx-summary" rows="2"></textarea></label>
           <p class="docx-reason" id="docx-reason"></p>
+          <div class="docx-slots-head"><span>图片位 · 每行都可直接改：位置 / 用途 / 画面描述</span><button type="button" class="docx-slots-lang" id="docx-slot-lang" data-action="docxToggleSlotLang" title="切换图片位名称的中英文显示">EN</button></div>
           <div class="docx-slots" id="docx-slots" aria-label="图片位"></div>
           <button class="btn btn-ghost docx-add-slot" data-action="docxAddSlot">＋ 加一个图片位</button>
-          <ul class="docx-limits" id="docx-limits" aria-label="边界说明"></ul>
+          <ul class="docx-limits" id="docx-limits" aria-label="解析边界：如实说明拿不到什么"></ul>
           <div class="docx-actions">
             <button class="btn btn-primary" id="docx-adopt" data-action="docxAdopt">采纳并生成</button>
             <a class="docx-result" id="docx-result" hidden target="_blank" rel="noopener">打开产物 ↗</a>

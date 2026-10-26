@@ -139,7 +139,8 @@ def _judge_intent(outline: IntakeOutline) -> tuple[str, str]:
 def _style_for(intent: str) -> tuple[str, str]:
     tone = _INTENT_TONE.get(intent, "professional")
     preset_id = INTENT_TONE_PRESET.get(intent, {}).get(tone, "doc-clean")
-    return preset_id, f"{intent} × {tone} → 既有预设 {preset_id}（未新建风格）"
+    return preset_id, (f"意图 {intent} × 语气 {tone}：沿用既有预设 "
+                       f"{preset_id}（未新建风格，可在上方直接换）")
 
 
 def _image_plan(outline: IntakeOutline) -> tuple[ImagePlanItem, ...]:

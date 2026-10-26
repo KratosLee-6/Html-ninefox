@@ -383,13 +383,28 @@
   border-top:1px solid var(--border-subtle); }
 .docx-grid { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr); gap:var(--space-2); }
 .docx-reason { font-size:var(--fs-sm); color:var(--text-secondary); }
+.docx-slots-head { display:flex; justify-content:space-between; align-items:center;
+  gap:var(--space-2); font-size:var(--fs-sm); color:var(--text-secondary); }
+.docx-slots-lang { height:24px; padding:0 8px; border:1px solid var(--border-subtle);
+  border-radius:var(--radius); background:var(--bg-base); color:var(--text-primary);
+  font-size:var(--fs-xs); cursor:pointer; }
+.docx-slots-lang:hover { border-color:var(--border-default); }
 .docx-slots { display:grid; gap:var(--space-1); }
 .docx-slot { display:grid; grid-template-columns:110px minmax(0,1fr) minmax(0,2fr) auto;
-  gap:var(--space-1); align-items:center; }
-.docx-slot input { height:32px; }
+  gap:var(--space-1); align-items:center; padding:var(--space-2);
+  background:var(--bg-base); border:1px solid var(--border-subtle);
+  border-radius:var(--radius); }
+.docx-slot:hover { border-color:var(--border-default); }
+.docx-slot:focus-within { border-color:var(--border-strong); }
+.docx-slot input { height:32px; font-weight:600; }
 .docx-add-slot { justify-self:start; }
-.docx-limits { display:grid; gap:2px; padding-left:var(--space-4); font-size:var(--fs-sm);
-  color:var(--text-secondary); }
+.docx-limits { display:grid; gap:2px; padding:var(--space-2) var(--space-2)
+  var(--space-2) var(--space-4); font-size:var(--fs-sm);
+  color:var(--text-secondary); background:var(--bg-base);
+  border:1px solid var(--border-subtle); border-left:3px solid var(--border-strong);
+  border-radius:var(--radius); }
+.docx-limits::before { content:"解析边界 · 如实说明拿不到什么"; display:block;
+  margin:0 0 2px calc(-1 * var(--space-2)); font-weight:600; color:var(--text-primary); }
 .docx-actions { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; }
 .docx-result { font-size:var(--fs-sm); color:var(--accent); }
 .docx-status { font-size:var(--fs-sm); color:var(--text-secondary); min-height:1.2em; }

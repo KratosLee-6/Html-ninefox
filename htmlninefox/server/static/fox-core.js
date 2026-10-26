@@ -921,6 +921,7 @@ window.FoxActions = {
   docxAnalyze: () => window.FoxDocx.analyze(),
   docxAdopt: () => window.FoxDocx.adopt(),
   docxAddSlot: () => window.FoxDocx.addSlot(),
+  docxToggleSlotLang: () => window.FoxDocx.toggleSlotLang(),
   openSlideEditor: id => window.FoxSlides.open(id),
   closeSlideEditor: () => window.FoxSlides.close(),
   saveSlideEditor: () => window.FoxSlides.save(),
