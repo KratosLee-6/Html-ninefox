@@ -527,7 +527,7 @@ function renderNode(n) {
   } else if (n.kind === 'file' || n.kind === 'output') {
     el.innerHTML = head(n.kind === 'output' ? 'output' : 'file', 'linear-gradient(135deg,#065F46,#22D3EE)',
       n.kind === 'output' ? `<span class="rev-chip" id="rev-${n.id}">rev${n.data.revision||0}</span>` : '') +
-      `<div class="meta-row" id="meta-${n.id}"></div><iframe id="frame-${n.id}" title="${esc(n.data.project_name || n.title)}产物预览" sandbox="allow-same-origin"></iframe>${nodePorts(n)}`;
+      `<div class="meta-row" id="meta-${n.id}"></div><iframe id="frame-${n.id}" title="${esc(n.data.project_name || n.title)}产物预览" sandbox="allow-scripts allow-same-origin"></iframe>${nodePorts(n)}`;
   }
   nodesEl.appendChild(el);
   if (allowNodeEnter) animateNode(el, 'node-enter', 'fox-node-enter');
@@ -1289,7 +1289,7 @@ function renderPalette() {
     else if (it.styleCard) preview = `<div class="mini style-card"><div class="row">${it.swatches.slice(0,2).map(c=>`<i style="position:static;flex:1;border-radius:0;background:${c}"></i>`).join('')}</div><div class="aa" style="background:${it.swatches[2]}26">Aa</div></div>`;
     else if (it.colorCard) preview = `<div class="mini" style="display:flex">${it.sw.map(c=>`<i style="position:static;flex:1;border-radius:0;background:${c}"></i>`).join('')}</div>`;
     else if (it.fontCard) preview = `<div class="mini font-card"><span class="aa" style="font-family:${it.fcss}">Aa<small>${it.en}</small></span></div>`;
-    else if (it.fileCard) preview = `<div class="file-thumb"><iframe src="${it.url}?t=${Date.now()}" title="${esc(it.t)}产物预览" sandbox="allow-same-origin" tabindex="-1"></iframe></div>`;
+    else if (it.fileCard) preview = `<div class="file-thumb"><iframe src="${it.url}?t=${Date.now()}" title="${esc(it.t)}产物预览" sandbox="allow-scripts allow-same-origin" tabindex="-1"></iframe></div>`;
     html += `<div class="pal-card ${it.styleCard ? 'style-card' : ''}${it.fontCard ? 'font-card' : ''}${it.galleryCard ? ' gallery-card' : ''}"
       draggable="true" data-pid="${esc(it.id)}" title="拖到工作区，或双击快速加入">${preview}
       <div class="pal-name"><span class="zh">${esc(it.name || it.t)}</span>${it.en ? `<span class="en">${esc(it.en)}</span>` : ''}
