@@ -73,7 +73,9 @@
       字号推断守卫/魔数校验）
 - [x] 图片资产：`image_assets.py`（stdlib 尺寸 + `[image]` Pillow 主色 +
       像素损坏降级）+ `/api/intake/image` 端点 + 门禁 5+2 条
-- [ ] 审核台图片位「挂真实资产」UI（图片计划 slot 与资产的最终接通）
+- [x] 审核台图片位「挂真实资产」UI：槽位行附图（PNG/JPEG）→ /api/intake/image
+      检查回填摘要 chip → 采纳时 slot_images 随提案入库为输入附件并参与本次生成；
+      payload 回显 slot_attachments + proposal.image_plan[].asset（三格式端点同构）
 - [ ] CHANGELOG / RELEASE-NOTES / 双 README / 版本四处同步
 - [ ] preflight 七套全绿后发版
 

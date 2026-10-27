@@ -141,7 +141,8 @@ def apply_overrides(base: Proposal, overrides: dict | None) -> Proposal:
         image_plan = tuple(
             item if isinstance(item, ImagePlanItem) else ImagePlanItem(
                 slot=str(item.get("slot", "")), purpose=str(item.get("purpose", "")),
-                prompt=str(item.get("prompt", "")))
+                prompt=str(item.get("prompt", "")),
+                asset=dict(item.get("asset") or {}))
             for item in plan
         )
     else:

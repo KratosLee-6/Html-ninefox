@@ -139,3 +139,38 @@ def test_every_intent_survives_the_real_generation_chain(workbench, intent):
     html = (Path(payload["project"]) / "output.html").read_text(encoding="utf-8")
     assert "第一步：拉新，渠道投放到位" in html, f"{intent} 丢了幻灯片正文"
     assert payload["verification"]["ok"] is not False
+
+
+def test_adopt_with_slot_image_attaches_real_asset(workbench):
+    """图片位挂真实资产（v0.8.4 收口）：附图经检查入库并进入生成素材。"""
+    import io as _io
+    from PIL import Image
+    buffer = _io.BytesIO()
+    Image.new("RGB", (64, 32), (36, 62, 143)).save(buffer, format="PNG")
+    image_b64 = base64.b64encode(buffer.getvalue()).decode()
+
+    payload, _ = api_request(
+        workbench.base_url, "/api/intake/pptx/adopt", "POST",
+        upload_payload(build_pptx(), slot_images={"cover": image_b64}))
+
+    assert payload["ok"] is True
+    assert len(payload["slot_attachments"]) == 1
+    attachment = payload["slot_attachments"][0]
+    assert attachment["slot"] == "cover"
+    assert attachment["width"] == 64 and attachment["height"] == 32
+    assert attachment["dominant_color"].startswith("#")
+    assert attachment["input_id"], "附图必须入库为输入素材参与生成"
+
+    plan_cover = next(item for item in payload["proposal"]["image_plan"]
+                      if item["slot"] == "cover")
+    assert plan_cover["asset"]["dominant_color"] == attachment["dominant_color"], \
+        "检查摘要必须回写到提案的对应图片位"
+
+
+def test_adopt_rejects_a_broken_slot_image(workbench):
+    payload, _ = api_request(
+        workbench.base_url, "/api/intake/pptx/adopt", "POST",
+        upload_payload(build_pptx(), slot_images={"cover": base64.b64encode(b"not an image").decode()}),
+        expected=400)
+
+    assert payload["error"]["code"] == "image_asset_invalid"

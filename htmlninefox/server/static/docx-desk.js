@@ -121,11 +121,16 @@
   function slotRow(item) {
     const row = document.createElement('div');
     row.className = 'docx-slot';
+    row.dataset.slot = item.slot || '';
     row.innerHTML = `
       <input data-part="slot" aria-label="图片位位置" maxlength="40" placeholder="位置，如 封面主视觉">
       <textarea data-part="purpose" aria-label="用途" rows="2" maxlength="60" placeholder="这张图用在哪里"></textarea>
       <textarea data-part="prompt" aria-label="画面描述" rows="2" maxlength="200" placeholder="给图像模型的画面描述，可直接改"></textarea>
-      <button class="btn btn-ghost docx-slot-drop" title="删掉这个图片位" aria-label="删除图片位">删</button>`;
+      <div class="docx-slot-ops">
+        <label class="docx-slot-attach" title="挂一张真实图片（可选）">附图<input type="file" accept=".png,.jpg,.jpeg" hidden></label>
+        <button class="btn btn-ghost docx-slot-drop" title="删掉这个图片位" aria-label="删除图片位">删</button>
+      </div>
+      <div class="docx-slot-asset" data-part="asset" hidden></div>`;
     const slotInput = row.querySelector('[data-part="slot"]');
     const zh = slotZhOf(item.slot);
     if (zh) {
@@ -137,7 +142,39 @@
     }
     row.querySelector('[data-part="purpose"]').value = item.purpose || '';
     row.querySelector('[data-part="prompt"]').value = item.prompt || '';
+    if (item.asset && item.asset.width) showAssetChip(row, item.asset);
+    const attach = row.querySelector('.docx-slot-attach input');
+    attach.addEventListener('change', async () => {
+      const file = attach.files && attach.files[0];
+      if (!file) return;
+      say(`图片位「${slotInput.value || '未命名'}」检查中…`, '');
+      try {
+        const b64 = await fileToBase64(file);
+        const response = await fetch('/api/intake/image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_base64: b64 }),
+        });
+        const payload = await response.json();
+        if (!response.ok) throw new Error((payload.error && payload.error.message) || '检查失败');
+        const asset = payload.asset;
+        row.dataset.imageB64 = b64;
+        showAssetChip(row, asset);
+        say(`附图检查通过：${asset.format} ${asset.width}×${asset.height}` +
+            (asset.dominant_color ? ` · 主色 ${asset.dominant_color}` : ''), 'ok');
+      } catch (error) {
+        say(error.message || '附图检查失败。', 'error');
+      }
+    });
     return row;
+  }
+
+  function showAssetChip(row, asset) {
+    const chip = row.querySelector('[data-part="asset"]');
+    chip.hidden = false;
+    chip.textContent = `已挂真实图片：${asset.format} ${asset.width}×${asset.height}` +
+      (asset.dominant_color ? ` · 主色 ${asset.dominant_color}` : '') +
+      ' · 采纳后将进入生成素材';
   }
 
   function toggleSlotLang() {
@@ -199,11 +236,18 @@
       purpose: row.querySelector('[data-part="purpose"]').value.trim(),
       prompt: row.querySelector('[data-part="prompt"]').value.trim(),
     })).filter((item) => item.slot);
+    const slot_images = {};
+    document.querySelectorAll('#docx-slots .docx-slot').forEach((row) => {
+      const b64 = row.dataset.imageB64;
+      if (!b64) return;
+      slot_images[row.querySelector('[data-part="slot"]').value.trim()] = b64;
+    });
     return {
       intent: $('docx-intent').value,
       style: { preset_id: $('docx-preset').value },
       copy: { headline: $('docx-headline').value.trim(), summary: $('docx-summary').value.trim() },
       image_plan: slots,
+      slot_images,
     };
   }
 

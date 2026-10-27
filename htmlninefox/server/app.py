@@ -216,6 +216,37 @@ class _Handler(BaseHTTPRequestHandler):
             raise StoreError("docx_upload_required", "请选择一份 .docx 文件", 400)
         return data
 
+    def _attach_slot_images(self, body: dict, proposal) -> tuple[list[dict], dict]:
+        """图片位挂真实资产（v0.8.4）：slot_images = {槽位名: base64}。
+
+        每张附图：inspect 得检查摘要 → InputStore 入库为输入附件 → 参与
+        本次生成。槽位名对不上计划位的附图照样入库，不静默丢弃。
+        返回 (附件回显列表, {槽位: 检查摘要})。
+        """
+        slot_images = body.get("slot_images")
+        if not isinstance(slot_images, dict) or not slot_images:
+            return [], {}
+        plan = {item.slot: item for item in proposal.image_plan}
+        attachments: list[dict] = []
+        assets_by_slot: dict[str, dict] = {}
+        for slot, encoded in slot_images.items():
+            try:
+                raw = base64.b64decode(str(encoded), validate=True)
+                inspection = image_assets.inspect_image(raw)
+            except image_assets.ImageAssetError as exc:
+                raise StoreError("image_asset_invalid", f"图片位 {slot}：{exc}", 400) from exc
+            except (ValueError, TypeError) as exc:
+                raise StoreError("image_upload_invalid", f"图片位 {slot}：{exc}", 400) from exc
+            stored = self._inputs().save({
+                "name": f"slot-{slot}.{inspection['format']}",
+                "mime": f"image/{inspection['format']}",
+                "data_base64": str(encoded),
+            })
+            if slot in plan:
+                assets_by_slot[slot] = inspection
+            attachments.append({"slot": slot, "input_id": stored["id"], **inspection})
+        return attachments, assets_by_slot
+
     def _docx_outline(self, body: dict):
         data = self._docx_upload(body)
         try:
@@ -244,6 +275,7 @@ class _Handler(BaseHTTPRequestHandler):
             proposal = docx_adopt.apply_overrides(base, body.get("proposal"))
         except ValueError as exc:
             raise StoreError("docx_proposal_invalid", str(exc), 400) from exc
+        attachments, assets_by_slot = self._attach_slot_images(body, proposal)
         sections, notes = docx_adopt.sections_from_outline(outline)
         payload = self._generation_result({
             "prompt": proposal.copy.get("headline") or outline.source.title or "Word 导入",
@@ -258,11 +290,17 @@ class _Handler(BaseHTTPRequestHandler):
             },
             "quiet_llm": True,
             "selection_mode": "docx",
+            "inputs": [a["input_id"] for a in attachments],
         })
         payload["limitations"] = list(dict.fromkeys(
             (*outline.limitations, *proposal.limitations, *notes)))
         payload["docx"] = {"title": outline.source.title, "sections": len(sections),
                            "counts": outline.counts}
+        payload["slot_attachments"] = attachments
+        payload["proposal"] = {"image_plan": [
+            dict(item.as_dict(),
+                 **({"asset": assets_by_slot[item.slot]} if item.slot in assets_by_slot else {}))
+            for item in proposal.image_plan]}
         return payload
 
     @staticmethod
@@ -345,6 +383,7 @@ class _Handler(BaseHTTPRequestHandler):
             proposal = docx_adopt.apply_overrides(base, body.get("proposal"))
         except ValueError as exc:
             raise StoreError("pdf_proposal_invalid", str(exc), 400) from exc
+        attachments, assets_by_slot = self._attach_slot_images(body, proposal)
         sections, notes = docx_adopt.sections_from_outline(outline)
         payload = self._generation_result({
             "prompt": proposal.copy.get("headline") or outline.source.title or "PDF 导入",
@@ -359,11 +398,17 @@ class _Handler(BaseHTTPRequestHandler):
             },
             "quiet_llm": True,
             "selection_mode": "pdf",
+            "inputs": [a["input_id"] for a in attachments],
         })
         payload["limitations"] = list(dict.fromkeys(
             (*outline.limitations, *proposal.limitations, *notes)))
         payload["pdf"] = {"title": outline.source.title, "sections": len(sections),
                           "counts": outline.counts}
+        payload["slot_attachments"] = attachments
+        payload["proposal"] = {"image_plan": [
+            dict(item.as_dict(),
+                 **({"asset": assets_by_slot[item.slot]} if item.slot in assets_by_slot else {}))
+            for item in proposal.image_plan]}
         return payload
 
     def _api_intake_pptx_adopt(self, body: dict) -> dict:
@@ -374,6 +419,7 @@ class _Handler(BaseHTTPRequestHandler):
             proposal = docx_adopt.apply_overrides(base, body.get("proposal"))
         except ValueError as exc:
             raise StoreError("pptx_proposal_invalid", str(exc), 400) from exc
+        attachments, assets_by_slot = self._attach_slot_images(body, proposal)
         sections, notes = docx_adopt.sections_from_outline(outline)
         payload = self._generation_result({
             "prompt": proposal.copy.get("headline") or outline.source.title or "PPT 导入",
@@ -388,11 +434,17 @@ class _Handler(BaseHTTPRequestHandler):
             },
             "quiet_llm": True,
             "selection_mode": "pptx",
+            "inputs": [a["input_id"] for a in attachments],
         })
         payload["limitations"] = list(dict.fromkeys(
             (*outline.limitations, *proposal.limitations, *notes)))
         payload["pptx"] = {"title": outline.source.title, "sections": len(sections),
                            "counts": outline.counts}
+        payload["slot_attachments"] = attachments
+        payload["proposal"] = {"image_plan": [
+            dict(item.as_dict(),
+                 **({"asset": assets_by_slot[item.slot]} if item.slot in assets_by_slot else {}))
+            for item in proposal.image_plan]}
         return payload
 
     def _api_intake_decide(self, candidate_id: str, action: str) -> dict:

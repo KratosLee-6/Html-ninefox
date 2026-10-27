@@ -39,9 +39,13 @@ class ImagePlanItem:
     slot: str
     purpose: str
     prompt: str
+    asset: dict = field(default_factory=dict)   # 已附图的检查摘要（尺寸/主色）；空 = 纯计划位
 
     def as_dict(self) -> dict:
-        return {"slot": self.slot, "purpose": self.purpose, "prompt": self.prompt}
+        out = {"slot": self.slot, "purpose": self.purpose, "prompt": self.prompt}
+        if self.asset:
+            out["asset"] = dict(self.asset)
+        return out
 
 
 @dataclass(frozen=True)

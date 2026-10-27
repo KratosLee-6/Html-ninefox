@@ -397,6 +397,17 @@
 .docx-slot:hover { border-color:var(--border-default); }
 .docx-slot:focus-within { border-color:var(--border-strong); }
 .docx-slot input { height:32px; font-weight:600; }
+.docx-slot-ops { display:grid; gap:var(--space-1); justify-items:stretch; }
+.docx-slot-attach { display:inline-flex; align-items:center; justify-content:center;
+  height:30px; padding:0 var(--space-2); border:1px solid var(--border-subtle);
+  border-radius:var(--radius); font-size:var(--fs-xs); cursor:pointer;
+  color:var(--text-secondary); background:var(--bg-base); }
+.docx-slot-attach:hover { border-color:var(--border-default); color:var(--text-primary); }
+.docx-slot-attach input { display:none; }
+.docx-slot-asset { grid-column:1 / -1; font-size:var(--fs-xs);
+  color:var(--text-secondary); background:var(--bg-base);
+  border:1px dashed var(--border-default); border-radius:var(--radius);
+  padding:var(--space-2); }
 .docx-add-slot { justify-self:start; }
 .docx-limits { display:grid; gap:2px; padding:var(--space-2) var(--space-2)
   var(--space-2) var(--space-4); font-size:var(--fs-sm);
