@@ -10,6 +10,7 @@ from __future__ import annotations
 import importlib
 import json
 import logging
+import shutil
 import re
 import shlex
 import subprocess
@@ -32,6 +33,7 @@ _ALLOWED_ENTRY_HEADS: tuple[str, ...] = (
     "python ",
     "python3 ",
     "node ",
+    "npx ",
     "bash ",
     "sh ",
     "cmd ",
@@ -71,13 +73,17 @@ class AllianceRouter:
     @staticmethod
     def _probe_installed(manifest: Dict[str, Any]) -> bool:
         mod = manifest.get("python_module")
-        if not mod:
-            return False
-        try:
-            importlib.import_module(mod)
-            return True
-        except Exception:  # noqa: BLE001
-            return False
+        if mod:
+            try:
+                importlib.import_module(mod)
+                return True
+            except Exception:  # noqa: BLE001
+                return False
+        # 非 python 成员（如 npx 二进制）：detect_bin 指向 PATH 上的启动器
+        detect_bin = manifest.get("detect_bin")
+        if detect_bin:
+            return shutil.which(detect_bin) is not None
+        return False
 
     def reload(self) -> None:
         self.skills.clear()

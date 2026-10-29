@@ -25,8 +25,10 @@ class TestAllianceRouter:
         assert d["skill"] == "guizang-ppt" and d["decision"] == "fallback"
 
     def test_route_local_when_no_skill(self):
+        # v0.8.4 起 impeccable（设计质量层）覆盖全部六意图，dashboard 不再是
+        # 「无成员」意图；infographic 仍没有联盟成员，local 兜底的断言挪到它身上
         r = AllianceRouter()
-        d = r.route({}, "dashboard")
+        d = r.route({}, "infographic")
         assert d["decision"] == "local" and d["skill"] is None
 
     def test_route_unknown_skill(self):

@@ -1,0 +1,18 @@
+# impeccable · Skill 联盟成员（v0.8.4 接入，评估见 docs/EVAL-impeccable-20261027.md）
+# AI 前端设计质量层 —— 62 条确定性检测规则 + 24 个命令；未安装时生成不走此环节
+name: impeccable
+version: 1.0.0
+author: Paul Bakaus (pbakaus)
+category: design
+description: AI 前端设计质量层：62 条确定性检测规则与 critique/audit/polish/live 等命令，在已有前端上迭代设计
+intents: [landing, deck, poster, dashboard, doc, archdoc]
+# 探测：impeccable 安装后在 PATH 留启动器（detect_bin 走 which，而非 python_module）
+detect_bin: impeccable
+entry: npx impeccable@latest audit {target}
+fallback: local:skip
+homepage: https://github.com/pbakaus/impeccable
+license: Apache-2.0
+integration: quality-gate
+upstream_checked_at: 2026-10-27
+upstream_version: main（当日推送，README 口径 1 skill / 24 commands / 62 rules）
+upstream_license: Apache-2.0
