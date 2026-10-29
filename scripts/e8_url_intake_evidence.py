@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 
 from tests.conftest import WorkbenchServer  # noqa: E402
 
-DST = Path(r"E:/工作/03_内容/KratosLee小红书/Html九尾狐-Agent调用_2026-10-26/配图/assets")
+DST = ROOT / "scripts" / "assets"   # 证据落仓库 scripts/assets，发布物另行拷贝
 LOG: list[str] = []
 
 
