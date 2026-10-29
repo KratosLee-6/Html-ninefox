@@ -1,0 +1,47 @@
+{
+ "id": "c564eda7f8ce4516",
+ "kind": "export",
+ "status": "succeeded",
+ "progress": 100,
+ "stage": "completed",
+ "created_at": "2026-10-26T23:52:41.087",
+ "updated_at": "2026-10-26T23:52:44.603",
+ "result": {
+  "project_name": "html9n-2026-10-26-235237",
+  "export_id": "20261026-235241-ca2349",
+  "format": "pdf",
+  "files": [
+   {
+    "name": "document.pdf",
+    "bytes": 129962,
+    "download_url": "/output/html9n-2026-10-26-235237/exports/20261026-235241-ca2349/document.pdf?download=1",
+    "preview_url": "/output/html9n-2026-10-26-235237/exports/20261026-235241-ca2349/document.pdf"
+   }
+  ],
+  "report": {
+   "name": "export-report.json",
+   "bytes": 2284,
+   "download_url": "/output/html9n-2026-10-26-235237/exports/20261026-235241-ca2349/export-report.json?download=1",
+   "preview_url": "/output/html9n-2026-10-26-235237/exports/20261026-235241-ca2349/export-report.json"
+  },
+  "warnings": [
+   {
+    "code": "dynamic_content_flattened",
+    "level": "info",
+    "message": "动画、音视频或 WebGL 会在导出时冻结为静态画面。"
+   }
+  ],
+  "compatibility_score": 92,
+  "browser": {
+   "engine": "chromium",
+   "source": "playwright-chromium",
+   "version": "147.0.7727.15",
+   "page_selector": null,
+   "page_count": 1
+  }
+ },
+ "error": null,
+ "recipe_run": null,
+ "started_at": "2026-10-26T23:52:41.095",
+ "finished_at": "2026-10-26T23:52:44.603"
+}

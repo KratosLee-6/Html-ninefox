@@ -1,0 +1,10 @@
+服务: http://127.0.0.1:50944（临时端口，仅本机）
+E1 analyze  0.1s → intent=dashboard confidence=0.55 engine=rules preset=shadcn-dashboard
+E2 generate  0.1s → html9n-2026-10-26-235237 verification.ok=True
+   产物目录真实文件: .foxstate.json 9704B · assets.json 1020B · brief.json 1932B · brief.md 960B · output.html 13741B · recipe-run.json 4398B · style.md 740B
+   项目目录已冻结副本: E:\工作\01_业务\【汐构科技】\客户跟进\Html九尾狐\htmlninefox\scripts\assets\evidence-project
+E3 产物页面截图 ✓（冻结副本 file:// 渲染）
+E4 recipe-run.json 已存证
+E5 feedback → rev1 · revisions/ 真实文件: ['rev0.html', 'rev0.json', 'rev1.html', 'rev1.json']
+E6 export → succeeded · 真实文件: ['C:\\Users\\Admin\\AppData\\Local\\Temp\\fox-agent-live-_d89qf6h\\html9n-2026-10-26-235237\\exports\\20261026-235241-ca2349\\document.pdf', 'C:\\Users\\Admin\\AppData\\Local\\Temp\\fox-agent-live-_d89qf6h\\html9n-2026-10-26-235237\\exports\\20261026-235241-ca2349\\export-report.json']
+E7 classic 历史可见该项目: 0 项 ✓ 截图 evidence-classic.png

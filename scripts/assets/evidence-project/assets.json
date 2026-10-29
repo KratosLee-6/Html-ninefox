@@ -1,0 +1,57 @@
+{
+  "intent": "dashboard",
+  "blocks": [
+    "topbar",
+    "kpi_row",
+    "charts",
+    "table",
+    "activity"
+  ],
+  "block_notes": "顶栏 / KPI 行 / 图表区 / 订单表 / 动态流",
+  "asset_list": [
+    {
+      "block": "topbar",
+      "source": "rules",
+      "items": []
+    },
+    {
+      "block": "kpi_row",
+      "source": "rules",
+      "items": []
+    },
+    {
+      "block": "charts",
+      "source": "rules",
+      "items": []
+    },
+    {
+      "block": "table",
+      "source": "rules",
+      "items": []
+    },
+    {
+      "block": "activity",
+      "source": "rules",
+      "items": []
+    }
+  ],
+  "chart_data": {},
+  "tokens": {},
+  "alliance_skill": null,
+  "skill_used": null,
+  "fallback_used": false,
+  "invocation": {
+    "success": true,
+    "fallback_used": false,
+    "error": null
+  },
+  "composition": {
+    "gallery_id": null,
+    "gallery_source": "builtin",
+    "template_design_tokens": {},
+    "blocks": [],
+    "content": {},
+    "inputs": [],
+    "selection_mode": "custom"
+  }
+}

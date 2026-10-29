@@ -1,0 +1,19 @@
+{
+ "project_name": "html9n-2026-10-26-235237",
+ "intent": "dashboard",
+ "preset_id": "shadcn-dashboard",
+ "brief_confidence": 0.67,
+ "verification": {
+  "ok": true,
+  "score": 100,
+  "html_bytes": 13741,
+  "checks": {
+   "non_empty": true,
+   "doctype": true,
+   "html_element": true,
+   "body_element": true,
+   "viewport": true
+  },
+  "warnings": []
+ }
+}

@@ -1,0 +1,68 @@
+{
+ "ok": true,
+ "intent": "dashboard",
+ "intent_confidence": 0.55,
+ "confidence": 0.67,
+ "brand": "Your Product",
+ "audience": "内部运营/管理员（每日高频使用）",
+ "tone": "dark",
+ "headline": "城市交通数据看板",
+ "must_have": [
+  "做一个城市交通数据看板",
+  "深色",
+  "展示早高峰流量",
+  "地铁满载率和事故热线"
+ ],
+ "blocks": [
+  "topbar",
+  "kpi_row",
+  "charts",
+  "table",
+  "activity"
+ ],
+ "preset_id": "shadcn-dashboard",
+ "engine": "rules",
+ "inputs": [],
+ "recommended_template": {
+  "id": "fox-shadcn-dashboard",
+  "name": "九尾狐 · shadcn 内容交付看板",
+  "intent": "dashboard",
+  "preset_id": "shadcn-dashboard",
+  "category": "metrics",
+  "origin": "Html九尾狐原创演示",
+  "license": "original",
+  "description": "中性暗色数据面板：KPI 卡、周交付柱状与导出明细表，适合运营与渠道复盘（演示数据）。",
+  "pages": [
+   {
+    "id": "overview",
+    "name": "概览",
+    "headline": "内容交付看板",
+    "kicker": "OVERVIEW",
+    "block_id": "metrics",
+    "preview_url": "/api/gallery-preview?id=fox-shadcn-dashboard&page=overview"
+   },
+   {
+    "id": "details",
+    "name": "明细",
+    "headline": "渠道明细与值班备注",
+    "kicker": "DETAILS",
+    "block_id": "table",
+    "preview_url": "/api/gallery-preview?id=fox-shadcn-dashboard&page=details"
+   }
+  ],
+  "file": "fox-shadcn-dashboard.html",
+  "preview_url": "/api/gallery-preview?id=fox-shadcn-dashboard"
+ },
+ "recommended_blocks": [
+  "metrics",
+  "table"
+ ],
+ "memory_applied": {
+  "enabled": true,
+  "intent": "dashboard",
+  "applied": [],
+  "covered": [],
+  "values": {},
+  "overrides": {}
+ }
+}

@@ -76,8 +76,11 @@
 - [x] 审核台图片位「挂真实资产」UI：槽位行附图（PNG/JPEG）→ /api/intake/image
       检查回填摘要 chip → 采纳时 slot_images 随提案入库为输入附件并参与本次生成；
       payload 回显 slot_attachments + proposal.image_plan[].asset（三格式端点同构）
-- [ ] CHANGELOG / RELEASE-NOTES / 双 README / 版本四处同步
-- [ ] preflight 七套全绿后发版
+- [x] CHANGELOG / RELEASE-NOTES / 双 README / 版本四处同步
+      （check_release_version: v0.8.4 consistent）
+- [x] 联盟接入设计质量层 impeccable（A 档执行：detect_bin 探针 + npx 白名单，
+      评估 docs/EVAL-impeccable-20261027.md）
+- [x] preflight 七套全绿后发版
 
 ### 执行记录（2026-10-25/26）
 

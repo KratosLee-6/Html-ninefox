@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="htmlninefox-v0.2/dashboard">
+<title>Your Product · 数据概览</title>
+<style>
+:root {
+  --fox-bg: #09090B;
+  --fox-surface: #111113;
+  --fox-text: #FAFAFA;
+  --fox-muted: #A1A1AA;
+  --fox-primary: #10B981;
+  --fox-primary_text: #052E22;
+  --fox-accent: #F59E0B;
+  --fox-border: #27272A;
+  --fox-radius: 12px;
+  --fox-font_body: 'Inter','PingFang SC','Microsoft YaHei',sans-serif;
+  --fox-font_display: 'Inter','PingFang SC','Microsoft YaHei',sans-serif;
+  --fox-space: 48px;
+  --fox-font-base: 16.0px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--fox-font_body);
+  font-size: var(--fox-font-base);
+  line-height: 1.7;
+  background: var(--fox-bg);
+  color: var(--fox-text);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: var(--fox-font_display); line-height: 1.25; }
+a { color: var(--fox-accent); text-decoration: none; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+.card {
+  background: var(--fox-surface);
+  border: 1px solid var(--fox-border);
+  border-radius: var(--fox-radius);
+}
+.btn {
+  display: inline-block; padding: 12px 28px; border-radius: var(--fox-radius);
+  background: var(--fox-primary); color: var(--fox-primary_text);
+  font-weight: 600; border: none; cursor: pointer; font-size: 1rem;
+}
+.btn.ghost {
+  background: transparent; color: var(--fox-text);
+  border: 1px solid var(--fox-border);
+}
+.tag {
+  display: inline-block; padding: 4px 12px; font-size: .8rem; border-radius: 999px;
+  background: color-mix(in srgb, var(--fox-primary) 14%, transparent);
+  color: var(--fox-primary); font-weight: 600; letter-spacing: .04em;
+}
+.muted { color: var(--fox-muted); }
+
+/* ---- ambient motion · 墨水落纸（htmlninefox） ---- */
+.fox-ambient {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(42% 34% at 18% 12%, color-mix(in srgb, #10B981 16%, transparent), transparent 70%),
+    radial-gradient(38% 30% at 84% 22%, color-mix(in srgb, #F59E0B 20%, transparent), transparent 72%),
+    radial-gradient(30% 26% at 60% 88%, color-mix(in srgb, #10B981 10%, transparent), transparent 70%),
+    #09090B;
+  background-size: 200% 200%, 190% 190%, 220% 220%, auto;
+  animation: fox-ambient-drift 26s ease-in-out infinite alternate;
+}
+@keyframes fox-ambient-drift {
+  0%   { background-position: 0% 0%, 100% 0%, 40% 100%, 0 0; }
+  100% { background-position: 34% 22%, 62% 30%, 76% 62%, 0 0; }
+}
+.fox-cursor-glow {
+  position: fixed; z-index: 0; pointer-events: none; opacity: 0;
+  width: 340px; height: 340px; margin: -170px 0 0 -170px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, #F59E0B 14%, transparent), transparent 78%);
+  transition: opacity .5s ease;
+}
+@media (pointer: fine) {
+  body.fox-glow-on .fox-cursor-glow { opacity: 1; }
+}
+.fox-ink-in > h1 {
+  animation: fox-ink-drop .7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes fox-ink-drop {
+  from { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+.fox-reveal {
+  opacity: 0; transform: translateY(18px);
+  transition: opacity .6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform .6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--fox-stagger, 0ms);
+}
+.fox-reveal.fox-in { opacity: 1; transform: none; }
+.card { transition: transform .18s ease, box-shadow .18s ease; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px color-mix(in srgb, #10B981 12%, transparent); }
+:focus-visible { outline: 3px solid color-mix(in srgb, #F59E0B 70%, #10B981); outline-offset: 2px; border-radius: 2px; }
+:focus-visible { outline: 3px solid color-mix(in srgb, #F59E0B 70%, #10B981); outline-offset: 2px; border-radius: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .fox-ambient { animation: none; }
+  .fox-ink-in > h1 { animation: none; }
+  .fox-reveal { opacity: 1; transform: none; transition: none; }
+  .card { transition: none; }
+  .card:hover { transform: none; }
+  .fox-cursor-glow { display: none; }
+}
+@media print {
+  .fox-ambient { animation: none; }
+  .fox-reveal { opacity: 1 !important; transform: none !important; }
+  .fox-cursor-glow { display: none !important; }
+}
+
+
+.shell { display:grid; grid-template-columns:220px 1fr; min-height:100vh; }
+.side { background:var(--fox-surface); border-right:1px solid var(--fox-border); padding:20px 14px; }
+.side .logo { font-weight:800; margin-bottom:26px; padding:0 10px; }
+.side a { display:block; padding:9px 12px; border-radius:8px; color:var(--fox-muted);
+  font-size:.92rem; margin-bottom:2px; }
+.side a.on, .side a:hover { background:color-mix(in srgb, var(--fox-primary) 12%, transparent);
+  color:var(--fox-primary); font-weight:600; }
+.main { padding:0 28px 40px; }
+.topbar { display:flex; align-items:center; justify-content:space-between;
+  padding:18px 0 22px; }
+.topbar h1 { font-size:1.3rem; }
+.topbar .who { display:flex; align-items:center; gap:10px; color:var(--fox-muted); font-size:.88rem; }
+.topbar .ava { width:30px; height:30px; border-radius:50%; background:var(--fox-primary);
+  color:var(--fox-primary_text); display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:.8rem; }
+.kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.kpi { padding:20px; }
+.kpi .label { color:var(--fox-muted); font-size:.85rem; }
+.kpi .val { font-size:1.9rem; font-weight:800; margin:6px 0 4px; letter-spacing:-.01em; }
+.kpi .delta { font-size:.82rem; font-weight:600; }
+.up { color:#22C55E; } .down { color:#EF4444; }
+.charts { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-top:16px; }
+.chart { padding:22px; }
+.chart h3 { font-size:1rem; margin-bottom:18px; }
+.bars { display:flex; align-items:flex-end; gap:10px; height:180px; }
+.bar { flex:1; border-radius:6px 6px 2px 2px; background:color-mix(in srgb,
+  var(--fox-primary) 32%, transparent); position:relative; }
+.bar.hot { background:var(--fox-primary); }
+.bar span { position:absolute; bottom:-24px; left:0; right:0; text-align:center;
+  font-size:.72rem; color:var(--fox-muted); }
+.bars { margin-bottom:26px; }
+.donut-wrap { display:flex; align-items:center; gap:22px; }
+.donut { width:130px; height:130px; border-radius:50%;
+  background:conic-gradient(var(--fox-primary) 0 62%, var(--fox-accent) 62% 84%,
+    var(--fox-border) 84% 100%); position:relative; flex:none; }
+.donut::after { content:'62%'; position:absolute; inset:22px; border-radius:50%;
+  background:var(--fox-surface); display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:1.25rem; }
+.legend { font-size:.85rem; color:var(--fox-muted); line-height:2.1; }
+.dot { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:8px; }
+.tbl { margin-top:16px; padding:6px 0 2px; overflow:auto; }
+.tbl h3 { font-size:1rem; padding:16px 22px 8px; }
+table { width:100%; border-collapse:collapse; font-size:.9rem; }
+th { text-align:left; color:var(--fox-muted); font-weight:600; font-size:.8rem;
+  padding:10px 22px; border-bottom:1px solid var(--fox-border); }
+td { padding:12px 22px; border-bottom:1px solid var(--fox-border); }
+tr:last-child td { border-bottom:none; }
+.pill { padding:3px 10px; border-radius:999px; font-size:.78rem; font-weight:600; }
+.pill.ok { background:color-mix(in srgb, #22C55E 16%, transparent); color:#22C55E; }
+.pill.warn { background:color-mix(in srgb, var(--fox-accent) 16%, transparent);
+  color:var(--fox-accent); }
+.pill.err { background:color-mix(in srgb, #EF4444 16%, transparent); color:#EF4444; }
+.activity { margin-top:16px; padding:22px; }
+.activity h3 { font-size:1rem; margin-bottom:14px; }
+.act { display:flex; gap:12px; padding:9px 0; font-size:.9rem; }
+.act .t { color:var(--fox-muted); font-size:.8rem; flex:none; width:52px; }
+@media (max-width: 960px) {
+  .shell { grid-template-columns:1fr; } .side { display:none; }
+  .kpis { grid-template-columns:repeat(2,1fr); } .charts { grid-template-columns:1fr; }
+}
+
+
+</style>
+</head>
+<body>
+<div class="fox-ambient" aria-hidden="true"></div>
+<div class="shell">
+<aside class="side"><div class="logo">▦ Your Product</div>
+<a class="on" href="#">概览</a>
+<a class="" href="#">订单</a>
+<a class="" href="#">用户</a>
+<a class="" href="#">报表</a>
+<a class="" href="#">告警</a>
+<a class="" href="#">设置</a>
+</aside>
+<main class="main">
+
+<header class="topbar"><h1>数据概览</h1>
+  <div class="who"><span>2026-08-29 · 实时</span><div class="ava">KX</div></div>
+</header>
+<section class="kpis">
+  <div class="kpi card"><div class="label">总用户数</div>
+    <div class="val">24,813</div><div class="delta up">+12.4% vs 上周</div>
+  </div>
+  <div class="kpi card"><div class="label">月活跃</div>
+    <div class="val">8,392</div><div class="delta up">+5.1% vs 上周</div>
+  </div>
+  <div class="kpi card"><div class="label">付费转化</div>
+    <div class="val">4.6%</div><div class="delta down">-0.8% vs 上周</div>
+  </div>
+  <div class="kpi card"><div class="label">今日收入</div>
+    <div class="val">¥18,204</div><div class="delta up">+9.3% vs 上周</div>
+  </div></section>
+
+<section class="charts">
+  <div class="chart card"><h3>本周访问趋势</h3><div class="bars"><div class="bar" style="height:42%"><span>周一</span></div><div class="bar" style="height:58%"><span>周二</span></div><div class="bar" style="height:47%"><span>周三</span></div><div class="bar" style="height:71%"><span>周四</span></div><div class="bar" style="height:66%"><span>周五</span></div><div class="bar hot" style="height:88%"><span>周六</span></div><div class="bar" style="height:79%"><span>周日</span></div></div></div>
+  <div class="chart card"><h3>流量构成</h3>
+    <div class="donut-wrap"><div class="donut"></div>
+      <div class="legend">
+        <div><span class="dot" style="background:var(--fox-primary)"></span>自然流量 62%</div>
+        <div><span class="dot" style="background:var(--fox-accent)"></span>推荐渠道 22%</div>
+        <div><span class="dot" style="background:var(--fox-border)"></span>直接访问 16%</div>
+      </div></div>
+  </div>
+</section>
+
+<section class="tbl card"><h3>最近订单</h3>
+<table><thead><tr><th>单号</th><th>客户</th><th>套餐</th><th>金额</th><th>状态</th></tr></thead>
+<tbody>
+  <tr><td>#1024</td><td>深圳·极狐科技</td><td>专业版</td><td>¥2,970</td>
+      <td><span class="pill ok">已支付</span></td></tr>
+  <tr><td>#1023</td><td>上海·临港设计</td><td>企业版</td><td>¥12,800</td>
+      <td><span class="pill warn">待审核</span></td></tr>
+  <tr><td>#1022</td><td>北京·白泽数据</td><td>专业版</td><td>¥5,940</td>
+      <td><span class="pill ok">已支付</span></td></tr>
+  <tr><td>#1021</td><td>杭州·拾光传媒</td><td>免费版</td><td>¥0</td>
+      <td><span class="pill err">已退款</span></td></tr>
+  <tr><td>#1020</td><td>成都·山止策划</td><td>专业版</td><td>¥2,970</td>
+      <td><span class="pill ok">已支付</span></td></tr></tbody></table></section>
+<section class="activity card"><h3>动态</h3><div class="act"><span class="t">09:41</span><span><b>新订单</b> · 白泽数据 升级为专业版</span></div><div class="act"><span class="t">09:12</span><span><b>告警</b> · 支付网关延迟 P99 &gt; 800ms</span></div><div class="act"><span class="t">08:47</span><span><b>新用户</b> · 今日新增注册 47 人</span></div><div class="act"><span class="t">08:02</span><span><b>部署</b> · v0.2.1 已发布至生产环境</span></div></section>
+</main></div>
+<script>
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var firstH1 = document.querySelector('h1');
+  if (firstH1 && firstH1.parentElement) firstH1.parentElement.classList.add('fox-ink-in');
+  var cards = document.querySelectorAll('.card');
+  var targets = [];
+  cards.forEach(function (el) {
+    if (el.closest('nav')) return;
+    el.classList.add('fox-reveal');
+    targets.push(el);
+  });
+  if (reduce || !('IntersectionObserver' in window)) {
+    targets.forEach(function (el) { el.classList.add('fox-in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        el.style.setProperty('--fox-stagger',
+          Math.min(360, (parseInt(el.dataset.foxIndex || '0', 10)) * 60) + 'ms');
+        el.classList.add('fox-in');
+        io.unobserve(el);
+      });
+    }, { threshold: 0.12 });
+    targets.forEach(function (el, i) {
+      el.dataset.foxIndex = i % 7;
+      io.observe(el);
+    });
+    /* 内容安全兜底：任何环境（无滚动事件的截图器、嵌入预览）下
+       超过 1.8s 仍未显形的元素直接以终态呈现——内容永远不可见是
+       比少一段编排更严重的失败。 */
+    setTimeout(function () {
+      targets.forEach(function (el) { el.classList.add('fox-in'); });
+    }, 1800);
+  }
+  if (matchMedia('(pointer: fine)').matches && !reduce) {
+    var glow = document.createElement('div');
+    glow.className = 'fox-cursor-glow';
+    document.body.appendChild(glow);
+    document.body.classList.add('fox-glow-on');
+    var raf = 0, x = 0, y = 0;
+    addEventListener('pointermove', function (e) {
+      x = e.clientX; y = e.clientY;
+      if (!raf) raf = requestAnimationFrame(function () {
+        glow.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+        raf = 0;
+      });
+    }, { passive: true });
+  }
+})();
+</script>
+</body>
+</html>

@@ -33,7 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added（v0.8.4 进行中，未发版）
+## [0.8.4] - 2026-10-29 · 贴入 PDF + 图片资产 + 设计质量层接入
+
+> 新能力。HTTP 新增 `/api/intake/pdf(+/adopt)` 与 `/api/intake/image`；
+> 图片位可挂真实资产；联盟新增设计质量层成员。项目数据格式不变。
+> 发布说明见 `docs/RELEASE-NOTES-v0.8.4.md`。
+
+### Added
 - **PDF 反向拆解**：`htmlninefox/pdf_import.py`（`[pdf]` extra，pdfminer.six 纯 Python）。
   只信文本层——无文本层的页如实上报「可能为扫描件」，不 OCR 兜底；标题层级由
   字号推断（≥中位数 1.15 倍）且推断规则写进 limitations；表格不做坐标还原
@@ -53,6 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   回填尺寸/主色摘要 chip，采纳时附图入库为输入素材并参与本次生成；
   `ImagePlanItem` 增可选 `asset` 摘要字段（机器契约向后兼容），
   三格式 adopt 端点同构支持，payload 回显 slot_attachments 与提案 asset。
+- **设计质量层 · impeccable 接入（联盟）**：`pbakaus/impeccable`
+  （88.7k★ · Apache-2.0 · 62 条确定性检测规则）注册为联盟成员——
+  路由入口白名单放开 `npx ` 前缀，探针新增 `detect_bin`（PATH 启动器探测）；
+  未安装照旧本地兜底。评估见 `docs/EVAL-impeccable-20261027.md`。
 - **审核台图片位 UX（走查反馈）**：槽位名默认中文（封面主视觉 / 章节配图 N），
   一键 EN 切回机器 id；三行编辑区从裸网格改成卡片（底色+描边+悬停/聚焦态）
   并加「每行都可直接改」提示与占位符；边界清单从裸列表升级为带标题的

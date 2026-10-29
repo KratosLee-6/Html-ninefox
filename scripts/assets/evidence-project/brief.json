@@ -1,0 +1,67 @@
+{
+  "brief": {
+    "goal": {
+      "type": "数据看板",
+      "audience": "内部运营/管理员（每日高频使用）",
+      "job_to_be_done": "一眼掌握核心指标并定位异常",
+      "success_metric": "关键 KPI 3 秒内可读，异常项可下钻"
+    },
+    "context": {
+      "device": "通用（响应式）",
+      "occasion": "dashboard",
+      "emotion": "沉浸专注"
+    },
+    "content": {
+      "brand": "Your Product",
+      "core_message": "做一个城市交通数据看板，深色，展示早高峰流量、地铁满载率和事故热线",
+      "headline": "城市交通数据看板",
+      "must_have": [
+        "做一个城市交通数据看板",
+        "深色",
+        "展示早高峰流量",
+        "地铁满载率和事故热线"
+      ],
+      "blocks": [
+        "topbar",
+        "kpi_row",
+        "charts",
+        "table",
+        "activity"
+      ]
+    },
+    "style": {
+      "tone": "dark",
+      "reference": [
+        "Grafana",
+        "Linear Insights",
+        "Vercel Analytics"
+      ]
+    },
+    "constraints": {
+      "forbidden": [
+        "不要 emoji 堆砌当装饰",
+        "不要超过 3 种主色",
+        "不要默认浏览器蓝链接",
+        "不要纯黑 #000 背景（用 #0A0A0B 级别的近黑）",
+        "不要低对比灰字（对比度 ≥ 4.5:1）"
+      ],
+      "technical": [
+        "单文件 HTML，无外部依赖",
+        "中文排版，含 viewport meta",
+        "语义化标签"
+      ]
+    }
+  },
+  "confidence": 0.67,
+  "missing_fields": [
+    "goal.audience",
+    "content.brand"
+  ],
+  "reasoning": "离线规则引擎：intent=dashboard（evidence=['看板']），tone=dark（evidence=['深色']）",
+  "_engine": "rules",
+  "intent": "dashboard",
+  "intent_confidence": 0.55,
+  "fallback_used": true,
+  "project_id": "20261026-235237-做一个城市交通数据看板-深色-展示早高峰",
+  "_model": "fallback"
+}

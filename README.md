@@ -8,11 +8,11 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3)
+[![App Release](https://img.shields.io/badge/app-v0.8.4-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.4)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-808%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.8.3.md)
+[![Tests](https://img.shields.io/badge/pytest-847%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.8.4.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22%20(v0.6.0)-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.3`（2026-10-25 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3) · 完整功能与架构见下。
+> 当前应用包版本为 `0.8.4`（2026-10-29 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.4) · 完整功能与架构见下。
 > **AI / Agent 接入**：[Agent 调用指南](docs/AGENT-GUIDE.md)——CLI / HTTP API / Skill 三通路实测命令与回显。
 
 ---
@@ -36,7 +36,24 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.8.3 · 贴入 PPT + 键盘可达（最新功能）
+## 🆕 v0.8.4 · 贴入 PDF + 图片资产 + 设计质量层（最新功能）
+
+**PDF 走同一条管线进来了；图片位能挂真实图片；联盟接入 88.7k★ 的设计质量层 impeccable。**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.4/pdf-desk-proposal-1440.png" alt="审核台 · PDF 提案"><br><b>审核台 · 吃进 .pdf</b><br>只信文本层：页题成标题（字号推断，规则随附）、正文成段落；无文本层的页如实报「可能为扫描件」；每块带页号＋字符区间可回指。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.4/slot-attach-1440.png" alt="图片位挂真实图片"><br><b>图片位 · 挂真实图片</b><br>附 PNG/JPEG 即回填尺寸与主色摘要，采纳时入库为素材参与生成；接口返回规整数据供 agent 消费。</td>
+</tr>
+</table>
+
+- **反向拆解矩阵**：DOCX → PPTX → **PDF**（`[pdf]` extra）——只信文本层、表格不坐标还原（宁「结构对、样式朴素」）。
+- **图片资产**：`[image]` extra 主色提取，两级降级如实标注；OCR 维持 provider 决策默认关。
+- **设计质量层**：联盟接入 impeccable（Apache-2.0）——装了可对产物跑 62 条确定性检测规则，未装本地兜底。
+- **门禁**：新增 PDF 10+13、图片 5+2、挂图真链 2；变异第七套 4/4；preflight 七套全绿；全量 **847 passed / 4 skipped**。
+- 详见 [v0.8.4 计划](docs/PLAN-v0.8.4.md) · [发布说明](docs/RELEASE-NOTES-v0.8.4.md)。
+
+## v0.8.3 · 贴入 PPT + 键盘可达
 
 **一份 .pptx 走 Word 同一条管线：拆成带出处的块，先看提案再生成；整个工作台键盘可用。**
 

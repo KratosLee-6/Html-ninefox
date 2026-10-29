@@ -8,8 +8,8 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.3-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3)
-[![Tests](https://img.shields.io/badge/pytest-808%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.8.3.md)
+[![App Release](https://img.shields.io/badge/app-v0.8.4-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.4)
+[![Tests](https://img.shields.io/badge/pytest-847%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.8.4.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -17,7 +17,7 @@
 </div>
 
 
-> Current app version `0.8.3` (released 2026-10-25) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.3) · full features below.
+> Current app version `0.8.4` (released 2026-10-29) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.4) · full features below.
 > **AI / Agent integration**: [Agent guide](docs/AGENT-GUIDE.md) — CLI / HTTP API / Skill, all commands verified against a live build.
 
 ---
@@ -33,7 +33,16 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.8.3 · Paste in a PPT + keyboard access (latest)
+## v0.8.4 · Paste in a PDF + image assets + design quality layer (latest)
+
+**PDF now walks the same pipeline; image slots take real pictures; the alliance welcomes impeccable (88.7k★ design-quality layer, Apache-2.0).**
+
+- **Reverse-intake matrix**: DOCX → PPTX → **PDF** (`[pdf]` extra) — text layer only, scanned pages reported honestly, no coordinate table reconstruction.
+- **Image assets**: dimensions via stdlib, dominant colour via the `[image]` extra, both degradations stated; slot attachments ride into generation as real inputs.
+- **Gates**: PDF contract 10 + API 13 + image 5+2; mutation suite seven 4/4; preflight seven suites green; full suite **847 passed / 4 skipped**.
+- See the [v0.8.4 plan](docs/PLAN-v0.8.4.md) · [release notes](docs/RELEASE-NOTES-v0.8.4.md).
+
+## v0.8.3 · Paste in a PPT + keyboard access
 
 **A .pptx now walks the same pipeline Word does: parsed into provenance-carrying blocks, proposed for review, then generated — and the whole workbench is keyboard-operable.**
 

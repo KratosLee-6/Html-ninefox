@@ -1,0 +1,14 @@
+{
+ "ok": true,
+ "project": "C:\\Users\\Admin\\AppData\\Local\\Temp\\fox-agent-live-_d89qf6h\\html9n-2026-10-26-235237",
+ "suggestion": "主色整体加深/调整一档（HSL 亮度 -8%）；全局字号 +8%",
+ "applied_rules": [
+  "color_shift",
+  "font_up"
+ ],
+ "tokens": {},
+ "model": "rules",
+ "preview_url": "/output/html9n-2026-10-26-235237/output.html",
+ "revision": 1,
+ "output": "C:\\Users\\Admin\\AppData\\Local\\Temp\\fox-agent-live-_d89qf6h\\html9n-2026-10-26-235237\\output.html"
+}

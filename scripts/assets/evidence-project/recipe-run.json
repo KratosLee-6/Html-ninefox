@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "id": "72238e90af56494a",
+  "parent_run_id": null,
+  "rerun_from": null,
+  "status": "succeeded",
+  "prompt_summary": "做一个城市交通数据看板，深色，展示早高峰流量、地铁满载率和事故热线",
+  "started_at": "2026-10-26T23:52:37.683",
+  "finished_at": "2026-10-26T23:52:37.776",
+  "duration_ms": 93,
+  "stages": [
+    {
+      "id": "analyze",
+      "label": "需求分析",
+      "label_en": "Analyze",
+      "status": "succeeded",
+      "progress_start": 8,
+      "progress_end": 22,
+      "started_at": "2026-10-26T23:52:37.711",
+      "finished_at": "2026-10-26T23:52:37.714",
+      "duration_ms": 4,
+      "attempt": 1,
+      "model": "fallback",
+      "fallback_used": true,
+      "input_summary": {
+        "prompt_chars": 33,
+        "llm_enabled": false,
+        "intent_override": "dashboard",
+        "project_memory": false
+      },
+      "output_summary": {
+        "intent": "dashboard",
+        "confidence": 0.67,
+        "missing_fields": [
+          "goal.audience",
+          "content.brand"
+        ],
+        "memory_applied": [],
+        "memory_covered": []
+      },
+      "error": null,
+      "rerunnable": false
+    },
+    {
+      "id": "compose",
+      "label": "组合配方",
+      "label_en": "Compose",
+      "status": "succeeded",
+      "progress_start": 25,
+      "progress_end": 45,
+      "started_at": "2026-10-26T23:52:37.714",
+      "finished_at": "2026-10-26T23:52:37.744",
+      "duration_ms": 30,
+      "attempt": 1,
+      "model": null,
+      "fallback_used": true,
+      "input_summary": {
+        "requested_skill": null,
+        "requested_template": null,
+        "selected_blocks": 0,
+        "memory_overrides": {}
+      },
+      "output_summary": {
+        "intent": "dashboard",
+        "route_decision": "local",
+        "skill": null,
+        "preset_id": "shadcn-dashboard",
+        "blocks": [
+          "topbar",
+          "kpi_row",
+          "charts",
+          "table",
+          "activity"
+        ],
+        "selection_mode": "custom",
+        "memory_applied": []
+      },
+      "error": null,
+      "rerunnable": false
+    },
+    {
+      "id": "generate",
+      "label": "生成产物",
+      "label_en": "Generate",
+      "status": "succeeded",
+      "progress_start": 48,
+      "progress_end": 72,
+      "started_at": "2026-10-26T23:52:37.744",
+      "finished_at": "2026-10-26T23:52:37.744",
+      "duration_ms": 0,
+      "attempt": 1,
+      "model": "local:dashboard-v0.2",
+      "fallback_used": true,
+      "input_summary": {
+        "intent": "dashboard",
+        "preset_id": "shadcn-dashboard",
+        "route_decision": "local"
+      },
+      "output_summary": {
+        "generator": "local:dashboard-v0.2",
+        "skill_used": null,
+        "html_bytes": 13741
+      },
+      "error": null,
+      "rerunnable": true
+    },
+    {
+      "id": "verify",
+      "label": "质量验证",
+      "label_en": "Verify",
+      "status": "succeeded",
+      "progress_start": 76,
+      "progress_end": 88,
+      "started_at": "2026-10-26T23:52:37.744",
+      "finished_at": "2026-10-26T23:52:37.744",
+      "duration_ms": 0,
+      "attempt": 1,
+      "model": "html-quality-gate",
+      "fallback_used": false,
+      "input_summary": {
+        "html_bytes": 13741
+      },
+      "output_summary": {
+        "ok": true,
+        "score": 100,
+        "html_bytes": 13741,
+        "checks": {
+          "non_empty": true,
+          "doctype": true,
+          "html_element": true,
+          "body_element": true,
+          "viewport": true
+        },
+        "warnings": []
+      },
+      "error": null,
+      "rerunnable": true
+    },
+    {
+      "id": "deliver",
+      "label": "保存交付",
+      "label_en": "Deliver",
+      "status": "succeeded",
+      "progress_start": 92,
+      "progress_end": 98,
+      "started_at": "2026-10-26T23:52:37.744",
+      "finished_at": "2026-10-26T23:52:37.776",
+      "duration_ms": 32,
+      "attempt": 1,
+      "model": "local-filesystem",
+      "fallback_used": false,
+      "input_summary": {
+        "output_root": "C:\\Users\\Admin\\AppData\\Local\\Temp\\fox-agent-live-_d89qf6h",
+        "project_name": "html9n-2026-10-26-235237"
+      },
+      "output_summary": {
+        "project_name": "html9n-2026-10-26-235237",
+        "files": 9,
+        "preview": "output.html"
+      },
+      "error": null,
+      "rerunnable": false
+    }
+  ]
+}

@@ -1,0 +1,371 @@
+{
+  "revision": 0,
+  "parent_revision": null,
+  "restored_from": null,
+  "kind": "generate",
+  "label": "",
+  "created_at": "2026-10-26T23:52:37",
+  "state": {
+    "version": "v0.3",
+    "prompt": "做一个城市交通数据看板，深色，展示早高峰流量、地铁满载率和事故热线",
+    "intent": "dashboard",
+    "preset_id": "shadcn-dashboard",
+    "preset": {
+      "id": "shadcn-dashboard",
+      "name": "shadcn 看板 · 中性数据风",
+      "dark": true,
+      "match_keywords": [
+        "看板",
+        "dashboard",
+        "后台",
+        "admin",
+        "数据",
+        "监控",
+        "bi"
+      ],
+      "tokens": {
+        "bg": "#09090B",
+        "surface": "#111113",
+        "text": "#FAFAFA",
+        "muted": "#A1A1AA",
+        "primary": "#10B981",
+        "primary_text": "#052E22",
+        "accent": "#F59E0B",
+        "border": "#27272A",
+        "radius": "12px",
+        "font_body": "'Inter','PingFang SC','Microsoft YaHei',sans-serif",
+        "font_display": "'Inter','PingFang SC','Microsoft YaHei',sans-serif",
+        "space": "48px"
+      }
+    },
+    "preset_matched_by": "intent×tone(dashboard×dark)",
+    "brief": {
+      "brief": {
+        "goal": {
+          "type": "数据看板",
+          "audience": "内部运营/管理员（每日高频使用）",
+          "job_to_be_done": "一眼掌握核心指标并定位异常",
+          "success_metric": "关键 KPI 3 秒内可读，异常项可下钻"
+        },
+        "context": {
+          "device": "通用（响应式）",
+          "occasion": "dashboard",
+          "emotion": "沉浸专注"
+        },
+        "content": {
+          "brand": "Your Product",
+          "core_message": "做一个城市交通数据看板，深色，展示早高峰流量、地铁满载率和事故热线",
+          "headline": "城市交通数据看板",
+          "must_have": [
+            "做一个城市交通数据看板",
+            "深色",
+            "展示早高峰流量",
+            "地铁满载率和事故热线"
+          ],
+          "blocks": [
+            "topbar",
+            "kpi_row",
+            "charts",
+            "table",
+            "activity"
+          ]
+        },
+        "style": {
+          "tone": "dark",
+          "reference": [
+            "Grafana",
+            "Linear Insights",
+            "Vercel Analytics"
+          ]
+        },
+        "constraints": {
+          "forbidden": [
+            "不要 emoji 堆砌当装饰",
+            "不要超过 3 种主色",
+            "不要默认浏览器蓝链接",
+            "不要纯黑 #000 背景（用 #0A0A0B 级别的近黑）",
+            "不要低对比灰字（对比度 ≥ 4.5:1）"
+          ],
+          "technical": [
+            "单文件 HTML，无外部依赖",
+            "中文排版，含 viewport meta",
+            "语义化标签"
+          ]
+        }
+      },
+      "confidence": 0.67,
+      "missing_fields": [
+        "goal.audience",
+        "content.brand"
+      ],
+      "reasoning": "离线规则引擎：intent=dashboard（evidence=['看板']），tone=dark（evidence=['深色']）",
+      "_engine": "rules",
+      "intent": "dashboard",
+      "intent_confidence": 0.55,
+      "fallback_used": true,
+      "project_id": "20261026-235237-做一个城市交通数据看板-深色-展示早高峰",
+      "_model": "fallback"
+    },
+    "assets": {
+      "intent": "dashboard",
+      "blocks": [
+        "topbar",
+        "kpi_row",
+        "charts",
+        "table",
+        "activity"
+      ],
+      "block_notes": "顶栏 / KPI 行 / 图表区 / 订单表 / 动态流",
+      "asset_list": [
+        {
+          "block": "topbar",
+          "source": "rules",
+          "items": []
+        },
+        {
+          "block": "kpi_row",
+          "source": "rules",
+          "items": []
+        },
+        {
+          "block": "charts",
+          "source": "rules",
+          "items": []
+        },
+        {
+          "block": "table",
+          "source": "rules",
+          "items": []
+        },
+        {
+          "block": "activity",
+          "source": "rules",
+          "items": []
+        }
+      ],
+      "chart_data": {},
+      "tokens": {},
+      "alliance_skill": null,
+      "skill_used": null,
+      "fallback_used": false,
+      "invocation": {
+        "success": true,
+        "fallback_used": false,
+        "error": null
+      },
+      "composition": {
+        "gallery_id": null,
+        "gallery_source": "builtin",
+        "template_design_tokens": {},
+        "blocks": [],
+        "content": {},
+        "inputs": [],
+        "selection_mode": "custom"
+      }
+    },
+    "route": {
+      "intent": "dashboard",
+      "skill": null,
+      "decision": "local",
+      "fallback_of": null,
+      "candidates": []
+    },
+    "composition": {
+      "gallery_id": null,
+      "gallery_source": "builtin",
+      "template_design_tokens": {},
+      "blocks": [],
+      "content": {},
+      "inputs": [],
+      "selection_mode": "custom"
+    },
+    "revision": 0,
+    "created_at": "2026-10-26-235237",
+    "verification": {
+      "ok": true,
+      "score": 100,
+      "html_bytes": 13741,
+      "checks": {
+        "non_empty": true,
+        "doctype": true,
+        "html_element": true,
+        "body_element": true,
+        "viewport": true
+      },
+      "warnings": []
+    },
+    "recipe_run": {
+      "schema_version": 1,
+      "id": "72238e90af56494a",
+      "parent_run_id": null,
+      "rerun_from": null,
+      "status": "succeeded",
+      "prompt_summary": "做一个城市交通数据看板，深色，展示早高峰流量、地铁满载率和事故热线",
+      "started_at": "2026-10-26T23:52:37.683",
+      "finished_at": "2026-10-26T23:52:37.776",
+      "duration_ms": 93,
+      "stages": [
+        {
+          "id": "analyze",
+          "label": "需求分析",
+          "label_en": "Analyze",
+          "status": "succeeded",
+          "progress_start": 8,
+          "progress_end": 22,
+          "started_at": "2026-10-26T23:52:37.711",
+          "finished_at": "2026-10-26T23:52:37.714",
+          "duration_ms": 4,
+          "attempt": 1,
+          "model": "fallback",
+          "fallback_used": true,
+          "input_summary": {
+            "prompt_chars": 33,
+            "llm_enabled": false,
+            "intent_override": "dashboard",
+            "project_memory": false
+          },
+          "output_summary": {
+            "intent": "dashboard",
+            "confidence": 0.67,
+            "missing_fields": [
+              "goal.audience",
+              "content.brand"
+            ],
+            "memory_applied": [],
+            "memory_covered": []
+          },
+          "error": null,
+          "rerunnable": false
+        },
+        {
+          "id": "compose",
+          "label": "组合配方",
+          "label_en": "Compose",
+          "status": "succeeded",
+          "progress_start": 25,
+          "progress_end": 45,
+          "started_at": "2026-10-26T23:52:37.714",
+          "finished_at": "2026-10-26T23:52:37.744",
+          "duration_ms": 30,
+          "attempt": 1,
+          "model": null,
+          "fallback_used": true,
+          "input_summary": {
+            "requested_skill": null,
+            "requested_template": null,
+            "selected_blocks": 0,
+            "memory_overrides": {}
+          },
+          "output_summary": {
+            "intent": "dashboard",
+            "route_decision": "local",
+            "skill": null,
+            "preset_id": "shadcn-dashboard",
+            "blocks": [
+              "topbar",
+              "kpi_row",
+              "charts",
+              "table",
+              "activity"
+            ],
+            "selection_mode": "custom",
+            "memory_applied": []
+          },
+          "error": null,
+          "rerunnable": false
+        },
+        {
+          "id": "generate",
+          "label": "生成产物",
+          "label_en": "Generate",
+          "status": "succeeded",
+          "progress_start": 48,
+          "progress_end": 72,
+          "started_at": "2026-10-26T23:52:37.744",
+          "finished_at": "2026-10-26T23:52:37.744",
+          "duration_ms": 0,
+          "attempt": 1,
+          "model": "local:dashboard-v0.2",
+          "fallback_used": true,
+          "input_summary": {
+            "intent": "dashboard",
+            "preset_id": "shadcn-dashboard",
+            "route_decision": "local"
+          },
+          "output_summary": {
+            "generator": "local:dashboard-v0.2",
+            "skill_used": null,
+            "html_bytes": 13741
+          },
+          "error": null,
+          "rerunnable": true
+        },
+        {
+          "id": "verify",
+          "label": "质量验证",
+          "label_en": "Verify",
+          "status": "succeeded",
+          "progress_start": 76,
+          "progress_end": 88,
+          "started_at": "2026-10-26T23:52:37.744",
+          "finished_at": "2026-10-26T23:52:37.744",
+          "duration_ms": 0,
+          "attempt": 1,
+          "model": "html-quality-gate",
+          "fallback_used": false,
+          "input_summary": {
+            "html_bytes": 13741
+          },
+          "output_summary": {
+            "ok": true,
+            "score": 100,
+            "html_bytes": 13741,
+            "checks": {
+              "non_empty": true,
+              "doctype": true,
+              "html_element": true,
+              "body_element": true,
+              "viewport": true
+            },
+            "warnings": []
+          },
+          "error": null,
+          "rerunnable": true
+        },
+        {
+          "id": "deliver",
+          "label": "保存交付",
+          "label_en": "Deliver",
+          "status": "succeeded",
+          "progress_start": 92,
+          "progress_end": 98,
+          "started_at": "2026-10-26T23:52:37.744",
+          "finished_at": "2026-10-26T23:52:37.776",
+          "duration_ms": 32,
+          "attempt": 1,
+          "model": "local-filesystem",
+          "fallback_used": false,
+          "input_summary": {
+            "output_root": "C:\\Users\\Admin\\AppData\\Local\\Temp\\fox-agent-live-_d89qf6h",
+            "project_name": "html9n-2026-10-26-235237"
+          },
+          "output_summary": {
+            "project_name": "html9n-2026-10-26-235237",
+            "files": 9,
+            "preview": "output.html"
+          },
+          "error": null,
+          "rerunnable": false
+        }
+      ]
+    },
+    "memory_applied": {
+      "enabled": true,
+      "intent": "dashboard",
+      "applied": [],
+      "covered": [],
+      "values": {},
+      "overrides": {}
+    }
+  }
+}
