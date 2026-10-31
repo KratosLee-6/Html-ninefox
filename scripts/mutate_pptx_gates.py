@@ -25,7 +25,7 @@ from mutation_support import finish, stale_report  # noqa: E402  (同目录共�
 
 ROOT = Path(__file__).resolve().parents[1]
 PPTX = ROOT / "htmlninefox" / "pptx_import.py"
-PROPOSAL = ROOT / "htmlninefox" / "docx_proposal.py"
+PROPOSAL = ROOT / "htmlninefox" / "intake_proposal.py"
 
 # 基线只跑真链与合同门禁：纯单测跑得再多也照不出「界面照常、结果说谎」。
 GATE = [

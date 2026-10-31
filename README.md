@@ -8,11 +8,11 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.4-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.4)
+[![App Release](https://img.shields.io/badge/app-v0.8.5-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.5)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-847%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.8.4.md)
+[![Tests](https://img.shields.io/badge/pytest-853%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22%20(v0.6.0)-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.4`（2026-10-29 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.4) · 完整功能与架构见下。
+> 当前应用包版本为 `0.8.5`（2026-10-31 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.5) · 完整功能与架构见下。
 > **AI / Agent 接入**：[Agent 调用指南](docs/AGENT-GUIDE.md)——CLI / HTTP API / Skill 三通路实测命令与回显。
 
 ---
@@ -36,7 +36,21 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.8.4 · 贴入 PDF + 图片资产 + 设计质量层（最新功能）
+## 🆕 v0.8.5 · Agent 一等公民（最新功能）
+
+**工作台能力开放为 MCP 服务：Claude/Cursor 等任何 MCP agent 装上即可驱动全流程。**
+
+- **MCP 服务**（`[mcp]` extra）：stdio 服务暴露 7 个工具——`intake_decompose`
+  （文档 → 带出处提案）、`intake_adopt`（采纳生成，可挂真实图片）、`generate`、
+  `analyze`、`feedback`、`export`、`capabilities`。内部复用 HTTP API，不另起服务。
+- **模块正名**：`intake_proposal` / `intake_adopt`（原 docx 前缀模块服务全部
+  四种格式，名字归位；旧路径留兼容 shim）。
+- **反模式门禁**（impeccable B 档思路，自研实现）：禁过冲缓动、禁卡片套卡片、
+  禁纯黑——「AI 味设计」在门禁层拦下。
+- 门禁含 **stdio 真 MCP 握手冒烟**；全量 **853 passed / 4 skipped**。
+- 详见 [Agent 调用指南](docs/AGENT-GUIDE.md) · [v0.9 计划](docs/PLAN-v0.9.md)。
+
+## v0.8.4 · 贴入 PDF + 图片资产 + 设计质量层
 
 **PDF 走同一条管线进来了；图片位能挂真实图片；联盟接入 88.7k★ 的设计质量层 impeccable。**
 

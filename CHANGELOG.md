@@ -33,6 +33,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added（0.8.5 · Agent 一等公民，未发版）
+- **MCP 服务**：`htmlninefox/mcp_server.py`（`[mcp]` extra，mcp 2.x stdio）——
+  7 个工具（capabilities / analyze / generate / intake_decompose / intake_adopt /
+  feedback / export），内部复用 HTTP API 不另起服务；HTTP 错误映射为带 code 的
+  工具错误；门禁含 stdio 真 MCP 握手冒烟（initialize→list_tools→call_tool）。
+- **反模式门禁（impeccable B 档）**：禁过冲缓动 / 卡片套卡片 / 纯黑三检
+  （思路参考 impeccable 62 规则的确定性子集，自研实现并注明来源；
+  「彩底灰字」归读屏审计）。
+- **联盟接入 impeccable**（设计质量层，detect_bin 探针 + npx 白名单）。
+- **模块更名**：`docx_proposal.py → intake_proposal.py`、
+  `docx_adopt.py → intake_adopt.py`（服务全部四种格式，名字不再只属于 docx）；
+  旧路径留兼容 shim 至 v0.10。
+- **Agent 调用指南**：`docs/AGENT-GUIDE.md`（四通路实测手册，README 双语挂链）。
+
+
 ## [0.8.4] - 2026-10-29 · 贴入 PDF + 图片资产 + 设计质量层接入
 
 > 新能力。HTTP 新增 `/api/intake/pdf(+/adopt)` 与 `/api/intake/image`；

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from htmlninefox.docx_proposal import (ImagePlanItem, Proposal, _judge_intent,
+from htmlninefox.intake_proposal import (ImagePlanItem, Proposal, _judge_intent,
                                        propose)
 from htmlninefox.intake_outline import (AdapterInfo, Block, IntakeOutline,
                                         SourceInfo)

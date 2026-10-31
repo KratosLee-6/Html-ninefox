@@ -26,10 +26,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mutation_support import finish, stale_report  # noqa: E402  (同目录共用诊断层)
 
 ROOT = Path(__file__).resolve().parents[1]
-DOCX = ROOT / "htmlninefox" / "docx_adopt.py"
+DOCX = ROOT / "htmlninefox" / "intake_adopt.py"
 PIPE = ROOT / "htmlninefox" / "pipeline.py"
 SHARED = ROOT / "htmlninefox" / "generators" / "_shared.py"
-PROPOSAL = ROOT / "htmlninefox" / "docx_proposal.py"
+PROPOSAL = ROOT / "htmlninefox" / "intake_proposal.py"
 
 # 基线只跑这两条真链门禁：解析/提案的纯单测跑得再多也照不出下面这些洞。
 GATE = [

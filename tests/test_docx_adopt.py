@@ -11,8 +11,8 @@ from pathlib import Path
 
 import pytest
 
-from htmlninefox.docx_adopt import adopt, sections_from_outline
-from htmlninefox.docx_proposal import propose
+from htmlninefox.intake_adopt import adopt, sections_from_outline
+from htmlninefox.intake_proposal import propose
 from htmlninefox.intake_outline import AdapterInfo, Block, IntakeOutline, SourceInfo
 
 INTENTS = ["landing", "dashboard", "deck", "poster", "archdoc", "doc"]

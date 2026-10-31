@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from htmlninefox.docx_proposal import propose
+from htmlninefox.intake_proposal import propose
 from htmlninefox.intake_outline import AdapterInfo, Block, IntakeOutline, SourceInfo
 
 TOP_KEYS = {"intent", "intent_reason", "style", "image_plan", "copy", "limitations", "refined_by"}

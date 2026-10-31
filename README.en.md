@@ -8,8 +8,8 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.4-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.4)
-[![Tests](https://img.shields.io/badge/pytest-847%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.8.4.md)
+[![App Release](https://img.shields.io/badge/app-v0.8.5-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.5)
+[![Tests](https://img.shields.io/badge/pytest-853%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -17,7 +17,7 @@
 </div>
 
 
-> Current app version `0.8.4` (released 2026-10-29) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.4) · full features below.
+> Current app version `0.8.5` (released 2026-10-31) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.5) · full features below.
 > **AI / Agent integration**: [Agent guide](docs/AGENT-GUIDE.md) — CLI / HTTP API / Skill, all commands verified against a live build.
 
 ---
@@ -33,7 +33,22 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.8.4 · Paste in a PDF + image assets + design quality layer (latest)
+## v0.8.5 · Agents as first-class citizens (latest)
+
+**The workbench opens up as an MCP server: any MCP agent (Claude, Cursor, …) can drive the whole pipeline.**
+
+- **MCP server** (`[mcp]` extra): stdio transport, 7 tools — `intake_decompose`
+  (document → provenance-carrying proposal), `intake_adopt`, `generate`,
+  `analyze`, `feedback`, `export`, `capabilities`. Reuses the HTTP API, no
+  second service.
+- **Honest module names**: `intake_proposal` / `intake_adopt` (the docx-prefixed
+  modules serve all four formats; old paths ship as compatibility shims).
+- **Anti-pattern gates** (impeccable tier B, self-implemented): no overshoot
+  easing, no cards inside cards, no pure black.
+- Gates include a **real stdio MCP handshake smoke**; full suite **853 passed / 4 skipped**.
+- See the [agent guide](docs/AGENT-GUIDE.md) · [v0.9 plan](docs/PLAN-v0.9.md).
+
+## v0.8.4 · Paste in a PDF + image assets + design quality layer
 
 **PDF now walks the same pipeline; image slots take real pictures; the alliance welcomes impeccable (88.7k★ design-quality layer, Apache-2.0).**
 

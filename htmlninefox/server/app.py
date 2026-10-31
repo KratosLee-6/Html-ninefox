@@ -20,7 +20,7 @@ from typing import Callable
 from urllib.parse import parse_qs, unquote, urlparse
 
 from .. import __version__, exporting, intake, llm, pipeline, project_memory, revisions, template_gallery
-from .. import docx_adopt, docx_import, docx_proposal
+from .. import docx_import, intake_adopt, intake_proposal
 from .. import image_assets, pdf_import, pptx_export, pptx_import
 from ..application import (
     ExportError, ExportRequest, ExportResult,
@@ -257,7 +257,7 @@ class _Handler(BaseHTTPRequestHandler):
     def _api_intake_docx(self, body: dict) -> dict:
         """Parse an uploaded .docx and return the proposal a person reviews."""
         outline = self._docx_outline(body)
-        proposal = docx_proposal.propose(outline)
+        proposal = intake_proposal.propose(outline)
         return {
             "ok": True,
             "source": outline.as_dict()["source"],
@@ -270,13 +270,13 @@ class _Handler(BaseHTTPRequestHandler):
     def _api_intake_docx_adopt(self, body: dict) -> dict:
         """Render the reviewed proposal through the existing generation use case."""
         outline = self._docx_outline(body)
-        base = docx_proposal.propose(outline)
+        base = intake_proposal.propose(outline)
         try:
-            proposal = docx_adopt.apply_overrides(base, body.get("proposal"))
+            proposal = intake_adopt.apply_overrides(base, body.get("proposal"))
         except ValueError as exc:
             raise StoreError("docx_proposal_invalid", str(exc), 400) from exc
         attachments, assets_by_slot = self._attach_slot_images(body, proposal)
-        sections, notes = docx_adopt.sections_from_outline(outline)
+        sections, notes = intake_adopt.sections_from_outline(outline)
         payload = self._generation_result({
             "prompt": proposal.copy.get("headline") or outline.source.title or "Word 导入",
             "intent": proposal.intent,
@@ -331,7 +331,7 @@ class _Handler(BaseHTTPRequestHandler):
         deck is proposed exactly the way a document is — no PPTX branch here.
         """
         outline = self._pptx_outline(body)
-        proposal = docx_proposal.propose(outline)
+        proposal = intake_proposal.propose(outline)
         return {
             "ok": True,
             "source": outline.as_dict()["source"],
@@ -365,7 +365,7 @@ class _Handler(BaseHTTPRequestHandler):
     def _api_intake_pdf(self, body: dict) -> dict:
         """Parse an uploaded .pdf and return the proposal a person reviews."""
         outline = self._pdf_outline(body)
-        proposal = docx_proposal.propose(outline)
+        proposal = intake_proposal.propose(outline)
         return {
             "ok": True,
             "source": outline.as_dict()["source"],
@@ -378,13 +378,13 @@ class _Handler(BaseHTTPRequestHandler):
     def _api_intake_pdf_adopt(self, body: dict) -> dict:
         """Render the reviewed PDF proposal through the existing generation use case."""
         outline = self._pdf_outline(body)
-        base = docx_proposal.propose(outline)
+        base = intake_proposal.propose(outline)
         try:
-            proposal = docx_adopt.apply_overrides(base, body.get("proposal"))
+            proposal = intake_adopt.apply_overrides(base, body.get("proposal"))
         except ValueError as exc:
             raise StoreError("pdf_proposal_invalid", str(exc), 400) from exc
         attachments, assets_by_slot = self._attach_slot_images(body, proposal)
-        sections, notes = docx_adopt.sections_from_outline(outline)
+        sections, notes = intake_adopt.sections_from_outline(outline)
         payload = self._generation_result({
             "prompt": proposal.copy.get("headline") or outline.source.title or "PDF 导入",
             "intent": proposal.intent,
@@ -414,13 +414,13 @@ class _Handler(BaseHTTPRequestHandler):
     def _api_intake_pptx_adopt(self, body: dict) -> dict:
         """Render the reviewed deck proposal through the existing generation use case."""
         outline = self._pptx_outline(body)
-        base = docx_proposal.propose(outline)
+        base = intake_proposal.propose(outline)
         try:
-            proposal = docx_adopt.apply_overrides(base, body.get("proposal"))
+            proposal = intake_adopt.apply_overrides(base, body.get("proposal"))
         except ValueError as exc:
             raise StoreError("pptx_proposal_invalid", str(exc), 400) from exc
         attachments, assets_by_slot = self._attach_slot_images(body, proposal)
-        sections, notes = docx_adopt.sections_from_outline(outline)
+        sections, notes = intake_adopt.sections_from_outline(outline)
         payload = self._generation_result({
             "prompt": proposal.copy.get("headline") or outline.source.title or "PPT 导入",
             "intent": proposal.intent,
