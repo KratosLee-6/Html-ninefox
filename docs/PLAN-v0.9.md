@@ -17,6 +17,13 @@
 | **impeccable B 档 · 反模式门禁** | 从其 62 条检测规则挑确定性子集自研实现进测试（思路参考 Apache-2.0，注明来源）：禁 bounce/elastic 缓动、禁卡片套卡片、禁纯黑 | ✅ 0.8.5（tests/test_anti_patterns.py） |
 | **Agent 调用指南** | docs/AGENT-GUIDE.md 四通路实测手册 | ✅ 0.8.5 |
 
+## 一·五、0.8.7 批次（进行中：动效质量层 + 所见即所得 A1）
+
+| 项 | 说明 | 状态 |
+|---|---|---|
+| **motion-design-skill 接入** | LottieFiles 联盟新成员（guidance-source 知识型，`detect_paths` 探测技能目录落位）+ 动效质量门禁 5 条（时长表对齐 / linear 禁令 spinner 白名单 / 非 opacity-only / stagger<500ms / 循环缓动律；三连变异全 CAUGHT）。评估见 docs/EVAL-motion-design-skill-20261101.md | ✅ 本批 |
+| **所见即所得 A1** | 文本级点选即改（复用幻灯片原位编辑机制 apply_text_edits，≈2 天） | 本批主线 |
+
 ## 二·五、0.8.6 快赢包（2026-10-31 机主四选全后插入排期）
 
 | 项 | 说明 | 状态 |

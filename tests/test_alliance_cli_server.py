@@ -47,6 +47,20 @@ class TestAllianceRouter:
         assert r.skills["guizang-ppt"]["version"] == "9.9.9"
         assert r.skills["guizang-ppt"]["_source"] == "user"
 
+    def test_motion_design_seed_and_guidance_probe(self, tmp_path, monkeypatch):
+        """知识型成员（v0.8.7）：detect_paths 任一落位即视为已装，未落位不误报。"""
+        r = AllianceRouter()
+        member = r.skills.get("motion-design")
+        assert member and member["integration"] == "guidance-source"
+        assert member["license"] == "MIT"
+        skill_dir = tmp_path / ".agents" / "skills" / "motion-design"
+        skill_dir.mkdir(parents=True)
+        (skill_dir / "SKILL.md").write_text("# motion-design", encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+        assert AllianceRouter()._probe_installed(member) is True
+        monkeypatch.chdir("/")
+        assert AllianceRouter()._probe_installed(member) is False
+
 
 class TestCli:
     def test_version(self):

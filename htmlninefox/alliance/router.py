@@ -83,6 +83,17 @@ class AllianceRouter:
         detect_bin = manifest.get("detect_bin")
         if detect_bin:
             return shutil.which(detect_bin) is not None
+        # 知识型成员（guidance-source，如 motion-design）：无 CLI 无模块，
+        # 探测 skill 文件在各 agent 技能目录的落位（~ 展开到家目录）
+        detect_paths = manifest.get("detect_paths") or []
+        if detect_paths:
+            for raw in detect_paths:
+                candidate = Path(str(raw)).expanduser()
+                if not candidate.is_absolute():
+                    candidate = Path.cwd() / candidate
+                if candidate.is_file():
+                    return True
+            return False
         return False
 
     def reload(self) -> None:

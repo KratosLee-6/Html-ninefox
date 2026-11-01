@@ -1,0 +1,24 @@
+# motion-design · Skill 联盟成员（v0.8.7 接入，评估见 docs/EVAL-motion-design-skill-20261101.md）
+# 通用动效设计原则 —— 哲学层、实现无关（CSS/GSAP/Lottie/Spring 通吃）；
+# 知识型成员：无 CLI、无 python 模块，装了它 agent 生成动效时自带「动效导演」思维；
+# 未安装时本地门禁与墨水落纸动效层照常工作（fallback: skip）
+name: motion-design
+version: 1.0.0
+author: LottieFiles
+category: motion
+description: 通用动效设计原则：时长/缓动/编排表 + 迪士尼十二律 UI 适配 + 8 步清单 + 动效人格四原型
+intents: [landing, deck, poster, dashboard, doc, archdoc]
+# 探测：npx skills add 落位到各 agent 技能目录，任一命中即视为已装
+detect_paths:
+  - ~/.agents/skills/motion-design/SKILL.md
+  - ~/.claude/skills/motion-design/SKILL.md
+  - ~/.codex/skills/motion-design/SKILL.md
+  - .agents/skills/motion-design/SKILL.md
+  - .claude/skills/motion-design/SKILL.md
+fallback: local:skip
+homepage: https://github.com/LottieFiles/motion-design-skill
+license: MIT
+integration: guidance-source
+upstream_checked_at: 2026-11-01
+upstream_version: 1.0.0（SKILL.md < 500 行 + director/patterns/reference 三层）
+upstream_license: MIT

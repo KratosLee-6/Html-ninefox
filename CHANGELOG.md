@@ -31,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 时间轴圆点 `transition:all .25s` 会连布局属性一起动画
 - 像素投影从多处收敛到两处（选中节点、主按钮）
 
+## [Unreleased]
+
+### Added（0.8.7 · 动效质量层 + 所见即所得，未发版）
+- **联盟新成员 motion-design**（LottieFiles/motion-design-skill，MIT）：
+  首个 guidance-source 知识型成员——无 CLI 无模块，`detect_paths` 探测
+  `.agents`/`.claude` 等技能目录落位；未安装本地兜底照旧。
+- **动效质量门禁 5 条**（tests/test_motion_quality.py，规则源自上游 CRITICAL
+  四律 + 时长表，自研实现注明来源）：时长 token 对齐元素类型表、linear 缓动
+  禁令（spinner/progress 白名单）、reveal 非 opacity-only、stagger < 500ms、
+  环境循环 ease-in-out 律；三连变异验证全 CAUGHT。详见
+  docs/EVAL-motion-design-skill-20261101.md。
+
 ## [0.8.6] - 2026-11-01 · 手机预览 + 一键交付包
 
 > 输出端「最后一公里」界面化（快赢包 B+C，见 `docs/EVAL-FRONTEND-PERCEPTION-20261031.md`）。
