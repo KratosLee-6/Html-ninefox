@@ -199,6 +199,7 @@ def test_registry_entries_point_at_real_fox_modules() -> None:
         "window.FoxProjects", "window.FoxGeneration", "window.FoxRevisions",
         "window.FoxExports", "window.FoxIntake", "window.FoxSlides",
         "window.FoxCanvasProductivity", "window.FoxDocx",
+        "window.FoxPhone",
     }
     offenders: list[str] = []
     for name, target in re.findall(

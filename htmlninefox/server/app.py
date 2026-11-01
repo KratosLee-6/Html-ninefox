@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import socket
 import json
 import mimetypes
 import os
 import re
 import shutil
 import sys
+import time
 import traceback
 import copy
 import uuid
@@ -120,11 +122,15 @@ from .. import paraphrase as _paraphrase  # noqa: E402
 _PARAPHRASE_REWRITER = _paraphrase.make_llm_rewriter(llm.router)
 
 
+_SERVER_PORT = 8620   # lan-preview 用：工作台实际监听端口（serve 时写入）
+
+
 def serve(host: str = "127.0.0.1", port: int = 8620, output: str | None = None) -> None:
-    global _OUTPUT_ROOT
+    global _OUTPUT_ROOT, _SERVER_PORT
     if output:
         _OUTPUT_ROOT = Path(output).expanduser().resolve()
     _OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+    _SERVER_PORT = port
 
     console = _console()
     server = ThreadingHTTPServer((host, port), _Handler)
@@ -638,6 +644,37 @@ class _Handler(BaseHTTPRequestHandler):
                                "distribution": os.getenv("HTMLNINEFOX_DISTRIBUTION", "python")})
         if path == "/api/capabilities":
             return self._json(APP_CAPABILITIES)
+        if path == "/api/lan-preview":
+            ips: set[str] = set()
+            probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                probe.connect(("10.255.255.255", 1))
+                ips.add(probe.getsockname()[0])
+            except OSError:
+                pass
+            finally:
+                probe.close()
+            try:
+                for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+                    ip = info[4][0]
+                    if not ip.startswith("127."):
+                        ips.add(ip)
+            except OSError:
+                pass
+            listen_port = self.server.server_address[1]  # 真实监听端口，任何创建方式都对
+            urls = [f"http://{ip}:{listen_port}" for ip in sorted(ips)]
+            qr_svg = None
+            if urls:
+                try:
+                    import io as _io
+                    import segno
+                    buf = _io.BytesIO()
+                    segno.make(urls[0], error="m").save(buf, kind="svg", scale=5, border=2)
+                    qr_svg = buf.getvalue().decode()
+                except ImportError:
+                    qr_svg = None   # 无 segno：降级为纯地址文本，不静默装包
+            return self._json({"ok": True, "urls": urls, "qr_svg": qr_svg,
+                               "warning": "本地服务无鉴权，二维码仅限可信局域网使用"})
         if path == "/api/exports/capabilities":
             return self._json({"ok": True, **exporting.runtime_capabilities()})
         if path == "/api/templates":
@@ -824,6 +861,21 @@ class _Handler(BaseHTTPRequestHandler):
             if not project_name:
                 raise StoreError("export_project_required", "请选择需要导出的项目", 400)
             return self._json({"ok": True, "manifest": exporting.analyze_project(_OUTPUT_ROOT, project_name)})
+        if path == "/api/exports/bundle":
+            project_name = str(body.get("project_name") or "").strip()
+            if not project_name:
+                raise StoreError("export_project_required", "请选择需要导出的项目", 400)
+            project = self._store().get_project(project_name)
+            intent = project.get("intent", "landing")
+            formats = ["pdf"]
+            if intent == "deck":
+                formats.append("pptx")
+            elif intent in ("doc", "archdoc"):
+                formats.append("docx")
+            job = self._jobs().submit(
+                "bundle",
+                lambda: self._export_bundle_files(project_name, intent, formats))
+            return self._json({"ok": True, "job": job}, 202)
         if path == "/api/exports":
             request = self._export_request(body)
             try:
@@ -1017,6 +1069,46 @@ class _Handler(BaseHTTPRequestHandler):
             with_reporter=True,
         )
         return self._json({"ok": True, "job": job}, 202)
+
+    def _export_bundle_files(self, project_name: str, intent: str,
+                             formats: list[str]) -> dict:
+        """交付包（v0.8.6）：按意图自动组包——逐格式导出 + 网页本体 → zip。"""
+        from ..exporting import export_project
+        project_dir = _OUTPUT_ROOT / project_name
+        html_src = project_dir / "output.html"
+        produced: list[str] = []
+        for fmt in formats:
+            result = export_project(_OUTPUT_ROOT, {
+                "project_name": project_name, "format": fmt,
+                "scope": "auto", "paper": "A4", "landscape": False})
+            # export_project 的产物键是 export_id + files[].name（仅基名），
+            # 完整路径 = 项目 exports/<export_id>/<name>
+            export_dir = project_dir / "exports" / result["export_id"]
+            for f in result.get("files", []):
+                produced.append(str(export_dir / f["name"]))
+            produced.append(str(export_dir / "export-report.json"))
+        if html_src.is_file():
+            produced.append(str(html_src))
+        stamp = time.strftime("%Y%m%d-%H%M%S")
+        out_dir = project_dir / "exports" / f"{stamp}-bundle"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        zip_path = out_dir / "bundle.zip"
+        import zipfile
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            for file_path in produced:
+                zf.write(file_path, Path(file_path).name)
+        manifest = {"intent": intent, "formats": formats,
+                    "files": [Path(f).name for f in produced]}
+        (out_dir / "bundle-manifest.json").write_text(
+            json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
+        # 下载链接与 export_project 同构（/output/<相对路径>?download=1）——
+        # 只回绝对路径前端拼不出「下载」按钮的 href。
+        return {"ok": True, "zip": str(zip_path), "formats": formats,
+                "files": manifest["files"], "intent": intent,
+                "zip_bytes": zip_path.stat().st_size,
+                "zip_name": zip_path.name,
+                "download_url":
+                    f"/output/{project_name}/exports/{out_dir.name}/bundle.zip?download=1"}
 
     def _staged_generation(self, request: GenerationRequest, staging_root: Path,
                            progress_callback=None) -> dict:

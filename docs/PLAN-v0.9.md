@@ -17,6 +17,13 @@
 | **impeccable B 档 · 反模式门禁** | 从其 62 条检测规则挑确定性子集自研实现进测试（思路参考 Apache-2.0，注明来源）：禁 bounce/elastic 缓动、禁卡片套卡片、禁纯黑 | ✅ 0.8.5（tests/test_anti_patterns.py） |
 | **Agent 调用指南** | docs/AGENT-GUIDE.md 四通路实测手册 | ✅ 0.8.5 |
 
+## 二·五、0.8.6 快赢包（2026-10-31 机主四选全后插入排期）
+
+| 项 | 说明 | 状态 |
+|---|---|---|
+| **手机预览二维码** | 工作台「发到手机」：枚举局域网地址（stdlib UDP 探测）→ 可选 `[qr]` extra（segno 纯 Python）渲染 SVG 二维码 → 无 segno 降级为地址文本；安全提示沿用（无鉴权仅限可信局域网） | ✅ 本批 |
+| **一键交付包** | 导出中心「交付包」：按意图自动组包（doc/archdoc=HTML+PDF+DOCX · deck=HTML+PDF+PPTX · 其余意图=HTML+PDF）打 zip + 清单 | ✅ 本批 |
+
 ## 二、v0.9 后续（已圈范围，未动工）
 
 1. **Tauri 桌面壳**（0.9.0 里程碑）：决策已定（并存 / Rust 进 CI）；验收沿用

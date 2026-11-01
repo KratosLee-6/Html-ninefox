@@ -166,7 +166,46 @@
     }
   }
 
+  /* 一键交付包（v0.8.6）：按意图自动组包（后端定格式），zip 落盘后
+   * 走与 start() 同一套 stale 守卫——弹窗切走就丢弃旧结果。 */
+  async function startBundle() {
+    const node = nodes.find(item => item.id === draft.nodeId);
+    if (!node?.data?.project_name) return flash('该产物缺少项目信息，无法组包', false);
+    if (running) return flash('已有导出正在进行，请等待完成', false);
+    const token = {};
+    running = token;
+    const button = $('#export-bundle');
+    window.FoxInteraction?.setBusy(button, true, '组包中…');
+    $('#export-result').innerHTML = '';
+    const stale = () => running !== token || draft.nodeId !== node.id;
+    try {
+      const submitted = await post('/api/exports/bundle', {
+        project_name: node.data.project_name,
+      });
+      const result = await window.FoxGeneration.waitForJob(submitted.job.id, job => {
+        if (stale()) return;
+        $('#export-status').textContent = `交付包 ${job.id.slice(0, 8)} · ${job.stage} · ${job.progress}%`;
+      }, stale);
+      if (stale()) return;
+      const formats = (result.formats || []).join(' + ').toUpperCase();
+      $('#export-status').textContent = `交付包完成 · ${formats} · 网页本体已并入`;
+      $('#export-result').innerHTML =
+        `<div class="export-file"><span><b>${esc(result.zip_name || 'bundle.zip')}</b>` +
+        `<small>${exportBytes(result.zip_bytes || 0)} · ${esc(formats)}</small></span>` +
+        `<a class="btn btn-secondary" href="${esc(result.download_url || '#')}">下载</a></div>` +
+        `<div class="export-warning">包内清单：${(result.files || []).map(esc).join(' · ')}</div>`;
+      flash(`✓ 交付包已生成（${formats}）`, true);
+    } catch (error) {
+      if (stale()) return;
+      $('#export-status').textContent = '组包失败：' + error.message;
+      $('#export-result').innerHTML = `<div class="export-warning error">${esc(error.message)}</div>`;
+    } finally {
+      if (running === token) running = null;
+      window.FoxInteraction?.setBusy(button, false);
+    }
+  }
+
   function draftView() { return draft; }
 
-  window.FoxExports = { open, close, renderAnalysis, syncOptions, start, diagnostic, draft: draftView };
+  window.FoxExports = { open, close, renderAnalysis, syncOptions, start, startBundle, diagnostic, draft: draftView };
 })();

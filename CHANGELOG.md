@@ -31,13 +31,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 时间轴圆点 `transition:all .25s` 会连布局属性一起动画
 - 像素投影从多处收敛到两处（选中节点、主按钮）
 
-## [Unreleased]
+## [0.8.6] - 2026-11-01 · 手机预览 + 一键交付包
 
-### Added（0.8.5 · Agent 一等公民，未发版）
+> 输出端「最后一公里」界面化（快赢包 B+C，见 `docs/EVAL-FRONTEND-PERCEPTION-20261031.md`）。
+> 发布说明见 `docs/RELEASE-NOTES-v0.8.6.md`。
+
+### Added
+- **手机预览二维码**：顶栏 📱 → `/api/lan-preview`——stdlib UDP 探测枚举非回环
+  局域网地址、端口取实际监听口；`[qr]` extra（segno 纯 Python）出 SVG 二维码，
+  无 segno 降级纯地址文本（不静默装包）；无鉴权警示随响应随弹窗；
+  ≤900px 顶栏自动收起该按钮。
+- **一键交付包**：导出中心 📦 → `/api/exports/bundle`（后台任务）——按意图
+  自动组包（deck=HTML+PDF+PPTX · doc/archdoc=HTML+PDF+DOCX · 其余=HTML+PDF），
+  逐格式走既有 export_project 真链导出 + 网页本体 + 清单 → zip 落盘。
+- `FoxPhone` 前端模块归位（注册表门禁 module_globals 白名单）。
+
+## [0.8.5] - 2026-10-31 · Agent 一等公民
+
+### Added
 - **MCP 服务**：`htmlninefox/mcp_server.py`（`[mcp]` extra，mcp 2.x stdio）——
-  7 个工具（capabilities / analyze / generate / intake_decompose / intake_adopt /
-  feedback / export），内部复用 HTTP API 不另起服务；HTTP 错误映射为带 code 的
-  工具错误；门禁含 stdio 真 MCP 握手冒烟（initialize→list_tools→call_tool）。
+  8 个工具（capabilities / analyze / generate / intake_decompose / intake_adopt /
+  feedback / list_projects / export），内部复用 HTTP API 不另起服务；HTTP 错误
+  映射为带 code 的工具错误；门禁含 stdio 真 MCP 握手冒烟
+  （initialize→list_tools→call_tool）。
 - **反模式门禁（impeccable B 档）**：禁过冲缓动 / 卡片套卡片 / 纯黑三检
   （思路参考 impeccable 62 规则的确定性子集，自研实现并注明来源；
   「彩底灰字」归读屏审计）。

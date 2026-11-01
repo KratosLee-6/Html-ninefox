@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.5-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.5)
+[![App Release](https://img.shields.io/badge/app-v0.8.6-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.6)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.5`（2026-10-31 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.5) · 完整功能与架构见下。
+> 当前应用包版本为 `0.8.6`（2026-11-01 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.6) · 完整功能与架构见下。
 > **AI / Agent 接入**：[Agent 调用指南](docs/AGENT-GUIDE.md)——CLI / HTTP API / Skill 三通路实测命令与回显。
 
 ---
@@ -36,13 +36,27 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.8.5 · Agent 一等公民（最新功能）
+## 🆕 v0.8.6 · 手机预览 + 一键交付包（最新功能）
+
+**做完马上掏手机看，交付出厂一键完成——输出端最后一公里界面化。**
+
+- **手机预览**（`[qr]` extra 可选）：顶栏 📱 一键枚举局域网地址、按真实监听
+  端口出二维码，手机扫码即看产物；无 segno 时降级为地址文本，不静默装包。
+  无鉴权警示随响应随弹窗（仅限可信局域网）。
+- **一键交付包**：导出中心 📦 按意图自动组包——deck=HTML+PDF+PPTX ·
+  doc/archdoc=HTML+PDF+DOCX · 其余=HTML+PDF——逐格式真链导出后打 zip + 清单。
+- 门禁 5 条（真实端口回显、二维码 SVG 在场、双意图组包真链、zip 结构、错误
+  命名）；全量 **861 passed / 4 skipped**（2026-11-01 实测）。
+- 详见 [v0.8.6 发布说明](docs/RELEASE-NOTES-v0.8.6.md) · [v0.9 计划](docs/PLAN-v0.9.md)。
+
+## v0.8.5 · Agent 一等公民
 
 **工作台能力开放为 MCP 服务：Claude/Cursor 等任何 MCP agent 装上即可驱动全流程。**
 
-- **MCP 服务**（`[mcp]` extra）：stdio 服务暴露 7 个工具——`intake_decompose`
+- **MCP 服务**（`[mcp]` extra）：stdio 服务暴露 8 个工具——`intake_decompose`
   （文档 → 带出处提案）、`intake_adopt`（采纳生成，可挂真实图片）、`generate`、
-  `analyze`、`feedback`、`export`、`capabilities`。内部复用 HTTP API，不另起服务。
+  `analyze`、`feedback`、`list_projects`、`export`、`capabilities`。内部复用
+  HTTP API，不另起服务。
 - **模块正名**：`intake_proposal` / `intake_adopt`（原 docx 前缀模块服务全部
   四种格式，名字归位；旧路径留兼容 shim）。
 - **反模式门禁**（impeccable B 档思路，自研实现）：禁过冲缓动、禁卡片套卡片、

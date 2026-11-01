@@ -879,6 +879,34 @@ function membersOf(ws, options = {}) {
  *
  * 内部状态与实现仍都在 lifecycle-*.js；画布与各生命周期域只通过
  * window.Fox* API 协作。 */
+/* 手机预览（v0.8.6）：局域网扫码，数据不出本机 */
+window.FoxPhone = {
+  open() {
+    window.FoxInteraction?.openDialog('#phone-modal');
+    const qrBox = $('#phone-qr');
+    const urlsBox = $('#phone-urls');
+    qrBox.innerHTML = '<span class="analysis-empty">检测局域网地址…</span>';
+    urlsBox.innerHTML = '';
+    fetch('/api/lan-preview').then(r => r.json()).then(data => {
+      if (data.qr_svg) {
+        qrBox.innerHTML = data.qr_svg;
+        const svg = qrBox.querySelector('svg');
+        if (svg) { svg.style.width = '240px'; svg.style.height = '240px'; }
+      } else {
+        qrBox.innerHTML = '<p class="analysis-empty">二维码组件未安装（pip install "htmlninefox[qr]"），请直接输入下方地址。</p>';
+      }
+      urlsBox.innerHTML = (data.urls || []).map(u =>
+        `<div class="menu-field" style="grid-template-columns:1fr auto"><span style="font-family:var(--mono);font-size:var(--fs-sm)">${u}</span><button class="btn btn-ghost" data-copy="${u}">复制</button></div>`).join('');
+      urlsBox.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.onclick = () => navigator.clipboard?.writeText(btn.dataset.copy);
+      });
+    }).catch(e => {
+      qrBox.innerHTML = '<p class="analysis-empty">检测失败：' + e.message + '</p>';
+    });
+  },
+  close() { window.FoxInteraction?.closeDialog('#phone-modal'); },
+};
+
 window.FoxActions = {
   loadProjects: () => window.FoxProjects.load(),
   openOutput: id => window.FoxProjects.open(id),
@@ -921,6 +949,9 @@ window.FoxActions = {
   docxAnalyze: () => window.FoxDocx.analyze(),
   docxAdopt: () => window.FoxDocx.adopt(),
   docxAddSlot: () => window.FoxDocx.addSlot(),
+  startBundleExport: () => window.FoxExports.startBundle(),
+  openPhonePreview: () => window.FoxPhone.open(),
+  closePhonePreview: () => window.FoxPhone.close(),
   docxToggleSlotLang: () => window.FoxDocx.toggleSlotLang(),
   openSlideEditor: id => window.FoxSlides.open(id),
   closeSlideEditor: () => window.FoxSlides.close(),

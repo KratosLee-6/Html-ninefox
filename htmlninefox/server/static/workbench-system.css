@@ -238,6 +238,7 @@
   .topbar { overflow:visible; }
   .topbar-context,.status-dot { display:none; }
   .topbar-tools > .theme-toggle,.topbar-tools > #btn-ai-settings,.topbar-tools > #btn-memory { display:none; }
+  .topbar-actions > [data-action='openPhonePreview'] { display:none; }
   .topbar-tools { border:0; padding:0; }
   .menu-mobile-only { display:flex !important; }
   .mobile-library-toggle,.mobile-inspector-toggle { display:inline-flex; }
@@ -385,7 +386,7 @@
 .docx-reason { font-size:var(--fs-sm); color:var(--text-secondary); }
 .docx-slots-head { display:flex; justify-content:space-between; align-items:center;
   gap:var(--space-2); font-size:var(--fs-sm); color:var(--text-secondary); }
-.docx-slots-lang { height:24px; padding:0 8px; border:1px solid var(--border-subtle);
+.docx-slots-lang { height:24px; padding:0 var(--space-2); border:1px solid var(--border-subtle);
   border-radius:var(--radius); background:var(--bg-base); color:var(--text-primary);
   font-size:var(--fs-xs); cursor:pointer; }
 .docx-slots-lang:hover { border-color:var(--border-default); }
@@ -399,7 +400,7 @@
 .docx-slot input { height:32px; font-weight:600; }
 .docx-slot-ops { display:grid; gap:var(--space-1); justify-items:stretch; }
 .docx-slot-attach { display:inline-flex; align-items:center; justify-content:center;
-  height:30px; padding:0 var(--space-2); border:1px solid var(--border-subtle);
+  height:32px; padding:0 var(--space-2); border:1px solid var(--border-subtle);
   border-radius:var(--radius); font-size:var(--fs-xs); cursor:pointer;
   color:var(--text-secondary); background:var(--bg-base); }
 .docx-slot-attach:hover { border-color:var(--border-default); color:var(--text-primary); }
@@ -415,7 +416,7 @@
   border:1px solid var(--border-subtle); border-left:3px solid var(--border-strong);
   border-radius:var(--radius); }
 .docx-limits::before { content:"解析边界 · 如实说明拿不到什么"; display:block;
-  margin:0 0 2px calc(-1 * var(--space-2)); font-weight:600; color:var(--text-primary); }
+  margin:0 0 var(--space-1) calc(-1 * var(--space-2)); font-weight:600; color:var(--text-primary); }
 .docx-actions { display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap; }
 .docx-result { font-size:var(--fs-sm); color:var(--accent); }
 .docx-status { font-size:var(--fs-sm); color:var(--text-secondary); min-height:1.2em; }
@@ -835,3 +836,8 @@ button.btn:focus-visible, summary.btn:focus-visible, a.btn:focus-visible,
               transform var(--motion-instant, 90ms) var(--motion-ease, ease);
 }
 .ins-empty-actions .btn:hover::after { color: var(--accent); transform: translateX(2px); }
+
+/* 手机预览（v0.8.6） */
+.phone-dialog { max-width:min(552px,94vw); }
+.phone-urls { margin-top:var(--space-2); }
+.phone-qr { display:grid; place-items:center; padding:var(--space-4) 0; }

@@ -1,0 +1,34 @@
+[
+ {
+  "name": "capabilities",
+  "description": "工作台健康与能力声明（35 项 features）。先调这个。"
+ },
+ {
+  "name": "analyze",
+  "description": "一句话 → 意图 / 置信度 / 推荐预设与模板（规则引擎，离线可用）。"
+ },
+ {
+  "name": "generate",
+  "description": "生成单文件 HTML 产物并落盘。intent/template 可选；返回 preview_url。"
+ },
+ {
+  "name": "intake_decompose",
+  "description": "文档反拆：DOCX/PPTX/PDF → 可编辑提案。返回 image_plan、limitations\n（如实说明拿不到什么）与带出处的块；改完用 intake_adopt 采纳。"
+ },
+ {
+  "name": "intake_adopt",
+  "description": "采纳提案并生成产物。proposal 是 intake_decompose 返回的可编辑提案；\nslot_images = {图片位名: base64} 可挂真实图片。"
+ },
+ {
+  "name": "feedback",
+  "description": "口语反馈改稿：「标题大一点」。返回新版本号，历史可回滚。"
+ },
+ {
+  "name": "list_projects",
+  "description": "列出全部项目（名称/意图/版本/预览地址）。"
+ },
+ {
+  "name": "export",
+  "description": "导出交付物：pdf / png / pptx / docx。异步执行并等待完成。"
+ }
+]

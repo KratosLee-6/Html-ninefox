@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.5-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.5)
+[![App Release](https://img.shields.io/badge/app-v0.8.6-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.6)
 [![Tests](https://img.shields.io/badge/pytest-853%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
@@ -17,7 +17,7 @@
 </div>
 
 
-> Current app version `0.8.5` (released 2026-10-31) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.5) · full features below.
+> Current app version `0.8.6` (released 2026-11-01) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.6) · full features below.
 > **AI / Agent integration**: [Agent guide](docs/AGENT-GUIDE.md) — CLI / HTTP API / Skill, all commands verified against a live build.
 
 ---
@@ -33,14 +33,30 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.8.5 · Agents as first-class citizens (latest)
+## v0.8.6 · Phone preview + delivery bundle (latest)
+
+**Check it on your phone right after generating; ship a delivery bundle in one
+click — the last mile of output, now visible in the UI.**
+
+- **Phone preview** (optional `[qr]` extra): the topbar 📱 button enumerates LAN
+  addresses and renders a QR code on the real listening port; degrades to plain
+  URLs without segno (never installs silently). No-auth warning ships with the
+  response and the dialog (trusted LANs only).
+- **Delivery bundle**: the export center 📦 button groups formats by intent —
+  deck=HTML+PDF+PPTX · doc/archdoc=HTML+PDF+DOCX · others=HTML+PDF — real
+  per-format exports zipped with the page itself and a manifest.
+- 5 new gates (real port echo, QR SVG present, two-intent bundle chains, zip
+  structure, error naming); full suite **861 passed / 4 skipped** (tested 2026-11-01).
+- See the [v0.8.6 release notes](docs/RELEASE-NOTES-v0.8.6.md) · [v0.9 plan](docs/PLAN-v0.9.md).
+
+## v0.8.5 · Agents as first-class citizens
 
 **The workbench opens up as an MCP server: any MCP agent (Claude, Cursor, …) can drive the whole pipeline.**
 
-- **MCP server** (`[mcp]` extra): stdio transport, 7 tools — `intake_decompose`
+- **MCP server** (`[mcp]` extra): stdio transport, 8 tools — `intake_decompose`
   (document → provenance-carrying proposal), `intake_adopt`, `generate`,
-  `analyze`, `feedback`, `export`, `capabilities`. Reuses the HTTP API, no
-  second service.
+  `analyze`, `feedback`, `list_projects`, `export`, `capabilities`. Reuses the
+  HTTP API, no second service.
 - **Honest module names**: `intake_proposal` / `intake_adopt` (the docx-prefixed
   modules serve all four formats; old paths ship as compatibility shims).
 - **Anti-pattern gates** (impeccable tier B, self-implemented): no overshoot
