@@ -32,6 +32,36 @@
 
 ---
 
+## 二·五、0.9.0 前置核查（2026-10-31 实测 · 全部就绪）
+
+| 前置项 | 实测结果 | 判定 |
+|---|---|---|
+| Rust 工具链 | rustc/cargo **1.98.1**（.cargo/bin 在 PATH） | ✅ |
+| Tauri CLI | **tauri-cli 2.12.0**（cargo tauri 可用） | ✅ |
+| WebView2 | 156.0.4314（Win11 预装，webview 运行时） | ✅ |
+| Node | v24.15.0（仅 npx 安装器用；壳构建走 cargo tauri） | ✅ |
+| Sidecar 二进制 | **复用现有 PyInstaller 产物**——HtmlNineFox.exe 本身就是 server+启动器（`--port/--no-browser/--strict-port`），无需新建打包变体 | ✅ 策略定 |
+| 图标 | packaging/windows/htmlninefox.ico 在位（Tauri 需转多尺寸 ico/png） | ✅ 源在 |
+| CI Rust 位 | ⬜ src-tauri 落地后加 job（dtolnay/rust-toolchain + tauri build 编译验证，先 Windows） | 待壳动工 |
+| OSS 0.8.4/0.8.5 | ⬜ **仍未上传**（HEAD 404）——发版帖置顶评论依赖 | 机主动作 |
+
+**Sidecar 架构决策（记录）**：Tauri 壳 = 窗口 + webview（加载 127.0.0.1:端口）+
+sidecar（复用 PyInstaller onedir 产物的 HtmlNineFox.exe，`--no-browser
+--strict-port --port <空闲>`）+ 托盘。Rust 主程序职责：spawn sidecar →
+轮询 /api/health 直到 200（verify_portable 纪律）→ 导航 webview → 退出时回收子进程。
+**并存承诺**：PyInstaller 便携包与安装包照发，Tauri 是增量形态不是替代。
+
+### 0.9.0 动工顺序（前置已清，随时可开工）
+
+1. `cargo tauri init` 脚手架（src-tauri/，窗口标题/图标指向现有 ico）
+2. Rust 主程序：sidecar spawn + 健康轮询 + 托盘 + 端口冲突处理（strict-port 失败换端口重试）
+3. tauri.conf.json：externalBin/resources 指向 PyInstaller onedir 产物布局
+4. CI：Rust job（Windows 先行）+ 构建流水线加 Tauri 安装包产物
+5. 验收：verify_portable 式脚本——装完/启动后真探测 /api/health 与版本号
+6. 发版 0.9.0（RELEASE-NOTES/版本同步/tag；OSS 补 0.8.4/0.8.5/0.9.0 三版）
+
+---
+
 ## 三、惯例承诺（沿用）
 
 每功能配真链门禁 + 变异验证；可选依赖只提示不代装；新功能过 VISION 三问；

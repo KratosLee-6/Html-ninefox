@@ -1,0 +1,61 @@
+{
+ "capabilities": {
+  "version": "0.8.5",
+  "features": [
+   "generate",
+   "analyze",
+   "feedback",
+   "projects",
+   "project_crud",
+   "workspace_recovery",
+   "jobs",
+   "diagnostics",
+   "templates",
+   "template_preview",
+   "template_gallery",
+   "page_extraction",
+   "private_template_import",
+   "template_usage_learning",
+   "canvas_history",
+   "canvas_multiselect",
+   "canvas_grouping",
+   "canvas_locking",
+   "canvas_minimap",
+   "canvas_command_palette",
+   "interaction_system",
+   "input_attachments",
+   "ai_settings",
+   "alliance",
+   "export_center",
+   "export_pdf",
+   "export_png",
+   "recipe_run",
+   "recipe_partial_rerun",
+   "project_memory",
+   "adoption_signal",
+   "revision_diff",
+   "revision_history",
+   "revision_labels",
+   "revision_restore"
+  ],
+  "base": "http://127.0.0.1:64397"
+ },
+ "generate": {
+  "project_name": "html9n-2026-10-31-210737",
+  "intent": "dashboard",
+  "verification": {
+   "ok": true,
+   "score": 100,
+   "html_bytes": 13741,
+   "checks": {
+    "non_empty": true,
+    "doctype": true,
+    "html_element": true,
+    "body_element": true,
+    "viewport": true
+   },
+   "warnings": []
+  }
+ },
+ "feedback_rev": 1
+}
