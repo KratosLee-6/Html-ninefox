@@ -85,6 +85,8 @@ def test_bundle_packages_html_pdf_and_docx_for_doc_intent(workbench):
     assert any(n.endswith("output.html") for n in names), "网页本体必须在包内"
     assert any(n.endswith(".pdf") for n in names)
     assert any(n.endswith(".docx") for n in names)
+    # 逐格式导出各带同名 export-report.json——必须按格式分目录，不允许重名
+    assert len(names) == len(set(names)), f"zip 内重名条目: {sorted(names)}"
     # 下载链接必须真实可用（界面「下载」按钮的 href 就靠它）
     assert result["zip_name"] == "bundle.zip"
     assert result["zip_bytes"] == zip_path.stat().st_size

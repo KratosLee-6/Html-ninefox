@@ -1076,7 +1076,9 @@ class _Handler(BaseHTTPRequestHandler):
         from ..exporting import export_project
         project_dir = _OUTPUT_ROOT / project_name
         html_src = project_dir / "output.html"
-        produced: list[str] = []
+        # (绝对路径, 包内归档名)：逐格式导出的 export-report.json 同名，
+        # 平铺进 zip 会重名互覆（zipfile 只告警不拦截）——按格式分目录归档。
+        produced: list[tuple[str, str]] = []
         for fmt in formats:
             result = export_project(_OUTPUT_ROOT, {
                 "project_name": project_name, "format": fmt,
@@ -1084,21 +1086,25 @@ class _Handler(BaseHTTPRequestHandler):
             # export_project 的产物键是 export_id + files[].name（仅基名），
             # 完整路径 = 项目 exports/<export_id>/<name>
             export_dir = project_dir / "exports" / result["export_id"]
-            for f in result.get("files", []):
-                produced.append(str(export_dir / f["name"]))
-            produced.append(str(export_dir / "export-report.json"))
+            # docx/pptx 路径把 report 一并放进 files；其余格式才需要单独补——
+            # 无条件补会造出真重复（重名门禁首跑即抓到）。
+            files = result.get("files", [])
+            if not any(f["name"] == "export-report.json" for f in files):
+                files = [*files, {"name": "export-report.json"}]
+            for f in files:
+                produced.append((str(export_dir / f["name"]), f"{fmt}/{f['name']}"))
         if html_src.is_file():
-            produced.append(str(html_src))
+            produced.append((str(html_src), "output.html"))
         stamp = time.strftime("%Y%m%d-%H%M%S")
         out_dir = project_dir / "exports" / f"{stamp}-bundle"
         out_dir.mkdir(parents=True, exist_ok=True)
         zip_path = out_dir / "bundle.zip"
         import zipfile
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-            for file_path in produced:
-                zf.write(file_path, Path(file_path).name)
+            for file_path, arcname in produced:
+                zf.write(file_path, arcname)
         manifest = {"intent": intent, "formats": formats,
-                    "files": [Path(f).name for f in produced]}
+                    "files": [arcname for _, arcname in produced]}
         (out_dir / "bundle-manifest.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
         # 下载链接与 export_project 同构（/output/<相对路径>?download=1）——
