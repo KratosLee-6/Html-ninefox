@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.6-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.6)
+[![App Release](https://img.shields.io/badge/app-v0.8.7-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.7)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.6`（2026-11-01 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.6) · 完整功能与架构见下。
+> 当前应用包版本为 `0.8.7`（2026-11-01 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.7) · 完整功能与架构见下。
 > **AI / Agent 接入**：[Agent 调用指南](docs/AGENT-GUIDE.md)——CLI / HTTP API / Skill 三通路实测命令与回显。
 
 ---
@@ -36,7 +36,21 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.8.6 · 手机预览 + 一键交付包（最新功能）
+## 🆕 v0.8.7 · 动效质量层（最新功能）
+
+**接入 LottieFiles 动效导演原则——AI 生成的网页，动效也过质检。**
+
+- **联盟第 8 位成员**：motion-design-skill（MIT）——首个 guidance-source
+  知识型成员（无 CLI 无模块，探测技能目录落位）；未安装本地兜底照旧。
+- **动效质量门禁 5 条**：时长 token 对齐元素类型表、linear 缓动禁令
+  （spinner 白名单）、显形非 opacity-only、stagger<500ms 预算、循环缓动律；
+  **三连变异验证全 CAUGHT**（门禁连自己都拦）。
+- 接入前审计零违规——门禁锁住现有不变量，只禁变差。
+- 全量 **868 passed / 4 skipped**（2026-11-01 实测）。
+- 详见 [评估档](docs/EVAL-motion-design-skill-20261101.md) ·
+  [v0.8.7 发布说明](docs/RELEASE-NOTES-v0.8.7.md)。
+
+## v0.8.6 · 手机预览 + 一键交付包
 
 **做完马上掏手机看，交付出厂一键完成——输出端最后一公里界面化。**
 

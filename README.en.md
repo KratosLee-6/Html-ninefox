@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.6-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.6)
+[![App Release](https://img.shields.io/badge/app-v0.8.7-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.7)
 [![Tests](https://img.shields.io/badge/pytest-853%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
@@ -17,7 +17,7 @@
 </div>
 
 
-> Current app version `0.8.6` (released 2026-11-01) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.6) · full features below.
+> Current app version `0.8.7` (released 2026-11-01) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.7) · full features below.
 > **AI / Agent integration**: [Agent guide](docs/AGENT-GUIDE.md) — CLI / HTTP API / Skill, all commands verified against a live build.
 
 ---
@@ -33,7 +33,24 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.8.6 · Phone preview + delivery bundle (latest)
+## v0.8.7 · Motion quality layer (latest)
+
+**LottieFiles motion-director principles adopted — AI-generated pages now
+have their motion audited too.**
+
+- **8th alliance member**: motion-design-skill (MIT) — the first
+  guidance-source member (no CLI, no module; probed by skill-dir presence);
+  local fallback unchanged without it.
+- **5 motion gates**: duration tokens vs element-type table, linear-easing
+  ban (spinner whitelist), no opacity-only reveals, stagger < 500ms budget,
+  eased ambient loops; **triple mutation verification all CAUGHT**.
+- Pre-integration audit found zero violations — gates lock in current
+  invariants (no-regression discipline).
+- Full suite **868 passed / 4 skipped** (tested 2026-11-01).
+- See the [evaluation doc](docs/EVAL-motion-design-skill-20261101.md) ·
+  [v0.8.7 release notes](docs/RELEASE-NOTES-v0.8.7.md).
+
+## v0.8.6 · Phone preview + delivery bundle
 
 **Check it on your phone right after generating; ship a delivery bundle in one
 click — the last mile of output, now visible in the UI.**

@@ -31,9 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 时间轴圆点 `transition:all .25s` 会连布局属性一起动画
 - 像素投影从多处收敛到两处（选中节点、主按钮）
 
-## [Unreleased]
+## [0.8.7] - 2026-11-01 · 动效质量层
 
-### Added（0.8.7 · 动效质量层 + 所见即所得，未发版）
 - **联盟新成员 motion-design**（LottieFiles/motion-design-skill，MIT）：
   首个 guidance-source 知识型成员——无 CLI 无模块，`detect_paths` 探测
   `.agents`/`.claude` 等技能目录落位；未安装本地兜底照旧。
@@ -42,6 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   禁令（spinner/progress 白名单）、reveal 非 opacity-only、stagger < 500ms、
   环境循环 ease-in-out 律；三连变异验证全 CAUGHT。详见
   docs/EVAL-motion-design-skill-20261101.md。
+
+### Fixed
+- **显形编排静默死亡**：0.6s fox-reveal 被同特异性 `.card` transition 覆盖
+  （声明顺序靠后整体覆盖），显形一直瞬切——浏览器采样 opacity 时间线实锤
+  （0→1 不足 100ms）。transition 移入 after-change 态（`.fox-in`），
+  入场完成后 `.fox-done` 切回 .18s 交互档；reduced-motion / print 同步覆盖。
 
 ## [0.8.6] - 2026-11-01 · 手机预览 + 一键交付包
 

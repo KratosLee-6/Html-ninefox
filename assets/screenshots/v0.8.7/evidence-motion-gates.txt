@@ -1,0 +1,10 @@
+============================= test session starts =============================
+collecting ... collected 5 items
+
+tests/test_motion_quality.py::test_duration_tokens_match_element_type_table PASSED [ 20%]
+tests/test_motion_quality.py::test_no_linear_easing_for_spatial_movement PASSED [ 40%]
+tests/test_motion_quality.py::test_reveal_accompanies_transform_and_stays_in_budget PASSED [ 60%]
+tests/test_motion_quality.py::test_ink_in_is_a_dramatic_reveal_not_a_page_load PASSED [ 80%]
+tests/test_motion_quality.py::test_ambient_loops_are_seamless_not_linear PASSED [100%]
+
+============================== 5 passed in 0.22s ==============================

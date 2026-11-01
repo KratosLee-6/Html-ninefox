@@ -1,0 +1,26 @@
+============================= test session starts =============================
+collected 1 item
+
+tests\test_motion_quality.py F                                           [100%]
+
+================================== FAILURES ===================================
+_________________ test_ambient_loops_are_seamless_not_linear __________________
+
+    def test_ambient_loops_are_seamless_not_linear():
+        """环境循环走向规则：ease-in-out/sine——linear 循环看着像传送带。"""
+        shared = _read(SHARED)
+        ambient = re.search(r"animation:\s*fox-ambient-drift\s+([^;]+);", shared)
+        assert ambient, "找不到 fox-ambient-drift 声明"
+        timing = ambient.group(1)
+>       assert "linear" not in timing and ("ease-in-out" in timing or "sine" in timing), timing
+E       AssertionError: 26s linear infinite alternate
+E       assert ('linear' not in '26s linear ...te alternate'
+E         
+E         'linear' is contained here:
+E           26s linear infinite alternate
+E         ?     ++++++)
+
+tests\test_motion_quality.py:112: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_motion_quality.py::test_ambient_loops_are_seamless_not_linear
+============================== 1 failed in 0.71s ==============================

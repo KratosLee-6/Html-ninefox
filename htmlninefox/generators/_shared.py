@@ -163,21 +163,27 @@ def ambient_motion_css(preset: Dict[str, Any]) -> str:
   from {{ opacity: 0; transform: translateY(14px); filter: blur(6px); }}
   to   {{ opacity: 1; transform: none; filter: none; }}
 }}
-.fox-reveal {{
-  opacity: 0; transform: translateY(18px);
-  transition: opacity .6s cubic-bezier(0.16, 1, 0.3, 1),
-              transform .6s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: var(--fox-stagger, 0ms);
-}}
-.fox-reveal.fox-in {{ opacity: 1; transform: none; }}
+/* 显形编排（v0.8.7 重构）：入场 transition 必须写在 after-change 态
+   （.fox-in）——写在基类会被 .card 的交互 transition 同特异性覆盖，
+   0.6s 编排静默死亡、显形退化瞬切（采样 opacity 时间线实锤）。
+   入场完成后 JS 补 .fox-done 切回交互档：hover 保持 <150ms 响应。 */
 .card {{ transition: transform .18s ease, box-shadow .18s ease; }}
+.fox-reveal {{ opacity: 0; transform: translateY(18px); }}
+.fox-reveal.fox-in {{
+  opacity: 1; transform: none;
+  transition: opacity .6s cubic-bezier(0.16, 1, 0.3, 1) var(--fox-stagger, 0ms),
+              transform .6s cubic-bezier(0.16, 1, 0.3, 1) var(--fox-stagger, 0ms);
+}}
+.fox-reveal.fox-done {{ transition: transform .18s ease, box-shadow .18s ease; transition-delay: 0ms; }}
+.fox-reveal.fox-in:hover, .fox-reveal.fox-done:hover {{ transform: translateY(-2px); }}
 .card:hover {{ transform: translateY(-2px); box-shadow: 0 10px 28px color-mix(in srgb, {primary} 12%, transparent); }}
 :focus-visible {{ outline: 3px solid color-mix(in srgb, {accent} 70%, {primary}); outline-offset: 2px; border-radius: 2px; }}
 :focus-visible {{ outline: 3px solid color-mix(in srgb, {accent} 70%, {primary}); outline-offset: 2px; border-radius: 2px; }}
 @media (prefers-reduced-motion: reduce) {{
   .fox-ambient {{ animation: none; }}
   .fox-ink-in > h1 {{ animation: none; }}
-  .fox-reveal {{ opacity: 1; transform: none; transition: none; }}
+  .fox-reveal, .fox-reveal.fox-in, .fox-reveal.fox-done {{ opacity: 1; transform: none; transition: none; }}
+  .fox-reveal.fox-in:hover, .fox-reveal.fox-done:hover {{ transform: none; }}
   .card {{ transition: none; }}
   .card:hover {{ transform: none; }}
   .fox-cursor-glow {{ display: none; }}
@@ -220,6 +226,12 @@ def ambient_motion_js() -> str:
         el.style.setProperty('--fox-stagger',
           Math.min(360, (parseInt(el.dataset.foxIndex || '0', 10)) * 60) + 'ms');
         el.classList.add('fox-in');
+        /* 入场编排结束即切回交互档（.18s）：hover 响应性不让位给电影感 */
+        el.addEventListener('transitionend', function (e) {
+          if (e.target === el && e.propertyName === 'transform') {
+            el.classList.add('fox-done');
+          }
+        });
         io.unobserve(el);
       });
     }, { threshold: 0.12 });

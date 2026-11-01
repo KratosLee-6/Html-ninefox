@@ -1,0 +1,23 @@
+🤝 Skill 联盟 (8)                               
+┌─────────────────┬─────────────────┬─────────────────┬────────────────┬──────┐
+│ Skill           │ 作者            │ 接管内容        │ 状态           │ 来源 │
+├─────────────────┼─────────────────┼─────────────────┼────────────────┼──────┤
+│ archify         │ tt-a1i          │ archdoc         │ 未安装→本地兜… │ user │
+│ baoyu-slide-de… │ 宝玉 (JimLiu)   │ ppt_image       │ 未安装→本地兜… │ user │
+│ beautiful-html… │ 张咋啦          │ html_template   │ 未安装→本地兜… │ user │
+│                 │ (zarazhangrui)  │                 │                │      │
+│ frontend-slides │ 张咋啦          │ ppt_html        │ 未安装→本地兜… │ user │
+│                 │ (zarazhangrui)  │                 │                │      │
+│ guizang-ppt     │ 归藏            │ deck            │ 未安装→本地兜… │ user │
+│ huashu-design   │ 花叔            │ landing, poster │ 未安装→本地兜… │ user │
+│ impeccable      │ Paul Bakaus     │ landing, deck,  │ 未安装→本地兜… │ seed │
+│                 │ (pbakaus)       │ poster,         │                │      │
+│                 │                 │ dashboard, doc, │                │      │
+│                 │                 │ archdoc         │                │      │
+│ motion-design   │ LottieFiles     │ landing, deck,  │ 未安装→本地兜… │ seed │
+│                 │                 │ poster,         │                │      │
+│                 │                 │ dashboard, doc, │                │      │
+│                 │                 │ archdoc         │                │      │
+└─────────────────┴─────────────────┴─────────────────┴────────────────┴──────┘
+
+加入联盟：把 skill-manifest.yaml 放到 ~/.htmlninefox/alliance/

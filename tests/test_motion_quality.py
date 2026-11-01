@@ -79,16 +79,25 @@ def test_no_linear_easing_for_spatial_movement():
 
 
 def test_reveal_accompanies_transform_and_stays_in_budget():
-    """CRITICAL #2 + 编排预算：显形的 transition 必须同时携带 opacity+transform，
-    cap < 500ms。（基底态写没写 transform 不算数——动画的是 transition 属性集）"""
+    """CRITICAL #2 + 编排预算：显形入场的 transition 必须写在 after-change 态
+    （.fox-in）且同时携带 opacity+transform，cap < 500ms。
+
+    历史教训（0.8.7 实锤）：transition 写在 .fox-reveal 基类时，被同特异性的
+    .card 交互 transition 整体覆盖——0.6s 编排静默死亡，显形退化瞬切
+    （浏览器采样 opacity 时间线：0→1 不足 100ms）。after-change 态规则
+    天然免疫后续覆盖。入场完成后 .fox-done 切回 .18s 交互档保 hover 响应。"""
     shared = _read(SHARED)
-    reveal = re.search(r"\.fox-reveal \{(.*?)\}", shared, re.S)
-    assert reveal, "找不到 .fox-reveal 块——墨水落纸层结构变了？"
-    transition = re.search(r"transition:([^;]+);", reveal.group(1))
-    assert transition, "fox-reveal 没有 transition 声明"
+    fox_in = re.search(r"\.fox-reveal\.fox-in \{(.*?)\}", shared, re.S)
+    assert fox_in, "找不到 .fox-reveal.fox-in 块——显形结构变了？"
+    transition = re.search(r"transition:([^;]+);", fox_in.group(1))
+    assert transition, "fox-in 态没有 transition——显形会退化为瞬切"
     props = transition.group(1)
     assert "opacity" in props and "transform" in props, (
-        f"fox-reveal 的 transition 退化为 opacity-only（CRITICAL #2）：{props.strip()}")
+        f"fox-in 的 transition 退化为 opacity-only（CRITICAL #2）：{props.strip()}")
+    assert ".6s" in props, "入场编排不再是 .6s——电影感丢失"
+    done = re.search(r"\.fox-reveal\.fox-done \{([^}]+)\}", shared)
+    assert done and ".18s" in done.group(1), (
+        "缺少 .fox-done 交互档——入场后 hover 会拖到 .6s（响应性丢失）")
     caps = [int(v) for v in re.findall(r"Math\.min\((\d+)", shared)]
     assert caps and max(caps) < 500, (
         f"stagger cap 超出 500ms 总预算：{caps}")
