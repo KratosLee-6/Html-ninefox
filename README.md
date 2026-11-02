@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.7-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.7)
+[![App Release](https://img.shields.io/badge/app-v0.8.8-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.8)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.7`（2026-11-01 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.7) · 完整功能与架构见下。
+> 当前应用包版本为 `0.8.8`（2026-11-02 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.8) · 完整功能与架构见下。
 > **AI / Agent 接入**：[Agent 调用指南](docs/AGENT-GUIDE.md)——CLI / HTTP API / Skill 三通路实测命令与回显。
 
 ---
@@ -36,7 +36,20 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.8.7 · 动效质量层（最新功能）
+## 🆕 v0.8.8 · 点选即改（最新功能）
+
+**预览里单击任意文字直接改，Enter 保存出 rev——所见即所得，全部六类意图可用。**
+
+- **点选即改**（所见即所得 A1）：不再只是 deck 的幻灯片编辑——landing /
+  dashboard / poster / doc 的产物文字都能在预览里点开就改。
+- 每次保存都是新修订：可对比、可回滚，与口语反馈共用同一套版本机制；
+  乐观锁 + 失配防护保证「绝不改错节点」。
+- 一致性门禁（真实渲染里前端枚举与服务器映射逐位对应）首跑就抓到
+  title 与 `&nbsp;` 两类错位——修完才发版。
+- 全量 **878 passed / 4 skipped**（2026-11-02 实测）。
+- 详见 [v0.8.8 发布说明](docs/RELEASE-NOTES-v0.8.8.md)。
+
+## v0.8.7 · 动效质量层
 
 **接入 LottieFiles 动效导演原则——AI 生成的网页，动效也过质检。**
 

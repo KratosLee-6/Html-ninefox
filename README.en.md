@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.7-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.7)
+[![App Release](https://img.shields.io/badge/app-v0.8.8-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.8)
 [![Tests](https://img.shields.io/badge/pytest-853%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
@@ -17,7 +17,7 @@
 </div>
 
 
-> Current app version `0.8.7` (released 2026-11-01) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.7) · full features below.
+> Current app version `0.8.8` (released 2026-11-02) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.8) · full features below.
 > **AI / Agent integration**: [Agent guide](docs/AGENT-GUIDE.md) — CLI / HTTP API / Skill, all commands verified against a live build.
 
 ---
@@ -33,7 +33,23 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.8.7 · Motion quality layer (latest)
+## v0.8.8 · Click-to-edit (latest)
+
+**Click any text in the preview, type, press Enter — a new revision. WYSIWYG
+for all six intents, not just decks.**
+
+- **Click-to-edit** (WYSIWYG A1): landing / dashboard / poster / doc artifacts
+  join the deck slide editor in inline text editing.
+- Every save is a new revision — diffable, restorable, same versioning as
+  verbal feedback; optimistic locking plus a current-text guard so the wrong
+  node can never be edited.
+- The consistency gate (frontend enumeration vs server mapping, bit-for-bit
+  on a real render) caught `title` and `&nbsp;` misalignment on its first
+  run — fixed before release.
+- Full suite **878 passed / 4 skipped** (tested 2026-11-02).
+- See the [v0.8.8 release notes](docs/RELEASE-NOTES-v0.8.8.md).
+
+## v0.8.7 · Motion quality layer
 
 **LottieFiles motion-director principles adopted — AI-generated pages now
 have their motion audited too.**

@@ -159,9 +159,14 @@ from html.parser import HTMLParser as _HTMLParser
 
 
 class _TextNodeMapper(_HTMLParser):
-    """Map every visible text node to its exact char span, per slide."""
+    """Map every visible text node to its exact char span, per slide.
 
-    SKIP = {"script", "style"}
+    v0.8.8 起恒收集全部分区外文本（span.slide=-1 标记孤儿）；每个 span
+    带全序列稳定 node id——iter_text_nodes（点选即改）与 iter_slide_texts
+    （deck 清单）对同一 HTML 给出同一套编号，apply_text_edits 按 id 匹配。
+    SKIP 里 title 与前端 walker（body 起步）对齐，head 文本不参与编辑。"""
+
+    SKIP = {"script", "style", "title"}
 
     def __init__(self, html_text: str):
         super().__init__(convert_charrefs=False)
@@ -172,12 +177,19 @@ class _TextNodeMapper(_HTMLParser):
         self.slide = -1
         self.skipping = 0
         self.spans: list[dict] = []
+        # 实体缓冲：&nbsp; 等会把一个 DOM 文本节点拆成多段 data——把相邻
+        # data/实体并入同一缓冲，按原文切片成单 span，与浏览器 DOM 一一
+        # 对应（点选即改的编号对齐前提）。
+        self._buf_start: int | None = None
+        self._buf_raw: list[str] = []
+        self._buf_visible: list[str] = []
 
     def _offset(self) -> int:
         line, col = self.getpos()
         return self._line_starts[line - 1] + col
 
     def handle_starttag(self, tag, attrs):
+        self._flush()   # 标签边界 = DOM 文本节点边界：缓冲只收相邻文本/实体
         if tag in self.SKIP:
             self.skipping += 1
         elif tag == "section" and any(name == "class" and "slide" in (value or "")
@@ -185,21 +197,67 @@ class _TextNodeMapper(_HTMLParser):
             self.slide += 1
 
     def handle_endtag(self, tag):
+        self._flush()
         if tag in self.SKIP and self.skipping:
             self.skipping -= 1
 
     def handle_data(self, data):
-        if self.skipping or self.slide < 0 or not data.strip():
+        if self.skipping:
             return
-        start = self._offset()
-        end = start + len(data)
-        # 保守策略：原始切片与解析文本不一致（实体等）时跳过该节点
-        if self._raw[start:end] != data:
+        self._feed(data, data)
+
+    def handle_entityref(self, name):
+        if self.skipping:
             return
+        self._feed(f"&{name};", html_mod.unescape(f"&{name};"))
+
+    def handle_charref(self, name):
+        if self.skipping:
+            return
+        self._feed(f"&#{name};", html_mod.unescape(f"&#{name};"))
+
+    def _feed(self, raw: str, visible: str) -> None:
+        if self._buf_start is None:
+            self._buf_start = self._offset()
+        self._buf_raw.append(raw)
+        self._buf_visible.append(visible)
+
+    def _flush(self) -> None:
+        if self._buf_start is None:
+            return
+        start = self._buf_start
+        raw = "".join(self._buf_raw)
+        visible = "".join(self._buf_visible)
+        self._buf_start, self._buf_raw, self._buf_visible = None, [], []
+        if not visible.strip():
+            return
+        end = start + len(raw)
+        # 保守策略：原文切片与拼装结果不一致（解析位移异常）时跳过该节点
+        if self._raw[start:end] != raw:
+            return
+        # 规范化与浏览器 DOM walker 同语义：str.split() 与 JS 的 \s 一样
+        # 把 \xa0（&nbsp; 解码产物）当作空白
         self.spans.append({
-            "slide": self.slide, "start": start, "end": end,
-            "raw": data, "text": " ".join(data.split()),
+            "slide": self.slide, "node": len(self.spans),
+            "start": start, "end": end,
+            "raw": raw, "text": " ".join(visible.split()),
         })
+
+    def close(self) -> None:
+        super().close()
+        self._flush()
+
+
+def iter_text_nodes(html_text: str) -> list[dict]:
+    """All visible text nodes in document order (any intent, v0.8.8):
+    [{slide, node, text}] — slide=-1 outside deck sections; node is the
+    stable full-sequence id, aligned with iter_slide_texts and
+    apply_text_edits for the same HTML (revision lock guards staleness)."""
+    mapper = _TextNodeMapper(html_text)
+    mapper.feed(html_text)
+    mapper.close()
+    return [{"slide": span["slide"], "node": span["node"], "text": span["text"]}
+            for span in mapper.spans]
 
 
 def iter_slide_texts(html_text: str) -> list[dict]:
@@ -208,10 +266,12 @@ def iter_slide_texts(html_text: str) -> list[dict]:
     mapper.feed(html_text)
     mapper.close()
     slides: dict[int, dict] = {}
-    for position, span in enumerate(mapper.spans):
+    for span in mapper.spans:
+        if span["slide"] < 0:
+            continue   # 分区外（页壳）文本归点选即改，不进幻灯片清单
         slide = slides.setdefault(span["slide"], {
             "index": span["slide"], "title": "", "texts": []})
-        slide["texts"].append({"slide": span["slide"], "node": position,
+        slide["texts"].append({"slide": span["slide"], "node": span["node"],
                                "text": span["text"]})
         if not slide["title"] and span["slide"] >= 0:
             slide["title"] = span["text"][:120]
@@ -229,7 +289,7 @@ def apply_text_edits(html_text: str, edits: list[dict]) -> str:
         slide_index, node_index = int(edit.get("slide", -1)), int(edit.get("node", -1))
         new_text = str(edit.get("text") or "")
         matching = [span for span in mapper.spans
-                    if span["slide"] == slide_index and mapper.spans.index(span) == node_index]
+                    if span["slide"] == slide_index and span["node"] == node_index]
         if not matching:
             continue
         span = matching[0]

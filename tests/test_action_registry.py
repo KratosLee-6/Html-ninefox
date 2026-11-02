@@ -43,6 +43,7 @@ SCANNED = [
     "workbench-features.js", "canvas-productivity.js", "lifecycle-intake.js",
     "lifecycle-revisions.js", "lifecycle-generation.js", "lifecycle-exports.js",
     "lifecycle-slides.js", "lifecycle-projects.js", "workbench-ui.js",
+    "lifecycle-liveedit.js",
     "docx-desk.js",
     "interaction-system.js", "motion-system.js", "canvas-engine.js",
 ]
@@ -199,7 +200,7 @@ def test_registry_entries_point_at_real_fox_modules() -> None:
         "window.FoxProjects", "window.FoxGeneration", "window.FoxRevisions",
         "window.FoxExports", "window.FoxIntake", "window.FoxSlides",
         "window.FoxCanvasProductivity", "window.FoxDocx",
-        "window.FoxPhone",
+        "window.FoxPhone", "window.FoxLiveEdit",
     }
     offenders: list[str] = []
     for name, target in re.findall(

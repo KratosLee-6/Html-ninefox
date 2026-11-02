@@ -31,6 +31,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 时间轴圆点 `transition:all .25s` 会连布局属性一起动画
 - 像素投影从多处收敛到两处（选中节点、主按钮）
 
+## [0.8.8] - 2026-11-02 · 点选即改（所见即所得 A1）
+
+> 输出端「点哪里改哪里」（前端感知审计主项 A 的第一阶段）。
+> 发布说明见 `docs/RELEASE-NOTES-v0.8.8.md`。
+
+### Added
+- **点选即改**：预览 iframe 里单击任意文字直接改，Enter 保存出 rev——
+  全部六类意图可用（不再只是 deck 的幻灯片编辑）。
+  HTTP 新增 `GET /api/projects/<名>/text-nodes` 与
+  `PUT /api/projects/<名>/text`（乐观锁 + current 失配防护，
+  复用 apply_text_edits 引擎与 revisions 版本机制，kind="text-edit"）。
+- `_TextNodeMapper` 统一：恒收集全部可见文本（span.slide=-1 标记分区外），
+  span 带全序列稳定 node id——点选枚举与幻灯片清单同源同号；
+  **实体并入文本流**（&nbsp; 等不再把一个 DOM 文本节点拆成多段）；
+  SKIP 增 title（与前端 walker 的 body 起步语义对齐）。
+- 前端 `FoxLiveEdit` 模块（lifecycle-liveedit.js）：进入编辑整段全选、
+  hover 虚线轮廓、保存走 advanceNodeRevision 唯一写回协议（C2）、
+  DOM 枚举数与映射表不一致时拒绝进入（宁拒不改错）。
+
+### 门禁
+- tests/test_live_edit.py 10 条：landing 枚举 / 编辑往返出 rev / 恢复还原 /
+  过期版本 409 / 失配 409（变异 CAUGHT）/ 越界 409 / 空 edits 400 /
+  deck 分组回归护栏 / **浏览器一致性**（真实渲染里前端 walker 与服务器
+  映射逐位对应——首跑即抓到 title 与 &nbsp; 两类错位）/ **端到端 UI 冒烟**
+  （注入节点 → 点选 → 改写 → rev1 落盘）。
+
 ## [0.8.7] - 2026-11-01 · 动效质量层
 
 - **联盟新成员 motion-design**（LottieFiles/motion-design-skill，MIT）：

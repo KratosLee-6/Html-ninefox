@@ -63,6 +63,7 @@ STATIC_FILES = {
     "/lifecycle-intake.js": ("lifecycle-intake.js", "application/javascript; charset=utf-8", "no-cache"),
     "/docx-desk.js": ("docx-desk.js", "application/javascript; charset=utf-8", "no-cache"),
     "/lifecycle-slides.js": ("lifecycle-slides.js", "application/javascript; charset=utf-8", "no-cache"),
+    "/lifecycle-liveedit.js": ("lifecycle-liveedit.js", "application/javascript; charset=utf-8", "no-cache"),
     "/motion-system.js": ("motion-system.js", "application/javascript; charset=utf-8", "no-cache"),
     "/motion-lab": ("motion-lab.html", "text/html; charset=utf-8", "no-cache"),
     "/canvas-productivity.js": ("canvas-productivity.js", "application/javascript; charset=utf-8", "no-cache"),
@@ -698,6 +699,17 @@ class _Handler(BaseHTTPRequestHandler):
             state = revisions.load_state(project)
             return self._json({"ok": True, "slides": slides,
                                "revision": state.get("revision", 0)})
+        if path.startswith("/api/projects/") and path.endswith("/text-nodes"):
+            name = path[len("/api/projects/"):-len("/text-nodes")]
+            project = self._store().resolve_project(name)
+            html_path = project / "output.html"
+            if not html_path.is_file():
+                raise StoreError("not_found", "该产物缺少 output.html，无法点选编辑", 404)
+            nodes = pptx_export.iter_text_nodes(
+                html_path.read_text(encoding="utf-8", errors="replace"))
+            state = revisions.load_state(project)
+            return self._json({"ok": True, "nodes": nodes,
+                               "revision": state.get("revision", 0)})
         if path == "/api/intake/style-presets":
             return self._json({"ok": True, "presets": self._intake_style_presets().list()})
         if path == "/api/intake/sources":
@@ -1009,6 +1021,46 @@ class _Handler(BaseHTTPRequestHandler):
                 after["updated_at"] = datetime.now().isoformat(timespec="seconds")
                 state = revisions.commit(project, before, after, new_html,
                                          kind="slides-edit")
+            return self._json({"ok": True, "revision": state.get("revision"),
+                               "project": store.get_project(name)})
+        if path.startswith("/api/projects/") and path.endswith("/text"):
+            # 点选即改（v0.8.8）：所有意图通用。edits = [{slide, node, text,
+            # current}]——current 是前端看到的现文，服务端与映射表比对，
+            # 防止 DOM 枚举与字符跨度错位时改错节点（v0.7.4 一致性教训）。
+            name = path[len("/api/projects/"):-len("/text")]
+            edits = body.get("edits") if isinstance(body.get("edits"), list) else []
+            if not edits:
+                raise StoreError("text_edit_empty", "edits 不能为空", 400)
+            store = self._store()
+            project = store.resolve_project(name)
+            expected = body.get("expected_revision")
+            with revisions.project_lock(project):
+                before = revisions.load_state(project)
+                if type(expected) is not int or expected != before.get("revision", 0):
+                    raise StoreError("revision_conflict",
+                                     "项目已有新版本，请刷新后重试", 409)
+                html_path = project / "output.html"
+                if not html_path.is_file():
+                    raise StoreError("not_found", "该产物缺少 output.html", 404)
+                html_text = html_path.read_text(encoding="utf-8", errors="replace")
+                nodes = pptx_export.iter_text_nodes(html_text)
+                for edit in edits:
+                    node_index = int(edit.get("node", -1))
+                    if not 0 <= node_index < len(nodes):
+                        raise StoreError("text_edit_noop",
+                                         "文本节点已变化，请刷新后重试", 409)
+                    current = " ".join(str(edit.get("current") or "").split())
+                    if current and current != nodes[node_index]["text"]:
+                        raise StoreError("text_node_mismatch",
+                                         "页面内容已变化，请刷新编辑器后重试", 409)
+                try:
+                    new_html = pptx_export.apply_text_edits(html_text, edits)
+                except RuntimeError as error:
+                    raise StoreError("text_edit_noop", str(error), 409) from error
+                after = copy.deepcopy(before)
+                after["updated_at"] = datetime.now().isoformat(timespec="seconds")
+                state = revisions.commit(project, before, after, new_html,
+                                         kind="text-edit")
             return self._json({"ok": True, "revision": state.get("revision"),
                                "project": store.get_project(name)})
         if path == "/api/workspace":

@@ -951,6 +951,7 @@ window.FoxActions = {
   docxAddSlot: () => window.FoxDocx.addSlot(),
   startBundleExport: () => window.FoxExports.startBundle(),
   openPhonePreview: () => window.FoxPhone.open(),
+  toggleLiveEdit: id => window.FoxLiveEdit.toggle(id),
   closePhonePreview: () => window.FoxPhone.close(),
   docxToggleSlotLang: () => window.FoxDocx.toggleSlotLang(),
   openSlideEditor: id => window.FoxSlides.open(id),
@@ -1005,6 +1006,7 @@ const FOX_ACTION_SIGNATURES = {
   deleteProject: { id: 'number' },
   openOutput: { id: 'number' },
   openExportCenter: { id: 'number' },
+  toggleLiveEdit: { id: 'number' },
   openSlideEditor: { id: 'number' },
   openRevisionDiff: { id: 'number' },
   openNodePreview: { id: 'number' },
@@ -1179,6 +1181,7 @@ function renderInspector() {
       <div class="kv"><span>风格</span><span>${esc(n.data.preset_id || '—')}</span></div>
       <div class="kv"><span>版本</span><span id="ins-rev">rev${n.data.revision || 0}</span></div></div>
       ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" data-action="openSlideEditor" data-id="${n.id}">✏️ 编辑幻灯片</button>` : ''}
+      <button class="btn btn-primary" style="margin-top:8px;width:100%" data-action="toggleLiveEdit" data-id="${n.id}">✎ 点选编辑文字</button>
       <button class="btn btn-secondary" id="btn-revision-diff" data-action="openRevisionDiff" data-id="${n.id}">查看版本差异</button>
       <h3 style="margin-top:14px">运行轨迹</h3>${recipeRunMarkup(n.data.recipe_run, n.id)}
       ${memorySummaryMarkup(n.data.memory_applied)}
@@ -1203,6 +1206,7 @@ function renderInspector() {
       <div class="kv"><span>风格</span><span>${esc(n.data.preset_id || '—')}</span></div></div>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn btn-primary" data-action="openOutput" data-id="${n.id}">↗ 打开产物</button><button class="btn btn-secondary" data-action="openExportCenter" data-id="${n.id}">⇩ 导出</button></div>
       ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" data-action="openSlideEditor" data-id="${n.id}">✏️ 编辑幻灯片</button>` : ''}
+      <button class="btn btn-primary" style="margin-top:8px;width:100%" data-action="toggleLiveEdit" data-id="${n.id}">✎ 点选编辑文字</button>
       <button class="btn btn-secondary" id="btn-revision-diff" data-action="openRevisionDiff" data-id="${n.id}">查看版本差异</button>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-top:9px">
         <button class="btn btn-secondary" data-action="renameProject" data-id="${n.id}">重命名</button>
