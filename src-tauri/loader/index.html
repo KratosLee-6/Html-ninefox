@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Html九尾狐 启动中</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: grid; place-items: center;
+    background: #faf9f7; color: #173c8f;
+    font-family: 'Microsoft YaHei', system-ui, sans-serif;
+  }
+  .box { text-align: center; }
+  .fox { font-size: 64px; line-height: 1; animation: breathe 2.4s ease-in-out infinite; }
+  h1 { font-size: 22px; font-weight: 600; margin: 18px 0 8px; }
+  p { font-size: 14px; color: #8a8f98; margin: 0; }
+  @keyframes breathe { 0%,100% { opacity: .55 } 50% { opacity: 1 } }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="fox">🦊</div>
+    <h1>正在启动本地工作台…</h1>
+    <p>首次启动可能需要几秒钟；数据全程不出本机。</p>
+  </div>
+</body>
+</html>

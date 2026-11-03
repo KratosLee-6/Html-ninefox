@@ -4,7 +4,7 @@
   "version": "0.9.0-alpha.0",
   "identifier": "com.kratoslee.htmlninefox",
   "build": {
-    "frontendDist": "./dist"
+    "frontendDist": "./loader"
   },
   "app": {
     "windows": [
