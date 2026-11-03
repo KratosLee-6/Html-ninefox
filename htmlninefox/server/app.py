@@ -1266,8 +1266,10 @@ class _Handler(BaseHTTPRequestHandler):
         goal = payload.get("goal", {})
         content = payload.get("content", {})
         style = payload.get("style", {})
-        preset_id = memory_overrides.get("template") or _tokens.match_preset(
-            result, result.get("intent", "landing"))["id"]
+        # 风格轴（0.9.1）：match_preset 附带动效人格与中文推荐理由——
+        # 规则引擎也照给（「AI 增强可见」的兜底半场）。
+        matched = _tokens.match_preset(result, result.get("intent", "landing"))
+        preset_id = memory_overrides.get("template") or matched["id"]
         recommended = template_gallery.recommend_gallery(
             result.get("intent", "landing"), preset_id, self._user_gallery().root)
         return self._json({
@@ -1278,6 +1280,8 @@ class _Handler(BaseHTTPRequestHandler):
             "brand": memory_values.get("brand") or content.get("brand", ""),
             "audience": memory_values.get("audience") or goal.get("audience", ""),
             "tone": memory_values.get("tone") or style.get("tone", ""),
+            "motion": matched.get("_motion", {}),
+            "style_reason": matched.get("_reason", ""),
             "headline": content.get("headline", ""),
             "must_have": (content.get("must_have") or [])[:4],
             "blocks": content.get("blocks") or [],

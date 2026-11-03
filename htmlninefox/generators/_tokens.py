@@ -198,6 +198,57 @@ REFERENCE_MAP = {
 }
 
 # 每类内容 × 每种 tone 的默认预设（style_expert 规则匹配用）
+# 动效人格四原型（0.9.1 风格轴；原则源自 LottieFiles/motion-design-skill，
+# 参数全部落在 0.8.7 动效门禁内：ink ∈ [600,1200]ms · stagger cap < 500ms ·
+# 循环 ease-in-out）。reveal 基础时长固定 .6s 不随原型变（门禁锚点）。
+MOTION_ARCHETYPES = {
+    "playful": {
+        "name": "灵动 Playful",
+        "tones": ("vibrant",),
+        "ink_ms": 600, "reveal_step_ms": 30, "reveal_cap_ms": 240,
+        "ambient_s": 14,
+        "copy": "轻快灵动：元素依次轻快点亮，页面有呼吸感",
+    },
+    "premium": {
+        "name": "从容 Premium",
+        "tones": ("minimal", "editorial"),
+        "ink_ms": 900, "reveal_step_ms": 70, "reveal_cap_ms": 420,
+        "ambient_s": 32,
+        "copy": "从容优雅：墨水标题慢慢落定，光带缓慢呼吸",
+    },
+    "corporate": {
+        "name": "干练 Corporate",
+        "tones": ("professional",),
+        "ink_ms": 600, "reveal_step_ms": 50, "reveal_cap_ms": 300,
+        "ambient_s": 24,
+        "copy": "干练克制：入场干脆利落，环境动效安静低调",
+    },
+    "energetic": {
+        "name": "锐利 Energetic",
+        "tones": ("dark", "techy"),
+        "ink_ms": 600, "reveal_step_ms": 24, "reveal_cap_ms": 200,
+        "ambient_s": 12,
+        "copy": "锐利迅速：快速入场，动效短促有力",
+    },
+}
+DEFAULT_ARCHETYPE = "corporate"
+
+
+def motion_params_for(tone: str) -> Dict[str, Any]:
+    """tone → 动效人格参数（含 archetype 名与中文说明）。
+
+    未知 tone 落 Corporate 兜底——风格轴不因词表外输入而失效。"""
+    for archetype, spec in MOTION_ARCHETYPES.items():
+        if tone in spec["tones"]:
+            return {"archetype": archetype, "name": spec["name"], "copy": spec["copy"],
+                    "ink_ms": spec["ink_ms"], "reveal_step_ms": spec["reveal_step_ms"],
+                    "reveal_cap_ms": spec["reveal_cap_ms"], "ambient_s": spec["ambient_s"]}
+    fallback = MOTION_ARCHETYPES[DEFAULT_ARCHETYPE]
+    return {"archetype": DEFAULT_ARCHETYPE, "name": fallback["name"], "copy": fallback["copy"],
+            "ink_ms": fallback["ink_ms"], "reveal_step_ms": fallback["reveal_step_ms"],
+            "reveal_cap_ms": fallback["reveal_cap_ms"], "ambient_s": fallback["ambient_s"]}
+
+
 INTENT_TONE_PRESET = {
     "landing": {"dark": "vercel-dark", "minimal": "linear-light", "editorial": "guizang-magazine",
                 "vibrant": "vibrant-poster", "professional": "doc-clean", "techy": "vercel-dark"},
@@ -240,7 +291,10 @@ def match_preset(brief: dict, intent: str) -> Dict[str, Any]:
 
     # 3) 拷贝返回（深拷 tokens，避免微调/反馈污染全局预设库）
     preset = get_preset(preset_id or DEFAULT_PRESET)
-    preset = {**preset, "tokens": dict(preset["tokens"]), "_matched_by": matched_by}
+    motion = motion_params_for(tone)
+    reason = f"{preset['name']} · {motion['name']}——{motion['copy']}"
+    preset = {**preset, "tokens": dict(preset["tokens"]),
+              "_matched_by": matched_by, "_motion": motion, "_reason": reason}
     return preset
 
 

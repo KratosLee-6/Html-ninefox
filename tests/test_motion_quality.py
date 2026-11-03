@@ -80,7 +80,8 @@ def test_no_linear_easing_for_spatial_movement():
 
 def test_reveal_accompanies_transform_and_stays_in_budget():
     """CRITICAL #2 + 编排预算：显形入场的 transition 必须写在 after-change 态
-    （.fox-in）且同时携带 opacity+transform，cap < 500ms。
+    （.fox-in）且同时携带 opacity+transform；stagger 上限随动效人格原型
+    参数化（0.9.1 风格轴）但恒 < 500ms。
 
     历史教训（0.8.7 实锤）：transition 写在 .fox-reveal 基类时，被同特异性的
     .card 交互 transition 整体覆盖——0.6s 编排静默死亡，显形退化瞬切
@@ -98,18 +99,25 @@ def test_reveal_accompanies_transform_and_stays_in_budget():
     done = re.search(r"\.fox-reveal\.fox-done \{([^}]+)\}", shared)
     assert done and ".18s" in done.group(1), (
         "缺少 .fox-done 交互档——入场后 hover 会拖到 .6s（响应性丢失）")
-    caps = [int(v) for v in re.findall(r"Math\.min\((\d+)", shared)]
-    assert caps and max(caps) < 500, (
-        f"stagger cap 超出 500ms 总预算：{caps}")
+    # stagger 上限参数化后：源码用 __FOX_REVEAL_CAP__ 占位，权威值在
+    # _tokens.MOTION_ARCHETYPES——每个原型恒 < 500ms 总预算
+    assert "__FOX_REVEAL_CAP__" in shared, "stagger 上限占位符丢失"
+    from htmlninefox.generators._tokens import MOTION_ARCHETYPES
+    overflow = {name: spec["reveal_cap_ms"] for name, spec in MOTION_ARCHETYPES.items()
+                if not (120 <= spec["reveal_cap_ms"] < 500)}
+    assert not overflow, f"原型 stagger cap 越出 [120,500) 预算：{overflow}"
 
 
 def test_ink_in_is_a_dramatic_reveal_not_a_page_load():
-    """墨水标题 700ms ∈ 戏剧性揭示档（600-1200ms）——再快就丢失仪式感。"""
+    """墨水标题随动效人格原型参数化（0.9.1 风格轴），但恒落在戏剧档
+    （600-1200ms）——再快就丢失仪式感。权威值在 _tokens.MOTION_ARCHETYPES，
+    源码用 {ink_s} 占位（默认 0.7s）。"""
     shared = _read(SHARED)
-    match = re.search(r"fox-ink-drop\s+([\d.]+)s", shared)
-    assert match, "找不到 fox-ink-drop 时长"
-    ms = float(match.group(1)) * 1000
-    assert 600 <= ms <= 1200, f"ink-in {ms}ms 落在戏剧档之外"
+    assert "fox-ink-drop {ink_s}s" in shared, "ink 时长占位符丢失——回退硬编码了？"
+    from htmlninefox.generators._tokens import MOTION_ARCHETYPES
+    offrange = {name: spec["ink_ms"] for name, spec in MOTION_ARCHETYPES.items()
+                if not (600 <= spec["ink_ms"] <= 1200)}
+    assert not offrange, f"原型 ink 时长落在戏剧档之外：{offrange}"
 
 
 def test_ambient_loops_are_seamless_not_linear():

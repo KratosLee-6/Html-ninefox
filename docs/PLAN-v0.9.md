@@ -38,7 +38,8 @@
 
 | 批次 | 内容 | 体验升级 |
 |---|---|---|
-| **0.9.0** | **Tauri 桌面壳**（本里程碑）：双击即用、无浏览器、系统托盘、与 PyInstaller 并存 | 桌面原生形态——打开即工作台，关窗即回收 |
+| **0.9.0** | **Tauri 桌面壳**：✅ 编译+CI 三平台绿（7abe9a7→ec3f9ff）；✅ 打包接线 packaging/shell/build_shell_bundle.py（onedir→sidecar→NSIS）+ scripts/verify_shell.py 验收（静态半场全 PASS）；⏳ 发布前人工清单（双击→托盘→关窗回收） | 桌面原生形态 |
+| **0.9.1** | **风格轴第一批**（2026-11-03 落地）：MOTION_ARCHETYPES 四原型→动效参数三轴（ink/stagger/ambient，全在 0.8.7 门禁内；reveal .6s 固定锚点）+ 6×4 覆盖矩阵门禁（变异 CAUGHT）+ 画廊 manifest tone 标签 + match_preset 中文推荐理由 + analyze 载荷带 motion/reason + 推荐卡原型徽章；test_style_axis 7 门禁 | 生成时选调性，产物气质可控；理由永远可见 |
 | 0.9.x | **AI × 风格模板总纲**（[EVAL-AI-STYLE-DEEPEN-20261103.md](EVAL-AI-STYLE-DEEPEN-20261103.md)）：0.9.1 风格轴+配方时间线 → 0.9.2 AI 生成深化（compose 推荐+槽位润色）→ 0.9.3 拆分语义增强+演示模式 → 0.9.4 拼装层 → 0.9.5 模板 B/C 档；A2 样式级编辑并入其中排期 | 六环节（推/拆/生/组/装/演）AI 全链路 + 调性矩阵 |
 | 0.9.x | **风格轴**：动效人格四原型（Playful/Premium/Corporate/Energetic）+ preset 扩族进生成端 | 生成时选调性，产物气质可控 |
 | 0.9.x | 模板市场 UI（B/C 档：画廊 18 张 + 外部库 34 套，分类/搜索/采用） | 选择像逛商店 |

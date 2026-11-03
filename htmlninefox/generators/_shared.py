@@ -122,6 +122,11 @@ def ambient_motion_css(preset: Dict[str, Any]) -> str:
          CSS 变量 + 单层渐变实现，无依赖）；
       5. 键盘焦点环（a11y 审计的缺口补齐）。
 
+    v0.9.1 风格轴：ink 时长与 ambient 周期随 preset["_motion"]（动效人格
+    四原型，见 _tokens.motion_params_for）变化；无 _motion 的调用取默认
+    （= 0.8.7 门禁锁定的现值）。reveal 基础 .6s 固定，随原型变的只有
+    stagger 步长/上限（JS 侧）。
+
     prefers-reduced-motion：不做 0.01ms 全杀——所有元素直接以终态
     静态呈现（状态变化与层级完整保留，符合 impeccable 审计对
     motion sensitivity 的要求）。JS 侧由 ambient_motion_js 配合。
@@ -130,6 +135,9 @@ def ambient_motion_css(preset: Dict[str, Any]) -> str:
     primary = t.get("primary", "#173C8F")
     accent = t.get("accent", "#49B894")
     bg = t.get("bg", "#F4F0E7")
+    motion = preset.get("_motion") or {}
+    ink_s = round(max(0.6, min(1.2, motion.get("ink_ms", 700) / 1000)), 2)
+    ambient_s = max(8, min(40, motion.get("ambient_s", 26)))
     return f"""
 /* ---- ambient motion · 墨水落纸（htmlninefox） ---- */
 .fox-ambient {{
@@ -140,7 +148,7 @@ def ambient_motion_css(preset: Dict[str, Any]) -> str:
     radial-gradient(30% 26% at 60% 88%, color-mix(in srgb, {primary} 10%, transparent), transparent 70%),
     {bg};
   background-size: 200% 200%, 190% 190%, 220% 220%, auto;
-  animation: fox-ambient-drift 26s ease-in-out infinite alternate;
+  animation: fox-ambient-drift {ambient_s}s ease-in-out infinite alternate;
 }}
 @keyframes fox-ambient-drift {{
   0%   {{ background-position: 0% 0%, 100% 0%, 40% 100%, 0 0; }}
@@ -157,7 +165,7 @@ def ambient_motion_css(preset: Dict[str, Any]) -> str:
   body.fox-glow-on .fox-cursor-glow {{ opacity: 1; }}
 }}
 .fox-ink-in > h1 {{
-  animation: fox-ink-drop .7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fox-ink-drop {ink_s}s cubic-bezier(0.16, 1, 0.3, 1) both;
 }}
 @keyframes fox-ink-drop {{
   from {{ opacity: 0; transform: translateY(14px); filter: blur(6px); }}
@@ -196,15 +204,21 @@ def ambient_motion_css(preset: Dict[str, Any]) -> str:
 """
 
 
-def ambient_motion_js() -> str:
+def ambient_motion_js(preset: Dict[str, Any] | None = None) -> str:
     """动效层的最小 JS：自动标注 + 滚动显形 + 光标辉光。
 
     自动标注（渐进增强，渲染器零改动）：
       * 第一个 h1 的父容器加 .fox-ink-in（墨水落纸标题）；
       * `.card` 加 .fox-reveal（滚动进入视口时按次序 stagger）。
     reduced-motion 或无 IO 时所有元素直接以终态呈现。
+
+    v0.9.1 风格轴：stagger 步长/上限随 preset["_motion"] 变化
+    （默认 60ms/360ms = 0.8.7 锁定值；上限恒 < 500ms 预算）。
     """
-    return """<script>
+    motion = (preset or {}).get("_motion") or {}
+    reveal_step = max(20, min(90, motion.get("reveal_step_ms", 60)))
+    reveal_cap = max(120, min(480, motion.get("reveal_cap_ms", 360)))
+    script = """<script>
 (function(){
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var firstH1 = document.querySelector('h1');
@@ -224,7 +238,7 @@ def ambient_motion_js() -> str:
         if (!entry.isIntersecting) return;
         var el = entry.target;
         el.style.setProperty('--fox-stagger',
-          Math.min(360, (parseInt(el.dataset.foxIndex || '0', 10)) * 60) + 'ms');
+          Math.min(__FOX_REVEAL_CAP__, (parseInt(el.dataset.foxIndex || '0', 10)) * __FOX_REVEAL_STEP__) + 'ms');
         el.classList.add('fox-in');
         /* 入场编排结束即切回交互档（.18s）：hover 响应性不让位给电影感 */
         el.addEventListener('transitionend', function (e) {
@@ -262,6 +276,9 @@ def ambient_motion_js() -> str:
   }
 })();
 </script>"""
+    return (script
+            .replace("__FOX_REVEAL_CAP__", str(reveal_cap))
+            .replace("__FOX_REVEAL_STEP__", str(reveal_step)))
 
 
 def html_shell(title: str, preset: Dict[str, Any], body: str, extra_css: str = "",
@@ -278,7 +295,7 @@ def html_shell(title: str, preset: Dict[str, Any], body: str, extra_css: str = "
 <body{body_attrs}>
 <div class="fox-ambient" aria-hidden="true"></div>
 {body}
-{ambient_motion_js()}
+{ambient_motion_js(preset)}
 </body>
 </html>"""
 

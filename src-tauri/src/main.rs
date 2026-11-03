@@ -45,12 +45,18 @@ fn sidecar_candidates() -> Vec<PathBuf> {
             );
         }
     }
-    // cargo tauri dev：从仓库根或 src-tauri 运行时的开发回退
+    // 开发/打包回退：build_portable.py 的 onedir 产物与 build_shell_bundle.py
+    // 组装的捆绑布局（从仓库根或 src-tauri 运行时各留一条）。
     for base in [PathBuf::from("."), PathBuf::from("..")] {
         candidates.push(
-            base.join("packaging")
+            base.join("build")
                 .join("windows")
                 .join("dist")
+                .join("HtmlNineFox")
+                .join("HtmlNineFox.exe"),
+        );
+        candidates.push(
+            base.join("sidecar")
                 .join("HtmlNineFox")
                 .join("HtmlNineFox.exe"),
         );

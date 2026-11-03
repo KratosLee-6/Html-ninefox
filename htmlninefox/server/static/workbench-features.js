@@ -583,8 +583,12 @@ async function analyzeCreation() {
     creationDraft.analysis = analysis;
     const item = analysis.recommended_template;
     $('#creation-analysis').className = '';
-    $('#creation-analysis').innerHTML = `<div class="analysis-chips"><span>${esc(INTENT_LABEL[analysis.intent])}</span><span>${esc(analysis.preset_id)}</span><span>${analysis.engine === 'llm' ? 'AI 模型' : '离线规则'}</span><span>置信度 ${Math.round((analysis.confidence || 0)*100)}%</span></div>
-      <div class="recommend-title">${esc(item.name)}</div><div class="recommend-desc">${esc(item.description)}</div>
+    const motionBadge = analysis.motion?.name
+      ? `<span>🎬 ${esc(analysis.motion.name)}</span>` : '';
+    const styleReason = analysis.style_reason
+      ? `<div class="recommend-desc" style="margin-top:8px">💡 ${esc(analysis.style_reason)}</div>` : '';
+    $('#creation-analysis').innerHTML = `<div class="analysis-chips"><span>${esc(INTENT_LABEL[analysis.intent])}</span><span>${esc(analysis.preset_id)}</span>${motionBadge}<span>${analysis.engine === 'llm' ? 'AI 模型' : '离线规则'}</span><span>置信度 ${Math.round((analysis.confidence || 0)*100)}%</span></div>
+      <div class="recommend-title">${esc(item.name)}</div><div class="recommend-desc">${esc(item.description)}</div>${styleReason}
       <div class="recommend-preview"><iframe src="${esc(item.preview_url)}" sandbox="allow-scripts allow-same-origin"></iframe></div>
       <div class="analysis-chips">${item.pages.map(page => `<span>${esc(page.name)}</span>`).join('')}</div>
       ${memorySummaryMarkup(analysis.memory_applied)}
