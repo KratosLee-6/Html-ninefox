@@ -54,6 +54,7 @@ jobs:
           if-no-files-found: error
   shell-bundle:
     name: Tauri shell installer (NSIS)
+    needs: [windows]   # onedir 工件由 windows job 产出——不等待必 404
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
