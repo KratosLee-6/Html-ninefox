@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Html九尾狐",
+  "productName": "HtmlNineFox",
   "version": "0.9.0",
   "identifier": "com.kratoslee.htmlninefox",
   "build": {
@@ -23,7 +23,15 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
-    "icon": ["icons/icon.png", "icons/icon.ico"]
+    "targets": [
+      "nsis"
+    ],
+    "icon": [
+      "icons/icon.png",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "sidecar/HtmlNineFox/": "sidecar/HtmlNineFox/"
+    }
   }
 }

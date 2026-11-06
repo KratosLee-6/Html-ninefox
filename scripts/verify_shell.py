@@ -61,6 +61,10 @@ def static_checks() -> None:
           shell_version.split(".")[:2] == app_version.split(".")[:2],
           f"shell={shell_version} app={app_version}")
 
+    # 空心安装包护栏（0.9.0 流水线实锤：resources 未配置时 NSIS 只有壳
+    # 二进制 1.7MB，装完必白屏）——sidecar onedir 必须在 bundle resources 里
+    check("conf: sidecar bundled via resources",
+          '"sidecar/HtmlNineFox/"' in conf and '"sidecar/HtmlNineFox/"' in conf)
     bundle_script = ROOT / "packaging" / "shell" / "build_shell_bundle.py"
     check("bundle script exists", bundle_script.is_file())
 

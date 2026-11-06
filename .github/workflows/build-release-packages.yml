@@ -82,10 +82,22 @@ jobs:
           http_proxy: ""
           https_proxy: ""
         run: python packaging/shell/build_shell_bundle.py --skip-portable
+      - name: Create shell installer checksum
+        # verify_release_assets 纪律：每个可安装资产必须带摘要——
+        # 「装的就是构建出来的那个」要能被字节级证明
+        shell: pwsh
+        run: |
+          $nsis = "src-tauri/target/release/bundle/nsis"
+          Get-ChildItem "$nsis/*.exe" | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+            "$hash  $($_.Name)" | Set-Content "$($_.FullName).sha256.txt" -Encoding ascii
+          }
       - uses: actions/upload-artifact@v7
         with:
           name: htmlninefox-shell
-          path: src-tauri/target/release/bundle/nsis/*.exe
+          path: |
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/nsis/*.sha256.txt
           if-no-files-found: error
   linux:
     runs-on: ubuntu-24.04
