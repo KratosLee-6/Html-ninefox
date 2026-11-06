@@ -55,14 +55,16 @@ def stage_sidecar() -> Path:
 
 
 def build_bundle() -> Path:
-    # cargo tauri-cli 与 npm 版 @tauri-apps/cli 都能出 NSIS——CI 用 npm
-    # 预编译二进制（省 5-8 分钟编译），本地装了哪个用哪个。
-    if shutil.which("cargo-tauri") or shutil.which("cargo"):
+    # 优先 npm 版 CLI（预编译二进制，CI 省 5-8 分钟 Rust 编译）；装了
+    # cargo-tauri 的本地环境走 cargo。Windows 注意：npm 垫片是 .cmd，
+    # CreateProcess 不做 PATHEXT 解析——必须用 which() 的完整路径。
+    if shutil.which("cargo-tauri"):
         command = ["cargo", "tauri", "build"]
-        if not shutil.which("cargo-tauri"):
-            command = ["npx", "--yes", "@tauri-apps/cli@2", "build"]
     else:
-        command = ["npx", "--yes", "@tauri-apps/cli@2", "build"]
+        npx = shutil.which("npx")
+        if not npx:
+            raise SystemExit("找不到 Tauri CLI：cargo-tauri 与 npx 均不在 PATH")
+        command = [npx, "--yes", "@tauri-apps/cli@2", "build"]
     result = subprocess.run(command, cwd=ROOT / "src-tauri")
     if result.returncode != 0:
         raise SystemExit(f"cargo tauri build 失败（exit {result.returncode}）")
