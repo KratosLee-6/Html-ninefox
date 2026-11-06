@@ -212,7 +212,7 @@ def test_workflow_covers_the_full_packaging_matrix():
     assert 'needs: [windows, shell-bundle, linux, macos, macos-intel, docker, package-payload]' \
         in WORKFLOW_TEXT, \
         "publish-draft 未等待全部打包 job——Intel 包或壳安装包可能缺席发布"
-    assert 'name: htmlninefox-windows-onedir' in WORKFLOW_TEXT, \
+    assert 'name: shell-onedir-src' in WORKFLOW_TEXT, \
         "windows job 没有产出壳捆绑所需的 onedir 工件"
     assert 'shell-bundle:' in WORKFLOW_TEXT, \
         "发布流水线缺 shell-bundle job——桌面壳安装包不会随版本产出"

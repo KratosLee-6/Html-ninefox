@@ -49,7 +49,7 @@ jobs:
         # 0.9.0 壳安装包的原料：同一份 onedir 同时进便携 zip 与壳 NSIS
         uses: actions/upload-artifact@v7
         with:
-          name: htmlninefox-windows-onedir
+          name: shell-onedir-src
           path: build/windows/dist/HtmlNineFox/
           if-no-files-found: error
   shell-bundle:
@@ -73,7 +73,7 @@ jobs:
       - name: Download the onedir from the windows job
         uses: actions/download-artifact@v7
         with:
-          name: htmlninefox-windows-onedir
+          name: shell-onedir-src
           path: build/windows/dist/HtmlNineFox
       - name: Assemble the shell bundle (stage sidecar + cargo/tauri NSIS)
         env:
