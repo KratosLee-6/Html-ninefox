@@ -1,6 +1,6 @@
 [package]
 name = "htmlninefox-shell"
-version = "0.9.0-alpha.0"
+version = "0.9.0"
 description = "Html九尾狐 桌面壳：Tauri 窗口 + PyInstaller sidecar（与便携包/安装包并存）"
 edition = "2021"
 rust-version = "1.77"

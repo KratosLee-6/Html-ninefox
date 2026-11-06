@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.8-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.8)
+[![App Release](https://img.shields.io/badge/app-v0.9.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -20,7 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.8.8`（2026-11-02 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.8) · 完整功能与架构见下。
+> 当前应用包版本为 `0.9.0`（2026-11-07 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0) · 完整功能与架构见下。
 > **AI / Agent 接入**：[Agent 调用指南](docs/AGENT-GUIDE.md)——CLI / HTTP API / Skill 三通路实测命令与回显。
 
 ---
@@ -36,7 +36,22 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.8.8 · 点选即改（最新功能）
+## 🆕 v0.9.0 · 桌面壳 + 风格轴（最新功能）
+
+**从「网页工具」到「桌面创作应用」：Tauri 桌面壳与 PyInstaller 并存；生成时选调性，产物气质可控。**
+
+- **Tauri 桌面壳**：双击即用、无浏览器、系统托盘、关窗即回收。sidecar 链路
+  照 verify_portable 纪律（空闲端口 → HtmlNineFox.exe → /api/health 轮询 →
+  导航）；CI 三平台编译 + 发布流水线产 NSIS 壳安装包。
+- **风格轴第一批**：动效人格四原型（灵动/从容/干练/锐利）驱动 ink/stagger/
+  ambient 三轴参数，6 意图 × 4 原型覆盖矩阵做发版门禁；推荐组合卡渲染
+  🎬 原型徽章 + 💡 中文理由（规则引擎照给）。
+- 打包接线（onedir → NSIS）与 verify_shell 验收件；AI×风格深化总纲
+  （六环节：推动/拆分/生成/组合/拼装/演示）见 [EVAL-AI-STYLE-DEEPEN-20261103.md](docs/EVAL-AI-STYLE-DEEPEN-20261103.md)。
+- 全量 **885 passed / 4 skipped**（2026-11-03 实测）。
+- 详见 [v0.9.0 发布说明](docs/RELEASE-NOTES-v0.9.0.md)。
+
+## v0.8.8 · 点选即改
 
 **预览里单击任意文字直接改，Enter 保存出 rev——所见即所得，全部六类意图可用。**
 

@@ -45,6 +45,47 @@ jobs:
           name: htmlninefox-windows
           path: release/*
           if-no-files-found: error
+      - name: Upload onedir for the Tauri shell bundle
+        # 0.9.0 壳安装包的原料：同一份 onedir 同时进便携 zip 与壳 NSIS
+        uses: actions/upload-artifact@v7
+        with:
+          name: htmlninefox-windows-onedir
+          path: build/windows/dist/HtmlNineFox/
+          if-no-files-found: error
+  shell-bundle:
+    name: Tauri shell installer (NSIS)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "src-tauri"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Install tauri-cli (prebuilt npm binary)
+        run: npm i -g @tauri-apps/cli@^2
+      - name: Download the onedir from the windows job
+        uses: actions/download-artifact@v7
+        with:
+          name: htmlninefox-windows-onedir
+          path: build/windows/dist/HtmlNineFox
+      - name: Assemble the shell bundle (stage sidecar + cargo/tauri NSIS)
+        env:
+          # 系统代理在 runner 上不存在，显式置空防止 WinINET 残留被 cargo 读取
+          CARGO_HTTP_PROXY: ""
+          http_proxy: ""
+          https_proxy: ""
+        run: python packaging/shell/build_shell_bundle.py --skip-portable
+      - uses: actions/upload-artifact@v7
+        with:
+          name: htmlninefox-shell
+          path: src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: error
   linux:
     runs-on: ubuntu-24.04
     steps:
@@ -206,7 +247,7 @@ jobs:
   publish-draft:
     name: Publish draft (invisible)
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [windows, linux, macos, macos-intel, docker, package-payload]
+    needs: [windows, shell-bundle, linux, macos, macos-intel, docker, package-payload]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7

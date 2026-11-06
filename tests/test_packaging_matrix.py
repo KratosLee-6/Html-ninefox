@@ -209,8 +209,13 @@ def test_workflow_covers_the_full_packaging_matrix():
         "macos-13 已退役，排队一小时也等不到容量）"
     assert 'name: htmlninefox-macos-intel' in WORKFLOW_TEXT, \
         "Intel 包没有自己的 artifact 名"
-    assert 'needs: [windows, linux, macos, macos-intel, docker, package-payload]' \
-        in WORKFLOW_TEXT, "publish-draft 未等待 macos-intel——Intel 包可能缺席发布"
+    assert 'needs: [windows, shell-bundle, linux, macos, macos-intel, docker, package-payload]' \
+        in WORKFLOW_TEXT, \
+        "publish-draft 未等待全部打包 job——Intel 包或壳安装包可能缺席发布"
+    assert 'name: htmlninefox-windows-onedir' in WORKFLOW_TEXT, \
+        "windows job 没有产出壳捆绑所需的 onedir 工件"
+    assert 'shell-bundle:' in WORKFLOW_TEXT, \
+        "发布流水线缺 shell-bundle job——桌面壳安装包不会随版本产出"
     assert '--asset "*.deb"' in WORKFLOW_TEXT, \
         ".deb 未进字节级回读清单——坏包可以在验证眼皮下溜进发布"
     assert "packaging/linux/build_deb.py" in WORKFLOW_TEXT, \

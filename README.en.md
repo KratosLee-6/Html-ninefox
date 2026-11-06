@@ -8,7 +8,7 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.8.8-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.8)
+[![App Release](https://img.shields.io/badge/app-v0.9.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0)
 [![Tests](https://img.shields.io/badge/pytest-853%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
@@ -17,7 +17,7 @@
 </div>
 
 
-> Current app version `0.8.8` (released 2026-11-02) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.8.8) · full features below.
+> Current app version `0.9.0` (released 2026-11-07) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0) · full features below.
 > **AI / Agent integration**: [Agent guide](docs/AGENT-GUIDE.md) — CLI / HTTP API / Skill, all commands verified against a live build.
 
 ---
@@ -33,7 +33,26 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.8.8 · Click-to-edit (latest)
+## v0.9.0 · Desktop shell + style axis (latest)
+
+**From "a web tool" to "a desktop creative app": a Tauri shell coexisting with
+the portable/installer forms, and a tone axis steering generated output.**
+
+- **Tauri shell**: double-click launch, no browser, system tray, child process
+  reclaimed on close. The sidecar chain follows the verify_portable discipline
+  (free port → HtmlNineFox.exe → /api/health polling → navigate); CI checks
+  three platforms and the release pipeline ships an NSIS shell installer.
+- **Style axis, first batch**: four motion archetypes (Playful/Premium/
+  Corporate/Energetic) drive ink/stagger/ambient parameters; the
+  6-intents × 4-archetypes coverage matrix is a release gate; recommendation
+  cards show a 🎬 archetype badge + 💡 reason (rule-engine mode included).
+- Bundle wiring (onedir → NSIS) and verify_shell acceptance; the AI×style
+  master design (drive/decompose/generate/combine/assemble/present) lives in
+  [EVAL-AI-STYLE-DEEPEN-20261103.md](docs/EVAL-AI-STYLE-DEEPEN-20261103.md).
+- Full suite **885 passed / 4 skipped** (tested 2026-11-03).
+- See the [v0.9.0 release notes](docs/RELEASE-NOTES-v0.9.0.md).
+
+## v0.8.8 · Click-to-edit
 
 **Click any text in the preview, type, press Enter — a new revision. WYSIWYG
 for all six intents, not just decks.**

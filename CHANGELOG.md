@@ -31,6 +31,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 时间轴圆点 `transition:all .25s` 会连布局属性一起动画
 - 像素投影从多处收敛到两处（选中节点、主按钮）
 
+## [0.9.0] - 2026-11-07 · 桌面壳 + 风格轴（Tauri 里程碑）
+
+> 从「网页工具」到「桌面创作应用」的第一步。发布说明见
+> `docs/RELEASE-NOTES-v0.9.0.md`。
+
+### Added
+- **Tauri 桌面壳**（src-tauri/，与便携包/安装包并存）：双击即用、无浏览器、
+  系统托盘、关窗即回收——sidecar 链路照 verify_portable 纪律（空闲端口 →
+  spawn HtmlNineFox.exe --no-browser --strict-port → 轮询 /api/health 到
+  200 → 导航 webview）；CI 三平台 cargo check + 发布流水线新增 shell-bundle
+  job（onedir → NSIS 壳安装包）。
+- **打包/验收件**：packaging/shell/build_shell_bundle.py（onedir → sidecar →
+  NSIS；cargo-tauri 与 npm 版 CLI 双适配）+ scripts/verify_shell.py
+  （verify_portable 纪律的壳内版，11 项静态验收）。
+- **风格轴第一批（0.9.1 前置）**：动效人格四原型（灵动/从容/干练/锐利，
+  原则源自 LottieFiles/motion-design-skill）→ 动效参数三轴（ink 600-1200ms /
+  stagger 步长+上限 / ambient 周期），全落在 0.8.7 门禁内、reveal .6s 固定；
+  6 意图 × 4 原型覆盖矩阵门禁（空洞不可发版，变异 CAUGHT）；画廊 10 张
+  manifest 全带 tone 标签；match_preset 附中文推荐理由（规则引擎照给），
+  /api/analyze 带出、推荐卡渲染 🎬 原型徽章 + 💡 理由行。
+- **AI×风格深化总纲**：docs/EVAL-AI-STYLE-DEEPEN-20261103.md——六环节
+  （推动/拆分/生成/组合/拼装/演示）详尽设计 + 0.9.1-0.9.5 切分。
+
+### 门禁
+- test_style_axis.py 7 条（矩阵/参数范围/tone 完整性/端到端/变异）；
+  test_motion_quality.py 升级为占位符+注册表双校验；全量 **885 passed /
+  4 skipped**（2026-11-03 实测 11 分 22 秒）。
+
 ## [0.8.8] - 2026-11-02 · 点选即改（所见即所得 A1）
 
 > 输出端「点哪里改哪里」（前端感知审计主项 A 的第一阶段）。
