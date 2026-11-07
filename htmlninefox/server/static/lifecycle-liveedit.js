@@ -69,10 +69,13 @@
 
   async function enter(node) {
     const frame = document.querySelector(`#frame-${node.id}`);
-    // 冷启动/慢网下 iframe 可能还没渲染完——等它就绪（≤8s）再进编辑，
-    // 而不是把「稍后再试」甩给用户（CI 曾因此偶发超时）。
+    // 就绪判据必须是「iframe 真的导航到了产物页」：about:blank 阶段
+    // contentDocument.body 就已存在（CI 两次红根因——walker 数出 0 节点，
+    // 一致性闸门静默拒绝）。等 location+readyState，≤8s。
     for (let waited = 0; waited < 8000; waited += 200) {
-      if (frame?.contentDocument?.body) break;
+      const doc = frame?.contentDocument;
+      if (doc?.body && doc.readyState === 'complete' &&
+          String(doc.location?.href || '').includes('/output/')) break;
       await new Promise(resolve => setTimeout(resolve, 200));
     }
     if (!frame?.contentDocument?.body) {
@@ -85,6 +88,10 @@
     /* 一致性闸门：DOM 枚举与服务器映射表必须一一对应——数目对不上时
      * 宁可拒绝进入编辑（照实说），也不冒改错节点的风险。 */
     if (domNodes.length !== listing.nodes.length) {
+      // 诊断留痕：CI 上静默 flash 会让 race 无迹可寻
+      console.warn('[FoxLiveEdit] 枚举失位：DOM', domNodes.length,
+        '≠ 映射', listing.nodes.length,
+        'readyState', doc.readyState, 'href', String(doc.location?.href || ''));
       return flash(`编辑器与产物文本不一致（DOM ${domNodes.length} ≠ 映射 ${listing.nodes.length}），请刷新后重试`, false);
     }
     const session = {
