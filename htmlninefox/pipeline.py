@@ -267,12 +267,24 @@ def _run_expert_into(work: Path, project_name: str, ts: str, prompt: str, skill:
             "memory_overrides": (memory_context or {}).get("overrides", {}),
         })
         route = router.route(brief_result, intent, skill_override=skill)
+        # 调性覆盖（0.9.1 风格轴）：用户显式选的 tone 必须在 style_expert
+        # 匹配前写进 brief——它决定 preset 选择与动效人格两件事。
+        tone_override = (style_overrides or {}).get("tone")
+        if tone_override:
+            brief_payload = brief_result.get("brief") or brief_result
+            brief_payload.setdefault("style", {})["tone"] = tone_override
         style_result = style_expert.StyleExpert().execute(
             {"brief": brief_result, "intent": intent, "allow_llm": not quiet_llm})
         preset = style_result["preset"]
         if template:
             preset = dict(_resolve_template_preset(template))
             preset["tokens"] = dict(preset["tokens"])
+        if tone_override:
+            from .generators._tokens import motion_params_for
+            motion = motion_params_for(tone_override)
+            preset["_motion"] = motion
+            preset["_reason"] = f"{preset['name']} · {motion['name']}——{motion['copy']}"
+            preset["_matched_by"] = preset.get("_matched_by", "") + f" +调性覆盖({tone_override})"
 
         if style_overrides:
             tokens = preset["tokens"]

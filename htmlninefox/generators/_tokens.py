@@ -201,6 +201,9 @@ REFERENCE_MAP = {
 # 动效人格四原型（0.9.1 风格轴；原则源自 LottieFiles/motion-design-skill，
 # 参数全部落在 0.8.7 动效门禁内：ink ∈ [600,1200]ms · stagger cap < 500ms ·
 # 循环 ease-in-out）。reveal 基础时长固定 .6s 不随原型变（门禁锚点）。
+TONE_VOCABULARY = ("dark", "minimal", "editorial", "vibrant",
+                   "professional", "techy")
+
 MOTION_ARCHETYPES = {
     "playful": {
         "name": "灵动 Playful",

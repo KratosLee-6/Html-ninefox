@@ -161,6 +161,7 @@ class GenerationRequest:
     quiet_llm: bool = False
     primary: str | None = None
     font: str | None = None
+    tone: str | None = None
     gallery_id: str | None = None
     blocks: tuple[GenerationBlock, ...] = ()
     selection_mode: str = "custom"
@@ -429,7 +430,8 @@ class StudioApplication:
         gallery_id = str(request.gallery_id or "")
         gallery_item = self._gallery_item(gallery_id)
         style_overrides: dict[str, str] = {}
-        for key, explicit in (("primary", request.primary), ("font", request.font)):
+        for key, explicit in (("primary", request.primary), ("font", request.font),
+                              ("tone", request.tone)):
             remembered = memory_overrides.get(key)
             value = explicit or (remembered if isinstance(remembered, str) else None)
             if value:

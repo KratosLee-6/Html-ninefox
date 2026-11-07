@@ -1144,15 +1144,36 @@ function recipeRunMarkup(run, nodeId=null) {
   if (!run?.stages?.length) return '<p class="ins-empty">本产物暂无 Recipe Run 记录。</p>';
   const statusLabel = {running:'运行中',succeeded:'已完成',failed:'失败'}[run.status] || run.status;
   const duration = run.duration_ms === null || run.duration_ms === undefined ? '—' : run.duration_ms + ' ms';
+  /* AI 参与徽章（0.9.1 后半）：recipe-run 一直记着每段的 model 与
+   * fallback_used——时间线上把它显式标出来，「哪段用了 AI」不再靠猜。 */
+  const stageBadge = stage => stage.fallback_used
+    ? '<span class="recipe-stage-badge">📐 规则兜底</span>'
+    : (stage.model && stage.model !== 'fallback'
+        ? `<span class="recipe-stage-badge">🤖 ${esc(stage.model)}</span>` : '');
   return `<div class="recipe-run" id="recipe-run-live">
     <div class="recipe-run-head"><strong>Recipe Run · ${esc(statusLabel)}</strong><span>${duration}</span></div>
     ${run.stages.map((stage, index) => `<div class="recipe-stage ${esc(stage.status)}">
       <div class="recipe-stage-dot">${stage.status === 'succeeded' || stage.status === 'reused' ? '✓' : stage.status === 'failed' ? '!' : index + 1}</div>
       <div><div class="recipe-stage-title">${esc(stage.label || stage.label_en || stage.id)}</div>
       <div class="recipe-stage-meta">${esc(recipeStageSummary(stage))}${stage.duration_ms !== null && stage.duration_ms !== undefined ? ' · ' + stage.duration_ms + ' ms' : ''}</div></div>
+      ${stageBadge(stage)}
       ${nodeId && stage.rerunnable && ['succeeded','failed','reused'].includes(stage.status) ? `<button class="btn btn-secondary" data-action="rerunRecipeStage" data-id="${nodeId}" data-stage="${stage.id}">重跑</button>` : ''}
     </div>`).join('')}
   </div>`;
+}
+function loadRecipeStrip(node) {
+  /* file 节点（历史项目）没有随身的 recipe_run——从 API 现读，
+   * 渲染与 output 节点同一套 recipeRunMarkup（含 AI 徽章）。 */
+  const box = document.getElementById(`recipe-strip-${node.id}`);
+  if (!box || !node.data.project_name) return;
+  fetch('/api/projects/' + encodeURIComponent(node.data.project_name) + '/recipe-run')
+    .then(r => r.ok ? r.json() : Promise.reject(new Error(String(r.status))))
+    .then(data => {
+      if (!data?.stages?.length) { box.remove(); return; }
+      box.innerHTML = '<h3 style="margin-top:14px">配方时间线</h3>' +
+        recipeRunMarkup({status: data.status, duration_ms: data.duration_ms, stages: data.stages});
+    })
+    .catch(() => box.remove());
 }
 function updateRecipeRunView(run) {
   const current = document.querySelector('#recipe-run-live');
@@ -1182,6 +1203,7 @@ function renderInspector() {
       <div class="kv"><span>版本</span><span id="ins-rev">rev${n.data.revision || 0}</span></div></div>
       ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" data-action="openSlideEditor" data-id="${n.id}">✏️ 编辑幻灯片</button>` : ''}
       <button class="btn btn-primary" style="margin-top:8px;width:100%" data-action="toggleLiveEdit" data-id="${n.id}">✎ 点选编辑文字</button>
+      <div class="field" id="recipe-strip-${n.id}" style="margin-top:4px"></div>
       <button class="btn btn-secondary" id="btn-revision-diff" data-action="openRevisionDiff" data-id="${n.id}">查看版本差异</button>
       <h3 style="margin-top:14px">运行轨迹</h3>${recipeRunMarkup(n.data.recipe_run, n.id)}
       ${memorySummaryMarkup(n.data.memory_applied)}
@@ -1207,12 +1229,14 @@ function renderInspector() {
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><button class="btn btn-primary" data-action="openOutput" data-id="${n.id}">↗ 打开产物</button><button class="btn btn-secondary" data-action="openExportCenter" data-id="${n.id}">⇩ 导出</button></div>
       ${n.data.intent === 'deck' ? `<button class="btn btn-secondary" style="margin-top:8px;width:100%" data-action="openSlideEditor" data-id="${n.id}">✏️ 编辑幻灯片</button>` : ''}
       <button class="btn btn-primary" style="margin-top:8px;width:100%" data-action="toggleLiveEdit" data-id="${n.id}">✎ 点选编辑文字</button>
+      <div class="field" id="recipe-strip-${n.id}" style="margin-top:4px"></div>
       <button class="btn btn-secondary" id="btn-revision-diff" data-action="openRevisionDiff" data-id="${n.id}">查看版本差异</button>
       <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);margin-top:9px">
         <button class="btn btn-secondary" data-action="renameProject" data-id="${n.id}">重命名</button>
         <button class="btn btn-secondary" data-action="duplicateProject" data-id="${n.id}">创建副本</button>
       </div>
       <button class="btn btn-danger-ghost" data-action="deleteProject" data-id="${n.id}">移入回收站</button>`;
+  loadRecipeStrip(n);
   } else if (n.kind === 'requirement') {
     box.innerHTML = `<h3>需求节点</h3>
       <div class="field"><label>文字需求（推进时自动拆解）</label><textarea id="ins-text">${esc(n.data.text)}</textarea></div>

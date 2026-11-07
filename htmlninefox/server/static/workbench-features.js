@@ -579,15 +579,17 @@ async function analyzeCreation() {
   $('#creation-analysis').className = 'analysis-empty';
   $('#creation-analysis').textContent = 'AI 正在拆解需求并匹配真实模板…';
   try {
-    const analysis = await post('/api/analyze', { prompt, inputs:creationDraft.inputs.map(item => item.id) });
+    const tone = $('#creation-tone') ? $('#creation-tone').value : '';
+    const analysis = await post('/api/analyze', { prompt, inputs:creationDraft.inputs.map(item => item.id), tone: tone || undefined });
     creationDraft.analysis = analysis;
     const item = analysis.recommended_template;
     $('#creation-analysis').className = '';
     const motionBadge = analysis.motion?.name
       ? `<span>🎬 ${esc(analysis.motion.name)}</span>` : '';
+    const toneChip = analysis.tone ? `<span>调性 · ${esc(analysis.tone)}</span>` : '';
     const styleReason = analysis.style_reason
       ? `<div class="recommend-desc" style="margin-top:8px">💡 ${esc(analysis.style_reason)}</div>` : '';
-    $('#creation-analysis').innerHTML = `<div class="analysis-chips"><span>${esc(INTENT_LABEL[analysis.intent])}</span><span>${esc(analysis.preset_id)}</span>${motionBadge}<span>${analysis.engine === 'llm' ? 'AI 模型' : '离线规则'}</span><span>置信度 ${Math.round((analysis.confidence || 0)*100)}%</span></div>
+    $('#creation-analysis').innerHTML = `<div class="analysis-chips"><span>${esc(INTENT_LABEL[analysis.intent])}</span><span>${esc(analysis.preset_id)}</span>${motionBadge}${toneChip}<span>${analysis.engine === 'llm' ? 'AI 模型' : '离线规则'}</span><span>置信度 ${Math.round((analysis.confidence || 0)*100)}%</span></div>
       <div class="recommend-title">${esc(item.name)}</div><div class="recommend-desc">${esc(item.description)}</div>${styleReason}
       <div class="recommend-preview"><iframe src="${esc(item.preview_url)}" sandbox="allow-scripts allow-same-origin"></iframe></div>
       <div class="analysis-chips">${item.pages.map(page => `<span>${esc(page.name)}</span>`).join('')}</div>
@@ -612,6 +614,7 @@ function ensureCreationRequirement() {
   requirement.data.input_ids = creationDraft.inputs.map(item => item.id);
   requirement.data.attachments = JSON.parse(JSON.stringify(creationDraft.inputs));
   requirement.data.analysis = creationDraft.analysis;
+  requirement.data.tone = ($('#creation-tone') ? $('#creation-tone').value : '') || null;
   requirement.title = '创作需求';
   creationDraft.inputs.forEach((item, index) => {
     if (!membersOf(ws).some(node => node.kind === 'source' && node.data.input_id === item.id)) {

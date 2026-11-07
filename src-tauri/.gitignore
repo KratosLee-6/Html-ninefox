@@ -1,3 +1,4 @@
 target/
 generated/
 gen/schemas/
+sidecar/

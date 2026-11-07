@@ -134,3 +134,105 @@ def test_mutation_dropping_a_matrix_mapping_is_caught():
     finally:
         tokens.INTENT_TONE_PRESET["dashboard"] = original
     assert not _matrix_holes(), "还原后矩阵必须闭合"
+
+
+# ============================================================
+# 0.9.1 后半：调性选择器全链路 + 配方时间线
+# ============================================================
+
+import urllib.parse  # noqa: E402
+
+import pytest  # noqa: E402
+
+
+@pytest.fixture()
+def workbench(tmp_path: Path):
+    from tests.conftest import WorkbenchServer
+    with WorkbenchServer(tmp_path / "output") as server:
+        yield server
+
+
+def _analyze(workbench, body: dict, expected: int = 200) -> dict:
+    from tests.test_server_project_api import request as api_request
+    payload, _ = api_request(workbench.base_url, "/api/analyze", "POST", body,
+                             expected=expected)
+    return payload
+
+
+def _generate(workbench, body: dict, expected: int = 200) -> dict:
+    from tests.test_server_project_api import request as api_request
+    payload, _ = api_request(workbench.base_url, "/api/generate", "POST", body,
+                             expected=expected)
+    return payload
+
+
+def test_analyze_rejects_unknown_tone(workbench):
+    error = _analyze(workbench, {"prompt": "做一个落地页", "tone": "赛博朋克"},
+                     expected=400)
+    assert error["error"]["code"] == "tone_invalid"
+
+
+def test_analyze_respects_explicit_tone(workbench):
+    payload = _analyze(workbench, {
+        "prompt": "做一个面向开发者的性能监控看板，深色，强调数据密度",
+        "tone": "editorial"})
+    assert payload["tone"] == "editorial"
+    assert payload["motion"]["archetype"] == "premium", (
+        "显式调性必须压过自动分析（深色文本会推 dark/energetic）")
+    assert payload["style_reason"]
+
+
+def test_generate_rejects_unknown_tone(workbench):
+    error = _generate(workbench, {"prompt": "做一个落地页", "intent": "landing",
+                                  "tone": "蒸汽波", "quiet_llm": True}, expected=400)
+    assert error["error"]["code"] == "tone_invalid"
+
+
+def test_generate_output_carries_tone_motion(workbench):
+    """端到端：tone 覆盖 → pipeline 注入 brief → style_expert 重匹配 →
+    渲染产物携带原型的真实动效参数。vibrant→playful(0.6s/14s)，
+    editorial→premium(0.9s/32s)。"""
+    cases = {"vibrant": ("fox-ink-drop 0.6s", "fox-ambient-drift 14s"),
+             "editorial": ("fox-ink-drop 0.9s", "fox-ambient-drift 32s")}
+    for tone, (ink_needle, ambient_needle) in cases.items():
+        result = _generate(workbench, {
+            "prompt": "做一个智能水杯的落地页：三档控温", "intent": "landing",
+            "tone": tone, "quiet_llm": True})
+        name = result["project_name"]
+        html = (workbench.output_root / name / "output.html").read_text(encoding="utf-8")
+        assert ink_needle in html, f"{tone}: {ink_needle} 未进产物"
+        assert ambient_needle in html, f"{tone}: {ambient_needle} 未进产物"
+
+
+def test_generate_without_tone_keeps_automatic_match(workbench):
+    """不传 tone = 交给分析（回归护栏）：深色文本照走 dark/energetic。"""
+    result = _generate(workbench, {
+        "prompt": "做一个面向开发者的性能监控看板，深色", "intent": "landing",
+        "quiet_llm": True})
+    html = (workbench.output_root / result["project_name"]
+            / "output.html").read_text(encoding="utf-8")
+    assert "fox-ink-drop 0.6s" in html and "fox-ambient-drift 12s" in html
+
+
+def test_recipe_run_endpoint_returns_stages(workbench):
+    result = _generate(workbench, {
+        "prompt": "做一个智能水杯的落地页", "intent": "landing", "quiet_llm": True})
+    name = result["project_name"]
+    from tests.test_server_project_api import request as api_request
+    payload, _ = api_request(
+        workbench.base_url,
+        "/api/projects/" + urllib.parse.quote(name) + "/recipe-run", "GET")
+    assert payload["ok"] is True and payload["status"] == "succeeded"
+    stages = payload["stages"]
+    assert [s["id"] for s in stages] == ["analyze", "compose", "generate",
+                                         "verify", "deliver"]
+    for stage in stages:
+        assert "fallback_used" in stage and "model" in stage, (
+            "时间线徽章的数据源（model/fallback_used）必须在场")
+    # 缺配方记录 → 404 not_found（file 节点的时间线会安静隐藏）
+    (workbench.output_root / name / "recipe-run.json").unlink()
+    missing, _ = api_request(
+        workbench.base_url,
+        "/api/projects/" + urllib.parse.quote(name) + "/recipe-run",
+        "GET", expected=404)
+    assert missing["error"]["code"] == "not_found"

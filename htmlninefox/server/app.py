@@ -99,6 +99,19 @@ APP_CAPABILITIES = {
 }
 
 _OUTPUT_ROOT = Path.home() / "htmlninefox-output"
+
+
+def _validated_tone(value) -> str | None:
+    """调性覆盖（0.9.1 风格轴）：空 = 交给分析；给了必须在词表内。"""
+    tone = str(value or "").strip()
+    if not tone:
+        return None
+    from htmlninefox.generators._tokens import TONE_VOCABULARY
+    if tone not in TONE_VOCABULARY:
+        raise StoreError(
+            "tone_invalid",
+            f"未知调性：{tone}（可选：{'/'.join(TONE_VOCABULARY)}）", 400)
+    return tone
 MAX_REQUEST_BYTES = 36 * 1024 * 1024
 
 _REVISION_ERROR_STATUSES = {
@@ -699,6 +712,25 @@ class _Handler(BaseHTTPRequestHandler):
             state = revisions.load_state(project)
             return self._json({"ok": True, "slides": slides,
                                "revision": state.get("revision", 0)})
+        if path.startswith("/api/projects/") and path.endswith("/recipe-run"):
+            # 配方时间线（0.9.1 后半）：五段流水线的每段状态 + AI 参与徽章
+            # （recipe-run.json 已带 model/fallback_used——数据一直都在）
+            name = path[len("/api/projects/"):-len("/recipe-run")]
+            project = self._store().resolve_project(name)
+            run_path = project / "recipe-run.json"
+            if not run_path.is_file():
+                raise StoreError("not_found", "该产物没有配方记录", 404)
+            run = json.loads(run_path.read_text(encoding="utf-8", errors="replace"))
+            stages = [{"id": stage.get("id"), "label": stage.get("label"),
+                       "label_en": stage.get("label_en"),
+                       "status": stage.get("status"),
+                       "duration_ms": stage.get("duration_ms"),
+                       "model": stage.get("model"),
+                       "fallback_used": bool(stage.get("fallback_used"))}
+                      for stage in run.get("stages", [])]
+            return self._json({"ok": True, "stages": stages,
+                               "status": run.get("status"),
+                               "duration_ms": run.get("duration_ms")})
         if path.startswith("/api/projects/") and path.endswith("/text-nodes"):
             name = path[len("/api/projects/"):-len("/text-nodes")]
             project = self._store().resolve_project(name)
@@ -1209,6 +1241,7 @@ class _Handler(BaseHTTPRequestHandler):
             quiet_llm=bool(body.get("quiet_llm", False)),
             primary=body.get("primary") or None,
             font=body.get("font") or None,
+            tone=_validated_tone(body.get("tone")),
             gallery_id=body.get("gallery_id") or None,
             blocks=tuple(
                 GenerationBlock.from_value(item)
@@ -1262,6 +1295,10 @@ class _Handler(BaseHTTPRequestHandler):
         memory_values = memory_applied.get("values", {})
         memory_overrides = memory_applied.get("overrides", {})
         result = brief_expert.BriefExpert().execute({"prompt": prompt, "allow_llm": ai_enabled})
+        explicit_tone = _validated_tone(body.get("tone"))
+        if explicit_tone:
+            brief_payload = result.setdefault("brief", {})
+            brief_payload.setdefault("style", {})["tone"] = explicit_tone
         payload = result.get("brief", {})
         goal = payload.get("goal", {})
         content = payload.get("content", {})
