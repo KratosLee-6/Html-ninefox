@@ -589,8 +589,11 @@ async function analyzeCreation() {
     const toneChip = analysis.tone ? `<span>调性 · ${esc(analysis.tone)}</span>` : '';
     const styleReason = analysis.style_reason
       ? `<div class="recommend-desc" style="margin-top:8px">💡 ${esc(analysis.style_reason)}</div>` : '';
+    creationDraft.polish = {};
+    const polishArea = `<div class="flow-field" style="margin-top:12px"><button class="btn btn-secondary" data-action="polishSlots">✨ 文案润色（AI 建议 · 逐槽采纳）</button><div id="polish-result" style="margin-top:8px"></div></div>`;
     $('#creation-analysis').innerHTML = `<div class="analysis-chips"><span>${esc(INTENT_LABEL[analysis.intent])}</span><span>${esc(analysis.preset_id)}</span>${motionBadge}${toneChip}<span>${analysis.engine === 'llm' ? 'AI 模型' : '离线规则'}</span><span>置信度 ${Math.round((analysis.confidence || 0)*100)}%</span></div>
       <div class="recommend-title">${esc(item.name)}</div><div class="recommend-desc">${esc(item.description)}</div>${styleReason}
+      ${polishArea}
       <div class="recommend-preview"><iframe src="${esc(item.preview_url)}" sandbox="allow-scripts allow-same-origin"></iframe></div>
       <div class="analysis-chips">${item.pages.map(page => `<span>${esc(page.name)}</span>`).join('')}</div>
       ${memorySummaryMarkup(analysis.memory_applied)}
@@ -598,6 +601,62 @@ async function analyzeCreation() {
   } catch (error) {
     $('#creation-analysis').className = 'analysis-empty';
     $('#creation-analysis').textContent = '分析失败：' + error.message;
+  } finally {
+    window.FoxInteraction?.setBusy(button, false);
+  }
+}
+
+async function polishSlots() {
+  const analysis = creationDraft.analysis;
+  if (!analysis) return flash('请先做一次分析', false);
+  const slots = {};
+  if (analysis.headline) slots.headline = analysis.headline;
+  if (analysis.core_message) slots.core_message = analysis.core_message;
+  if (!Object.keys(slots).length) return flash('该分析没有可润色的槽位', false);
+  const button = document.querySelector('[data-action="polishSlots"]');
+  const resultBox = $('#polish-result');
+  window.FoxInteraction?.setBusy(button, true, '润色中…');
+  try {
+    const data = await post('/api/polish-slots', {
+      prompt: $('#creation-prompt').value.trim(),
+      intent: analysis.intent, tone: analysis.tone || undefined, slots,
+    });
+    if (!data.available) {
+      resultBox.innerHTML = `<div class="export-warning">${esc(data.reason)}</div>`;
+      return;
+    }
+    const keys = Object.keys(data.suggestions || {});
+    if (!keys.length) {
+      resultBox.innerHTML = `<div class="export-warning">AI 建议未通过门禁（数字/禁词/长度），本槽保持原文——宁缺勿错。</div>`;
+      return;
+    }
+    creationDraft.polish = creationDraft.polish || {};
+    resultBox.innerHTML = keys.map(key => {
+      const suggestion = data.suggestions[key];
+      creationDraft.polish[key] = suggestion;
+      const original = slots[key] || '';
+      return `<div class="field"><label><input type="checkbox" data-polish-key="${esc(key)}" checked style="width:auto;height:auto"> ${esc(key)}（原文：${esc(original.slice(0, 24))}${original.length > 24 ? '…' : ''}）</label>
+        <textarea data-polish-edit="${esc(key)}" rows="2">${esc(suggestion)}</textarea></div>`;
+    }).join('') + `${data.dropped?.length ? `<div class="export-warning">已丢弃：${esc(data.dropped.join('、'))}</div>` : ''}<p class="settings-note">勾选的槽位在生成时采用；文本可直接改——改完以你改的为准。</p>`;
+    resultBox.querySelectorAll('[data-polish-edit]').forEach(area => {
+      area.addEventListener('input', () => {
+        creationDraft.polish[area.dataset.polishEdit] = area.value;
+      });
+    });
+    resultBox.querySelectorAll('[data-polish-key]').forEach(box => {
+      box.addEventListener('change', () => {
+        const key = box.dataset.polishKey;
+        if (box.checked) {
+          const area = resultBox.querySelector(`[data-polish-edit="${key}"]`);
+          creationDraft.polish[key] = area ? area.value : '';
+        } else {
+          delete creationDraft.polish[key];
+        }
+      });
+    });
+    flash(`✨ ${keys.length} 个槽位有 AI 建议（已过数字/禁词门禁）`, true);
+  } catch (error) {
+    flash('润色失败：' + error.message, false);
   } finally {
     window.FoxInteraction?.setBusy(button, false);
   }
@@ -615,6 +674,7 @@ function ensureCreationRequirement() {
   requirement.data.attachments = JSON.parse(JSON.stringify(creationDraft.inputs));
   requirement.data.analysis = creationDraft.analysis;
   requirement.data.tone = ($('#creation-tone') ? $('#creation-tone').value : '') || null;
+  requirement.data.polish = Object.assign({}, creationDraft.polish || {});
   requirement.title = '创作需求';
   creationDraft.inputs.forEach((item, index) => {
     if (!membersOf(ws).some(node => node.kind === 'source' && node.data.input_id === item.id)) {

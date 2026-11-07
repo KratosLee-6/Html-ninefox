@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Mapping, TypeAlias
@@ -679,6 +680,10 @@ class StudioApplication:
         return prompt, input_items
 
     def activate_ai(self) -> bool:
+        # 测试接缝（HTMLNINEFOX_LLM_STUB=1，与 llm.py 的 stub 同一 env）：
+        # 视 AI 为已启用，router.call 走确定性 stub——不打真网。
+        if os.environ.get("HTMLNINEFOX_LLM_STUB"):
+            return True
         settings = self.dependencies.ai_settings.activate()
         enabled = bool(settings.get("enabled") and settings.get("model") and settings.get("base_url"))
         if enabled:

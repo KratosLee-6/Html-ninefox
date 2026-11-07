@@ -24,6 +24,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 from .. import __version__, exporting, intake, llm, pipeline, project_memory, revisions, template_gallery
 from .. import docx_import, intake_adopt, intake_proposal
 from .. import image_assets, pdf_import, pptx_export, pptx_import
+from ..experts import copy_expert
 from ..application import (
     ExportError, ExportRequest, ExportResult,
     FeedbackError, FeedbackRequest, FeedbackResult,
@@ -871,6 +872,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._api_generate(body)
         if path == "/api/analyze":
             return self._api_analyze(body)
+        if path == "/api/polish-slots":
+            return self._api_polish_slots(body)
         if path == "/api/feedback":
             return self._api_feedback(body)
         if path == "/api/inputs":
@@ -1288,7 +1291,7 @@ class _Handler(BaseHTTPRequestHandler):
         prompt, input_items = self._prompt_and_inputs(body)
         if not prompt:
             raise StoreError("prompt_required", "prompt 或附件至少需要一个", 400)
-        from ..experts import brief_expert
+        from ..experts import brief_expert, copy_expert
         from ..generators import _tokens
         ai_enabled = self._activate_ai()
         memory_applied = self._memory_recommendation(prompt, body)
@@ -1306,6 +1309,20 @@ class _Handler(BaseHTTPRequestHandler):
         # 风格轴（0.9.1）：match_preset 附带动效人格与中文推荐理由——
         # 规则引擎也照给（「AI 增强可见」的兜底半场）。
         matched = _tokens.match_preset(result, result.get("intent", "landing"))
+        # 0.9.2 compose 推荐 LLM 化：有 AI 时让模型从 11 家预设里挑并给理由；
+        # 校验（preset_id 必须在库）不过 / 无 AI = 规则结果照旧。记忆模板 > LLM > 规则。
+        if ai_enabled and not memory_overrides.get("template"):
+            recommendation = copy_expert.CopyExpert().recommend_preset(
+                result, result.get("intent", "landing"),
+                memory=memory_values, allow_llm=True)
+            if not recommendation["fallback_used"]:
+                matched = dict(matched)
+                matched["id"] = recommendation["preset_id"]
+                matched["_matched_by"] = matched.get("_matched_by", "") + " +AI 推荐"
+                if recommendation["reason"]:
+                    matched["_reason"] = (
+                        f"{_tokens.PRESETS[matched['id']]['name']} · "
+                        f"{recommendation['reason']}（AI 推荐）")
         preset_id = memory_overrides.get("template") or matched["id"]
         recommended = template_gallery.recommend_gallery(
             result.get("intent", "landing"), preset_id, self._user_gallery().root)
@@ -1320,6 +1337,7 @@ class _Handler(BaseHTTPRequestHandler):
             "motion": matched.get("_motion", {}),
             "style_reason": matched.get("_reason", ""),
             "headline": content.get("headline", ""),
+            "core_message": content.get("core_message", ""),
             "must_have": (content.get("must_have") or [])[:4],
             "blocks": content.get("blocks") or [],
             "preset_id": preset_id,
@@ -1328,6 +1346,36 @@ class _Handler(BaseHTTPRequestHandler):
             "recommended_template": recommended,
             "recommended_blocks": [page["block_id"] for page in recommended.get("pages", [])],
             "memory_applied": memory_applied,
+        })
+
+    def _api_polish_slots(self, body: dict):
+        """槽位文案润色（0.9.2）：LLM 建议、逐槽门禁、人握采纳。
+
+        无 AI 照实说（available=false，规则引擎不代写文案）。"""
+        prompt, input_items = self._prompt_and_inputs(body)
+        slots = body.get("slots") if isinstance(body.get("slots"), dict) else {}
+        slots = {str(k): str(v) for k, v in slots.items() if str(v).strip()}
+        if not slots:
+            raise StoreError("polish_slots_required", "slots 不能为空", 400)
+        ai_enabled = self._activate_ai()
+        if not ai_enabled:
+            return self._json({
+                "ok": True, "available": False,
+                "reason": "未配置 AI 模型——文案润色需要 LLM，规则引擎不代写文案。"
+                          "（AI 模型菜单里配置后可用）"})
+        memory_values = self._memory_recommendation(prompt, body).get("values", {})
+        result = copy_expert.CopyExpert().polish_slots(
+            slots,
+            {"intent": str(body.get("intent") or ""),
+             "tone": str(body.get("tone") or ""),
+             "memory": memory_values},
+            allow_llm=True)
+        return self._json({
+            "ok": True, "available": True,
+            "suggestions": result["suggestions"],
+            "dropped": result["dropped"],
+            "model": result["model"],
+            "fallback_used": result["fallback_used"],
         })
 
     @staticmethod

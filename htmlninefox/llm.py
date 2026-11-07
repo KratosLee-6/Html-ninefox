@@ -238,6 +238,26 @@ class HtmlNineFoxRouter:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
 
+        # 测试接缝（HTMLNINEFOX_LLM_STUB=1）：env 门控的确定性 stub，返回
+        # 按 task 键控的合法 JSON——API e2e 不打真网。仅测试进程显式开启，
+        # 生产路径不触达。
+        if os.environ.get("HTMLNINEFOX_LLM_STUB"):
+            stubs = {
+                "preset_recommend": json.dumps({
+                    "preset_id": "vercel-dark",
+                    "reason": "深色开发者主题，代码感与数据密度优先",
+                }, ensure_ascii=False),
+                "copy_polish": json.dumps({
+                    "headline": "性能监控 · 一屏尽览",
+                    "summary": "面向开发者的实时看板，关键指标一屏尽览",
+                    "cta": "立即接入",
+                }, ensure_ascii=False),
+            }
+            stub_text = stubs.get(task, json.dumps({}, ensure_ascii=False))
+            return LLMResult(text=stub_text, model="test-stub", agent=agent,
+                             task=task, input_tokens=0, output_tokens=0,
+                             cost_usd=0.0, cached=False)
+
         runtime_settings = self.config.get("_runtime_settings")
         if runtime_settings:
             response = self._direct_completion(runtime_settings, messages, temperature, max_tokens)
