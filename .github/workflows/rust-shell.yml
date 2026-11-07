@@ -31,6 +31,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libgtk-3-dev
+      - name: Stage placeholder sidecar (tauri-build validates resource paths)
+        # 真正的 onedir 由发布流水线 shell-bundle job 暂存；check job 只验证
+        # 编译——但 tauri-build 对 resources 路径的存在性是硬校验，缺了就 101
+        shell: bash
+        run: |
+          mkdir -p src-tauri/sidecar/HtmlNineFox
+          echo "placeholder: real onedir is staged by packaging/shell/build_shell_bundle.py" > src-tauri/sidecar/HtmlNineFox/PLACEHOLDER.txt
       - name: cargo check (shell)
         working-directory: src-tauri
         run: cargo check --all-targets
