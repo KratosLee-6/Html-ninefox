@@ -69,6 +69,12 @@
 
   async function enter(node) {
     const frame = document.querySelector(`#frame-${node.id}`);
+    // 冷启动/慢网下 iframe 可能还没渲染完——等它就绪（≤8s）再进编辑，
+    // 而不是把「稍后再试」甩给用户（CI 曾因此偶发超时）。
+    for (let waited = 0; waited < 8000; waited += 200) {
+      if (frame?.contentDocument?.body) break;
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
     if (!frame?.contentDocument?.body) {
       return flash('预览尚未加载完成，稍后再试', false);
     }
