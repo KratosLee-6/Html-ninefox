@@ -117,19 +117,33 @@ class CopyExpert:
 
     # -------------------------------------------------- 槽位润色
     def polish_slots(self, slots: Dict[str, str], context: Dict[str, Any],
-                     allow_llm: bool = True) -> Dict[str, Any]:
-        """slots = {槽位: 现文}；返回可用建议（逐槽过门禁）与元信息。"""
+                     allow_llm: bool = True,
+                     voice_profile: Any = None) -> Dict[str, Any]:
+        """slots = {槽位: 现文}；返回可用建议（逐槽过门禁）与元信息。
+
+        voice_profile（0.9.3 语气档案，可选）：VoiceProfileStore——禁词叠加、
+        档案摘要进 prompt（保留用户自己的说法）。"""
         if not isinstance(slots, dict) or not slots:
             return {"suggestions": {}, "fallback_used": True, "model": "fallback",
                     "dropped": []}
         memory = context.get("memory") or {}
         forbidden = list(memory.get("forbidden") or [])
+        voice_summary = ""
+        if voice_profile is not None:
+            try:
+                forbidden.extend(voice_profile.forbidden_terms())
+                voice_summary = voice_profile.summary_for_prompt()
+            except Exception as e:  # noqa: BLE001 —— 档案缺失不阻塞润色
+                logger.info("[copy_expert] 语气档案读取失败：%s", e.__class__.__name__)
         slot_lines = "\n".join(f"- {key}：{value}" for key, value in slots.items())
+        voice_block = (
+            f"\n语气档案（照此保留用户自己的说法）：\n{voice_summary}" if voice_summary else "")
         user_msg = (
             f"意图：{context.get('intent', '')}\n"
             f"语气：{memory.get('tone') or context.get('tone', '')}\n"
             f"受众：{memory.get('audience', '')}\n"
-            f"禁用词（出现即弃）：{'、'.join(forbidden) if forbidden else '无'}\n"
+            f"禁用词（出现即弃）：{'、'.join(sorted(set(forbidden))) if forbidden else '无'}\n"
+            f"{voice_block}\n"
             f"槽位现文：\n{slot_lines}\n\n请输出润色后的 JSON（键保持一致）。"
         )
         empty: Dict[str, Any] = {"suggestions": {}, "fallback_used": True,

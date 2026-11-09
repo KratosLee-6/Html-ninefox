@@ -429,9 +429,55 @@ function fillProjectMemoryForm() {
   $('#memory-last-project').textContent = stats.last_adopted_project || '—';
 }
 
+async function refreshVoiceStatus() {
+  const status = $('#voice-status');
+  if (!status) return;
+  try {
+    const data = await api('/api/voice-profile');
+    const entries = data.profile?.entries || {};
+    const total = Object.values(entries).reduce((sum, list) => sum + list.length, 0);
+    status.textContent = total
+      ? `语气档案：${total} 条特征（各条需 ≥2 处证据；润色时自动保留你的说法）。最后更新：${data.profile.updated_at || '—'}`
+      : '语气档案为空——粘贴两段你亲手写的话，点「从素材学习语气」。';
+  } catch (error) {
+    status.textContent = '语气档案读取失败：' + error.message;
+  }
+}
+
+async function learnVoiceProfile() {
+  const area = $('#voice-samples');
+  const samples = (area?.value || '').split('\n').map(x => x.trim()).filter(Boolean);
+  if (!samples.length) return flash('请先粘贴至少一段你亲手写的话', false);
+  const button = $('#voice-learn');
+  window.FoxInteraction?.setBusy(button, true, '学习中…');
+  try {
+    const data = await api('/api/voice-profile/learn', 'POST', { samples });
+    const total = Object.values(data.profile?.entries || {}).reduce((s, l) => s + l.length, 0);
+    $('#voice-status').textContent = `已学习（素材 ${data.learned_from} 段）——档案现有 ${total} 条特征。证据不足两条的表达不会入档。`;
+    area.value = '';
+    flash('✓ 语气档案已更新', true);
+  } catch (error) {
+    flash('学习失败：' + error.message, false);
+  } finally {
+    window.FoxInteraction?.setBusy(button, false);
+  }
+}
+
+async function clearVoiceProfile() {
+  if (!confirm('清空语气档案？学习到的特征将全部删除。')) return;
+  try {
+    await api('/api/voice-profile', 'DELETE');
+    await refreshVoiceStatus();
+    flash('语气档案已清空', true);
+  } catch (error) {
+    flash('清空失败：' + error.message, false);
+  }
+}
+
 async function openProjectMemory() {
   await loadProjectMemory();
   fillProjectMemoryForm();
+  refreshVoiceStatus();
   $('#memory-status').textContent = state.memory?.updated_at
     ? '最后更新：' + state.memory.updated_at
     : '尚未形成长期记忆。可手动填写，或在产物检查器中明确采用。';

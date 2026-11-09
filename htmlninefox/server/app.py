@@ -25,6 +25,7 @@ from .. import __version__, exporting, intake, llm, pipeline, project_memory, re
 from .. import docx_import, intake_adopt, intake_proposal
 from .. import image_assets, pdf_import, pptx_export, pptx_import
 from ..experts import copy_expert
+from .. import voice_profile
 from ..application import (
     ExportError, ExportRequest, ExportResult,
     FeedbackError, FeedbackRequest, FeedbackResult,
@@ -527,6 +528,9 @@ class _Handler(BaseHTTPRequestHandler):
     def _memory(self) -> project_memory.ProjectMemoryStore:
         return project_memory.ProjectMemoryStore(_OUTPUT_ROOT)
 
+    def _voice(self) -> voice_profile.VoiceProfileStore:
+        return voice_profile.VoiceProfileStore(_OUTPUT_ROOT)
+
     def _memory_recommendation(self, prompt: str, body: dict) -> dict:
         return self._studio().recommend_memory(prompt, self._generation_request(body))
 
@@ -808,6 +812,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._json({"ok": True, "settings": self._ai_settings().public()})
         if path == "/api/memory":
             return self._json({"ok": True, "memory": self._memory().read()})
+        if path == "/api/voice-profile":
+            return self._json({"ok": True, "profile": self._voice().read()})
         if path == "/api/template-preview":
             intent = (query.get("intent") or ["landing"])[0]
             template_id = (query.get("template") or [None])[0]
@@ -874,6 +880,30 @@ class _Handler(BaseHTTPRequestHandler):
             return self._api_analyze(body)
         if path == "/api/polish-slots":
             return self._api_polish_slots(body)
+        if path == "/api/voice-profile/learn":
+            samples = body.get("samples") if isinstance(body.get("samples"), list) else []
+            texts = [str(x) for x in samples if str(x).strip()]
+            if not texts:
+                raise StoreError("voice_learn_empty",
+                                 "至少需要一段你亲手写的文本（≥2 处相似表达才会入档）", 400)
+            return self._json({"ok": True,
+                               "profile": self._voice().learn(texts),
+                               "learned_from": len(texts)})
+        if path == "/api/voice-profile/edit":
+            kind = str(body.get("kind") or "")
+            term = str(body.get("term") or "")
+            try:
+                return self._json({"ok": True,
+                                   "profile": self._voice().edit(kind, term, body)})
+            except ValueError as error:
+                raise StoreError("voice_entry_invalid", str(error), 400) from error
+        if path == "/api/voice-profile/remove":
+            kind = str(body.get("kind") or "")
+            term = str(body.get("term") or "")
+            return self._json({"ok": True,
+                               "profile": self._voice().remove(kind, term)})
+        if path == "/api/voice-profile/clear":
+            return self._json({"ok": True, "profile": self._voice().clear()})
         if path == "/api/feedback":
             return self._api_feedback(body)
         if path == "/api/inputs":
@@ -1128,6 +1158,8 @@ class _Handler(BaseHTTPRequestHandler):
     def _delete(self, path: str):
         if path == "/api/memory":
             return self._json({"ok": True, "memory": self._memory().clear()})
+        if path == "/api/voice-profile":
+            return self._json({"ok": True, "profile": self._voice().clear()})
         if path.startswith("/api/jobs/"):
             return self._json({"ok": True, "job": self._jobs().cancel(path[len("/api/jobs/"):])})
         if path.startswith("/api/projects/"):

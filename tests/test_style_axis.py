@@ -236,3 +236,81 @@ def test_recipe_run_endpoint_returns_stages(workbench):
         "/api/projects/" + urllib.parse.quote(name) + "/recipe-run",
         "GET", expected=404)
     assert missing["error"]["code"] == "not_found"
+
+
+# ============================================================
+# 0.9.3：语气档案（voice profile）—— schema/证据纪律/消费端
+# ============================================================
+
+from htmlninefox.voice_profile import VoiceProfileStore  # noqa: E402
+
+
+def test_voice_profile_evidence_discipline(tmp_path: Path):
+    """证据纪律：<2 处相似表达不入档；≥2 处入档且证据随学习累积。"""
+    store = VoiceProfileStore(tmp_path)
+    store.learn(["狐构交付很快。偶然词不要学。"])            # 「狐构交付」只 1 处
+    profile = store.read()
+    terms = [e["term"] for e in profile["entries"].get("preferred_terms", [])]
+    assert not any("狐构交付" in t for t in terms), "单证据特征必须被拒"
+    store.learn(["狐构交付的内容可以直接用。狐构交付从不拖稿。"])
+    profile = store.read()
+    terms = [e["term"] for e in profile["entries"].get("preferred_terms", [])]
+    assert any("狐构交付" in t for t in terms), "两处证据后应入档"
+
+
+def test_voice_profile_edit_remove_and_forbidden_overlay(tmp_path: Path):
+    import os
+    os.environ["HTMLNINEFOX_LLM_STUB"] = "1"
+    store = VoiceProfileStore(tmp_path)
+    store.edit("forbidden_terms", "赋能", {"evidence": ["别提赋能"]})
+    assert "赋能" in store.forbidden_terms()
+    store.remove("forbidden_terms", "赋能")
+    assert "赋能" not in store.forbidden_terms()
+
+    # 消费端：档案禁词叠加进 copy_expert（建议含禁词 → 该槽丢弃）
+    store.edit("forbidden_terms", "赋能", {"evidence": ["复盘：别再提赋能"]})
+    from htmlninefox.experts import copy_expert as ce
+
+    class _Fake:
+        def __init__(self, text): self.text = text; self.model = "fake"
+
+    original_call = ce.router.call
+
+    def fake_call(*, prompt, task, **kwargs):
+        assert "赋能" in prompt, "档案禁词必须出现在润色 prompt 里"
+        return type("R", (), {"text": '{"headline": "赋能型中台"}',
+                              "model": "fake"})()
+
+    ce.router.call = fake_call
+    try:
+        result = ce.CopyExpert().polish_slots(
+            {"headline": "看板"}, {"intent": "dashboard"},
+            allow_llm=True, voice_profile=store)
+    finally:
+        ce.router.call = original_call
+    assert result["suggestions"] == {}, "建议含档案禁词必须被丢弃"
+    assert result["dropped"]
+
+
+def test_voice_profile_api_roundtrip(workbench):
+    from tests.test_server_project_api import request as api_request
+    base = workbench.base_url
+    learned, _ = api_request(base, "/api/voice-profile/learn", "POST", {
+        "samples": ["狐构交付很快。狐构交付可以直接用。"]})
+    assert learned["ok"] is True
+    assert learned["learned_from"] == 1
+    profile, _ = api_request(base, "/api/voice-profile", "GET")
+    assert profile["ok"] is True
+    # 证据不足：第一段只有一处
+    edited, _ = api_request(base, "/api/voice-profile/edit", "POST", {
+        "kind": "forbidden_terms", "term": "赋能", "evidence": ["别提赋能"]})
+    assert edited["ok"] is True
+    removed, _ = api_request(base, "/api/voice-profile/remove", "POST", {
+        "kind": "forbidden_terms", "term": "赋能"})
+    assert "赋能" not in [e["term"] for e in
+                          removed["profile"]["entries"].get("forbidden_terms", [])]
+    cleared, _ = api_request(base, "/api/voice-profile", "DELETE")
+    assert cleared["profile"]["entries"] == {}
+    empty, _ = api_request(base, "/api/voice-profile/learn", "POST",
+                           {"samples": [""]}, expected=400)
+    assert empty["error"]["code"] == "voice_learn_empty"

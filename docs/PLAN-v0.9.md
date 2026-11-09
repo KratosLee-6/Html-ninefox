@@ -39,6 +39,7 @@
 | 批次 | 内容 | 体验升级 |
 |---|---|---|
 | **0.9.0** | **Tauri 桌面壳**：✅ 编译+CI 三平台绿（7abe9a7→ec3f9ff）；✅ 打包接线 packaging/shell/build_shell_bundle.py（onedir→sidecar→NSIS）+ scripts/verify_shell.py 验收（静态半场全 PASS）；⏳ 发布前人工清单（双击→托盘→关窗回收） | 桌面原生形态 |
+| **0.9.3** | **语气档案**（2026-11-09 落地，融合 guizang-design 语气档案思路）：`voice_profile.py`（独立存储 .settings/voice-profile.json）——六类特征（常用词/禁词/句长节奏/开头/结尾/称呼）+ **≥2 处证据纪律**（滑窗 n-gram 跨样本计数，句子级证据；首跑实锤按文本取证据三撞一被误杀）；learn/edit/remove/clear 全套 API + 记忆面板「从素材学习语气」区；copy_expert 消费端（禁词叠加 + 档案摘要进 prompt 保留用户说法）| AI 保留你的口吻；无密钥档案仍当门禁 |
 | **0.9.2** | **AI 生成深化**（2026-11-07 落地）：`copy_expert` 两个职责——compose 推荐 LLM 化（11 家预设挑一个 + 中文理由，preset_id 校验不过/无 AI = 规则结果照旧，记忆模板 > LLM > 规则）+ 槽位文案润色（**数字串双向一致**门禁：不许丢也不许发明；禁词/超长丢弃；宁缺勿错）+ `HTMLNINEFOX_LLM_STUB` env 门控测试接缝 + `/api/polish-slots`（无 AI 照实说 available=false）+ 推荐卡「✨ 文案润色」逐槽 diff 采纳（勾选+可改文本）→ content 通道（人审文案同一条 `_apply_caller_copy`）→ 产物印人采纳的文案（端到端闭环门禁） | LLM 只是建议，人握每一句 |
 | **0.9.1 后半** | **调性选择器 + 配方时间线**（2026-11-07 落地）：创建面板调性选择（自动/6 词表，400 tone_invalid 校验）→ analyze/generate 全链贯通（pipeline 在 style_expert 前注入 brief，模板分支附 motion 参数）→ 端到端门禁（vibrant→0.6s/14s · editorial→0.9s/32s 进产物；无 tone 回归护栏）+ **配方时间线 AI 徽章**（recipe-run 端点 + recipeRunMarkup 每段 🤖 模型 / 📐 规则兜底 + file 节点 fetch 版时间线） | 调性可控可证；「哪段用了 AI」不再靠猜 |
 | **0.9.1** | **风格轴第一批**（2026-11-03 落地）：MOTION_ARCHETYPES 四原型→动效参数三轴（ink/stagger/ambient，全在 0.8.7 门禁内；reveal .6s 固定锚点）+ 6×4 覆盖矩阵门禁（变异 CAUGHT）+ 画廊 manifest tone 标签 + match_preset 中文推荐理由 + analyze 载荷带 motion/reason + 推荐卡原型徽章；test_style_axis 7 门禁 | 生成时选调性，产物气质可控；理由永远可见 |

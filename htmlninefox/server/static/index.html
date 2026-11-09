@@ -932,6 +932,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <div class="flow-grid"><div class="flow-field"><label>默认主色</label><input id="memory-primary" placeholder="#173C8F"></div><div class="flow-field"><label>默认字体</label><select id="memory-font"><option value="">自动</option><option value="sans">无衬线</option><option value="serif">衬线</option><option value="mono">等宽</option></select></div></div>
       <div class="flow-field"><label>长期说明</label><textarea id="memory-notes" maxlength="2000" placeholder="仅保存可长期复用的项目说明，不建议粘贴敏感原文。"></textarea></div>
       <div class="flow-actions"><button class="btn btn-primary" id="memory-save" data-action="saveProjectMemory">保存记忆</button></div><div class="status-panel" id="memory-status" role="status" aria-live="polite" style="margin-top:12px">尚未读取项目记忆</div>
+      <div class="flow-field"><label>语气档案 · 学习素材（你亲手写的话，每行一段；每条特征需 ≥2 处相似表达才入档）</label><textarea id="voice-samples" rows="3" placeholder="例如：
+狐构的交付速度很快。
+狐构交付的内容可以直接用。"></textarea></div>
+      <div class="flow-actions"><button class="btn btn-secondary" id="voice-learn" data-action="learnVoiceProfile">从素材学习语气</button><button class="btn btn-danger-ghost" id="voice-clear" data-action="clearVoiceProfile">清空语气档案</button></div>
+      <div class="status-panel" id="voice-status" role="status" aria-live="polite" style="margin-top:8px">语气档案记录你的用词与句式习惯；润色时会照此保留你的说法。</div>
       <div class="memory-danger"><p class="settings-note">采用只记录品牌、受众、风格、禁忌、模板与设计决策，不保存 API Key 或附件正文。</p><button class="btn btn-danger-ghost" id="memory-clear" data-action="clearProjectMemory">清空项目记忆</button></div>
     </section></div>
   </div>
