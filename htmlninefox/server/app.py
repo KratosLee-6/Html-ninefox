@@ -825,6 +825,15 @@ class _Handler(BaseHTTPRequestHandler):
         if path == "/api/alliance":
             from ..alliance.router import AllianceRouter
             return self._json({"items": AllianceRouter().list_available_skills()})
+        if path == "/api/workflows":
+            from ..workflow_presets import list_workflows
+            return self._json({"ok": True, "workflows": list_workflows()})
+        if path.startswith("/api/workflows/"):
+            from ..workflow_presets import get_workflow
+            workflow = get_workflow(path[len("/api/workflows/"):])
+            if not workflow:
+                raise StoreError("not_found", "未知工作流", 404)
+            return self._json({"ok": True, "workflow": workflow})
         if path == "/api/projects":
             return self._json({"items": self._store().list_projects()})
         if path == "/api/jobs":

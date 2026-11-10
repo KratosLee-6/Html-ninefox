@@ -55,7 +55,8 @@
       ],
       "file": "guizang-editorial-ink.html",
       "license": "original",
-      "tone": "editorial"
+      "tone": "editorial",
+      "family": "guizang"
     },
     {
       "id": "guizang-indigo-research",
@@ -111,7 +112,8 @@
       ],
       "file": "guizang-indigo-research.html",
       "license": "original",
-      "tone": "editorial"
+      "tone": "editorial",
+      "family": "guizang"
     },
     {
       "id": "guizang-swiss-signal",
@@ -167,7 +169,8 @@
       ],
       "file": "guizang-swiss-signal.html",
       "license": "original",
-      "tone": "techy"
+      "tone": "techy",
+      "family": "guizang"
     },
     {
       "id": "guizang-kraft-story",
@@ -223,7 +226,8 @@
       ],
       "file": "guizang-kraft-story.html",
       "license": "original",
-      "tone": "editorial"
+      "tone": "editorial",
+      "family": "guizang"
     },
     {
       "id": "guizang-dune-portfolio",
@@ -272,7 +276,8 @@
       ],
       "file": "guizang-dune-portfolio.html",
       "license": "original",
-      "tone": "minimal"
+      "tone": "minimal",
+      "family": "guizang"
     },
     {
       "id": "pixel-garden-product",
@@ -321,7 +326,8 @@
       ],
       "file": "pixel-garden-product.html",
       "license": "original",
-      "tone": "vibrant"
+      "tone": "vibrant",
+      "family": "fox"
     },
     {
       "id": "fox-vibrant-poster",
@@ -349,7 +355,8 @@
         }
       ],
       "file": "fox-vibrant-poster.html",
-      "tone": "vibrant"
+      "tone": "vibrant",
+      "family": "fox"
     },
     {
       "id": "fox-shadcn-dashboard",
@@ -377,7 +384,8 @@
         }
       ],
       "file": "fox-shadcn-dashboard.html",
-      "tone": "dark"
+      "tone": "dark",
+      "family": "shadcn"
     },
     {
       "id": "fox-doc-clean-brief",
@@ -412,7 +420,8 @@
         }
       ],
       "file": "fox-doc-clean-brief.html",
-      "tone": "professional"
+      "tone": "professional",
+      "family": "doc-clean"
     },
     {
       "id": "fox-swiss-archdoc",
@@ -440,7 +449,8 @@
         }
       ],
       "file": "fox-swiss-archdoc.html",
-      "tone": "professional"
+      "tone": "professional",
+      "family": "fox-swiss"
     }
   ]
 }

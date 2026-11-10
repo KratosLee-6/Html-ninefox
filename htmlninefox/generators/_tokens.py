@@ -201,6 +201,22 @@ REFERENCE_MAP = {
 # 动效人格四原型（0.9.1 风格轴；原则源自 LottieFiles/motion-design-skill，
 # 参数全部落在 0.8.7 动效门禁内：ink ∈ [600,1200]ms · stagger cap < 500ms ·
 # 循环 ease-in-out）。reveal 基础时长固定 .6s 不随原型变（门禁锚点）。
+# 家族标签（0.9.4 拼装层）：同一家族的 preset 与画廊模板共享视觉血缘——
+# 「同一篇内容做成多种出口，主题是一家人」的语义基础。
+PRESET_FAMILY = {
+    "linear-light": "linear", "vercel-dark": "vercel",
+    "guizang-magazine": "guizang", "shadcn-dashboard": "shadcn",
+    "vibrant-poster": "vibrant", "doc-clean": "doc-clean",
+    "fox-pixel-garden": "fox", "fox-duotone-studio": "fox",
+    "fox-editorial-ink": "fox", "fox-swiss-signal": "fox-swiss",
+    "fox-soft-silver": "fox",
+}
+
+
+def preset_family(preset_id: str) -> str:
+    return PRESET_FAMILY.get(preset_id, "independent")
+
+
 TONE_VOCABULARY = ("dark", "minimal", "editorial", "vibrant",
                    "professional", "techy")
 

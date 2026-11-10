@@ -258,9 +258,8 @@ def test_voice_profile_evidence_discipline(tmp_path: Path):
     assert any("狐构交付" in t for t in terms), "两处证据后应入档"
 
 
-def test_voice_profile_edit_remove_and_forbidden_overlay(tmp_path: Path):
-    import os
-    os.environ["HTMLNINEFOX_LLM_STUB"] = "1"
+def test_voice_profile_edit_remove_and_forbidden_overlay(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("HTMLNINEFOX_LLM_STUB", "1")
     store = VoiceProfileStore(tmp_path)
     store.edit("forbidden_terms", "赋能", {"evidence": ["别提赋能"]})
     assert "赋能" in store.forbidden_terms()
