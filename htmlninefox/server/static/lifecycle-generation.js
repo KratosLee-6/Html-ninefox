@@ -234,6 +234,7 @@
         primary: colorNode && colorNode.data.hex,
         font: fontNode && fontNode.data.font,
         tone: req.data.tone || null,
+        workflow: req.data.workflow || null,
         selection_mode: options.selectionMode || (galleryId || blocks.length ? 'custom' : 'automatic'),
         quiet_llm: false,
       };

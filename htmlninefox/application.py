@@ -166,6 +166,7 @@ class GenerationRequest:
     gallery_id: str | None = None
     blocks: tuple[GenerationBlock, ...] = ()
     selection_mode: str = "custom"
+    workflow: str | None = None
     # Caller-owned copy (brand / hero_sub / summary). Word 导入审过的文案走这里，
     # 否则 brief_expert 会用规则重写一遍，页面上印的是它的话而不是人审过的话。
     content: JsonObject = field(default_factory=dict)
@@ -465,6 +466,7 @@ class StudioApplication:
                     "content": dict(request.content or {}),
                     "inputs": input_items,
                     "selection_mode": request.selection_mode or "custom",
+                    "workflow": request.workflow or None,
                 },
                 memory_context=memory_applied,
                 progress_callback=progress_callback,

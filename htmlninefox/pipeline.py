@@ -313,6 +313,7 @@ def _run_expert_into(work: Path, project_name: str, ts: str, prompt: str, skill:
             "intent": intent,
             "route_decision": route.get("decision"),
             "skill": route.get("skill"),
+            "workflow": (composition or {}).get("workflow"),
             "preset_id": preset.get("id"),
             "blocks": assets_result.get("blocks", []),
             "selection_mode": composition.get("selection_mode"),

@@ -952,6 +952,7 @@ window.FoxActions = {
   startBundleExport: () => window.FoxExports.startBundle(),
   openPhonePreview: () => window.FoxPhone.open(),
   toggleLiveEdit: id => window.FoxLiveEdit.toggle(id),
+
   closePhonePreview: () => window.FoxPhone.close(),
   docxToggleSlotLang: () => window.FoxDocx.toggleSlotLang(),
   openSlideEditor: id => window.FoxSlides.open(id),

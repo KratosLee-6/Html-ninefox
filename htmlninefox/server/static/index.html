@@ -806,6 +806,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
         <div class="flow-field"><label>你希望生成什么？</label><textarea id="creation-prompt" placeholder="例如：做一个 AI 产品发布会 PPT，面向设计团队，重点展示工作流、模板市场和本地数据安全。"></textarea></div>
         <div class="drop-zone"><strong>添加参考文件或图片</strong><small>支持 TXT / Markdown / JSON / CSV / HTML 和常见图片，单个不超过 8MB。文本会提取内容，图片会作为创作上下文记录。</small><input id="creation-files" class="sr-only" type="file" multiple accept="image/*,.txt,.md,.json,.csv,.html,.htm,.yaml,.yml"><label class="drop-pick" for="creation-files">选择文件<span class="drop-pick-hint">可多选</span></label></div>
         <div class="input-list" id="creation-input-list"></div>
+        <div class="flow-field"><label>工作流剧本（可选，多步玩法）</label><select id="creation-workflow" aria-label="工作流剧本"><option value="">不用剧本 · 单次生成</option></select><small class="settings-note" id="creation-workflow-note" hidden></small></div>
         <div class="flow-field"><label>调性（可选，覆盖自动分析）</label><select id="creation-tone" aria-label="动效调性"><option value="">自动 · 交给分析</option><option value="dark">深色</option><option value="minimal">极简</option><option value="editorial">杂志感</option><option value="vibrant">高活力</option><option value="professional">专业</option><option value="techy">极客</option></select></div>
         <div class="flow-actions"><button class="btn btn-primary" id="creation-analyze" data-action="analyzeCreation">AI 分析并推荐</button><button class="btn btn-secondary" data-action="sendToCustomWorkspace">先进入工作区自定义</button></div>
       </section>

@@ -103,6 +103,18 @@ APP_CAPABILITIES = {
 _OUTPUT_ROOT = Path.home() / "htmlninefox-output"
 
 
+def _validated_workflow(value) -> str | None:
+    """工作流剧本覆盖（0.9.4 拼装层）：空 = 不走剧本；给了必须在六条内。"""
+    workflow = str(value or "").strip()
+    if not workflow:
+        return None
+    from htmlninefox.workflow_presets import get_workflow
+    if get_workflow(workflow) is None:
+        raise StoreError("workflow_invalid",
+                         f"未知工作流剧本：{workflow}", 400)
+    return workflow
+
+
 def _validated_tone(value) -> str | None:
     """调性覆盖（0.9.1 风格轴）：空 = 交给分析；给了必须在词表内。"""
     tone = str(value or "").strip()
@@ -1286,6 +1298,7 @@ class _Handler(BaseHTTPRequestHandler):
             primary=body.get("primary") or None,
             font=body.get("font") or None,
             tone=_validated_tone(body.get("tone")),
+            workflow=_validated_workflow(body.get("workflow")),
             gallery_id=body.get("gallery_id") or None,
             blocks=tuple(
                 GenerationBlock.from_value(item)

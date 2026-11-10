@@ -124,3 +124,29 @@ def test_mutation_removing_workflow_step_ability_is_caught(tmp_path: Path, monke
         wp.WORKFLOWS[0] = original
     assert not [w for w in wp.WORKFLOWS
                 for s in w["steps"] if s["ability"] not in KNOWN_ABILITIES], "还原失败"
+
+
+def test_generate_with_workflow_records_it_in_recipe_run(workbench):
+    """端到端：generate 带 workflow → recipe-run compose 段记录剧本 id；
+    未知剧本 → 400 workflow_invalid。"""
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from tests.test_server_project_api import request as api_request
+    base = workbench.base_url
+    result, _ = api_request(base, "/api/generate", "POST", {
+        "prompt": "做一个智能水杯的落地页", "intent": "landing",
+        "workflow": "one-article-three-outputs", "quiet_llm": True})
+    name = result["project_name"]
+    run, _ = api_request(
+        base, "/api/projects/" + urllib.parse.quote(name) + "/recipe-run", "GET")
+    compose = next(s for s in run["stages"] if s["id"] == "compose")
+    # compose 的 output_summary 不经端点透出全部字段——改为直接读产物目录
+    run_file = workbench.output_root / name / "recipe-run.json"
+    data = json.loads(run_file.read_text(encoding="utf-8"))
+    compose_stage = next(s for s in data["stages"] if s["id"] == "compose")
+    assert compose_stage.get("output_summary", {}).get("workflow") == \
+        "one-article-three-outputs", "compose 必须记录工作流剧本"
+    bad, _ = api_request(base, "/api/generate", "POST", {
+        "prompt": "做一个落地页", "intent": "landing",
+        "workflow": "不存在剧本", "quiet_llm": True}, expected=400)
+    assert bad["error"]["code"] == "workflow_invalid"

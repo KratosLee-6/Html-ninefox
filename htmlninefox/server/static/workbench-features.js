@@ -559,6 +559,7 @@ async function adoptProject(nodeId) {
 }
 
 function openCreatePanel(requirementId = null) {
+  void loadWorkflowOptions();   /* 工作流剧本选项：打开面板即懒加载 */
   creationDraft.requirementId = requirementId;
   creationDraft.analysis = null;
   const requirement = nodes.find(node => node.id === requirementId && node.kind === 'requirement');
@@ -617,6 +618,29 @@ async function uploadCreationFiles(files) {
   $('#creation-files').value = '';
 }
 
+async function loadWorkflowOptions() {
+  const select = $('#creation-workflow');
+  if (!select || select.dataset.loaded) return;
+  try {
+    const data = await api('/api/workflows');
+    for (const wf of data.workflows || []) {
+      const option = document.createElement('option');
+      option.value = wf.id;
+      option.textContent = wf.name;
+      select.appendChild(option);
+    }
+    select.dataset.loaded = '1';
+    select.addEventListener('change', () => {
+      const wf = (data.workflows || []).find(w => w.id === select.value);
+      const note = $('#creation-workflow-note');
+      if (note) {
+        note.hidden = !wf;
+        note.textContent = wf ? wf.description : '';
+      }
+    });
+  } catch (error) { /* 工作流清单拉取失败不阻塞创建 */ }
+}
+
 async function analyzeCreation() {
   const prompt = $('#creation-prompt').value.trim();
   if (!prompt && !creationDraft.inputs.length) return flash('请填写文字需求或添加附件', false);
@@ -626,7 +650,9 @@ async function analyzeCreation() {
   $('#creation-analysis').textContent = 'AI 正在拆解需求并匹配真实模板…';
   try {
     const tone = $('#creation-tone') ? $('#creation-tone').value : '';
-    const analysis = await post('/api/analyze', { prompt, inputs:creationDraft.inputs.map(item => item.id), tone: tone || undefined });
+    const workflow = $('#creation-workflow') ? $('#creation-workflow').value : '';
+    const analysis = await post('/api/analyze', { prompt, inputs:creationDraft.inputs.map(item => item.id), tone: tone || undefined, workflow: workflow || undefined });
+    analysis.workflow = workflow || null;
     creationDraft.analysis = analysis;
     const item = analysis.recommended_template;
     $('#creation-analysis').className = '';
@@ -721,6 +747,7 @@ function ensureCreationRequirement() {
   requirement.data.analysis = creationDraft.analysis;
   requirement.data.tone = ($('#creation-tone') ? $('#creation-tone').value : '') || null;
   requirement.data.polish = Object.assign({}, creationDraft.polish || {});
+  requirement.data.workflow = ($('#creation-workflow') ? $('#creation-workflow').value : '') || null;
   requirement.title = '创作需求';
   creationDraft.inputs.forEach((item, index) => {
     if (!membersOf(ws).some(node => node.kind === 'source' && node.data.input_id === item.id)) {
