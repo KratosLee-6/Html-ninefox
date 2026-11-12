@@ -51,6 +51,30 @@ PROVIDER_PRESETS: Dict[str, Dict[str, str]] = {
 # 环境变量探测顺序：MiniMax-M3 优先（国内访问快 + 中文强）
 _ENV_PRIORITY = ("minimax", "gpt4o", "claude")
 
+# 测试接缝（HTMLNINEFOX_LLM_STUB=1）的键控响应表。style_refine 故意给
+# 域外荧光色 —— 0.9.5 OKLCH 约束链的确定性测试输入（见 _oklch.py）。
+LLM_STUB_RESPONSES = {
+    "preset_recommend": json.dumps({
+        "preset_id": "vercel-dark",
+        "reason": "深色开发者主题，代码感与数据密度优先",
+    }, ensure_ascii=False),
+    "copy_polish": json.dumps({
+        "headline": "性能监控 · 一屏尽览",
+        "summary": "面向开发者的实时看板，关键指标一屏尽览",
+        "cta": "立即接入",
+    }, ensure_ascii=False),
+    "style_refine": json.dumps({
+        "primary": "#00FF00",
+        "accent": "#FF00AA",
+        "reason": "测试：荧光品牌色，应被收进风格明度/彩度域",
+    }, ensure_ascii=False),
+}
+
+
+def _stub_text_for_style_refine() -> str:
+    """style_refine 的 stub 响应文本（测试直查键控表用）。"""
+    return LLM_STUB_RESPONSES["style_refine"]
+
 
 def call_minimax_m3(prompt: str, api_key: str, model: str = "MiniMax-M3",
                     base_url: str = "https://api.minimaxi.com/v1") -> str:
@@ -242,18 +266,7 @@ class HtmlNineFoxRouter:
         # 按 task 键控的合法 JSON——API e2e 不打真网。仅测试进程显式开启，
         # 生产路径不触达。
         if os.environ.get("HTMLNINEFOX_LLM_STUB"):
-            stubs = {
-                "preset_recommend": json.dumps({
-                    "preset_id": "vercel-dark",
-                    "reason": "深色开发者主题，代码感与数据密度优先",
-                }, ensure_ascii=False),
-                "copy_polish": json.dumps({
-                    "headline": "性能监控 · 一屏尽览",
-                    "summary": "面向开发者的实时看板，关键指标一屏尽览",
-                    "cta": "立即接入",
-                }, ensure_ascii=False),
-            }
-            stub_text = stubs.get(task, json.dumps({}, ensure_ascii=False))
+            stub_text = LLM_STUB_RESPONSES.get(task, json.dumps({}, ensure_ascii=False))
             return LLMResult(text=stub_text, model="test-stub", agent=agent,
                              task=task, input_tokens=0, output_tokens=0,
                              cost_usd=0.0, cached=False)

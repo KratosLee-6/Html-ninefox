@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from ..generators import _tokens
+from ..generators._oklch import constrain_brand_color
 from ..llm import router
 from ._base import BaseExpert
 
@@ -45,8 +46,18 @@ class StyleExpert(BaseExpert):
             decision = self._llm_refine(payload, preset)
             if decision:
                 t = preset["tokens"]
-                t["primary"] = decision.get("primary", t["primary"])
-                t["accent"] = decision.get("accent", t["accent"])
+                # v0.9.5 OKLCH：LLM 给的品牌色收进风格域，不直接用原色
+                # （primary 对 primary_text ≥4.5:1；accent 对 bg ≥3:1 图形部件档）
+                constraints = []
+                for k, role, ref in (("primary", "primary", "primary_text"),
+                                     ("accent", "accent", "bg")):
+                    if decision.get(k):
+                        res = constrain_brand_color(decision[k], t[k], t[ref], role=role)
+                        t[k] = res["hex"]
+                        if res.get("adjusted"):
+                            constraints.append(res["reason"])
+                if constraints:
+                    preset["_brand_constraint"] = "；".join(constraints)
                 adjusted, model_used = True, decision.get("_model", "llm")
 
         decision_payload = {
@@ -56,6 +67,8 @@ class StyleExpert(BaseExpert):
             "llm_adjusted": adjusted,
             "model": model_used,
         }
+        if preset.get("_brand_constraint"):
+            decision_payload["brand_constraint"] = preset["_brand_constraint"]
         return {
             "preset": preset,
             "style_decision": decision_payload,

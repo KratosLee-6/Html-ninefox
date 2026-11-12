@@ -1,0 +1,28 @@
+# dsh-guizang-design · Skill 联盟成员（v0.9.5 接入，评估见 docs/EVAL-guizang-design-20261109.md）
+# 歸藏 guizang-ppt 姊妹仓库 = 那套技能的设计系统统一 + 工程化封装（dsh 插件形态）；
+# 知识型成员：无 CLI、无 python 模块，装了它 agent 生成时自带「十主题设计系统 /
+# OKLCH 品牌色约束 / 语气档案 / 去 AI 味」思维；
+# 未安装时本地门禁与 0.9.5 OKLCH 约束层照常工作（fallback: skip）
+# AGPL 红线：只学思路与事实层（参数表/主题命名致敬），不复制代码/主题 CSS/文案；
+# humanizer-zh（内嵌 skill，MIT）可参考实现
+name: dsh-guizang-design
+version: 1.0.0
+author: 歸藏
+category: design
+description: 设计系统统一封装——杂志风 6 主题 + 瑞士风 4 主题三形态共用 token、OKLCH 品牌色约束（WCAG+APCA 对比度）、语气档案（每特征 ≥2 证据）、去 AI 味、六条工作流
+intents: [landing, deck, poster, dashboard, doc, archdoc]
+# 探测：dsh 插件落位到各 agent 技能目录，任一命中即视为已装
+detect_paths:
+  - ~/.agents/skills/dsh-guizang-design/SKILL.md
+  - ~/.claude/skills/dsh-guizang-design/SKILL.md
+  - ~/.codex/skills/dsh-guizang-design/SKILL.md
+  - ~/.dsh/skills/dsh-guizang-design/SKILL.md
+  - .agents/skills/dsh-guizang-design/SKILL.md
+  - .claude/skills/dsh-guizang-design/SKILL.md
+fallback: local:skip
+homepage: https://github.com/op7418/dsh-guizang-design
+license: AGPL-3.0
+integration: guidance-source
+upstream_checked_at: 2026-11-09
+upstream_version: 无 tag（2026-11-09 评估时点，690★）
+upstream_license: AGPL-3.0（整体；内嵌 skills 各自持牌，humanizer-zh 为 MIT）

@@ -1,6 +1,7 @@
 """测试 token 库：预设匹配 / 反馈应用 / 全局库不被污染"""
 
 from htmlninefox.generators import _tokens as tk
+from htmlninefox.generators import _oklch as ok
 
 
 class TestMatchPreset:
@@ -53,8 +54,24 @@ class TestApplyFeedback:
         assert p["tokens"]["bg"] == tk.PRESETS["vercel-dark"]["tokens"]["bg"]
 
     def test_hex_override(self):
+        # v0.9.5 OKLCH：域外品牌色不直接用原色 —— 收进风格域并留理由
         p = tk.apply_feedback(self._base(), {"primary_override": "#FF5A00"}, [])
-        assert p["tokens"]["primary"] == "#FF5A00"
+        assert p["tokens"]["primary"] != "#FF5A00", "域外品牌色必须被收进风格域"
+        l, _, h = ok.hex_to_oklch(p["tokens"]["primary"])
+        _, _, brand_h = ok.hex_to_oklch("#FF5A00")
+        # 色相保留 ±8°：OKLCH→sRGB 色域边界的固有映射损失（深彩区 ~5°）
+        assert abs(h - brand_h) <= 8.0, f"色相必须保留（±8°），实际漂移 {abs(h - brand_h):.1f}°"
+        assert p.get("_brand_constraint"), "约束理由必须可见"
+        ratio = ok.wcag_contrast_ratio(p["tokens"]["primary"],
+                                       p["tokens"]["primary_text"])
+        assert ratio >= 4.5, f"对比度必须 ≥4.5:1，实际 {ratio}"
+
+    def test_hex_override_in_domain_stays(self):
+        # 已在域内的温和色不被扰动（回归护栏）
+        anchor = tk.PRESETS["linear-light"]["tokens"]["primary"]
+        p = tk.apply_feedback(self._base(), {"primary_override": anchor}, [])
+        assert p["tokens"]["primary"] == anchor
+        assert not p.get("_brand_constraint")
 
     def test_reference_preset_switch(self):
         p = tk.apply_feedback(self._base(), {"reference_preset": "stripe"}, [])

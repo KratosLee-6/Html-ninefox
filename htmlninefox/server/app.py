@@ -1238,13 +1238,30 @@ class _Handler(BaseHTTPRequestHandler):
         stamp = time.strftime("%Y%m%d-%H%M%S")
         out_dir = project_dir / "exports" / f"{stamp}-bundle"
         out_dir.mkdir(parents=True, exist_ok=True)
+        # v0.9.5-B：交付包副本内嵌子集字体 —— 有 fonttools + 缓存字体才生效，
+        # 否则上面的原件照旧入包（工作区 output.html 永不改动）。内嵌副本
+        # 覆盖归档条目（同名后写覆盖 zipfile 里的前一条）。
+        font_report: dict = {"embedded": [], "skipped": [], "chars": 0}
+        if html_src.is_file():
+            from ..fontsubset import embed_fonts_into_html
+            try:
+                html_for_bundle, font_report = embed_fonts_into_html(
+                    html_src.read_text(encoding="utf-8"), _OUTPUT_ROOT)
+            except Exception as error:  # noqa: BLE001 — 字体内嵌失败不拖垮交付包
+                html_for_bundle, font_report = None, {
+                    "embedded": [], "skipped": [error.__class__.__name__], "chars": 0}
+            if html_for_bundle and font_report.get("embedded"):
+                staged_html = out_dir / "output.html"
+                staged_html.write_text(html_for_bundle, encoding="utf-8")
+                produced.append((str(staged_html), "output.html"))
         zip_path = out_dir / "bundle.zip"
         import zipfile
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
             for file_path, arcname in produced:
                 zf.write(file_path, arcname)
         manifest = {"intent": intent, "formats": formats,
-                    "files": [arcname for _, arcname in produced]}
+                    "files": [arcname for _, arcname in produced],
+                    "fonts": font_report}
         (out_dir / "bundle-manifest.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
         # 下载链接与 export_project 同构（/output/<相对路径>?download=1）——

@@ -39,6 +39,7 @@
 | 批次 | 内容 | 体验升级 |
 |---|---|---|
 | **0.9.0** | **Tauri 桌面壳**：✅ 编译+CI 三平台绿（7abe9a7→ec3f9ff）；✅ 打包接线 packaging/shell/build_shell_bundle.py（onedir→sidecar→NSIS）+ scripts/verify_shell.py 验收（静态半场全 PASS）；⏳ 发布前人工清单（双击→托盘→关窗回收） | 桌面原生形态 |
+| **0.9.5** | **OKLCH 品牌色约束 + 交付包字体子集化 + 联盟小批**（2026-11-12 落地，guizang-design 融合收尾）：①`generators/_oklch.py`——sRGB↔OKLCH 纯 Python 标准转换（往返 ±1/通道）+ WCAG 对比度；品牌色两入口（feedback `primary_override` / style_expert LLM 微调）**不再直接用原色**：收进锚点（preset 原色反推，11 家零数据变更）±0.10 明度 ×1.25 彩度域，色相保留（±8° gamut 容差），primary 对 primary_text ≥4.5:1、accent 对 bg ≥3:1，不足沿明度轴步进；`_brand_constraint` 理由随 token/style_decision 全程可见；②`fontsubset.py`——交付包**副本**按产物实际用字子集化内嵌（woff data-URI + font 栈前插，工作区原件永不动），`[font]` extra（fonttools+brotli，dev 同步），无 extra/无缓存照旧导出报告照实说，`python -m htmlninefox.fontsubset fetch/list`（OFL Noto 源，字体文件不进 git）；③联盟 manifest `dsh-guizang-design`（guidance-source，AGPL 红线交底）。stub `style_refine` 键控荧光色 = 约束链确定性输入；直通变异 CAUGHT | 品牌色不放飞；交付包离线不裸奔 |
 | **0.9.4 后半** | **剧本入口 + 生成链记录**（2026-11-10 落地）：创建面板「工作流剧本」选择器（懒加载六条 + 描述展示）→ analyze/generate 请求带 workflow（`_validated_workflow` 400 workflow_invalid，与 tone 同一教训：server 内禁相对导入）→ pipeline compose 段记录剧本 → recipe-run 时间线可查；端到端门禁（one-article-three-outputs 进 recipe-run + 未知剧本 400）| 剧本从数据变成可点入口，多步玩法留痕 |
 | **0.9.4 第一批** | **家族标签 + 工作流剧本**（2026-11-10 落地）：preset 11 家与画廊 10 张全体带 family（guizang/fox/shadcn/vercel…8 家族，未登记落 independent 不猜）+ 未知预设校验；`workflow_presets.py` 六条剧本（一文三出口/旧文档翻新/演讲回收/品牌套件/口语迭代/一键交付，每步引用 ability 而非实现）+ GET `/api/workflows(+/id)` 真链；schema 门禁（ability 白名单/说明完整/id 唯一）+ 变异 CAUGHT；家族两侧覆盖门禁（guizang/fox 同时落 preset 与模板）| 拼装层的语义地基：三出口一家人 + 剧本即路线图 |
 | **0.9.3** | **语气档案**（2026-11-09 落地，融合 guizang-design 语气档案思路）：`voice_profile.py`（独立存储 .settings/voice-profile.json）——六类特征（常用词/禁词/句长节奏/开头/结尾/称呼）+ **≥2 处证据纪律**（滑窗 n-gram 跨样本计数，句子级证据；首跑实锤按文本取证据三撞一被误杀）；learn/edit/remove/clear 全套 API + 记忆面板「从素材学习语气」区；copy_expert 消费端（禁词叠加 + 档案摘要进 prompt 保留用户说法）| AI 保留你的口吻；无密钥档案仍当门禁 |
@@ -58,8 +59,8 @@
 （preset/模板三形态一家的语义，拼装层前提）、**OKLCH 品牌色约束**（进风格
 明度/彩度范围）、**六条工作流剧本**（一文三出口/演讲回收/品牌套件 → 拼装层
 第一批直接参考）、字体子集化导出。**AGPL 红线**：只学思路与事实层，不复制
-代码/主题 CSS/文案；humanizer-zh（MIT）可参考实现。切分：联盟 manifest（小）
-→ 0.9.3 语气档案 → 0.9.4 家族+工作流 → 0.9.5 前后 OKLCH+字体子集。
+代码/主题 CSS/文案；humanizer-zh（MIT）可参考实现。切分：联盟 manifest（小 ✅）
+→ 0.9.3 语气档案 ✅ → 0.9.4 家族+工作流 ✅ → 0.9.5 OKLCH+字体子集 ✅（2026-11-12 全落地）。
 
 ## 二、v0.9 后续（已圈范围，未动工）
 

@@ -21,6 +21,8 @@ from __future__ import annotations
 import colorsys
 from typing import Any, Dict
 
+from ._oklch import constrain_brand_color
+
 PRESETS: Dict[str, Dict[str, Any]] = {
     "linear-light": {
         "id": "linear-light",
@@ -365,7 +367,12 @@ def apply_feedback(preset: Dict[str, Any], tokens_extracted: Dict[str, Any],
         new["_matched_by"] = f"feedback:reference({tokens_extracted['reference_preset']})"
 
     if tokens_extracted and tokens_extracted.get("primary_override"):
-        t["primary"] = tokens_extracted["primary_override"]
+        # v0.9.5 OKLCH：品牌色不直接用原色 —— 收进风格明度/彩度域 + 对比度保障
+        res = constrain_brand_color(tokens_extracted["primary_override"],
+                                    t["primary"], t["primary_text"])
+        t["primary"] = res["hex"]
+        if res.get("adjusted"):
+            new["_brand_constraint"] = res["reason"]
     if tokens_extracted and tokens_extracted.get("font_size_override"):
         t["_font_base"] = tokens_extracted["font_size_override"]
 
