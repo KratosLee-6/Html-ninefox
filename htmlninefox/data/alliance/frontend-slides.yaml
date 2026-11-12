@@ -11,6 +11,8 @@ python_module: frontend_slides
 entry: python -m frontend_slides --topic "{topic}" --output "{output}"
 fallback: local:ppt_html
 cost_estimate: 0.01-0.05
+license: MIT
+integration: cli-adapter
 homepage: https://github.com/zarazhangrui/frontend-slides
 upstream_checked_at: 2026-10-18
 upstream_license: MIT

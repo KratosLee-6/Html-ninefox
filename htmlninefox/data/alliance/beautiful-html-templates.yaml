@@ -11,7 +11,10 @@ python_module: beautiful_html_templates
 entry: python -m beautiful_html_templates --topic "{topic}" --template "{template}" --output "{output}"
 fallback: local:html_template
 cost_estimate: 0.001-0.01
+license: MIT
+integration: cli-adapter
 homepage: https://github.com/zarazhangrui/beautiful-html-templates
+upstream_version: 无 tag（2026-10-18 实测 34 个 .html，MIT）
 upstream_checked_at: 2026-10-18
 upstream_license: MIT
 upstream_templates: 34 个 .html（可整条入库，需保留其版权声明）

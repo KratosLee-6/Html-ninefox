@@ -1,16 +1,16 @@
 ---
 name: htmlninefox
-version: 0.8.3
+version: 0.9.0
 author: KratosLee (Html九尾狐项目组)
 license: MIT
 description: |
-  Html九尾狐 · 人机共驾的内容交付流水线（v0.8.3：Word/PPT 双向 + 六意图全覆盖）。
+  Html九尾狐 · 人机共驾的内容交付流水线（v0.9.0：桌面壳 + 风格轴 + 六意图全覆盖）。
   一句话 Brief / 上传 DOCX / 上传 PPTX / 参考网页 → 拆解（块带出处）→ 可编辑提案 →
   人审采纳 → 单文件 HTML；导出 PDF/PNG/长图/PPTX/DOCX；口语反馈迭代，每轮存版本。
-  离线可用（LLM 可选增强）；CLI + Web 工作台 + HTTP API + 本 Skill 四端。
+  离线可用（LLM 可选增强）；桌面壳 + CLI + Web 工作台 + HTTP API + 本 Skill 五端。
 ---
 
-# 🦊 Html九尾狐 · HTML 创作编排 Skill（v0.8.3）
+# 🦊 Html九尾狐 · HTML 创作编排 Skill（v0.9.0）
 
 > **Html九尾狐 = 人机共驾的内容交付流水线**
 >
@@ -168,10 +168,14 @@ cache_settings: { enabled: true, ttl_days: 7 }
 
 | 版本 | 状态 |
 |---|---|
-| **v0.8.3（当前，2026-10-25）** | ✅ PPTX 反向拆解 + 键盘可达性专项；808 passed；preflight 六套变异全绿 |
+| **v0.9.0（当前，2026-11-07）** | ✅ Tauri 桌面壳（与便携包/安装包并存）+ 风格轴（动效人格四原型/调性可控）；正式上架 |
+| v0.8.8 | ✅ 点选即改（所见即所得 A1） |
+| v0.8.7 | ✅ motion-design-skill 联盟 + 动效质量门禁 |
+| v0.8.6 | ✅ 手机预览 + 一键交付包 |
+| v0.8.5 | ✅ MCP 服务（agent 一等公民） |
+| v0.8.4 | ✅ PDF 反向拆解 + 图片资产 + impeccable 联盟 |
+| v0.8.3 | ✅ PPTX 反向拆解 + 键盘可达性专项 |
 | v0.8.0–0.8.2 | ✅ DOCX 双向 + 改写吸收 + UI/VI 收敛（设计契约可执行） |
-| v0.8.4（已立项） | PDF 反向拆解 + 图片资产环节（[PLAN-v0.8.4](docs/PLAN-v0.8.4.md)） |
-| v0.9 | Tauri 壳（决策已定：与 PyInstaller 并存）+ MCP 工具 intake_decompose |
 
 ---
 
@@ -181,4 +185,4 @@ MIT License © 2026 KratosLee · Html九尾狐项目组
 
 ---
 
-> **最后更新**：2026-10-25 · v0.8.3
+> **最后更新**：2026-11-12 · v0.9.0

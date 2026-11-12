@@ -9,6 +9,8 @@ intents: [archdoc]
 python_module: archify
 entry: python -m archify --spec {spec_path} --format html
 fallback: local:archdoc
+license: MIT
+integration: cli-adapter
 homepage: https://github.com/tt-a1i/archify
 upstream_checked_at: 2026-10-18
 upstream_license: MIT

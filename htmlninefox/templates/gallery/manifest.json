@@ -170,7 +170,7 @@
       "file": "guizang-swiss-signal.html",
       "license": "original",
       "tone": "techy",
-      "family": "guizang"
+      "family": "fox-swiss"
     },
     {
       "id": "guizang-kraft-story",
@@ -277,7 +277,7 @@
       "file": "guizang-dune-portfolio.html",
       "license": "original",
       "tone": "minimal",
-      "family": "guizang"
+      "family": "fox"
     },
     {
       "id": "pixel-garden-product",
@@ -356,7 +356,7 @@
       ],
       "file": "fox-vibrant-poster.html",
       "tone": "vibrant",
-      "family": "fox"
+      "family": "vibrant"
     },
     {
       "id": "fox-shadcn-dashboard",

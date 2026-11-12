@@ -66,6 +66,22 @@ def test_gallery_and_preset_families_overlap():
     assert {"guizang", "fox"} <= shared, f"核心家族未同时落在两侧：{shared}"
 
 
+def test_template_family_follows_its_preset():
+    """统规门禁（0.9.5 统查补）：模板 family 必须等于所引 preset 的家族 ——
+    家族=视觉血缘，token 由 preset 决定；同一 preset 的两张模板家族不同
+    即自相矛盾（0.9.4 曾漏网 3 条：guizang-swiss-signal/duola 与
+    fox-vibrant-poster，集合级门禁抓不到逐条错位）。"""
+    manifest = json.loads(
+        (ROOT / "htmlninefox" / "templates" / "gallery" / "manifest.json")
+        .read_text(encoding="utf-8"))
+    mismatched = [
+        f"{item['id']}: 画廊family={item.get('family')} preset家族={preset_family(item['preset_id'])}"
+        for item in manifest["items"]
+        if item.get("family") != preset_family(item["preset_id"])
+    ]
+    assert not mismatched, f"模板家族与所引 preset 不一致：{mismatched}"
+
+
 def test_workflow_presets_schema():
     assert len(list_workflows()) == 6, "工作流剧本应 有 六条（致敬上游工作流表）"
     ids = set()
