@@ -9,7 +9,7 @@
 <div align="center">
 
 [![App Release](https://img.shields.io/badge/app-v0.9.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0)
-[![Tests](https://img.shields.io/badge/pytest-853%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
+[![Tests](https://img.shields.io/badge/pytest-931%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -38,6 +38,13 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 **From "a web tool" to "a desktop creative app": a Tauri shell coexisting with
 the portable/installer forms, and a tone axis steering generated output.**
 
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.9.0/evidence-shell-workbench.png" alt="Workbench inside the desktop shell"><br><b>Desktop shell · double-click launch</b><br>The Tauri shell loads the local sidecar service and navigates the workbench: no browser, system tray, child process reclaimed on close; coexists with the portable/installer forms.</td>
+<td width="50%"><img src="assets/screenshots/v0.9.0/evidence-style-recommend.png" alt="Recommendation card with archetype badge and reason"><br><b>Recommendation card · reasons visible</b><br>One-line brief → analysis → recommendation: intent chip, preset tag, 🎬 motion archetype badge (Energetic) and a 💡 plain-language reason (rule-engine mode included) — you decide whether to adopt.</td>
+</tr>
+</table>
+
 - **Tauri shell**: double-click launch, no browser, system tray, child process
   reclaimed on close. The sidecar chain follows the verify_portable discipline
   (free port → HtmlNineFox.exe → /api/health polling → navigate); CI checks
@@ -57,6 +64,13 @@ the portable/installer forms, and a tone axis steering generated output.**
 **Click any text in the preview, type, press Enter — a new revision. WYSIWYG
 for all six intents, not just decks.**
 
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.8/evidence-liveedit-hover.png" alt="Click-to-edit hover hint"><br><b>Hover · know what's editable first</b><br>Editable text in the preview hints on hover: click to edit in place, Enter saves, Esc cancels — real artifact text, not a mock.</td>
+<td width="50%"><img src="assets/screenshots/v0.8.8/evidence-liveedit-saved.png" alt="Click-to-edit saved as a new revision"><br><b>Save · every edit is a new revision</b><br>Enter on the edited headline → "saved as rev1, keep clicking to continue" — same versioning as verbal feedback, diffable and restorable.</td>
+</tr>
+</table>
+
 - **Click-to-edit** (WYSIWYG A1): landing / dashboard / poster / doc artifacts
   join the deck slide editor in inline text editing.
 - Every save is a new revision — diffable, restorable, same versioning as
@@ -72,6 +86,13 @@ for all six intents, not just decks.**
 
 **LottieFiles motion-director principles adopted — AI-generated pages now
 have their motion audited too.**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.7/evidence-motion-reveal-mid.png" alt="Scroll reveal mid-frame"><br><b>Reveal mid-frame · cards land one by one</b><br>The scroll reveal of the ink-on-paper motion layer in progress: elements enter one by one (never opacity-only), so the page never flashes in as a blank frame.</td>
+<td width="50%"><img src="assets/screenshots/v0.8.7/evidence-motion-reveal-settled.png" alt="Reveal settled"><br><b>Settled · motion has an end state</b><br>Once revealed, the layout is stable; duration tokens match the element-type table, stagger stays in budget, ambient loops keep the easing law — gates only forbid regressions.</td>
+</tr>
+</table>
 
 - **8th alliance member**: motion-design-skill (MIT) — the first
   guidance-source member (no CLI, no module; probed by skill-dir presence);
@@ -89,6 +110,13 @@ have their motion audited too.**
 
 **Check it on your phone right after generating; ship a delivery bundle in one
 click — the last mile of output, now visible in the UI.**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.6/evidence-phone-qr.png" alt="Phone preview QR dialog"><br><b>Phone preview · scan and view</b><br>The topbar 📱 dialog renders a QR code on the real listening LAN address; scan on the same network to view the artifact. The no-auth warning ships with the dialog (trusted LANs only), data stays on your machine.</td>
+<td width="50%"><img src="assets/screenshots/v0.8.6/evidence-bundle-result.png" alt="Delivery bundle zip with manifest"><br><b>Delivery bundle · grouped by intent</b><br>Export center 📦 one click: doc intent = PDF + DOCX + the page itself zipped (204 KB) with an in-bundle manifest — real per-format exports, not renamed files.</td>
+</tr>
+</table>
 
 - **Phone preview** (optional `[qr]` extra): the topbar 📱 button enumerates LAN
   addresses and renders a QR code on the real listening port; degrades to plain

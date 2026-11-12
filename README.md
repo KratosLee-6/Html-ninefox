@@ -12,7 +12,7 @@
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-853%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
+[![Tests](https://img.shields.io/badge/pytest-931%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22%20(v0.6.0)-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -40,6 +40,13 @@
 
 **从「网页工具」到「桌面创作应用」：Tauri 桌面壳与 PyInstaller 并存；生成时选调性，产物气质可控。**
 
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.9.0/evidence-shell-workbench.png" alt="桌面壳内的工作台"><br><b>桌面壳 · 双击即用</b><br>Tauri 壳加载本地 sidecar 服务后导航工作台：无浏览器、系统托盘、关窗即回收；与便携包/安装包并存。</td>
+<td width="50%"><img src="assets/screenshots/v0.9.0/evidence-style-recommend.png" alt="推荐组合卡 · 原型徽章与中文理由"><br><b>推荐组合卡 · 理由可见</b><br>一句话需求 → AI 分析 → 推荐组合：意图芯片、预设标签、🎬 动效人格徽章（锐利 Energetic）与 💡 中文理由（规则引擎照给），再决定用不用。</td>
+</tr>
+</table>
+
 - **Tauri 桌面壳**：双击即用、无浏览器、系统托盘、关窗即回收。sidecar 链路
   照 verify_portable 纪律（空闲端口 → HtmlNineFox.exe → /api/health 轮询 →
   导航）；CI 三平台编译 + 发布流水线产 NSIS 壳安装包。
@@ -47,13 +54,20 @@
   ambient 三轴参数，6 意图 × 4 原型覆盖矩阵做发版门禁；推荐组合卡渲染
   🎬 原型徽章 + 💡 中文理由（规则引擎照给）。
 - 打包接线（onedir → NSIS）与 verify_shell 验收件；AI×风格深化总纲
-  （六环节：推动/拆分/生成/组合/拼装/演示）见 [EVAL-AI-STYLE-DEEPEN-20261103.md](docs/EVAL-AI-STYLE-DEEPEN-20261103.md)。
+  （六环节：推动/拆解/生成/组合/拼装/演示）见 [EVAL-AI-STYLE-DEEPEN-20261103.md](docs/EVAL-AI-STYLE-DEEPEN-20261103.md)。
 - 全量 **885 passed / 4 skipped**（2026-11-03 实测）。
 - 详见 [v0.9.0 发布说明](docs/RELEASE-NOTES-v0.9.0.md)。
 
 ## v0.8.8 · 点选即改
 
 **预览里单击任意文字直接改，Enter 保存出 rev——所见即所得，全部六类意图可用。**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.8/evidence-liveedit-hover.png" alt="点选即改 · 悬停提示"><br><b>悬停 · 哪里能改先告诉你</b><br>预览里可编辑文字悬停即出提示：单击文字直接改，Enter 保存、Esc 取消，改的是真产物文本。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.8/evidence-liveedit-saved.png" alt="点选即改 · 保存出新修订"><br><b>保存 · 每次都是新修订</b><br>标题改完 Enter，右下角「已保存为 rev1，继续点选可接着改」——与口语反馈共用同一套版本机制，可对比可回滚。</td>
+</tr>
+</table>
 
 - **点选即改**（所见即所得 A1）：不再只是 deck 的幻灯片编辑——landing /
   dashboard / poster / doc 的产物文字都能在预览里点开就改。
@@ -68,6 +82,13 @@
 
 **接入 LottieFiles 动效导演原则——AI 生成的网页，动效也过质检。**
 
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.7/evidence-motion-reveal-mid.png" alt="滚动显形 · 中间帧"><br><b>显形中间帧 · 卡片逐个落纸</b><br>「墨水落纸」动效层的滚动显形进行时：元素非 opacity-only 逐个入场，门禁禁掉一眼空白的瞬切。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.7/evidence-motion-reveal-settled.png" alt="滚动显形 · 落定"><br><b>落定 · 动效有终态</b><br>显形完成后页面进入稳定布局；时长 token 对齐元素类型表、stagger 有预算、循环缓动守律——只禁变差。</td>
+</tr>
+</table>
+
 - **联盟第 8 位成员**：motion-design-skill（MIT）——首个 guidance-source
   知识型成员（无 CLI 无模块，探测技能目录落位）；未安装本地兜底照旧。
 - **动效质量门禁 5 条**：时长 token 对齐元素类型表、linear 缓动禁令
@@ -81,6 +102,13 @@
 ## v0.8.6 · 手机预览 + 一键交付包
 
 **做完马上掏手机看，交付出厂一键完成——输出端最后一公里界面化。**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.8.6/evidence-phone-qr.png" alt="发到手机 · 局域网二维码"><br><b>发到手机 · 扫码即看</b><br>顶栏 📱 弹出真实监听端口的局域网二维码，手机同网扫码即看产物；无鉴权警示随弹窗（仅限可信局域网），数据不出本机。</td>
+<td width="50%"><img src="assets/screenshots/v0.8.6/evidence-bundle-result.png" alt="一键交付包 · zip 与清单"><br><b>一键交付包 · 按意图自动组包</b><br>导出中心 📦 一键：文档意图=PDF+DOCX+网页本体并 zip（204KB）+ 包内清单——逐格式真链导出，不是改后缀。</td>
+</tr>
+</table>
 
 - **手机预览**（`[qr]` extra 可选）：顶栏 📱 一键枚举局域网地址、按真实监听
   端口出二维码，手机扫码即看产物；无 segno 时降级为地址文本，不静默装包。
@@ -332,6 +360,13 @@ Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.9.0** | 2026-11-07 | **桌面壳 + 风格轴**：Tauri 壳（托盘/关窗回收）与 PyInstaller 并存、NSIS 壳安装包；动效人格四原型驱动 ink/stagger/ambient 三轴，推荐卡 🎬 徽章 + 💡 中文理由 |
+| **v0.8.8** | 2026-11-02 | **点选即改**：六类意图产物文字在预览里点开就改，Enter 出 rev 与口语反馈共用版本机制；一致性门禁首跑抓 title 与 `&nbsp;` 两类错位 |
+| **v0.8.7** | 2026-11-01 | **动效质量层**：motion-design-skill 联盟（首个 guidance-source 知识型成员）+ 动效门禁 5 条，三连变异全 CAUGHT |
+| **v0.8.6** | 2026-11-01 | **手机预览 + 一键交付包**：局域网二维码扫码即看；导出中心按意图自动组包 zip + 清单 |
+| **v0.8.5** | 2026-10-31 | **Agent 一等公民**：MCP 服务（stdio，8 工具）内部复用 HTTP API；模块正名 intake_*；反模式门禁拦「AI 味设计」 |
+| **v0.8.4** | 2026-10-29 | **贴入 PDF + 图片资产 + 设计质量层**：PDF 只信文本层（页号+字符区间可回指）；图片位挂真实图片；联盟接入 impeccable |
+| **v0.8.3** | 2026-10-25 | **贴入 PPT + 键盘可达**：`.pptx` 走 Word 同一条管线（拆块带出处→提案→采纳）；工作台键盘全量可用 |
 | **v0.8.2** | 2026-10-20 | **界面收敛**：面替代线、按钮系统、动效时钟、空态与图标尺度；设计契约可执行 |
 | **v0.8.1** | 2026-10-19 | **Word 导入**：`.docx` 离线解析 → 提案（意图/风格/图片位/文案，带理由）→ 审核台可改 → 一键成页；走既有分块通道，六生成器零改动；DOCX 链 56 条门禁 ＋ 变异 6/6 |
 | **v0.8.0** | 2026-10-17 | **DOCX 语义导出**：doc/archdoc 全文 / deck 讲义，降级清单如实；paraphrased「重新改写」；导出矩阵补上 Word 这一格 |
