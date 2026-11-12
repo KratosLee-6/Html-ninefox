@@ -9,6 +9,7 @@
 <div align="center">
 
 [![App Release](https://img.shields.io/badge/app-v0.9.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0)
+[![Mainline](https://img.shields.io/badge/mainline-dev%200.9.5-D9A441)](docs/PLAN-v0.9.md)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
@@ -21,6 +22,7 @@
 
 
 > 当前应用包版本为 `0.9.0`（2026-11-07 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0) · 完整功能与架构见下。
+> 主线开发已至 **0.9.5**（0.9.1→0.9.5 五批攒批发版，功能见下方[「v0.9.1 → v0.9.5 主线开发」](#-v091--v095--主线开发攒批发版中)章节）。
 > **AI / Agent 接入**：[Agent 调用指南](docs/AGENT-GUIDE.md)——CLI / HTTP API / Skill 三通路实测命令与回显。
 
 ---
@@ -36,7 +38,42 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.9.0 · 桌面壳 + 风格轴（最新功能）
+## 🆕 v0.9.1 → v0.9.5 · 主线开发（攒批发版中）
+
+> 版本号停在 v0.9.0 = 最后一次正式发版；以下五个开发批次已全部落地主线
+> （全量 **931 passed / 4 skipped**，CI 绿），随下次发版一起出包。
+> 切分与决策记录见 [PLAN-v0.9.md](docs/PLAN-v0.9.md)。
+
+**调性可控 → AI 只建议人拍板 → AI 记住你的口吻 → 多步玩法可点可查 → 品牌色不放飞。**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.9.3/evidence-polish-voice.png" alt="调性选择器 + 文案润色逐槽采纳"><br><b>0.9.1+0.9.2 · 调性选择器 + 文案润色</b><br>创建面板选调性（自动/六词表），推荐卡带 🎬 动效人格徽章；「✨ 文案润色（AI 建议·逐槽采纳）」逐槽给 原文→建议，勾选、可改文本，改完以人的为准。</td>
+<td width="50%"><img src="assets/screenshots/v0.9.3/evidence-voice-learn.png" alt="项目记忆 · 语气档案"><br><b>0.9.3 · 语气档案</b><br>项目记忆里贴几段你亲手写的话：每条特征 <b>≥2 处相似表达才入档</b>；润色时禁词叠加、保留你的说法——AI 学的是你的口吻，不是网文腔。</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.9.4/evidence-tone-workflow-selectors.png" alt="工作流剧本选择器 + 调性选择器同框"><br><b>0.9.4 · 工作流剧本</b><br>创建面板选剧本：「一篇文章，三种出口」等六条多步玩法（页面→海报→文档版），选中即出描述；生成后 recipe-run 时间线可查留痕。</td>
+<td width="50%"><b>0.9.5 · OKLCH 品牌色收域（实测）</b><br>品牌色不再直接用原色——收进当前风格的明度/彩度域，色相保留、对比度保障：<br><br><code>荧光绿 #00FF00 → vercel-dark 域 #008800</code><br>明度 0.87→0.51 · 对比 4.6:1 达标 · 绿相保留<br><br>交付包按实际用字<b>子集化内嵌</b>开源字体（<code>[font]</code> extra），无字体照旧导出、报告照实说。</td>
+</tr>
+</table>
+
+- **0.9.1 后半 · 调性全链**：创建面板调性选择器（自动/6 词表）→ analyze/generate
+  全链贯通，产物动效参数随之（vibrant→灵动 0.6s/14s · editorial→从容 0.9s/32s，
+  端到端门禁锁死）；配方时间线每段 🤖 模型 / 📐 规则徽章——「哪段用了 AI」不靠猜。
+- **0.9.2 · AI 生成深化**：compose 推荐 LLM 化（11 家预设挑一个 + 中文理由）+
+  槽位文案润色——**数字串双向一致门禁**（不许丢数也不许编数），禁词/超长丢弃，
+  宁缺勿错；无 AI 照实说 available=false，规则引擎不代写文案。
+- **0.9.3 · 语气档案**：独立存储六类特征（常用词/禁词/句长节奏/开头/结尾/称呼），
+  **每条 ≥2 处证据**才入档；copy_expert 消费——润色与去 AI 味共用档案。
+- **0.9.4 · 拼装层第一批**：preset/模板全带家族标签（同一篇内容三种出口「一家人」）
+  + 六条工作流剧本（一文三出口/旧文档翻新/演讲回收/品牌套件/口语迭代/一键交付，
+  致敬 dsh-guizang-design 六工作流）——每步引用能力而非实现，剧本可点、可查、留痕。
+- **0.9.5 · OKLCH + 字体子集**：品牌色两入口（反馈覆盖/LLM 微调）收进锚点域
+  （primary ≥4.5:1 · accent ≥3:1，理由随决策可见，11 家预设零数据变更）；
+  交付包**副本**子集化内嵌 woff，工作区原件永不动；联盟接入 dsh-guizang-design
+  （AGPL 红线交底，只学思路不搬码）。
+
+## v0.9.0 · 桌面壳 + 风格轴
 
 **从「网页工具」到「桌面创作应用」：Tauri 桌面壳与 PyInstaller 并存；生成时选调性，产物气质可控。**
 
@@ -360,6 +397,11 @@ Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.9.5**（开发批） | 2026-11-12 | **OKLCH 品牌色收域 + 交付包字体子集**：品牌色收进风格明度/彩度域（色相保留、对比度保障、理由可见）；交付包副本按用字子集内嵌字体；联盟接入 dsh-guizang-design |
+| **v0.9.4**（开发批） | 2026-11-10 | **拼装层第一批**：preset/模板家族标签（三出口一家人）+ 六条工作流剧本可点可查 + recipe-run 留痕 |
+| **v0.9.3**（开发批） | 2026-11-09 | **语气档案**：六类特征每条 ≥2 处证据才入档；润色消费档案保留你的口吻 |
+| **v0.9.2**（开发批） | 2026-11-07 | **AI 生成深化**：compose 推荐 LLM 化 + 槽位文案润色逐槽采纳（数字串双向一致门禁） |
+| **v0.9.1**（开发批） | 2026-11-03~07 | **风格轴两批**：动效人格四原型→三轴参数；调性选择器全链贯通 + 配方时间线 🤖/📐 徽章 |
 | **v0.9.0** | 2026-11-07 | **桌面壳 + 风格轴**：Tauri 壳（托盘/关窗回收）与 PyInstaller 并存、NSIS 壳安装包；动效人格四原型驱动 ink/stagger/ambient 三轴，推荐卡 🎬 徽章 + 💡 中文理由 |
 | **v0.8.8** | 2026-11-02 | **点选即改**：六类意图产物文字在预览里点开就改，Enter 出 rev 与口语反馈共用版本机制；一致性门禁首跑抓 title 与 `&nbsp;` 两类错位 |
 | **v0.8.7** | 2026-11-01 | **动效质量层**：motion-design-skill 联盟（首个 guidance-source 知识型成员）+ 动效门禁 5 条，三连变异全 CAUGHT |

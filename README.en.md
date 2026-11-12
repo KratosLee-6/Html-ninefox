@@ -9,6 +9,7 @@
 <div align="center">
 
 [![App Release](https://img.shields.io/badge/app-v0.9.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0)
+[![Mainline](https://img.shields.io/badge/mainline-dev%200.9.5-D9A441)](docs/PLAN-v0.9.md)
 [![Tests](https://img.shields.io/badge/pytest-931%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
@@ -33,7 +34,48 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## v0.9.0 · Desktop shell + style axis (latest)
+## 🆕 v0.9.1 → v0.9.5 · Mainline development (batching toward next release)
+
+> The version number sits at v0.9.0 = the last formal release; the five dev
+> batches below have all landed on mainline (full suite **931 passed / 4
+> skipped**, CI green) and ship together with the next release. Slicing and
+> decision records: [PLAN-v0.9.md](docs/PLAN-v0.9.md).
+
+**Tone in your hands → AI suggests, you decide → AI keeps your voice →
+multi-step plays are clickable and traceable → brand colors stay in range.**
+
+<table>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.9.3/evidence-polish-voice.png" alt="Tone selector + per-slot copy polish"><br><b>0.9.1+0.9.2 · Tone selector + copy polish</b><br>Pick a tone in the creation panel (auto / six-word list); recommendation cards carry a 🎬 archetype badge. "✨ Copy polish (AI suggestion, per-slot adoption)" shows original→suggestion per slot — check, edit the text, your wording always wins.</td>
+<td width="50%"><img src="assets/screenshots/v0.9.3/evidence-voice-learn.png" alt="Project memory · voice profile"><br><b>0.9.3 · Voice profile</b><br>Paste a few paragraphs written by you into project memory: each trait needs <b>≥2 similar occurrences to enter the profile</b>; polishing stacks your banned words and keeps your phrasing.</td>
+</tr>
+<tr>
+<td width="50%"><img src="assets/screenshots/v0.9.4/evidence-tone-workflow-selectors.png" alt="Workflow play selector + tone selector"><br><b>0.9.4 · Workflow plays</b><br>Pick a play in the creation panel: "one article, three outputs" and five more multi-step plays (page → poster → doc), description on selection; the recipe-run timeline records every step.</td>
+<td width="50%"><b>0.9.5 · OKLCH brand-color constraint (measured)</b><br>Brand colors are no longer used raw — clamped into the current style's lightness/chroma range, hue kept, contrast guaranteed:<br><br><code>neon #00FF00 → #008800 in the vercel-dark range</code><br>lightness 0.87→0.51 · contrast 4.6:1 · green hue kept<br><br>Delivery bundles embed a <b>usage-subset</b> open-source font (<code>[font]</code> extra); without it, export proceeds and says so.</td>
+</tr>
+</table>
+
+- **0.9.1 (second half) · Tone end-to-end**: creation-panel tone selector →
+  analyze/generate chain → motion parameters in the artifact (vibrant→playful
+  0.6s/14s · editorial→premium 0.9s/32s, locked by e2e gates); recipe timeline
+  shows a 🤖 model / 📐 rules badge per stage — "which part used AI" is never a guess.
+- **0.9.2 · AI generation deepening**: LLM compose recommendation (one of 11
+  presets + a Chinese reason) + per-slot copy polish — a **two-way digit
+  consistency gate** (no dropped digits, no invented digits); without AI it
+  says so honestly, the rule engine never ghostwrites.
+- **0.9.3 · Voice profile**: six trait classes, **≥2 evidence occurrences per
+  trait**; consumed by copy_expert — polish and de-AI-flavor share the profile.
+- **0.9.4 · Assembly layer, first batch**: family tags on presets/templates
+  (one article, three outputs, one family) + six workflow plays (honoring
+  dsh-guizang-design) — steps reference abilities, plays are clickable,
+  traceable and recorded.
+- **0.9.5 · OKLCH + font subsetting**: both brand-color entry points clamped
+  into the anchor range (primary ≥4.5:1 · accent ≥3:1, reasons visible, all
+  11 presets untouched); delivery-bundle **copies** embed woff subsets — the
+  workspace original is never modified; dsh-guizang-design joins the alliance
+  (AGPL red-lines documented, ideas only).
+
+## v0.9.0 · Desktop shell + style axis
 
 **From "a web tool" to "a desktop creative app": a Tauri shell coexisting with
 the portable/installer forms, and a tone axis steering generated output.**
