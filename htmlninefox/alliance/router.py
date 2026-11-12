@@ -153,7 +153,12 @@ class AllianceRouter:
         text_blob = json.dumps(brief, ensure_ascii=False).lower() if brief else ""
         if isinstance(brief, dict):
             text_blob += " " + str(brief.get("content", {}).get("core_message", ""))
-        cands = self.skills_for_intent(intent)
+        # guidance-source 是知识型成员（无 CLI 无产物，装了只影响 agent 思维），
+        # 不参与「产物由谁兜底」的路由 —— 否则平分时字典序会把它推成
+        # fallback 报告名（0.9.5 dsh-guizang-design 在 CI 抢占 guizang-ppt 实锤）。
+        # 成员列表 API（list_available_skills）照常可见，不受影响。
+        cands = [c for c in self.skills_for_intent(intent)
+                 if c.get("integration") != "guidance-source"]
         for c in cands:
             score = 0.5
             tags = [t.lower() for t in (c.get("tags") or [])]

@@ -24,6 +24,19 @@ class TestAllianceRouter:
         d = r.route({}, "deck")
         assert d["skill"] == "guizang-ppt" and d["decision"] == "fallback"
 
+    def test_guidance_source_never_routed_as_fallback(self):
+        """0.9.5 护栏：guidance-source 知识型成员（dsh-guizang-design 等）不进
+        产物路由候选 —— 无 CLI 无产物，平分时字典序抢占 fallback 报告名
+        （CI 实锤）。成员列表 API 仍可见。"""
+        r = AllianceRouter()
+        for intent in ("deck", "landing", "doc", "poster", "dashboard", "archdoc"):
+            candidates = r._score_candidates({}, intent)
+            assert all(c.get("integration") != "guidance-source" for c in candidates), \
+                f"{intent} 候选混入 guidance-source 成员"
+        listed = {s["name"] for s in r.list_available_skills()}
+        assert "dsh-guizang-design" in listed and "motion-design" in listed, \
+            "成员列表必须照常可见"
+
     def test_route_local_when_no_skill(self):
         # v0.8.4 起 impeccable（设计质量层）覆盖全部六意图，dashboard 不再是
         # 「无成员」意图；infographic 仍没有联盟成员，local 兜底的断言挪到它身上
