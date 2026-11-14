@@ -8,12 +8,11 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.9.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0)
-[![Mainline](https://img.shields.io/badge/mainline-dev%200.9.5-D9A441)](docs/PLAN-v0.9.md)
+[![App Release](https://img.shields.io/badge/app-v0.9.6-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.6)
 [![DSH Plugin](https://img.shields.io/badge/DSH_plugin-0.1.0--preview.1-49B894)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/dsh-htmlninefox-v0.1.0-preview.1)
 [![Build Packages](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/build-release-packages.yml)
 [![Test CI](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml/badge.svg)](https://github.com/KratosLee-6/Html-ninefox/actions/workflows/test.yml)
-[![Tests](https://img.shields.io/badge/pytest-931%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
+[![Tests](https://img.shields.io/badge/pytest-934%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22%20(v0.6.0)-173C8F)](docs/TEST-REPORT-v0.6.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -21,8 +20,7 @@
 </div>
 
 
-> 当前应用包版本为 `0.9.0`（2026-11-07 发布）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0) · 完整功能与架构见下。
-> 主线开发已至 **0.9.5**（0.9.1→0.9.5 五批攒批发版，功能见下方[「v0.9.1 → v0.9.5 主线开发」](#-v091--v095--主线开发攒批发版中)章节）。
+> 当前应用包版本为 `0.9.6`（2026-11-14 发布，0.9.1→0.9.6 攒批归零）· [发布说明](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.6) · 完整功能与架构见下。
 > **AI / Agent 接入**：[Agent 调用指南](docs/AGENT-GUIDE.md)——CLI / HTTP API / Skill 三通路实测命令与回显。
 
 ---
@@ -38,11 +36,10 @@
 
 ![v0.7.0 解说版视频海报](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.9.1 → v0.9.5 · 主线开发（攒批发版中）
+## 🆕 v0.9.1 → v0.9.6 · 主线能力（随 v0.9.6 正式发布）
 
-> 版本号停在 v0.9.0 = 最后一次正式发版；以下五个开发批次已全部落地主线
-> （全量 **931 passed / 4 skipped**，CI 绿），随下次发版一起出包。
-> 切分与决策记录见 [PLAN-v0.9.md](docs/PLAN-v0.9.md)。
+> 0.9.1→0.9.5 五个开发批次随 **v0.9.6（2026-11-14）** 一起出包；全量 **934 passed /
+> 4 skipped**，巡检 12/12（`scripts/verify_mainline.py`）。切分与决策记录见 [PLAN-v0.9.md](docs/PLAN-v0.9.md)。
 
 **调性可控 → AI 只建议人拍板 → AI 记住你的口吻 → 多步玩法可点可查 → 品牌色不放飞。**
 
@@ -397,6 +394,7 @@ Windows（安装版 .exe / 便携版 .zip）、macOS（Apple Silicon / Intel 双
 
 | 版本 | 日期 | 一句话 |
 |---|---|---|
+| **v0.9.6** | 2026-11-14 | **攒批首发 + 巡检**：0.9.1→0.9.6 六批归并出包；主线可用性巡检 12/12 抓出三真 bug 全修（feedback 项目解析/剧本留痕透出/OKLCH 收域顺序）；发布物与主线归一 |
 | **v0.9.5**（开发批） | 2026-11-12 | **OKLCH 品牌色收域 + 交付包字体子集**：品牌色收进风格明度/彩度域（色相保留、对比度保障、理由可见）；交付包副本按用字子集内嵌字体；联盟接入 dsh-guizang-design |
 | **v0.9.4**（开发批） | 2026-11-10 | **拼装层第一批**：preset/模板家族标签（三出口一家人）+ 六条工作流剧本可点可查 + recipe-run 留痕 |
 | **v0.9.3**（开发批） | 2026-11-09 | **语气档案**：六类特征每条 ≥2 处证据才入档；润色消费档案保留你的口吻 |

@@ -9,6 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.6] - 2026-11-14 · 攒批首发（0.9.1→0.9.6 六批归并）+ 主线可用性巡检
+
+> 发布物与主线归一。此前 0.9.1~0.9.5 为开发批次（攒批发版约定，未单独发
+> Release），本版一并出包。
+
+### Added
+- **风格轴后半（0.9.1）**：调性选择器（自动/6 词表）→ analyze/generate 全链
+  贯通，产物动效参数随之（vibrant→灵动 0.6s/14s · editorial→从容 0.9s/32s，
+  端到端门禁）；配方时间线每段 🤖 模型 / 📐 规则徽章。
+- **AI 生成深化（0.9.2）**：`copy_expert`——compose 推荐 LLM 化 + 槽位文案
+  润色（数字串双向一致门禁）；推荐卡逐槽 diff 采纳走人审文案通道；
+  `HTMLNINEFOX_LLM_STUB` 测试接缝。
+- **语气档案（0.9.3）**：`voice_profile.py` 六类特征、每条 ≥2 处证据才入档；
+  copy_expert 消费（禁词叠加 + 保留用户说法）。
+- **拼装层第一批（0.9.4）**：preset/模板家族标签（8 家族）+ 六条工作流剧本
+  （一文三出口等，ability 白名单 schema 门禁）+ 创建面板剧本选择器 +
+  recipe-run 留痕。
+- **OKLCH 品牌色收域（0.9.5）**：`generators/_oklch.py`——品牌色两入口收进
+  锚点 ±0.10 明度/×1.25 彩度域（色相保留、primary ≥4.5:1 / accent ≥3:1），
+  理由全程可见；11 家预设零数据变更。
+- **交付包字体子集（0.9.5）**：`fontsubset.py`——交付包副本按实际用字子集化
+  内嵌 woff（`[font]` extra），无字体照旧导出报告照实说。
+- **联盟**：dsh-guizang-design（guidance-source，AGPL 红线交底）。
+- **主线可用性巡检（0.9.6）**：`scripts/verify_mainline.py`——真实 serve +
+  离线规则引擎 12 项真链验证，发版前必跑。
+
+### Fixed
+- **巡检抓出三真 bug**（套件从未抓到）：①feedback 相对项目名未走
+  resolve_project——`.foxstate.json` 存在却报缺；②recipe-run GET 端点字段
+  白名单丢 compose `output_summary`（剧本留痕到不了 UI）；③`apply_feedback`
+  顺序缺陷——hex_color+color_shift 同轮双命中时 shift 把收域结果拽出域，
+  override 改为 rules 之后落定。
+- 交付包 API 返回补 fonts 报告；guidance-source 成员不再进产物路由候选
+  （字典序平分抢占，0.9.5 CI 实锤）。
+- `[font]` extra brotli 下限放宽到 1.1（1.26+ 在 Python 3.14 无 wheel 炸
+  uv 全量解析）。
+
+## [0.9.1] - 2026-11-03（开发批，随 0.9.6 出包）
+
+- 动效人格四原型（灵动/从容/干练/锐利）→ 动效三轴参数；6×4 覆盖矩阵门禁
+  （变异 CAUGHT）；画廊 tone 标签；match_preset 中文理由 + analyze 载荷。
+
+## [0.9.0] - 2026-11-07 · 桌面壳 + 风格轴（Tauri 里程碑）
+
+> 见下方完整条目与 `docs/RELEASE-NOTES-v0.9.0.md`。
+
 ## [0.8.2] - 2026-10-20
 
 ### Added

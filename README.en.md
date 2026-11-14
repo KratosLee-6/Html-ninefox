@@ -8,9 +8,8 @@
 
 <div align="center">
 
-[![App Release](https://img.shields.io/badge/app-v0.9.0-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0)
-[![Mainline](https://img.shields.io/badge/mainline-dev%200.9.5-D9A441)](docs/PLAN-v0.9.md)
-[![Tests](https://img.shields.io/badge/pytest-931%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
+[![App Release](https://img.shields.io/badge/app-v0.9.6-173C8F)](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.6)
+[![Tests](https://img.shields.io/badge/pytest-934%20passed%20%7C%204%20skipped-1F8A70)](docs/PLAN-v0.9.md)
 [![Chromium E2E](https://img.shields.io/badge/Chromium%20E2E-22%2F22-173C8F)](docs/RELEASE-NOTES-v0.7.0.md)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)](pyproject.toml)
 [![License](https://img.shields.io/badge/License-MIT-D9A441)](LICENSE)
@@ -18,7 +17,7 @@
 </div>
 
 
-> Current app version `0.9.0` (released 2026-11-07) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.0) · full features below.
+> Current app version `0.9.6` (released 2026-11-14; 0.9.1→0.9.6 batched) · [release notes](https://github.com/KratosLee-6/Html-ninefox/releases/tag/v0.9.6) · full features below.
 > **AI / Agent integration**: [Agent guide](docs/AGENT-GUIDE.md) — CLI / HTTP API / Skill, all commands verified against a live build.
 
 ---
@@ -34,12 +33,12 @@ The narrated cut ships with the v0.7.0 release and plays on the **release page**
 
 ![v0.7.0 explainer poster](assets/promo/poster-demo-v070.png)
 
-## 🆕 v0.9.1 → v0.9.5 · Mainline development (batching toward next release)
+## 🆕 v0.9.1 → v0.9.6 · Mainline capabilities (released with v0.9.6)
 
-> The version number sits at v0.9.0 = the last formal release; the five dev
-> batches below have all landed on mainline (full suite **931 passed / 4
-> skipped**, CI green) and ship together with the next release. Slicing and
-> decision records: [PLAN-v0.9.md](docs/PLAN-v0.9.md).
+> The five dev batches 0.9.1→0.9.5 shipped together with **v0.9.6
+> (2026-11-14)**; full suite **933 passed / 4 skipped**, usability inspection
+> 12/12 (`scripts/verify_mainline.py`). Slicing and decision records:
+> [PLAN-v0.9.md](docs/PLAN-v0.9.md).
 
 **Tone in your hands → AI suggests, you decide → AI keeps your voice →
 multi-step plays are clickable and traceable → brand colors stay in range.**
