@@ -366,13 +366,6 @@ def apply_feedback(preset: Dict[str, Any], tokens_extracted: Dict[str, Any],
         new["dark"] = base["dark"]
         new["_matched_by"] = f"feedback:reference({tokens_extracted['reference_preset']})"
 
-    if tokens_extracted and tokens_extracted.get("primary_override"):
-        # v0.9.5 OKLCH：品牌色不直接用原色 —— 收进风格明度/彩度域 + 对比度保障
-        res = constrain_brand_color(tokens_extracted["primary_override"],
-                                    t["primary"], t["primary_text"])
-        t["primary"] = res["hex"]
-        if res.get("adjusted"):
-            new["_brand_constraint"] = res["reason"]
     if tokens_extracted and tokens_extracted.get("font_size_override"):
         t["_font_base"] = tokens_extracted["font_size_override"]
 
@@ -409,6 +402,17 @@ def apply_feedback(preset: Dict[str, Any], tokens_extracted: Dict[str, Any],
             t["space"] = scale_px(t["space"], 1.2, 16)
         elif rule == "spacing_down":
             t["space"] = scale_px(t["space"], 0.85, 16)
+
+    # v0.9.5 OKLCH：override 放到 rules 之后落定 ——「主色改成 #xxx」会被规则
+    # 解析同时命中 hex_color 与 color_shift，若先收域再 shift，shift 会把
+    # primary 拽出风格域（巡检 07 实锤：#00FF00 → #3ED535，L=0.77 出域）。
+    # 用户显式给色时最终以收域后的 override 为准。
+    if tokens_extracted and tokens_extracted.get("primary_override"):
+        res = constrain_brand_color(tokens_extracted["primary_override"],
+                                    t["primary"], t["primary_text"])
+        t["primary"] = res["hex"]
+        if res.get("adjusted"):
+            new["_brand_constraint"] = res["reason"]
 
     return new
 

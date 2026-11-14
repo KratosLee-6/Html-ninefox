@@ -73,6 +73,17 @@ class TestApplyFeedback:
         assert p["tokens"]["primary"] == anchor
         assert not p.get("_brand_constraint")
 
+    def test_hex_override_with_color_shift_stays_constrained(self):
+        # 0.9.5 巡检 07 实锤：「主色改成 #xxx」会被规则解析同时命中
+        # hex_color 与 color_shift——override 必须在 rules 之后落定，
+        # 否则 shift 把收域结果拽出域（#00FF00 → #3ED535, L=0.77）
+        p = tk.apply_feedback(self._base(), {"primary_override": "#00FF00"},
+                              ["color_shift"])
+        l, _, _ = ok.hex_to_oklch(p["tokens"]["primary"])
+        anchor_l = ok.hex_to_oklch(tk.PRESETS["linear-light"]["tokens"]["primary"])[0]
+        assert abs(l - anchor_l) <= 0.10 + 1e-6, f"明度必须收在锚点域，实际 L={l:.2f}"
+        assert p.get("_brand_constraint"), "约束理由必须可见"
+
     def test_reference_preset_switch(self):
         p = tk.apply_feedback(self._base(), {"reference_preset": "stripe"}, [])
         assert p["tokens"]["primary"] == tk.PRESETS["doc-clean"]["tokens"]["primary"]

@@ -743,7 +743,11 @@ class _Handler(BaseHTTPRequestHandler):
                        "status": stage.get("status"),
                        "duration_ms": stage.get("duration_ms"),
                        "model": stage.get("model"),
-                       "fallback_used": bool(stage.get("fallback_used"))}
+                       "fallback_used": bool(stage.get("fallback_used")),
+                       # 0.9.5 巡检修复：compose 段的剧本/预设/路由留痕就在
+                       # output_summary 里——字段白名单漏掉它，UI 时间线永远
+                       # 看不到「哪条剧本」
+                       "output_summary": stage.get("output_summary") or {}}
                       for stage in run.get("stages", [])]
             return self._json({"ok": True, "stages": stages,
                                "status": run.get("status"),
@@ -1268,6 +1272,7 @@ class _Handler(BaseHTTPRequestHandler):
         # 只回绝对路径前端拼不出「下载」按钮的 href。
         return {"ok": True, "zip": str(zip_path), "formats": formats,
                 "files": manifest["files"], "intent": intent,
+                "fonts": font_report,
                 "zip_bytes": zip_path.stat().st_size,
                 "zip_name": zip_path.name,
                 "download_url":
@@ -1491,11 +1496,18 @@ class _Handler(BaseHTTPRequestHandler):
             raise self._feedback_store_error(error) from error
         return self._json(self._feedback_payload(result))
 
-    @staticmethod
-    def _feedback_request(body: dict) -> FeedbackRequest:
+    def _feedback_request(self, body: dict) -> FeedbackRequest:
         project = str(body.get("project") or "").strip()
+        resolved: Path | None = None
+        if project:
+            # 0.9.5 巡检修复：相对项目名与其他端点同走 resolve_project——
+            # 裸相对名会把「项目缺少 .foxstate.json」误报给存在的项目；
+            # 绝对路径保持原行为直传（既有调用方/测试均传绝对路径）
+            candidate = Path(project)
+            resolved = (candidate if candidate.is_absolute()
+                        else self._store().resolve_project(project))
         return FeedbackRequest(
-            project=Path(project) if project else None,
+            project=resolved,
             note=str(body.get("note") or ""),
             dry_run=False,
             quiet_llm=False,

@@ -180,3 +180,32 @@ def test_cli_and_http_share_feedback_contract(tmp_path: Path, workbench_server) 
     assert cli_state["last_feedback"]["rules"] == http_result["applied_rules"]
     assert cli_state["last_feedback"] == http_state["last_feedback"]
     assert cli_state["preset"]["tokens"] == http_state["preset"]["tokens"]
+
+
+def test_http_feedback_accepts_bare_project_name(workbench_server) -> None:
+    """0.9.5 巡检修复：相对项目名必须与绝对路径同效——裸名直传曾把
+    「项目缺少 .foxstate.json」误报给存在的项目（巡检 07 实锤）。"""
+    import json
+    from urllib import request as urllib_request
+
+    generated = pipeline.run_expert(
+        "做一个产品介绍落地页",
+        output=str(workbench_server.output_root),
+        quiet_llm=True,
+    )
+    bare_name = Path(generated["work"]).name
+
+    with workbench_server as server:
+        response = urllib_request.urlopen(urllib_request.Request(
+            server.base_url + "/api/feedback",
+            data=json.dumps({
+                "project": bare_name,
+                "note": "颜色再深一点",
+            }).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        ), timeout=30)
+        payload = json.loads(response.read().decode("utf-8"))
+
+    assert payload["ok"] is True
+    assert payload["revision"] == 1

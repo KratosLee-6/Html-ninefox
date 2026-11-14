@@ -156,12 +156,10 @@ def test_generate_with_workflow_records_it_in_recipe_run(workbench):
     run, _ = api_request(
         base, "/api/projects/" + urllib.parse.quote(name) + "/recipe-run", "GET")
     compose = next(s for s in run["stages"] if s["id"] == "compose")
-    # compose 的 output_summary 不经端点透出全部字段——改为直接读产物目录
-    run_file = workbench.output_root / name / "recipe-run.json"
-    data = json.loads(run_file.read_text(encoding="utf-8"))
-    compose_stage = next(s for s in data["stages"] if s["id"] == "compose")
-    assert compose_stage.get("output_summary", {}).get("workflow") == \
-        "one-article-three-outputs", "compose 必须记录工作流剧本"
+    # 0.9.5 巡检修复：GET 端点原先的白名单把 output_summary（含剧本留痕）
+    # 整个丢掉，UI 时间线看不到「哪条剧本」——端点必须直接透出
+    assert compose.get("output_summary", {}).get("workflow") == \
+        "one-article-three-outputs", "recipe-run 端点必须透出剧本留痕"
     bad, _ = api_request(base, "/api/generate", "POST", {
         "prompt": "做一个落地页", "intent": "landing",
         "workflow": "不存在剧本", "quiet_llm": True}, expected=400)
