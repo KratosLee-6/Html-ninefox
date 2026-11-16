@@ -167,6 +167,9 @@ class GenerationRequest:
     blocks: tuple[GenerationBlock, ...] = ()
     selection_mode: str = "custom"
     workflow: str | None = None
+    # 0.9.7 多页站点：True 时在项目 site/ 目录组装默认三页站点（首页/详情/关于），
+    # 共享主产物的 brief/preset/assets——组装层，不重跑生成引擎
+    site_enabled: bool = False
     # Caller-owned copy (brand / hero_sub / summary). Word 导入审过的文案走这里，
     # 否则 brief_expert 会用规则重写一遍，页面上印的是它的话而不是人审过的话。
     content: JsonObject = field(default_factory=dict)
@@ -198,6 +201,8 @@ class GenerationResult:
     verification: VerificationResult
     recipe_run: RecipeRunResult
     memory_applied: MemoryApplicationResult
+    # 0.9.7：site_enabled 时为组装报告 {"pages": [...], "site_json": …, "bytes": …}
+    site: JsonObject | None = None
 
 
 @dataclass(frozen=True)
@@ -484,6 +489,11 @@ class StudioApplication:
                 self._gallery_store().record_use(gallery_id)
             except (UserGalleryError, OSError, json.JSONDecodeError):
                 pass
+        site_report: JsonObject | None = None
+        if request.site_enabled:
+            # 0.9.7 组装层：主产物已落盘（work/），站点页共享其 brief/preset/assets
+            from .sites import build_site
+            site_report = build_site(Path(result["work"]))
         return GenerationResult(
             work=Path(result["work"]),
             intent=str(result["intent"]),
@@ -499,6 +509,7 @@ class StudioApplication:
             memory_applied=MemoryApplicationResult.from_mapping(
                 result.get("memory_applied", memory_applied)
             ),
+            site=site_report,
         )
 
     def feedback(self, request: FeedbackRequest) -> FeedbackResult:

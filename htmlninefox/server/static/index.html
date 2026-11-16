@@ -808,6 +808,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
         <div class="input-list" id="creation-input-list"></div>
         <div class="flow-field"><label>工作流剧本（可选，多步玩法）</label><select id="creation-workflow" aria-label="工作流剧本"><option value="">不用剧本 · 单次生成</option></select><small class="settings-note" id="creation-workflow-note" hidden></small></div>
         <div class="flow-field"><label>调性（可选，覆盖自动分析）</label><select id="creation-tone" aria-label="动效调性"><option value="">自动 · 交给分析</option><option value="dark">深色</option><option value="minimal">极简</option><option value="editorial">杂志感</option><option value="vibrant">高活力</option><option value="professional">专业</option><option value="techy">极客</option></select></div>
+        <div class="flow-field"><label class="settings-note" style="display:flex;gap:8px;align-items:center;color:var(--text-primary)"><input type="checkbox" id="creation-site" style="width:auto">生成整站（首页 + 产品详情 + 关于，共享风格与导航）</label></div>
         <div class="flow-actions"><button class="btn btn-primary" id="creation-analyze" data-action="analyzeCreation">AI 分析并推荐</button><button class="btn btn-secondary" data-action="sendToCustomWorkspace">先进入工作区自定义</button></div>
       </section>
       <section class="flow-card"><h3>02 · 推荐组合</h3><div id="creation-analysis" class="analysis-empty">输入需求后，系统会推荐内容类型、真实 HTML 模板、页面组合和视觉风格。你可以直接采用，也可以进入工作区自行调整版式、内容、风格、文件和技能。</div></section>

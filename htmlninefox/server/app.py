@@ -115,6 +115,12 @@ def _validated_workflow(value) -> str | None:
     return workflow
 
 
+def _is_site_brief(prompt: str) -> bool:
+    """站点类 brief 识别（0.9.7 多页站点）：官网/站点/整站/多页/网站。"""
+    from htmlninefox.sites import is_site_brief
+    return is_site_brief(prompt)
+
+
 def _validated_tone(value) -> str | None:
     """调性覆盖（0.9.1 风格轴）：空 = 交给分析；给了必须在词表内。"""
     tone = str(value or "").strip()
@@ -1239,6 +1245,11 @@ class _Handler(BaseHTTPRequestHandler):
                 produced.append((str(export_dir / f["name"]), f"{fmt}/{f['name']}"))
         if html_src.is_file():
             produced.append((str(html_src), "output.html"))
+        # 0.9.7 多页站点：项目带 site/ 目录时整目录入包（index/doc/about +
+        # site.json——相对链接在 zip 内自洽，解压即浏览）
+        from ..sites import site_files as _site_files
+        for site_path in _site_files(project_dir):
+            produced.append((str(site_path), f"site/{site_path.name}"))
         stamp = time.strftime("%Y%m%d-%H%M%S")
         out_dir = project_dir / "exports" / f"{stamp}-bundle"
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -1263,9 +1274,11 @@ class _Handler(BaseHTTPRequestHandler):
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
             for file_path, arcname in produced:
                 zf.write(file_path, arcname)
+        site_pages = sorted(arc for _, arc in produced if arc.startswith("site/"))
         manifest = {"intent": intent, "formats": formats,
                     "files": [arcname for _, arcname in produced],
-                    "fonts": font_report}
+                    "fonts": font_report,
+                    "site": {"pages": site_pages} if site_pages else None}
         (out_dir / "bundle-manifest.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
         # 下载链接与 export_project 同构（/output/<相对路径>?download=1）——
@@ -1273,6 +1286,7 @@ class _Handler(BaseHTTPRequestHandler):
         return {"ok": True, "zip": str(zip_path), "formats": formats,
                 "files": manifest["files"], "intent": intent,
                 "fonts": font_report,
+                "site": manifest["site"],
                 "zip_bytes": zip_path.stat().st_size,
                 "zip_name": zip_path.name,
                 "download_url":
@@ -1321,6 +1335,7 @@ class _Handler(BaseHTTPRequestHandler):
             font=body.get("font") or None,
             tone=_validated_tone(body.get("tone")),
             workflow=_validated_workflow(body.get("workflow")),
+            site_enabled=bool(body.get("site", False)),
             gallery_id=body.get("gallery_id") or None,
             blocks=tuple(
                 GenerationBlock.from_value(item)
@@ -1346,6 +1361,9 @@ class _Handler(BaseHTTPRequestHandler):
             "verification": result.verification.to_mapping(),
             "recipe_run": result.recipe_run.to_mapping(),
             "memory_applied": result.memory_applied.to_mapping(),
+            "site": result.site,
+            "site_preview_url": (f"/output/{result.work.name}/site/index.html"
+                                 if result.site else None),
         }
 
     @staticmethod
@@ -1402,6 +1420,13 @@ class _Handler(BaseHTTPRequestHandler):
         preset_id = memory_overrides.get("template") or matched["id"]
         recommended = template_gallery.recommend_gallery(
             result.get("intent", "landing"), preset_id, self._user_gallery().root)
+        # 0.9.7 多页站点：站点类 brief（官网/站点/整站/多页/网站）→ 默认多页配方
+        # （机器形态，analyze 只识别不生成；generate 带 site=true 才组装）
+        site_plan = None
+        if _is_site_brief(prompt):
+            from ..sites import default_site_plan
+            site_plan = default_site_plan(
+                prompt=prompt, intent=result.get("intent", "landing"))
         return self._json({
             "ok": True,
             "intent": result.get("intent", "landing"),
@@ -1422,6 +1447,7 @@ class _Handler(BaseHTTPRequestHandler):
             "recommended_template": recommended,
             "recommended_blocks": [page["block_id"] for page in recommended.get("pages", [])],
             "memory_applied": memory_applied,
+            "site_plan": site_plan,
         })
 
     def _api_polish_slots(self, body: dict):

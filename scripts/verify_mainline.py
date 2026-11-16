@@ -278,6 +278,51 @@ def main() -> int:
             return f"fonts=[{sizes}], zip {zip_path.stat().st_size // 1024}KB 内含 @font-face ✓"
         check("12 交付包字体子集 @font-face 实证 (0.9.5 挂账收尾)", _bundle_fonts)
 
+        # 13. 多页站点：analyze 识别 + generate site=true → 三页落盘导航可达 (0.9.7)
+        def _site_plan():
+            data, code = api.post("/api/analyze", {
+                "prompt": "做一个智能水杯官网，含产品详情"})
+            assert code == 200 and data.get("site_plan"), (code, str(data)[:150])
+            plan = data["site_plan"]
+            assert [p["slug"] for p in plan["pages"]] == ["index", "details", "about"]
+            return "site_plan 三页配方 ✓"
+        check("13 analyze 识别站点 brief → site_plan (0.9.7)", _site_plan)
+
+        def _site_generate():
+            data, code = api.post("/api/generate", {
+                "prompt": "做一个智能水杯的产品官网", "site": True}, timeout=300)
+            assert code == 200 and data.get("ok"), (code, str(data)[:200])
+            name = Path(data["project"]).name
+            site_dir = Path.home() / "htmlninefox-output" / name / "site"
+            pages = {}
+            for slug in ("index", "details", "about"):
+                f = site_dir / f"{slug}.html"
+                assert f.is_file(), f"缺 {f}"
+                pages[slug] = f.read_text(encoding="utf-8")
+            sj = site_dir / "site.json"
+            assert sj.is_file(), "缺 site.json"
+            parsed = json.loads(sj.read_text(encoding="utf-8"))
+            assert parsed.get("kind") == "site" and len(parsed.get("pages")) == 3
+            # 导航互达：每页都有到其他两页的相对链接
+            for slug, html in pages.items():
+                assert 'data-site-nav="1"' in html, f"{slug} 无站点导航"
+                for other in ("index", "details", "about"):
+                    href = "./index.html" if other == "index" else f"./{other}.html"
+                    assert f'href="{href}"' in html, f"{slug} 缺到 {other} 的链接"
+            # 交付包含站点（zip 结构）
+            data, code = api.post("/api/exports/bundle", {"project_name": name},
+                                  timeout=60)
+            assert code in (200, 202), (code, str(data)[:150])
+            if code == 202:
+                job = wait_job(data["job"]["id"])
+                data = job.get("result") or {}
+            with zipfile.ZipFile(Path(data["zip"])) as zf:
+                for arc in ("site/index.html", "site/details.html",
+                            "site/about.html", "site/site.json"):
+                    assert arc in zf.namelist(), f"zip 缺 {arc}"
+            return "三页落盘 · 导航互达 · zip 含 site/ ✓"
+        check("14 多页站点端到端：识别→组装→导航互达→zip (0.9.7)", _site_generate)
+
     finally:
         subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)],
                        capture_output=True)

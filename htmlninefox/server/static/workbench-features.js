@@ -659,11 +659,12 @@ async function analyzeCreation() {
     const motionBadge = analysis.motion?.name
       ? `<span>🎬 ${esc(analysis.motion.name)}</span>` : '';
     const toneChip = analysis.tone ? `<span>调性 · ${esc(analysis.tone)}</span>` : '';
+    const siteChip = analysis.site_plan ? `<span>🌐 整站 · ${analysis.site_plan.pages.length} 页（勾选「生成整站」后生成）</span>` : '';
     const styleReason = analysis.style_reason
       ? `<div class="recommend-desc" style="margin-top:8px">💡 ${esc(analysis.style_reason)}</div>` : '';
     creationDraft.polish = {};
     const polishArea = `<div class="flow-field" style="margin-top:12px"><button class="btn btn-secondary" data-action="polishSlots">✨ 文案润色（AI 建议 · 逐槽采纳）</button><div id="polish-result" style="margin-top:8px"></div></div>`;
-    $('#creation-analysis').innerHTML = `<div class="analysis-chips"><span>${esc(INTENT_LABEL[analysis.intent])}</span><span>${esc(analysis.preset_id)}</span>${motionBadge}${toneChip}<span>${analysis.engine === 'llm' ? 'AI 模型' : '离线规则'}</span><span>置信度 ${Math.round((analysis.confidence || 0)*100)}%</span></div>
+    $('#creation-analysis').innerHTML = `<div class="analysis-chips"><span>${esc(INTENT_LABEL[analysis.intent])}</span><span>${esc(analysis.preset_id)}</span>${motionBadge}${toneChip}${siteChip}<span>${analysis.engine === 'llm' ? 'AI 模型' : '离线规则'}</span><span>置信度 ${Math.round((analysis.confidence || 0)*100)}%</span></div>
       <div class="recommend-title">${esc(item.name)}</div><div class="recommend-desc">${esc(item.description)}</div>${styleReason}
       ${polishArea}
       <div class="recommend-preview"><iframe src="${esc(item.preview_url)}" sandbox="allow-scripts allow-same-origin"></iframe></div>
@@ -748,6 +749,7 @@ function ensureCreationRequirement() {
   requirement.data.tone = ($('#creation-tone') ? $('#creation-tone').value : '') || null;
   requirement.data.polish = Object.assign({}, creationDraft.polish || {});
   requirement.data.workflow = ($('#creation-workflow') ? $('#creation-workflow').value : '') || null;
+  requirement.data.site = !!($('#creation-site') && $('#creation-site').checked);
   requirement.title = '创作需求';
   creationDraft.inputs.forEach((item, index) => {
     if (!membersOf(ws).some(node => node.kind === 'source' && node.data.input_id === item.id)) {
