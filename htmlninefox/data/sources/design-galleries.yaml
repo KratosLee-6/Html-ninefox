@@ -4,6 +4,14 @@
 #   reference       — 可参考结构与风格，只提取令牌/骨架，产出必须原创重渲染
 #   inspiration-only — 仅截图进灵感板，不提取代码
 sources:
+  # ---- 真实产品 UI 参考（0.9.8 机主指定 · 模板视觉翻新的主参考源）----
+  - id: refero-design
+    name: Refero 真实产品 UI/UX 截图库
+    kind: gallery
+    license_class: inspiration-only   # 截图版权归各原产品：只学设计语言（排版节奏/层次/构图/密度），不复制资产、截图不进产物与帖
+    entry_url: https://refero.design/
+    rate_limit: { requests_per_minute: 4 }
+    notes: 按 Page Types/Flows/UX Patterns/UI Elements/Sites 五维组织；有 MCP 接口（联盟接入待机主确认账号成本）。评估见 docs/EVAL-refero-design-20261116.md
   # ---- 画廊（gallery）----
   - id: land-book
     name: Land-book 网页画廊
