@@ -62,10 +62,10 @@
       "id": "guizang-indigo-research",
       "name": "归藏 · 靛蓝研究档案",
       "intent": "deck",
-      "preset_id": "guizang-magazine",
+      "preset_id": "fox-soft-silver",
       "category": "research",
-      "origin": "归藏式电子杂志方法 · Html九尾狐原创演示",
-      "description": "靛蓝瓷主题、研究档案编号与证据网格，适合技术、研究和行业报告。",
+      "origin": "柔和银灰基调 · Html九尾狐原创演示（方法参考：归藏式编辑设计）",
+      "description": "柔和银灰研究档案：研究编号与证据网格，适合研究简报与周度汇报（deck 同质化重排：原 guizang-magazine）。",
       "pages": [
         {
           "id": "cover",
@@ -113,7 +113,7 @@
       "file": "guizang-indigo-research.html",
       "license": "original",
       "tone": "editorial",
-      "family": "guizang"
+      "family": "fox"
     },
     {
       "id": "guizang-swiss-signal",
@@ -451,6 +451,271 @@
       "file": "fox-swiss-archdoc.html",
       "tone": "professional",
       "family": "fox-swiss"
+    },
+    {
+      "id": "fox-vercel-landing",
+      "name": "星野 · 部署平台产品页",
+      "intent": "landing",
+      "preset_id": "vercel-dark",
+      "category": "product",
+      "origin": "Vercel 暗夜基调 · Html九尾狐原创演示",
+      "license": "original",
+      "description": "深色开发者产品首页：即时预览/原子回滚/日志流三支柱 + 数字证明页，适合工具与平台类产品。",
+      "tone": "dark",
+      "family": "vercel",
+      "file": "fox-vercel-landing.html",
+      "pages": [
+        {
+          "id": "hero",
+          "name": "首页",
+          "block_id": "hero"
+        },
+        {
+          "id": "features",
+          "name": "能力",
+          "block_id": "features"
+        },
+        {
+          "id": "metrics",
+          "name": "数字",
+          "block_id": "metrics"
+        },
+        {
+          "id": "cta",
+          "name": "开始",
+          "block_id": "cta"
+        }
+      ]
+    },
+    {
+      "id": "fox-linear-doc",
+      "name": "星野 · 接入文档",
+      "intent": "doc",
+      "preset_id": "linear-light",
+      "category": "guide",
+      "origin": "Linear 浅色基调 · Html九尾狐原创演示",
+      "license": "original",
+      "description": "克制浅色接入文档：三步接入/接口参考/常见问题，行式条目适合工程师快速扫读。",
+      "tone": "minimal",
+      "family": "linear",
+      "file": "fox-linear-doc.html",
+      "pages": [
+        {
+          "id": "overview",
+          "name": "快速开始",
+          "block_id": "overview"
+        },
+        {
+          "id": "api",
+          "name": "接口",
+          "block_id": "api"
+        },
+        {
+          "id": "faq",
+          "name": "FAQ",
+          "block_id": "faq"
+        }
+      ]
+    },
+    {
+      "id": "fox-duotone-poster",
+      "name": "九尾狐 · 双色调展览海报",
+      "intent": "poster",
+      "preset_id": "fox-duotone-studio",
+      "category": "event",
+      "origin": "双色调工作室基调 · Html九尾狐原创演示",
+      "license": "original",
+      "description": "双色调分栏展览海报：双城巡展与参观指南，左右色块各自承载一座城市的信息。",
+      "tone": "editorial",
+      "family": "fox",
+      "file": "fox-duotone-poster.html",
+      "pages": [
+        {
+          "id": "poster",
+          "name": "主视觉",
+          "block_id": "poster"
+        },
+        {
+          "id": "details",
+          "name": "参观指南",
+          "block_id": "details"
+        }
+      ]
+    },
+    {
+      "id": "fox-soft-dashboard",
+      "name": "星野 · 客户成功面板",
+      "intent": "dashboard",
+      "preset_id": "fox-soft-silver",
+      "category": "ops",
+      "origin": "柔和银灰基调 · Html九尾狐原创演示",
+      "license": "original",
+      "description": "柔和银灰数据面板：指标卡/漏斗/服务健康三页，长时值守不刺眼。",
+      "tone": "professional",
+      "family": "fox",
+      "file": "fox-soft-dashboard.html",
+      "pages": [
+        {
+          "id": "overview",
+          "name": "总览",
+          "block_id": "overview"
+        },
+        {
+          "id": "funnel",
+          "name": "漏斗",
+          "block_id": "funnel"
+        },
+        {
+          "id": "health",
+          "name": "健康",
+          "block_id": "health"
+        }
+      ]
+    },
+    {
+      "id": "fox-vercel-archdoc",
+      "name": "星野 · 架构决策记录",
+      "intent": "archdoc",
+      "preset_id": "vercel-dark",
+      "category": "adr",
+      "origin": "Vercel 暗夜基调 · Html九尾狐原创演示",
+      "license": "original",
+      "description": "暗色架构决策记录（ADR）：背景/决策/代价与护栏三页，适合技术评审与留档。",
+      "tone": "techy",
+      "family": "vercel",
+      "file": "fox-vercel-archdoc.html",
+      "pages": [
+        {
+          "id": "context",
+          "name": "背景",
+          "block_id": "context"
+        },
+        {
+          "id": "decision",
+          "name": "决策",
+          "block_id": "decision"
+        },
+        {
+          "id": "tradeoffs",
+          "name": "代价",
+          "block_id": "tradeoffs"
+        }
+      ]
+    },
+    {
+      "id": "fox-pixel-poster",
+      "name": "九尾狐 · 像素花园直播海报",
+      "intent": "poster",
+      "preset_id": "fox-pixel-garden",
+      "category": "event",
+      "origin": "像素花园基调 · Html九尾狐原创演示",
+      "license": "original",
+      "description": "像素质感直播海报：主视觉与当晚流程，颗粒底纹配高活力撞色。",
+      "tone": "vibrant",
+      "family": "fox",
+      "file": "fox-pixel-poster.html",
+      "pages": [
+        {
+          "id": "poster",
+          "name": "主视觉",
+          "block_id": "poster"
+        },
+        {
+          "id": "details",
+          "name": "流程",
+          "block_id": "details"
+        }
+      ]
+    },
+    {
+      "id": "fox-linear-dashboard",
+      "name": "狐构 · 迭代进度看板",
+      "intent": "dashboard",
+      "preset_id": "linear-light",
+      "category": "ops",
+      "origin": "Linear 浅色基调 · Html九尾狐原创演示",
+      "license": "original",
+      "description": "浅色三列迭代看板：进行中/待办/已完成 + 燃尽与纪要，适合周报与 sprint 汇报。",
+      "tone": "minimal",
+      "family": "linear",
+      "file": "fox-linear-dashboard.html",
+      "pages": [
+        {
+          "id": "board",
+          "name": "看板",
+          "block_id": "board"
+        },
+        {
+          "id": "burndown",
+          "name": "燃尽",
+          "block_id": "burndown"
+        },
+        {
+          "id": "notes",
+          "name": "纪要",
+          "block_id": "notes"
+        }
+      ]
+    },
+    {
+      "id": "fox-guizang-doc",
+      "name": "归藏 · 深度长文",
+      "intent": "doc",
+      "preset_id": "guizang-magazine",
+      "category": "essay",
+      "origin": "归藏式编辑设计 · Html九尾狐原创演示（AGPL-out-of-scope：clean-room 原创）",
+      "license": "AGPL-out-of-scope",
+      "description": "杂志感长文页：封面/论证/结语三页，衬线正文 + 引言拉排，适合深度内容与专栏。",
+      "tone": "editorial",
+      "family": "guizang",
+      "file": "fox-guizang-doc.html",
+      "pages": [
+        {
+          "id": "cover",
+          "name": "封面",
+          "block_id": "cover"
+        },
+        {
+          "id": "body",
+          "name": "论证",
+          "block_id": "body"
+        },
+        {
+          "id": "closing",
+          "name": "结语",
+          "block_id": "closing"
+        }
+      ]
+    },
+    {
+      "id": "fox-soft-archdoc",
+      "name": "星野 · 技术方案评审",
+      "intent": "archdoc",
+      "preset_id": "fox-soft-silver",
+      "category": "rfc",
+      "origin": "柔和银灰基调 · Html九尾狐原创演示",
+      "license": "original",
+      "description": "柔和银灰技术方案评审（RFC）：提案/备选/决定三页，适合架构与流程类决策留档。",
+      "tone": "professional",
+      "family": "fox",
+      "file": "fox-soft-archdoc.html",
+      "pages": [
+        {
+          "id": "proposal",
+          "name": "提案",
+          "block_id": "proposal"
+        },
+        {
+          "id": "compare",
+          "name": "备选",
+          "block_id": "compare"
+        },
+        {
+          "id": "decision",
+          "name": "决定",
+          "block_id": "decision"
+        }
+      ]
     }
   ]
 }

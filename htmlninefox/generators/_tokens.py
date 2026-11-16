@@ -290,6 +290,12 @@ def get_preset(preset_id: str) -> Dict[str, Any]:
     return PRESETS.get(preset_id, PRESETS[DEFAULT_PRESET])
 
 
+def list_presets() -> list[Dict[str, Any]]:
+    """全部预设（0.9.8：画廊契约的 preset 覆盖检查靠它从软门变硬门——
+    之前 hasattr 守卫下 4 家闲置 preset 漏网）。"""
+    return [dict(p) for p in PRESETS.values()]
+
+
 def match_preset(brief: dict, intent: str) -> Dict[str, Any]:
     """规则匹配：brief.style.tone + 内容类型 + 命中关键词 → 预设。
 

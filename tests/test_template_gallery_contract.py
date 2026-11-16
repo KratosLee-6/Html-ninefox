@@ -68,3 +68,14 @@ def test_every_declared_page_exists_in_the_html(tmp_path: Path) -> None:
                 f"{item['id']} 声明了页面 {page['id']}，但 HTML 里没有对应 .page"
         title_match = "<title>" in html
         assert title_match, f"{item['id']} 缺少 <title>"
+
+
+def test_every_intent_has_at_least_three_templates() -> None:
+    """B 档门槛（0.9.8）：每意图 ≥3 张——「先看真实 HTML 再选」对六类产物
+    都成立，而不是只有 deck 看得见。"""
+    from collections import Counter
+
+    counts = Counter(item["intent"] for item in _manifest_items())
+    for intent in sorted(SIX_INTENTS):
+        assert counts[intent] >= 3, f"{intent} 只有 {counts[intent]} 张模板（B 档要求 ≥3）"
+    assert len(_manifest_items()) >= 18, "B 档画廊总量应 ≥18 张"

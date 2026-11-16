@@ -1343,6 +1343,7 @@ function renderPalette() {
   for (const it of items) {
     if (it.group) { html += `<div class="pal-group-title">${it.group}</div>`; continue; }
     if (it.header) { html += `<div class="pal-hint">${it.header}</div>`; continue; }
+    if (it.toneChips) { html += it.toneChips; continue; }
     if (q && !(it.name || '').toLowerCase().includes(q)) continue;
     let preview = '';
     if (it.previewUrl) preview=previewThumb(it.previewUrl,it.previewIntent,it.previewTemplate||'',it.name||it.t,it.galleryId||'',it.galleryPageId||'');
@@ -1358,6 +1359,8 @@ function renderPalette() {
   }
   $('#pal').innerHTML = html || '<div class="pal-hint">无匹配</div>';
   activatePreviewFrames();
+  document.querySelectorAll('#pal [data-tone-filter]').forEach(button=>button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();
+    if (typeof window.FoxPaletteToneFilter === 'function') { window.FoxPaletteToneFilter(button.dataset.toneFilter); renderPalette(); }}));
   document.querySelectorAll('#pal .preview-open').forEach(button=>button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(button.dataset.galleryId)openGalleryPreview(button.dataset.galleryId,button.dataset.galleryPageId||'');else openTemplatePreview(button.dataset.previewIntent,button.dataset.previewTemplate,button.dataset.previewTitle);}));
   document.querySelectorAll('#pal .gallery-delete').forEach(button=>button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();deleteUserGallery(button.dataset.galleryDelete);}));
   document.querySelectorAll('#pal .pal-card').forEach(cardEl => {

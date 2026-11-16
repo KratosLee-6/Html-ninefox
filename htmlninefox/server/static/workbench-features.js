@@ -149,7 +149,17 @@ function galleryPageData(item, page) {
    刻意保持「保存原实现再叠加」的语义：originalStylesPalette 必须先抓下来，
    因为 PALETTE.styles 会被这份文件整体替换掉，而替换后的实现末尾还要把
    非分组的原生项拼回来。把 PALETTE 冻结成只读会让这段静默失效。 */
+/* 0.9.8 模板市场：调性筛选状态（'' = 全部）。
+   bridge 是函数内挂载（顶层 window 赋值会被 pure 门禁拦）——
+   workbenchPaletteLayouts() 首次渲染即调它，chips 点击发生在渲染后。 */
+let paletteToneFilter = '';
+const TONE_FILTERS = [['', '全部'], ['dark', '暗夜'], ['minimal', '极简'], ['editorial', '杂志感'], ['vibrant', '高活力'], ['professional', '专业'], ['techy', '极客']];
+function ensureToneFilterBridge() {
+  window.FoxPaletteToneFilter = value => { paletteToneFilter = value || ''; };
+}
+
 function workbenchPaletteLayouts() {
+  ensureToneFilterBridge();
   const privateItems = state.gallery.filter(item => item.source === 'user');
   const builtInItems = state.gallery.filter(item => item.source !== 'user');
   const cards = items => items.map(item => ({
@@ -159,6 +169,7 @@ function workbenchPaletteLayouts() {
       en:item.description,
       galleryCard:true,
       galleryId:item.id,
+      tone:item.tone || '',
       previewUrl:item.preview_url,
       previewIntent:item.intent,
       previewTemplate:item.preset_id,
@@ -166,11 +177,30 @@ function workbenchPaletteLayouts() {
       drag:{ kind:'template', data:galleryTemplateData(item) },
     }));
   if (!state.gallery.length) return [{ header:'真实模板作品加载中…' }];
+  const tone = paletteToneFilter;
+  const toneChips = [{ toneChips: '<div class="tone-filter" role="group" aria-label="按调性筛选">'
+    + TONE_FILTERS.map(([value, label]) =>
+      `<button type="button" data-tone-filter="${value}"${tone === value ? ' data-tone-active="1"' : ''}>${label}</button>`
+    ).join('') + '</div>' }];
+  const filtered = tone
+    ? builtInItems.filter(item => (item.tone || '') === tone)
+    : builtInItems;
+  const byIntent = {};
+  for (const item of filtered) (byIntent[item.intent] = byIntent[item.intent] || []).push(item);
+  const intentOrder = ['landing', 'deck', 'poster', 'dashboard', 'doc', 'archdoc'];
+  const intentGroups = intentOrder
+    .filter(intent => byIntent[intent] && byIntent[intent].length)
+    .map(intent => ({ intent, cards: cards(byIntent[intent]) }));
+  const emptyNote = filtered.length ? [] : [{ header: '该调性暂无模板——换一个调性试试。' }];
   return [
+    ...toneChips,
     { group:'私人模板 · 用得越多，推荐越靠前' },
     ...(privateItems.length ? cards(privateItems) : [{ header:'可导入单个 HTML，或包含资源的完整文件夹。私人模板只保存在本地。' }]),
-    { group:'内置真实 HTML 模板 · 放大查看全部页面' },
-    ...cards(builtInItems),
+    ...intentGroups.flatMap(g => [
+      { group: `${INTENT_LABEL[g.intent] || g.intent} · ${g.cards.length} 张` },
+      ...g.cards,
+    ]),
+    ...emptyNote,
   ];
 }
 

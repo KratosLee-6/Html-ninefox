@@ -102,6 +102,16 @@ input,textarea,select { font-family:inherit; }
 .pal-list::-webkit-scrollbar { width:8px; } .pal-list::-webkit-scrollbar-thumb { background:var(--border-default); border-radius:4px; }
 .pal-group-title { font-size:var(--fs-sm); color:var(--text-tertiary); text-transform:uppercase;
   letter-spacing:.1em; margin:10px 2px 6px; }
+/* 0.9.8 模板市场 · 调性筛选 chips（文字用主题感知的 --accent——
+   --text-primary 是全主题共用墨色，pixel-night 深底上只有 2.44:1；
+   间距全部走 spacing token，裸 px 会把 spacing burn-down 基线 +1） */
+.tone-filter { display:flex; flex-wrap:wrap; gap:var(--space-2); margin:var(--space-2) 2px 4px; }
+.tone-filter button { font:600 12px/1 var(--font-ui, Inter, sans-serif); color:var(--accent);
+  background:var(--bg-panel); border:1px solid var(--line-soft); border-radius:999px;
+  padding:var(--space-2) var(--space-3); cursor:pointer; transition:border-color .12s, color .12s, background .12s; }
+.tone-filter button:hover { border-color:var(--accent); }
+.tone-filter button[data-tone-active="1"] { background:var(--accent); border-color:var(--accent);
+  color:var(--bg-base); font-weight:700; }
 .pal-card { background:var(--bg-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius);
   padding:var(--space-2); margin-bottom:7px; cursor:grab; transition:border-color .12s, transform .12s; user-select:none; }
 .pal-card:hover { border-color:var(--accent); transform:translateY(-1px); }
